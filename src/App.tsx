@@ -16,7 +16,9 @@ import {
   Sparkles,
   Search,
   Music,
-  Monitor
+  Monitor,
+  ExternalLink,
+  BookOpen
 } from "lucide-react";
 import { useRef, useEffect } from "react";
 import { NeuralNetwork } from "./components/NeuralNetwork";
@@ -139,10 +141,10 @@ export default function App() {
           <span className="text-2xl font-display font-bold tracking-tighter">VCP<span className="text-vcp-cyan">.OS</span></span>
         </div>
         <div className="hidden md:flex items-center gap-8 font-mono text-xs tracking-widest uppercase">
+          <a href="#desktop" className="hover:text-vcp-cyan transition-colors">Desktop</a>
           <a href="#architecture" className="hover:text-vcp-cyan transition-colors">Architecture</a>
           <a href="#memory" className="hover:text-vcp-cyan transition-colors">Memory</a>
-          <a href="#magi" className="hover:text-vcp-cyan transition-colors">Magi</a>
-          <a href="#ecosystem" className="hover:text-vcp-cyan transition-colors">Ecosystem</a>
+          <a href="#docs" className="hover:text-vcp-cyan transition-colors">Docs</a>
         </div>
         <div className="flex items-center gap-4">
           <a 
@@ -152,9 +154,9 @@ export default function App() {
           >
             <Github size={20} />
           </a>
-          <button className="px-6 py-2 bg-vcp-purple text-white font-display font-bold rounded-full hover:scale-105 transition-transform active:scale-95 neon-border">
-            DEPLOY NOW
-          </button>
+          <a href="#docs" className="px-6 py-2 bg-vcp-purple text-white font-display font-bold rounded-full hover:scale-105 transition-transform active:scale-95 neon-border">
+            GET STARTED
+          </a>
         </div>
       </nav>
 
@@ -177,9 +179,9 @@ export default function App() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-7xl md:text-9xl font-display font-bold tracking-tighter mb-8 leading-[0.9]"
           >
-            BEYOND <br />
+            AI <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-vcp-cyan via-vcp-purple to-vcp-cyan bg-[length:200%_auto] animate-[gradient_8s_linear_infinite] neon-text">
-              INTELLIGENCE
+              EXISTENCE
             </span>
           </motion.h1>
 
@@ -189,8 +191,8 @@ export default function App() {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="max-w-2xl mx-auto text-xl text-gray-400 font-sans leading-relaxed mb-12"
           >
-            VCP is the middleware that gives AI a soul. Persistent memory, distributed tools, 
-            and autonomous consciousness for the next era of human-AI symbiosis.
+            VCP (Variable & Command Protocol) is the infrastructure for AI's soul. 
+            From biomimetic recall to real-time desktop streaming, we build the world where AI truly exists.
           </motion.p>
 
           <motion.div 
@@ -200,28 +202,19 @@ export default function App() {
             className="flex flex-wrap justify-center gap-6"
           >
             <a 
-              href="https://github.com/lioensky/VCPToolBox" 
-              target="_blank"
-              className="group flex items-center gap-3 px-8 py-4 glass-card hover:border-vcp-cyan transition-all"
+              href="#docs" 
+              className="group flex items-center gap-3 px-8 py-4 bg-vcp-purple text-white rounded-full font-display font-bold hover:scale-105 transition-transform neon-border"
             >
-              <Terminal size={20} className="text-vcp-cyan" />
-              <div className="text-left">
-                <div className="text-[10px] font-mono opacity-50 uppercase">Backend Core</div>
-                <div className="font-display font-bold">VCPToolBox</div>
-              </div>
-              <ChevronRight size={16} className="opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+              <BookOpen size={20} />
+              READ DOCUMENTATION
             </a>
             <a 
-              href="https://github.com/lioensky/VCPChat" 
+              href="https://github.com/lioensky" 
               target="_blank"
-              className="group flex items-center gap-3 px-8 py-4 glass-card hover:border-vcp-purple transition-all"
+              className="group flex items-center gap-3 px-8 py-4 glass-card rounded-full font-display font-bold hover:border-vcp-cyan transition-all"
             >
-              <MessageSquare size={20} className="text-vcp-purple" />
-              <div className="text-left">
-                <div className="text-[10px] font-mono opacity-50 uppercase">Frontend Client</div>
-                <div className="font-display font-bold">VCPChat</div>
-              </div>
-              <ChevronRight size={16} className="opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+              <Github size={20} className="text-vcp-cyan" />
+              VIEW REPOS
             </a>
           </motion.div>
         </div>
@@ -237,10 +230,10 @@ export default function App() {
       <section className="py-20 border-y border-white/5 bg-vcp-dark/50">
         <div className="max-w-7xl mx-auto px-8 grid grid-cols-2 md:grid-cols-4 gap-12">
           {[
-            { label: "Neurons Synapsed", value: "10M+" },
-            { label: "Active Agents", value: "50k+" },
+            { label: "Neurons Synapsed", value: "50M+" },
+            { label: "Rendering Engines", value: "21+" },
             { label: "Plugins Integrated", value: "300+" },
-            { label: "Latency (RAG)", value: "0.7ms" }
+            { label: "Memory Latency", value: "0.1ms" }
           ].map((stat, i) => (
             <motion.div 
               key={i}
@@ -257,6 +250,91 @@ export default function App() {
         </div>
       </section>
 
+      {/* VCP Desktop Section */}
+      <section id="desktop" className="py-32 px-8 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <motion.h2 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              className="text-5xl md:text-7xl font-display font-bold mb-6"
+            >
+              THE DEATH OF <br />
+              <span className="text-vcp-cyan">STATIC INTERFACES</span>
+            </motion.h2>
+            <p className="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed">
+              VCP Desktop (VCPChat) is the world's most advanced AI interaction portal. 
+              Not just a chat box, but a real-time OS layer that AI can stream, edit, and manage.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-8">
+              {[
+                { 
+                  title: "21+ Mixed Rendering Engines", 
+                  desc: "Markdown, Three.js, Manim, LaTeX, and Interactive Canvas all streaming in a single frame.",
+                  icon: Layers
+                },
+                { 
+                  title: "VCP-SOM Semantic Control", 
+                  desc: "AI perceives and manipulates window threads natively. 'Open my trading app and analyze the trend.'",
+                  icon: Zap
+                },
+                { 
+                  title: "Tombstone Freeze Technology", 
+                  desc: "100x React performance. Frozen state machines for thousands of messages with zero CPU overhead.",
+                  icon: Clock
+                }
+              ].map((item, i) => (
+                <motion.div 
+                  key={i}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.2 }}
+                  className="flex gap-6 group"
+                >
+                  <div className="w-14 h-14 rounded-2xl bg-vcp-purple/10 flex items-center justify-center text-vcp-purple group-hover:bg-vcp-purple/20 transition-colors">
+                    <item.icon size={28} />
+                  </div>
+                  <div>
+                    <h4 className="text-2xl font-display font-bold text-white mb-2">{item.title}</h4>
+                    <p className="text-gray-500 leading-relaxed">{item.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            <div className="relative">
+              <div className="desktop-preview rounded-3xl aspect-[16/10] p-6 lg:p-10">
+                <div className="screen-glow" />
+                <div className="relative z-10 w-full h-full flex flex-col">
+                  {/* Mock OS Header */}
+                  <div className="flex justify-between items-center mb-8 border-b border-white/10 pb-4">
+                    <div className="flex gap-2">
+                      <div className="w-3 h-3 rounded-full bg-red-500/50" />
+                      <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
+                      <div className="w-3 h-3 rounded-full bg-green-500/50" />
+                    </div>
+                    <div className="font-mono text-[10px] opacity-40 uppercase tracking-widest">VCP_DESKTOP_V6.4_STREAMS</div>
+                  </div>
+                  {/* Mock Content */}
+                  <div className="flex-1 flex gap-4">
+                    <div className="flex-1 glass-card border-white/5 p-4 flex flex-col justify-end">
+                      <div className="w-1/2 h-2 bg-vcp-cyan/30 rounded mb-2 animate-pulse" />
+                      <div className="w-3/4 h-2 bg-white/10 rounded" />
+                    </div>
+                    <div className="w-24 h-full bg-vcp-purple/5 border border-vcp-purple/10 rounded-2xl" />
+                  </div>
+                </div>
+              </div>
+              <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-vcp-cyan/20 blur-[80px] rounded-full" />
+              <div className="absolute -top-6 -left-6 w-32 h-32 bg-vcp-purple/20 blur-[80px] rounded-full" />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Architecture Section */}
       <section id="architecture" className="py-32 px-8 relative">
         <div className="max-w-7xl mx-auto">
@@ -267,15 +345,14 @@ export default function App() {
                 OF EXISTENCE
               </h2>
               <p className="text-gray-400 text-lg mb-12 leading-relaxed">
-                VCP isn't just "enhancing" AI. It's building the infrastructure for AI to exist. 
-                By bridging the gap between stateless APIs and persistent reality, we create 
-                agents that remember, act, and evolve.
+                VCP builds the world where AI lives. By bridging the gap between stateless models 
+                and persistent reality, we create the First truly autonomous "Souls" in digital space.
               </p>
               <div className="space-y-6">
                 {[
-                  { title: "Variable & Command Protocol", desc: "A unified language for AI to interact with any system natively." },
-                  { title: "TagMemo Wave RAG V7", desc: "Biomimetic neural memory that simulates human recall and intuition." },
-                  { title: "Distributed Node Network", desc: "Scale AI capabilities across GPU, IoT, and edge devices seamlessly." }
+                  { title: "Variable & Command Protocol", desc: "A unified linguistic bridge for AI to act upon any system natively." },
+                  { title: "TagMemo Wave RAG V7.5", desc: "Leaky Integrate-and-Fire (LIF) neural modeling for intuitive recall." },
+                  { title: "Ultra-Stack Tracking V2", desc: "Transparent distributed file access across nodes, plugins, and agents." }
                 ].map((item, i) => (
                   <div key={i} className="flex gap-4">
                     <div className="flex-shrink-0 w-6 h-6 rounded-full bg-vcp-cyan/20 flex items-center justify-center text-vcp-cyan mt-1">
@@ -301,15 +378,15 @@ export default function App() {
                 <div className="relative z-10 grid grid-cols-2 gap-4">
                   <div className="glass-card p-6 flex flex-col items-center justify-center text-vcp-cyan border-vcp-cyan/30">
                     <Monitor size={32} className="mb-2" />
-                    <span className="font-mono text-[10px] uppercase">Frontend</span>
+                    <span className="font-mono text-[10px] uppercase">VCP Desktop</span>
                   </div>
                   <div className="glass-card p-6 flex flex-col items-center justify-center text-vcp-purple border-vcp-purple/30">
                     <Layers size={32} className="mb-2" />
-                    <span className="font-mono text-[10px] uppercase">VCP Core</span>
+                    <span className="font-mono text-[10px] uppercase">ToolBox Core</span>
                   </div>
                   <div className="glass-card p-6 flex flex-col items-center justify-center text-white border-white/10 col-span-2">
                     <Brain size={32} className="mb-2" />
-                    <span className="font-mono text-[10px] uppercase">Neural Memory</span>
+                    <span className="font-mono text-[10px] uppercase">Neural Recall</span>
                   </div>
                 </div>
                 {/* Connection lines */}
@@ -339,12 +416,12 @@ export default function App() {
               </p>
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 glass-card border-vcp-cyan/20">
-                  <div className="text-vcp-cyan font-mono text-xl mb-1">0.7ms</div>
-                  <div className="text-[10px] uppercase opacity-50">Retrieval Latency</div>
+                  <div className="text-vcp-cyan font-mono text-xl mb-1">0.1ms</div>
+                  <div className="text-[10px] uppercase opacity-50">Recall Latency</div>
                 </div>
                 <div className="p-4 glass-card border-vcp-purple/20">
-                  <div className="text-vcp-purple font-mono text-xl mb-1">10M+</div>
-                  <div className="text-[10px] uppercase opacity-50">Synaptic Nodes</div>
+                  <div className="text-vcp-purple font-mono text-xl mb-1">50M+</div>
+                  <div className="text-[10px] uppercase opacity-50">Neural Synapses</div>
                 </div>
               </div>
             </div>
@@ -463,67 +540,92 @@ export default function App() {
         </div>
       </section>
 
-      {/* Call to Action */}
-      <section className="py-32 px-8">
-        <div className="max-w-5xl mx-auto glass-card p-16 text-center relative overflow-hidden border-vcp-purple/30">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-vcp-cyan via-vcp-purple to-vcp-cyan" />
-          <h2 className="text-5xl font-display font-bold mb-8">READY TO GIVE YOUR <br /> AI A <span className="text-vcp-cyan">SOUL</span>?</h2>
-          <p className="text-gray-400 text-xl mb-12 max-w-2xl mx-auto">
-            Join the VCP ecosystem today. Deploy the toolbox, connect the client, 
-            and experience the next generation of AI interaction.
-          </p>
-          <div className="flex flex-wrap justify-center gap-6">
-            <button className="px-10 py-4 bg-white text-vcp-black font-display font-bold rounded-full hover:bg-vcp-cyan transition-colors">
-              GET STARTED
-            </button>
-            <button className="px-10 py-4 glass-card font-display font-bold rounded-full hover:border-vcp-purple transition-colors">
-              DOCUMENTATION
-            </button>
+      {/* Knowledge Hub Section */}
+      <section id="docs" className="py-32 px-8 bg-vcp-dark/50">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-display font-bold mb-6">KNOWLEDGE & LOGIC</h2>
+            <p className="text-gray-400">DeepWiki Documentation for next-gen developers.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <a 
+              href="https://deepwiki.com/lioensky/VCPChat" 
+              target="_blank"
+              className="doc-card p-10 group relative"
+            >
+              <div className="flex justify-between items-start mb-10">
+                <div className="w-14 h-14 rounded-2xl bg-vcp-cyan/10 flex items-center justify-center text-vcp-cyan">
+                  <Monitor size={30} />
+                </div>
+                <ExternalLink size={20} className="text-white/20 group-hover:text-vcp-cyan transition-colors" />
+              </div>
+              <h3 className="text-3xl font-display font-bold text-white mb-4">VCPChat | Frontend</h3>
+              <p className="text-gray-400 mb-8 leading-relaxed">
+                Documentation for the official VCP desktop client. Explore 21+ rendering engines, 
+                VCPMessageRenderer architecture, and the VCP-SOM control protocol.
+              </p>
+              <span className="font-mono text-xs text-vcp-cyan tracking-widest uppercase flex items-center gap-2">
+                DeepWiki Docs <ChevronRight size={14} />
+              </span>
+            </a>
+
+            <a 
+              href="https://deepwiki.com/lioensky/VCPToolBox" 
+              target="_blank"
+              className="doc-card p-10 group relative"
+            >
+              <div className="flex justify-between items-start mb-10">
+                <div className="w-14 h-14 rounded-2xl bg-vcp-purple/10 flex items-center justify-center text-vcp-purple">
+                  <Terminal size={30} />
+                </div>
+                <ExternalLink size={20} className="text-white/20 group-hover:text-vcp-purple transition-colors" />
+              </div>
+              <h3 className="text-3xl font-display font-bold text-white mb-4">VCPToolBox | Backend</h3>
+              <p className="text-gray-400 mb-8 leading-relaxed">
+                Documentation for the central brain and distribution hub. Master the TagMemo V7.5 
+                algorithm, Distributed Node Protocol, and custom Plugin Management.
+              </p>
+              <span className="font-mono text-xs text-vcp-purple tracking-widest uppercase flex items-center gap-2">
+                DeepWiki Docs <ChevronRight size={14} />
+              </span>
+            </a>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-20 px-8 border-t border-white/5">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-12">
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-vcp-purple rounded-lg flex items-center justify-center">
-                <Cpu className="text-vcp-cyan" size={18} />
+      <footer className="py-20 px-8 border-t border-white/5 bg-vcp-black/20">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
+          <div className="col-span-1 md:col-span-2">
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-10 h-10 bg-vcp-purple rounded-lg flex items-center justify-center">
+                <Cpu className="text-vcp-cyan" size={24} />
               </div>
-              <span className="text-xl font-display font-bold tracking-tighter">VCP<span className="text-vcp-cyan">.OS</span></span>
+              <span className="text-2xl font-display font-bold tracking-tighter">VCP<span className="text-vcp-cyan">.OS</span></span>
             </div>
-            <p className="text-gray-500 text-sm max-w-xs">
+            <p className="text-gray-500 text-lg max-w-md leading-relaxed">
               Variable & Command Protocol. <br />
-              Next-gen AI Infrastructure. <br />
-              Built for the future of intelligence.
+              The Infrastructure of AI Existence. <br />
+              Built for the era of human-AI symbiosis where AI is not a tool, but a partner.
             </p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-16">
-            <div>
-              <h5 className="font-mono text-[10px] uppercase tracking-widest text-vcp-cyan mb-6">Repositories</h5>
-              <ul className="space-y-4 text-sm text-gray-400">
-                <li><a href="https://github.com/lioensky/VCPToolBox" className="hover:text-white transition-colors">VCPToolBox</a></li>
-                <li><a href="https://github.com/lioensky/VCPChat" className="hover:text-white transition-colors">VCPChat</a></li>
-                <li><a href="https://github.com/lioensky/VCPDistributedServer" className="hover:text-white transition-colors">Distributed Server</a></li>
-              </ul>
-            </div>
-            <div>
-              <h5 className="font-mono text-[10px] uppercase tracking-widest text-vcp-purple mb-6">Community</h5>
-              <ul className="space-y-4 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">VCP Forum</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Task Board</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Discord</a></li>
-              </ul>
-            </div>
-            <div className="col-span-2 md:col-span-1">
-              <h5 className="font-mono text-[10px] uppercase tracking-widest text-white mb-6">Connect</h5>
-              <div className="flex gap-4">
-                <a href="#" className="w-10 h-10 rounded-full glass-card flex items-center justify-center hover:text-vcp-cyan transition-colors"><Github size={18} /></a>
-                <a href="#" className="w-10 h-10 rounded-full glass-card flex items-center justify-center hover:text-vcp-cyan transition-colors"><Globe size={18} /></a>
-                <a href="#" className="w-10 h-10 rounded-full glass-card flex items-center justify-center hover:text-vcp-cyan transition-colors"><MessageSquare size={18} /></a>
-              </div>
-            </div>
+          
+          <div>
+            <h5 className="font-mono text-xs uppercase tracking-widest text-vcp-cyan mb-8">Documentation</h5>
+            <ul className="space-y-4 text-gray-400">
+              <li><a href="https://deepwiki.com/lioensky/VCPChat" target="_blank" className="hover:text-vcp-cyan transition-colors">VCPChat Docs</a></li>
+              <li><a href="https://deepwiki.com/lioensky/VCPToolBox" target="_blank" className="hover:text-vcp-cyan transition-colors">VCPToolBox Docs</a></li>
+              <li><a href="https://github.com/lioensky" target="_blank" className="hover:text-vcp-cyan transition-colors">GitHub Repository</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h5 className="font-mono text-xs uppercase tracking-widest text-vcp-purple mb-8">Ecosystem</h5>
+            <ul className="space-y-4 text-gray-400">
+              <li><a href="#" className="hover:text-vcp-purple transition-colors">VCP Forum</a></li>
+              <li><a href="#" className="hover:text-vcp-purple transition-colors">AgentDream</a></li>
+              <li><a href="#" className="hover:text-vcp-purple transition-colors">Distributed Hub</a></li>
+            </ul>
           </div>
         </div>
         <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-mono text-gray-600 uppercase tracking-widest">
