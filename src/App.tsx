@@ -154,7 +154,11 @@ export default function App() {
           >
             <Github size={20} />
           </a>
-          <a href="#docs" className="px-6 py-2 bg-vcp-purple text-white font-display font-bold rounded-full hover:scale-105 transition-transform active:scale-95 neon-border">
+          <a 
+            href="https://github.com/lioensky/VCPToolBox/releases/tag/VCP" 
+            target="_blank"
+            className="px-6 py-2 bg-vcp-purple text-white font-display font-bold rounded-full hover:scale-105 transition-transform active:scale-95 neon-border"
+          >
             GET STARTED
           </a>
         </div>
