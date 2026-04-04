@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@300;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-vcp-cyan: #00f2ff;
+  --color-vcp-purple: #7000ff;
+  --color-vcp-black: #050505;
+  --color-vcp-dark: #0a0a0a;
+  --color-vcp-glass: rgba(255, 255, 255, 0.03);
+  --color-vcp-glass-border: rgba(255, 255, 255, 0.1);
+
+  --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-float: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+body {
+  background-color: var(--color-vcp-black);
+  color: white;
+  overflow-x: hidden;
+}
+
+.glass-card {
+  background: var(--color-vcp-glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--color-vcp-glass-border);
+  border-radius: 24px;
+}
+
+.neon-text {
+  text-shadow: 0 0 10px rgba(0, 242, 255, 0.5), 0 0 20px rgba(0, 242, 255, 0.3);
+}
+
+.neon-border {
+  box-shadow: 0 0 15px rgba(112, 0, 255, 0.4);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-vcp-black);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-vcp-purple);
+  border-radius: 3px;
+}
+
+.glow-bg {
+  position: fixed;
+  top: -5%;
+  left: -5%;
+  width: 110vw;
+  height: 110vh;
+  background: radial-gradient(circle at center, rgba(5, 5, 5, 0.4) 0%, #050505 100%), url('/assets/hero_bg.png');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.25;
+  z-index: -10;
+  pointer-events: none;
+  filter: saturate(1.5) brightness(0.8);
+  transition: transform 0.1s ease-out;
+  will-change: transform;
+}
+
