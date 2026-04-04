@@ -209,12 +209,20 @@ export default function App() {
               READ DOCUMENTATION
             </a>
             <a 
-              href="https://github.com/lioensky" 
+              href="https://github.com/lioensky/VCPToolBox" 
               target="_blank"
-              className="group flex items-center gap-3 px-8 py-4 glass-card rounded-full font-display font-bold hover:border-vcp-cyan transition-all"
+              className="group flex items-center gap-3 px-6 py-4 glass-card rounded-full font-display font-medium hover:border-vcp-cyan transition-all text-sm"
             >
-              <Github size={20} className="text-vcp-cyan" />
-              VIEW REPOS
+              <Github size={18} className="text-vcp-cyan" />
+              TOOLBOX (BACKEND)
+            </a>
+            <a 
+              href="https://github.com/lioensky/VCPChat" 
+              target="_blank"
+              className="group flex items-center gap-3 px-6 py-4 glass-card rounded-full font-display font-medium hover:border-vcp-purple transition-all text-sm"
+            >
+              <Github size={18} className="text-vcp-purple" />
+              VCPCHAT (FRONTEND)
             </a>
           </motion.div>
         </div>
