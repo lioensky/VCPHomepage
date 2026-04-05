@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@300;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
+@import "katex/dist/katex.min.css";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -47,6 +48,7 @@ body {
 ::-webkit-scrollbar {
   width: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--color-vcp-black);
 }
@@ -62,18 +64,17 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: 
+  background:
     linear-gradient(to bottom, rgba(5, 5, 10, 0.85) 0%, rgba(5, 5, 10, 0.75) 100%),
     url('/assets/hero_bg.png');
   background-size: cover;
   background-position: center;
   z-index: -2;
-  opacity: 1; /* Opacity is now controlled by the gradient overlay above */
+  opacity: 1;
   filter: saturate(1.2) contrast(1.1) brightness(0.6);
   pointer-events: none;
 }
 
-/* Futuristic Desktop Styles */
 .desktop-preview {
   position: relative;
   background: rgba(10, 10, 15, 0.8);
@@ -120,4 +121,161 @@ body {
   border-color: rgba(0, 242, 255, 0.4);
   box-shadow: 0 0 30px rgba(0, 242, 255, 0.15);
   transform: translateY(-5px);
+}
+
+.inline-code {
+  display: inline-block;
+  padding: 0.15rem 0.4rem;
+  margin: 0 0.1rem;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-vcp-cyan);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
+
+.doc-reader {
+  overflow: hidden;
+}
+
+.doc-reader > *:last-child {
+  margin-bottom: 0;
+}
+
+.doc-reader h1,
+.doc-reader h2,
+.doc-reader h3,
+.doc-reader h4,
+.doc-reader h5,
+.doc-reader h6 {
+  font-family: var(--font-display);
+  color: white;
+  letter-spacing: -0.02em;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.doc-reader h1 { font-size: 2.5rem; }
+.doc-reader h2 {
+  font-size: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 0.75rem;
+}
+.doc-reader h3 { font-size: 1.5rem; }
+.doc-reader h4 { font-size: 1.2rem; }
+
+.doc-reader p,
+.doc-reader li,
+.doc-reader blockquote {
+  color: #b7bcc8;
+  line-height: 1.85;
+  font-size: 1rem;
+}
+
+.doc-reader p,
+.doc-reader ul,
+.doc-reader ol,
+.doc-reader blockquote,
+.doc-reader pre,
+.doc-reader table {
+  margin-bottom: 1.25rem;
+}
+
+.doc-reader ul,
+.doc-reader ol {
+  padding-left: 1.5rem;
+}
+
+.doc-reader li + li {
+  margin-top: 0.5rem;
+}
+
+.doc-reader a {
+  color: var(--color-vcp-cyan);
+  text-decoration: none;
+}
+
+.doc-reader a:hover {
+  text-decoration: underline;
+}
+
+.doc-reader blockquote {
+  padding: 1rem 1.25rem;
+  border-left: 3px solid rgba(0, 242, 255, 0.5);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 0 1rem 1rem 0;
+}
+
+.doc-reader pre {
+  overflow-x: auto;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  background: rgba(3, 6, 12, 0.85);
+  padding: 1rem;
+}
+
+.doc-reader pre code {
+  display: block;
+  color: #d5d8df;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  font-family: var(--font-mono);
+}
+
+.doc-reader table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.doc-reader th,
+.doc-reader td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.9rem 1rem;
+  text-align: left;
+}
+
+.doc-reader th {
+  color: white;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.doc-reader hr {
+  border: none;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 2rem 0;
+}
+
+.doc-reader img {
+  max-width: 100%;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mermaid-diagram {
+  display: flex;
+  justify-content: center;
+  overflow-x: auto;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.mermaid-diagram svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.mermaid-error {
+  color: #fca5a5;
+  white-space: pre-wrap;
+}
+
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5rem 0;
 }
