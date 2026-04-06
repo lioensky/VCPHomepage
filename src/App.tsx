@@ -207,58 +207,62 @@ export default function App() {
             initial={{opacity: 0, y: 20}}
             animate={{opacity: 1, y: 0}}
             transition={{duration: 0.8, delay: 0.6}}
-            className="flex flex-wrap justify-center gap-6"
+            className="flex flex-col items-center gap-6"
           >
-            <a
-              href="#docs"
-              className="group flex items-center gap-3 px-8 py-4 bg-vcp-purple text-white rounded-full font-display font-bold hover:scale-105 transition-transform neon-border"
-            >
-              <BookOpen size={20} />
-              READ DOCUMENTATION
-            </a>
-            <a
-              href="#changelog"
-              className="group flex items-center gap-3 px-8 py-4 glass-card rounded-full font-display font-bold hover:border-vcp-cyan transition-all"
-            >
-              <Clock size={20} className="text-vcp-cyan" />
-              VIEW CHANGELOG
-            </a>
-            <a
-              href="https://deepwiki.com/lioensky/VCPToolBox"
-              target="_blank"
-              rel="noreferrer"
-              className="group flex items-center gap-3 px-6 py-4 glass-card rounded-full font-display font-medium hover:border-vcp-cyan transition-all text-sm"
-            >
-              <ExternalLink size={18} className="text-vcp-cyan" />
-              WIKI (BACKEND)
-            </a>
-            <a
-              href="https://deepwiki.com/lioensky/VCPChat"
-              target="_blank"
-              rel="noreferrer"
-              className="group flex items-center gap-3 px-6 py-4 glass-card rounded-full font-display font-medium hover:border-vcp-purple transition-all text-sm"
-            >
-              <ExternalLink size={18} className="text-vcp-purple" />
-              WIKI (FRONTEND)
-            </a>
-            <a
-              href="https://github.com/lioensky/VCPToolBox"
-              target="_blank"
-              rel="noreferrer"
-              className="group flex items-center gap-3 px-6 py-4 glass-card rounded-full font-display font-medium hover:border-vcp-cyan transition-all text-sm"
-            >
-              <Github size={18} className="text-vcp-cyan" />
-              TOOLBOX (BACKEND)
-            </a>
-            <a
-              href="https://github.com/lioensky/VCPChat"
-              target="_blank"
-              rel="noreferrer"
-              className="group flex items-center gap-3 px-6 py-4 glass-card rounded-full font-display font-medium hover:border-vcp-purple transition-all text-sm"
-            >
-              <Github size={18} className="text-vcp-purple" />
-              VCPCHAT (FRONTEND)
-            </a>
+            <div className="flex flex-wrap justify-center gap-6">
+              <a
+                href="#docs"
+                className="group flex items-center gap-3 px-8 py-4 bg-vcp-purple text-white rounded-full font-display font-bold hover:scale-105 transition-transform neon-border"
+              >
+                <BookOpen size={20} />
+                READ DOCUMENTATION
+              </a>
+              <a
+                href="#changelog"
+                className="group flex items-center gap-3 px-8 py-4 glass-card rounded-full font-display font-bold hover:border-vcp-cyan transition-all"
+              >
+                <Clock size={20} className="text-vcp-cyan" />
+                VIEW CHANGELOG
+              </a>
+            </div>
+            <div className="flex flex-wrap justify-center gap-6">
+              <a
+                href="https://deepwiki.com/lioensky/VCPToolBox"
+                target="_blank"
+                rel="noreferrer"
+                className="group flex items-center gap-3 px-6 py-4 glass-card rounded-full font-display font-medium hover:border-vcp-cyan transition-all text-sm"
+              >
+                <ExternalLink size={18} className="text-vcp-cyan" />
+                WIKI (BACKEND)
+              </a>
+              <a
+                href="https://deepwiki.com/lioensky/VCPChat"
+                target="_blank"
+                rel="noreferrer"
+                className="group flex items-center gap-3 px-6 py-4 glass-card rounded-full font-display font-medium hover:border-vcp-purple transition-all text-sm"
+              >
+                <ExternalLink size={18} className="text-vcp-purple" />
+                WIKI (FRONTEND)
+              </a>
+              <a
+                href="https://github.com/lioensky/VCPToolBox"
+                target="_blank"
+                rel="noreferrer"
+                className="group flex items-center gap-3 px-6 py-4 glass-card rounded-full font-display font-medium hover:border-vcp-cyan transition-all text-sm"
+              >
+                <Github size={18} className="text-vcp-cyan" />
+                TOOLBOX (BACKEND)
+              </a>
+              <a
+                href="https://github.com/lioensky/VCPChat"
+                target="_blank"
+                rel="noreferrer"
+                className="group flex items-center gap-3 px-6 py-4 glass-card rounded-full font-display font-medium hover:border-vcp-purple transition-all text-sm"
+              >
+                <Github size={18} className="text-vcp-purple" />
+                VCPCHAT (FRONTEND)
+              </a>
+            </div>
           </motion.div>
         </div>
 
