@@ -224,6 +224,24 @@ export default function App() {
               VIEW CHANGELOG
             </a>
             <a
+              href="https://deepwiki.com/lioensky/VCPToolBox"
+              target="_blank"
+              rel="noreferrer"
+              className="group flex items-center gap-3 px-6 py-4 glass-card rounded-full font-display font-medium hover:border-vcp-cyan transition-all text-sm"
+            >
+              <ExternalLink size={18} className="text-vcp-cyan" />
+              WIKI (BACKEND)
+            </a>
+            <a
+              href="https://deepwiki.com/lioensky/VCPChat"
+              target="_blank"
+              rel="noreferrer"
+              className="group flex items-center gap-3 px-6 py-4 glass-card rounded-full font-display font-medium hover:border-vcp-purple transition-all text-sm"
+            >
+              <ExternalLink size={18} className="text-vcp-purple" />
+              WIKI (FRONTEND)
+            </a>
+            <a
               href="https://github.com/lioensky/VCPToolBox"
               target="_blank"
               rel="noreferrer"
