@@ -452,14 +452,14 @@ export default function App() {
                 The TagMemo Wave algorithm V7 isn't just data retrieval. It's a biomimetic
                 process that simulates how the human brain encodes, consolidates, and recalls
                 memories through neural topology.
+              </p>
               <a
                 href="/vcp_wave_v8_engine.html"
                 className="inline-flex items-center gap-3 px-6 py-3 mb-8 bg-vcp-purple/20 border border-vcp-purple/30 text-vcp-purple rounded-full font-display font-bold hover:bg-vcp-purple/30 hover:scale-105 transition-all neon-border"
               >
-                <Zap size={20} />
+                <Zap size={20} className="translate-y-[1px]" />
                 探索浪潮 V8.2 引擎
               </a>
-              </p>
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 glass-card border-vcp-cyan/20">
                   <div className="text-vcp-cyan font-mono text-xl mb-1">0.1ms</div>
