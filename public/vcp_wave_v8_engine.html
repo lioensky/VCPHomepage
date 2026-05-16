@@ -613,6 +613,22 @@
                         能量跨越节点传导时，遵循双向非对称共现权重（<b>W<sub>cooc</sub></b>）。只要能阈突破极高门槛 <b>0.10</b>，电波将击穿阻抗。
                     </p>
                 </div>
+
+                <div class="math-block" style="border-left-color: var(--primary);">
+                    <div style="font-size:0.85rem; color:var(--primary); text-transform:uppercase; font-family:monospace; margin-bottom:5px;">🌟 动态召回粒度方程 (Dynamic K)</div>
+                    <div class="math-expr" style="font-size:1.1rem;">
+                        K<sub>base</sub> = f(userLen, uniqueTokens) &isin; {3, 4, 6}
+                    </div>
+                    <div class="math-expr" style="font-size:1.1rem;">
+                        K<sub>adj</sub> = round(L &middot; 3 + ln(1 + R) &middot; 2)
+                    </div>
+                    <div class="math-expr">
+                        K<sub>final</sub> = clamp(K<sub>base</sub> + K<sub>adj</sub>,&nbsp;3,&nbsp;10)
+                    </div>
+                    <p style="font-size:0.8rem; color:var(--text-muted); font-family:var(--font-family);">
+                        基础 K 由用户文本体量（<b>userLen</b>）与 AI 上文唯一 token 数分档锚定（3 / 4 / 6 三阶跳变），再被 EPA 双指标自适应修正：<b>逻辑深度 L</b> 越聚焦则线性拉高召回数，<b>共振强度 R</b> 通过 <code style="color:var(--accent)">ln(1+R)</code> 次线性增长抑制单次共振爆表，最终硬钳于 <b>[3, 10]</b> 区间。下游还会叠加占位符 <code style="color:var(--primary)">kMultiplier</code>、<code style="color:var(--secondary)">::Rerank ×2.0</code> 候选放大与 <code style="color:var(--accent)">::Time 6:4 切分</code>等修饰符进行二次缩放，"动态 K"是起点而非终点。
+                    </p>
+                </div>
             </div>
 
             <!-- 下方全宽：7阶段执行管线 -->
