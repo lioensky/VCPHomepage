@@ -454,7 +454,7 @@ export default function App() {
                 memories through neural topology.
               </p>
               <a
-                href="/vcp_wave_v8_engine.html"
+                href="/vcp_wave_v8_engine"
                 className="inline-flex items-center gap-3 px-6 py-3 mb-8 bg-vcp-purple/20 border border-vcp-purple/30 text-vcp-purple rounded-full font-display font-bold hover:bg-vcp-purple/30 hover:scale-105 transition-all neon-border"
               >
                 <Zap size={20} className="translate-y-[1px]" />
