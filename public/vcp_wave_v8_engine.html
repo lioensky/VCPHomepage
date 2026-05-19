@@ -11,6 +11,28 @@
     <div class="cosmic-bg"></div>
     <canvas id="globalRiver" class="global-river"></canvas>
 
+    <!-- 顶部站点导航 -->
+    <nav class="site-nav">
+        <a class="site-nav-brand" href="/">
+            <span class="site-nav-logo" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="4" y="4" width="6" height="6" rx="1"/>
+                    <rect x="14" y="4" width="6" height="6" rx="1"/>
+                    <rect x="4" y="14" width="6" height="6" rx="1"/>
+                    <rect x="14" y="14" width="6" height="6" rx="1"/>
+                </svg>
+            </span>
+            <span class="site-nav-title">VCP<span class="brand-accent">.OS</span></span>
+        </a>
+        <ul class="site-nav-links">
+            <li><a href="/">首页</a></li>
+            <li><a href="/#docs">文档</a></li>
+            <li><a href="/#changelog">更新日志</a></li>
+            <li><a class="active" href="/vcp_wave_v8_engine.html">浪潮引擎</a></li>
+            <li><a class="site-nav-cta" href="https://github.com/lioensky/VCPChat" target="_blank" rel="noreferrer">GitHub</a></li>
+        </ul>
+    </nav>
+
     <!-- 进度指示器 -->
     <nav class="progress-nav">
         <div class="progress-track"></div>
@@ -392,6 +414,47 @@ if (spike.energy &gt; threshold) <span class="op-keyword">propagate</span>
             </div>
         </footer>
     </section>
+
+    <!-- 站点页脚 -->
+    <footer class="site-footer">
+        <div class="site-footer-grid">
+            <div class="site-footer-col">
+                <a class="site-nav-brand site-footer-brand" href="/">
+                    <span class="site-nav-logo" aria-hidden="true">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="4" y="4" width="6" height="6" rx="1"/>
+                            <rect x="14" y="4" width="6" height="6" rx="1"/>
+                            <rect x="4" y="14" width="6" height="6" rx="1"/>
+                            <rect x="14" y="14" width="6" height="6" rx="1"/>
+                        </svg>
+                    </span>
+                    <span class="site-nav-title">VCP<span class="brand-accent">.OS</span></span>
+                </a>
+                <p class="site-footer-tagline">Variable &amp; Command Protocol<br/>AI 存在的基础设施</p>
+            </div>
+            <div class="site-footer-col">
+                <h5 class="site-footer-heading">快速链接</h5>
+                <ul class="site-footer-list">
+                    <li><a href="/">返回首页</a></li>
+                    <li><a href="/#docs">文档中心</a></li>
+                    <li><a href="https://github.com/lioensky/VCPToolBox" target="_blank" rel="noreferrer">ToolBox 后端</a></li>
+                    <li><a href="https://github.com/lioensky/VCPChat" target="_blank" rel="noreferrer">VCPChat 前端</a></li>
+                </ul>
+            </div>
+            <div class="site-footer-col">
+                <h5 class="site-footer-heading violet">核心技术</h5>
+                <ul class="site-footer-list">
+                    <li><a href="/vcp_wave_v8_engine.html">TagMemo 浪潮引擎</a></li>
+                    <li><a href="/#memory">神经记忆系统</a></li>
+                    <li><a href="/#desktop">VCP Desktop</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="site-footer-bottom">
+            <span>© 2026 VCP ECOSYSTEM. ALL RIGHTS RESERVED.</span>
+            <span>CC BY-NC-SA 4.0</span>
+        </div>
+    </footer>
 
     <!-- 第三方依赖 -->
     <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
