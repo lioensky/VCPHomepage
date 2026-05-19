@@ -3,987 +3,401 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VCP TagMemo 浪潮算法 V8.2-γ 深度解析与全景演示</title>
-    <style>
-        :root {
-            --bg-deep: #0a0f1d;
-            --bg-card: #131a30;
-            --primary: #00f0ff;
-            --secondary: #bd00ff;
-            --accent: #00ff66;
-            --text-main: #e2e8f0;
-            --text-muted: #94a3b8;
-            --border-glow: rgba(0, 240, 255, 0.2);
-            --font-family: 'PingFang SC', 'Microsoft YaHei', -apple-system, sans-serif;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            background-color: var(--bg-deep);
-            color: var(--text-main);
-            font-family: var(--font-family);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        /* VCP 官网同款全屏壁纸背景 */
-        .hero-bg-layer {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background:
-                linear-gradient(to bottom, rgba(10, 15, 29, 0.85) 0%, rgba(10, 15, 29, 0.78) 100%),
-                url('./assets/hero_bg.png');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            z-index: -3;
-            filter: saturate(1.2) contrast(1.1) brightness(0.6);
-            pointer-events: none;
-        }
-
-        /* 顶部星空流光叠加层（在壁纸之上做点缀） */
-        .cyber-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: -2;
-            background: radial-gradient(circle at 50% 50%, rgba(26, 35, 66, 0.4) 0%, rgba(10, 15, 29, 0.65) 80%);
-            overflow: hidden;
-            pointer-events: none;
-        }
-
-        .cyber-bg::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image:
-                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
-                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
-                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 20px);
-            background-size: 550px 550px, 350px 350px, 250px 250px;
-            background-position: 0 0, 40px 60px, 130px 270px;
-            opacity: 0.18;
-            animation: bgShift 60s linear infinite;
-        }
-
-        @keyframes bgShift {
-            from { background-position: 0 0, 40px 60px, 130px 270px; }
-            to { background-position: 550px 550px, 390px 410px, 380px 570px; }
-        }
-
-        /* 霓虹网格线 */
-        .grid-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background-image: linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
-            z-index: -1;
-            transform: perspective(500px) rotateX(60deg) translateY(-200px) scale(2);
-            opacity: 0.6;
-            animation: gridScroll 20s linear infinite;
-        }
-
-        @keyframes gridScroll {
-            from { background-position: 0 0; }
-            to { background-position: 0 100%; }
-        }
-
-        /* 头部主Banner */
-        header {
-            text-align: center;
-            padding: 80px 20px 40px;
-            position: relative;
-        }
-
-        .badge {
-            background: linear-gradient(90deg, var(--secondary), var(--primary));
-            color: white;
-            padding: 6px 16px;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            box-shadow: 0 0 20px rgba(189, 0, 255, 0.5);
-            display: inline-block;
-            margin-bottom: 20px;
-            animation: pulseGlow 2s infinite alternate;
-        }
-
-        h1 {
-            font-size: 3rem;
-            font-weight: 900;
-            letter-spacing: -1px;
-            background: linear-gradient(135deg, #fff 30%, #00f0ff 70%, #bd00ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 40px rgba(0, 240, 255, 0.2);
-            margin-bottom: 15px;
-        }
-
-        .subtitle {
-            font-size: 1.2rem;
-            color: var(--text-muted);
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        /* 俏皮开场白 */
-        .intro-speech {
-            max-width: 900px;
-            margin: 30px auto;
-            background: rgba(19, 26, 48, 0.7);
-            border-left: 4px solid var(--primary);
-            padding: 20px;
-            border-radius: 0 12px 12px 0;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-
-        .intro-speech p {
-            font-style: italic;
-            color: #a3e635;
-            font-size: 1.05rem;
-        }
-
-        /* 核心网格布局 */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .grid-sections {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 40px;
-            margin-top: 40px;
-        }
-
-        @media (min-width: 900px) {
-            .grid-sections {
-                grid-template-columns: 2fr 1fr;
-            }
-            .full-width {
-                grid-column: span 2;
-            }
-        }
-
-        .card {
-            background: var(--bg-card);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 16px;
-            padding: 30px;
-            position: relative;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .card:hover {
-            border-color: rgba(0, 240, 255, 0.3);
-            box-shadow: 0 20px 40px rgba(0, 240, 255, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .card-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding-bottom: 10px;
-        }
-
-        .card-title::before {
-            content: '';
-            display: inline-block;
-            width: 6px;
-            height: 24px;
-            background: linear-gradient(to bottom, var(--primary), var(--secondary));
-            border-radius: 3px;
-        }
-
-        /* 核心引擎仿真动画区 */
-        .simulator-box {
-            background: #070b14;
-            border-radius: 12px;
-            height: 450px;
-            position: relative;
-            overflow: hidden;
-            border: 1px dashed rgba(0, 240, 255, 0.3);
-            margin: 20px 0;
-        }
-
-        .sim-canvas-overlay {
-            position: absolute;
-            top: 15px; left: 15px;
-            background: rgba(0,0,0,0.6);
-            padding: 10px 15px;
-            border-radius: 6px;
-            font-family: monospace;
-            font-size: 0.85rem;
-            color: var(--primary);
-            z-index: 10;
-            border: 1px solid var(--border-glow);
-            pointer-events: none;
-        }
-
-        /* 核心功能卡片标签 */
-        .tech-tag-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .tech-tag {
-            background: rgba(0, 240, 255, 0.1);
-            border: 1px solid rgba(0, 240, 255, 0.2);
-            color: var(--primary);
-            padding: 4px 12px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            font-family: monospace;
-        }
-
-        .tech-tag.purple {
-            background: rgba(189, 0, 255, 0.1);
-            border: 1px solid rgba(189, 0, 255, 0.2);
-            color: #df80ff;
-        }
-
-        .tech-tag.green {
-            background: rgba(0, 255, 102, 0.1);
-            border: 1px solid rgba(0, 255, 102, 0.2);
-            color: var(--accent);
-        }
-
-        /* 炫酷的控制面板按钮 */
-        .control-panel {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-
-        .btn-cyber {
-            background: linear-gradient(135deg, #1d294d 0%, #111a36 100%);
-            border: 1px solid var(--primary);
-            color: #fff;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            font-family: var(--font-family);
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-cyber:hover {
-            background: var(--primary);
-            color: var(--bg-deep);
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
-            transform: scale(1.03);
-        }
-
-        .btn-cyber.secondary-btn {
-            border-color: var(--secondary);
-        }
-        .btn-cyber.secondary-btn:hover {
-            background: var(--secondary);
-            color: white;
-            box-shadow: 0 0 20px rgba(189, 0, 255, 0.6);
-        }
-
-        /* 数学公式渲染板 */
-        .math-block {
-            background: rgba(0,0,0,0.4);
-            padding: 20px;
-            border-radius: 10px;
-            border-left: 3px solid var(--secondary);
-            font-family: 'Times New Roman', Times, serif;
-            margin: 15px 0;
-            overflow-x: auto;
-        }
-
-        .math-expr {
-            font-size: 1.25rem;
-            color: #f1f5f9;
-            text-align: center;
-            font-style: italic;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-
-        .math-class {
-            color: var(--primary);
-        }
-
-        /* 7阶段流水线样式 */
-        .pipeline-flow {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            position: relative;
-            margin-top: 20px;
-        }
-
-        .pipeline-flow::before {
-            content: '';
-            position: absolute;
-            left: 25px; top: 0; bottom: 0;
-            width: 2px;
-            background: linear-gradient(to bottom, var(--primary), var(--secondary), var(--accent));
-        }
-
-        .pipeline-step {
-            display: flex;
-            gap: 20px;
-            align-items: flex-start;
-            position: relative;
-        }
-
-        .step-num {
-            width: 52px; height: 52px;
-            background: #17223b;
-            border: 2px solid var(--primary);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            color: var(--primary);
-            font-size: 1.2rem;
-            z-index: 1;
-            box-shadow: 0 0 15px rgba(0,240,255,0.2);
-            flex-shrink: 0;
-            transition: all 0.3s ease;
-        }
-
-        .pipeline-step:hover .step-num {
-            background: var(--primary);
-            color: var(--bg-deep);
-            box-shadow: 0 0 20px var(--primary);
-            transform: scale(1.1);
-        }
-
-        .step-content {
-            background: rgba(255,255,255,0.02);
-            padding: 15px 20px;
-            border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.05);
-            flex-grow: 1;
-        }
-
-        .step-content h4 {
-            color: #fff;
-            margin-bottom: 5px;
-            font-size: 1.1rem;
-        }
-
-        .step-content p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-        }
-
-        /* 对比表格表格 */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            font-size: 0.95rem;
-        }
-
-        th {
-            background: rgba(0, 240, 255, 0.08);
-            color: var(--primary);
-            text-align: left;
-            padding: 12px;
-            font-weight: 700;
-            border-bottom: 2px solid rgba(0, 240, 255, 0.2);
-        }
-
-        td {
-            padding: 12px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            color: var(--text-main);
-        }
-
-        tr:hover td {
-            background: rgba(255,255,255,0.02);
-        }
-
-        /* 动画定义 */
-        @keyframes pulseGlow {
-            from { box-shadow: 0 0 10px rgba(189, 0, 255, 0.4); }
-            to { box-shadow: 0 0 25px rgba(189, 0, 255, 0.8); }
-        }
-
-        /* 节点连线动画仿真基础样式 */
-        .node {
-            position: absolute;
-            border-radius: 50%;
-            background: #fff;
-            transform: translate(-50%, -50%);
-            transition: all 0.5s ease;
-            cursor: pointer;
-            z-index: 5;
-        }
-
-        .node-label {
-            position: absolute;
-            top: 18px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(5, 10, 20, 0.8);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            white-space: nowrap;
-            color: #fff;
-            border: 1px solid rgba(255,255,255,0.1);
-            pointer-events: none;
-        }
-
-        .synapse-line {
-            position: absolute;
-            transform-origin: top left;
-            background: linear-gradient(90deg, rgba(0,240,255,0.15), rgba(189,0,255,0.15));
-            height: 2px;
-            z-index: 2;
-            pointer-events: none;
-        }
-
-        .pulse-particle {
-            position: absolute;
-            width: 8px; height: 8px;
-            background: var(--accent);
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--accent);
-            transform: translate(-50%, -50%);
-            z-index: 6;
-            pointer-events: none;
-            display: none;
-        }
-
-        /* 测地线重排地形图模拟 */
-        .grid-mesh {
-            position: absolute;
-            width: 100%; height: 100%;
-            top: 0; left: 0;
-            display: none;
-            opacity: 0.4;
-            z-index: 1;
-        }
-
-        .info-panel-bottom {
-            margin-top: 15px;
-            padding: 10px;
-            background: rgba(255,255,255,0.02);
-            border-radius: 8px;
-            font-size: 0.85rem;
-            color: #a3e635;
-            font-family: monospace;
-        }
-
-    </style>
+    <title>VCP 浪潮 v8.2 引擎 · 语义流体力学可视化</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- 全局背景：星空噪点 + 暗流 -->
+    <div class="cosmic-bg"></div>
+    <canvas id="globalRiver" class="global-river"></canvas>
 
-    <div class="hero-bg-layer"></div>
-    <div class="cyber-bg"></div>
-    <div class="grid-overlay"></div>
+    <!-- 进度指示器 -->
+    <nav class="progress-nav">
+        <div class="progress-track"></div>
+        <ul class="chapter-dots">
+            <li data-chapter="0" class="dot active"><span>序言</span></li>
+            <li data-chapter="1" class="dot"><span>河流诞生</span></li>
+            <li data-chapter="2" class="dot"><span>河道网络</span></li>
+            <li data-chapter="3" class="dot"><span>顺流逆流</span></li>
+            <li data-chapter="4" class="dot"><span>钟形阻尼</span></li>
+            <li data-chapter="5" class="dot"><span>RAG vs VCP</span></li>
+            <li data-chapter="6" class="dot"><span>LIF 脉冲</span></li>
+            <li data-chapter="7" class="dot"><span>虫洞飞溅</span></li>
+            <li data-chapter="8" class="dot"><span>残差地势</span></li>
+            <li data-chapter="9" class="dot"><span>朗飞结</span></li>
+            <li data-chapter="10" class="dot"><span>语义动力学</span></li>
+        </ul>
+    </nav>
 
-    <!-- VCP 官网导航栏 -->
-    <nav style="position: fixed; top: 0; left: 0; width: 100%; z-index: 50; padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; background: rgba(10, 15, 29, 0.5); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.05);">
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <div style="width: 2.5rem; height: 2.5rem; background: var(--secondary); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; border: 1px solid var(--primary);">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2">
-                    <rect x="4" y="4" width="6" height="6" rx="1"/>
-                    <rect x="14" y="4" width="6" height="6" rx="1"/>
-                    <rect x="4" y="14" width="6" height="6" rx="1"/>
-                    <rect x="14" y="14" width="6" height="6" rx="1"/>
-                </svg>
+    <!-- ============ Chapter 0: HERO ============ -->
+    <section class="chapter chapter-hero" data-chapter="0">
+        <div class="hero-content">
+            <div class="hero-badge">VCP · TagMemo 浪潮 v8.2</div>
+            <h1 class="hero-title">
+                <span class="title-line">语义</span>
+                <span class="title-line gradient">流体力学</span>
+            </h1>
+            <p class="hero-subtitle">当 Tag 不再是孤岛，而是一条条能流。</p>
+            <div class="hero-formula">
+                <code>β = σ(L · log(1 + R) − S · noise)</code>
+                <span class="formula-arrow">→</span>
+                <code>W = Φ<sub>src</sub> × Φ<sub>tgt</sub> × bell(sim)</code>
             </div>
-            <span style="font-size: 1.5rem; font-weight: 900; letter-spacing: -0.05em;">VCP<span style="color: var(--primary);">.OS</span></span>
+            <div class="hero-scroll-hint">
+                <span>向下滚动 · 进入河道</span>
+                <div class="scroll-arrow"></div>
+            </div>
         </div>
-        <div style="display: flex; align-items: center; gap: 2rem; font-family: monospace; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;">
-            <a href="/" style="color: var(--text-main); text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">首页</a>
-            <a href="/#docs" style="color: var(--text-main); text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">文档</a>
-            <a href="/#changelog" style="color: var(--text-main); text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">更新日志</a>
-            <a href="/vcp_wave_v8_engine.html" style="color: var(--primary); text-decoration: none; font-weight: bold;">浪潮引擎</a>
-            <a href="https://github.com/lioensky/VCPChat" target="_blank" rel="noreferrer" style="padding: 0.5rem 1.5rem; background: var(--secondary); color: white; border-radius: 9999px; text-decoration: none; font-weight: bold; transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">GitHub</a>
+        <canvas id="heroCanvas" class="scene-canvas"></canvas>
+    </section>
+
+    <!-- ============ Chapter 1: 河流的诞生 ============ -->
+    <section class="chapter" data-chapter="1">
+        <div class="chapter-meta">CHAPTER 01 · BIRTH</div>
+        <h2 class="chapter-title">每一篇日记 = 一条 Tag 之河</h2>
+        <div class="chapter-body">
+            <div class="text-pane">
+                <p class="lead">AI 在写日记时给文档打上的标签序列<strong>不是平铺的</strong>——它们带着<strong>时序、势能、与情境</strong>。</p>
+                <ul class="feature-list">
+                    <li><span class="dot-icon t-blue"></span>越靠前的 Tag，势能 Φ 越高（0.9 → 0.5）</li>
+                    <li><span class="dot-icon t-cyan"></span>Tag 之间的间距 = 河道的落差</li>
+                    <li><span class="dot-icon t-violet"></span>每篇日记产生一条独立的"原始水流"</li>
+                </ul>
+                <div class="code-tag">
+                    Φ<sub>i</sub> = 0.9 − 0.4 · (pos<sub>i</sub> − 1) / (n − 1)
+                </div>
+            </div>
+            <div class="canvas-pane">
+                <canvas id="ch1Canvas" class="scene-canvas"></canvas>
+                <div class="canvas-legend">
+                    <span class="legend-item"><i class="legend-river"></i>原始 Tag 流</span>
+                </div>
+            </div>
         </div>
-    </nav><header style="margin-top: 5rem;">
-        <div class="badge">VCP Core Engine v8.2-γ Release</div>
-        <h1>TagMemo "浪潮"认知涌现与测地线重排引擎</h1>
-        <div class="subtitle">打破平坦向量检索极限，让长上下文RAG具备类脑直觉联想与流形几何修正能力</div>
-    </header>
+    </section>
 
-    <div class="container">
-
-        <!-- 浪潮V8简介 -->
-        <div class="intro-speech">
-            <p><strong>浪潮 V8.2-γ 引擎简介：</strong> TagMemo 浪潮算法是 VCP 系统的核心 RAG 优化方案，彻底突破了传统平坦向量检索的局限。新版本引入了<b>有序双向势能流形</b>与<b>测地线重排技术</b>，将标签网络从静态查询跃升为动态认知拓扑。通过 <b>LIF 脉冲扩散</b>、<b>虫洞路由</b>和<b>非欧几何重排</b>，系统能够模拟人脑的直觉联想过程，实现跨域语义涌现与精准召回。下方交互式仿真器将为您展示这一革命性算法的核心动力学机制。</p>
+    <!-- ============ Chapter 2: 河道网络 ============ -->
+    <section class="chapter" data-chapter="2">
+        <div class="chapter-meta">CHAPTER 02 · CONFLUENCE</div>
+        <h2 class="chapter-title">同一个 Tag 跨日记 = 河道汇流</h2>
+        <div class="chapter-body reverse">
+            <div class="text-pane">
+                <p class="lead">当不同日记里都出现"<strong>VCP</strong>"或"<strong>RAG</strong>"，这些独立的水流就开始<strong>汇成支流网络</strong>。</p>
+                <p>这就是 <code>tagCooccurrenceMatrix</code> 的本质——<br/>不是数据库表，而是一张<strong>语义河道地图</strong>。</p>
+                <div class="stat-grid">
+                    <div class="stat">
+                        <div class="stat-num" data-target="5000">0</div>
+                        <div class="stat-label">Tag 节点</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-num" data-target="120000">0</div>
+                        <div class="stat-label">河道边</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-num" data-target="3">0</div>
+                        <div class="stat-label">轴 (形/色/质)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="canvas-pane">
+                <canvas id="ch2Canvas" class="scene-canvas"></canvas>
+                <div class="canvas-legend">
+                    <span class="legend-item"><i class="legend-node"></i>Tag 锚点</span>
+                    <span class="legend-item"><i class="legend-edge"></i>共现支流</span>
+                </div>
+            </div>
         </div>
+    </section>
 
-        <div class="grid-sections">
-
-            <!-- 左侧：动态动画展示与仿真区 -->
-            <div class="card">
-                <div class="card-title">🚀 浪潮 V8.2 脑网脉冲扩散与流形坍缩仿真器</div>
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px;">
-                    下方为实时算法动力学模拟器。您可点击控制面板，亲自向网络中注入高能查询种子，观察LIF神经元如何通过有向势能拓扑和“虫洞跃迁”发生级联放电，或切换至V8特性的测地线弯曲场。
-                </p>
-
+    <!-- ============ Chapter 3: 顺流 vs 逆流 ============ -->
+    <section class="chapter" data-chapter="3">
+        <div class="chapter-meta">CHAPTER 03 · DIRECTION</div>
+        <h2 class="chapter-title">顺流容易，逆流要付能量</h2>
+        <div class="chapter-body">
+            <div class="text-pane">
+                <p class="lead">V8.2 的革命：把"形 / 色 / 质"<strong>三轴解耦</strong>。</p>
+                <div class="axis-table">
+                    <div class="axis-row">
+                        <span class="axis-tag axis-form">形</span>
+                        <span class="axis-name">拓扑邻接</span>
+                        <span class="axis-desc">是否相连，对称</span>
+                    </div>
+                    <div class="axis-row">
+                        <span class="axis-tag axis-color">色</span>
+                        <span class="axis-name">叙事方向</span>
+                        <span class="axis-desc">顺/逆流阻尼，<strong>不对称</strong></span>
+                    </div>
+                    <div class="axis-row">
+                        <span class="axis-tag axis-quality">质</span>
+                        <span class="axis-name">语义距离</span>
+                        <span class="axis-desc">钟形增益，对称</span>
+                    </div>
+                </div>
+                <div class="code-tag mono-snippet">
+forward  = base × 1.00 × bell(sim)<br/>
+backward = base × 0.42 × bell(sim) × anchorBoost<br/>
+<span class="op-comment">// 反转守卫: backward ≤ forward × 0.95</span>
+                </div>
+            </div>
+            <div class="canvas-pane">
+                <canvas id="ch3Canvas" class="scene-canvas"></canvas>
                 <div class="control-panel">
-                    <button class="btn-cyber" id="btn-pulse">⚡ 注入种子向量 (触发LIF放电)</button>
-                    <button class="btn-cyber secondary-btn" id="btn-geodesic">🌐 切换测地线距离场 (Geodesic Map)</button>
-                    <button class="btn-cyber" id="btn-reset" style="border-color: #64748b;">🔄 重置流形空间</button>
+                    <button class="ctrl-btn active" data-flow="forward">顺流</button>
+                    <button class="ctrl-btn" data-flow="backward">逆流</button>
                 </div>
-
-                <div class="simulator-box" id="sim-viewport">
-                    <div class="sim-canvas-overlay" id="sim-status">STATUS: SYSTEM READY // MANIFOLD: FLAT</div>
-                    <!-- 测地线网格背景 -->
-                    <svg class="grid-mesh" id="svg-mesh" width="100%" height="100%"></svg>
-                    <!-- 动态连线画布 -->
-                    <div id="synapse-layer" style="position:absolute; width:100%; height:100%;"></div>
-                    <!-- 节点层 -->
-                    <div id="node-layer" style="position:absolute; width:100%; height:100%;"></div>
-                    <!-- 脉冲粒子 -->
-                    <div class="pulse-particle" id="particle"></div>
-                </div>
-
-                <div class="info-panel-bottom" id="sim-log">
-                    [控制台日志] 准备就绪。等待输入信号。常驻维数 VECTORDB_DIMENSION 已锁定制式签名。
-                </div>
-
-                <div class="tech-tag-container">
-                    <span class="tech-tag">Leaky Integrate-and-Fire</span>
-                    <span class="tech-tag purple">Wormhole Routing</span>
-                    <span class="tech-tag green">Geodesic Reranking</span>
-                    <span class="tech-tag">Gram-Schmidt Orthogonalization</span>
-                </div>
-            </div>
-
-            <!-- 右侧：核心数学哲学 -->
-            <div class="card">
-                <div class="card-title">🧠 核心哲学：语义引力与空间扭曲</div>
-                <p style="margin-bottom: 12px;">
-                    在浪潮算法的宇宙观里，<b>向量空间绝非平坦平庸的</b>，而是密布着意义的引力质量。
-                </p>
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 12px;">
-                    每个标签（Tag）都是高维流形里的一个<b>质量锚点</b>。当用户的原始查询向量投射进来时，引擎绝不直接拿着它去直接匹配，而是计算整个背景脑网的引力势能，将查询向量向核心语义核心进行<b>“极限拉扯与局部扭曲”</b>。
-                </p>
-                
-                <div class="math-block">
-                    <div style="font-size:0.85rem; color:var(--secondary); text-transform:uppercase; font-family:monospace; margin-bottom:5px;">🌟 动态重塑权重控制公式 (Beta)</div>
-                    <div class="math-expr">
-                        &beta; = &sigma;(L &middot; log(1 + R) - S &middot; P<sub>noise</sub>)
-                    </div>
-                    <p style="font-size:0.8rem; color:var(--text-muted); font-family:var(--font-family);">
-                        当用户意图越聚焦（<b>L 逻辑深度</b>高）且逻辑跨界产生交织共振（<b>R 跨域共振</b>强）时，重塑阀门 &beta; 瞬间呈 Sigmoid 爆炸级放大；而带有机器噪光（<b>S 噪声因子</b>）的信号将被梯级截流。
-                    </p>
-                </div>
-
-                <div class="math-block" style="border-left-color: var(--accent);">
-                    <div style="font-size:0.85rem; color:var(--accent); text-transform:uppercase; font-family:monospace; margin-bottom:5px;">🌟 神经突触放电衰减方程 (LIF)</div>
-                    <div class="math-expr">
-                        I<sub>injected</sub> = E &middot; W<sub>cooc</sub> &middot; &gamma;<sub>decay</sub>
-                    </div>
-                    <p style="font-size:0.8rem; color:var(--text-muted); font-family:var(--font-family);">
-                        能量跨越节点传导时，遵循双向非对称共现权重（<b>W<sub>cooc</sub></b>）。只要能阈突破极高门槛 <b>0.10</b>，电波将击穿阻抗。
-                    </p>
-                </div>
-
-                <div class="math-block" style="border-left-color: var(--primary);">
-                    <div style="font-size:0.85rem; color:var(--primary); text-transform:uppercase; font-family:monospace; margin-bottom:5px;">🌟 动态召回粒度方程 (Dynamic K)</div>
-                    <div class="math-expr" style="font-size:1.1rem;">
-                        K<sub>base</sub> = f(userLen, uniqueTokens) &isin; {3, 4, 6}
-                    </div>
-                    <div class="math-expr" style="font-size:1.1rem;">
-                        K<sub>adj</sub> = round(L &middot; 3 + ln(1 + R) &middot; 2)
-                    </div>
-                    <div class="math-expr">
-                        K<sub>final</sub> = clamp(K<sub>base</sub> + K<sub>adj</sub>,&nbsp;3,&nbsp;10)
-                    </div>
-                    <p style="font-size:0.8rem; color:var(--text-muted); font-family:var(--font-family);">
-                        基础 K 由用户文本体量（<b>userLen</b>）与 AI 上文唯一 token 数分档锚定（3 / 4 / 6 三阶跳变），再被 EPA 双指标自适应修正：<b>逻辑深度 L</b> 越聚焦则线性拉高召回数，<b>共振强度 R</b> 通过 <code style="color:var(--accent)">ln(1+R)</code> 次线性增长抑制单次共振爆表，最终硬钳于 <b>[3, 10]</b> 区间。下游还会叠加占位符 <code style="color:var(--primary)">kMultiplier</code>、<code style="color:var(--secondary)">::Rerank ×2.0</code> 候选放大与 <code style="color:var(--accent)">::Time 6:4 切分</code>等修饰符进行二次缩放，"动态 K"是起点而非终点。
-                    </p>
-                </div>
-            </div>
-
-            <!-- 下方全宽：7阶段执行管线 -->
-            <div class="card full-width">
-                <div class="card-title">⚡ 浪潮 V8.2 极致涌现：七级神经放电管线解构</div>
-                <p style="color: var(--text-muted); margin-bottom: 20px;">
-                    单次向量增强流水线经过严密拓展，实现从电位输入到流形坍缩的全生命周期管控：
-                </p>
-
-                <div class="pipeline-flow">
-                    <div class="pipeline-step">
-                        <div class="step-num">01</div>
-                        <div class="step-content">
-                            <h4>EPA 三轴空间定位 (Embedding Projection Analysis)</h4>
-                            <p>通过计算高维投影的投影熵，识别用户当前的“主宰世界观”（技术、情感、哲学或社会）。计算<b>逻辑深度 (Logic Depth)</b> 与<b>跨域共振 (Resonance)</b>，确定本次搜索的宏观宇宙坐标。</p>
-                        </div>
-                    </div>
-                    <div class="pipeline-step">
-                        <div class="step-num">02</div>
-                        <div class="step-content">
-                            <h4>库仑级联剥离：残差金字塔分解 (Residual Pyramid)</h4>
-                            <p>算法的“数学心脏”。通过 <b>Gram-Schmidt 正交化投影</b>，递归将查询向量分解为“已解释能量”与“残差能量”。即使是隐藏在宏观叙事阴影底下的微弱信号（Weak Links），也会在级联剥离中被放大捕捉。</p>
-                        </div>
-                    </div>
-                    <div class="pipeline-step">
-                        <div class="step-num">03</div>
-                        <div class="step-content">
-                            <h4>动态能阈与聚光灯补全 (Dynamic & Core Boost)</h4>
-                            <p>逻辑深度越高或覆盖率越低，<b>核心标签专门放大因子 (Core Boost)</b> 就会被拉升至 <b>1.20x - 1.40x</b>。若显式指定的核心标签在向量空间中由于字面差异漏失，管线将启动“虚拟补全”，从 SQLite 底层强行提拉捞取。</p>
-                        </div>
-                    </div>
-                    <div class="pipeline-step">
-                        <div class="step-num">04</div>
-                        <div class="step-content">
-                            <h4>阶梯式多维语境门控 (Language Confidence Gating)</h4>
-                            <p>彻底终结“一刀切”的机械过滤。若检测到纯英文技术标记（如 JSON, Viewer）在非技术语境（如政治/历史世界观）中泛滥，系统激活平方根级软化惩罚，防止机器噪音污染属于人类灵魂的精密思考。</p>
-                        </div>
-                    </div>
-                    <div class="pipeline-step">
-                        <div class="step-num">05</div>
-                        <div class="step-content">
-                            <h4>虫洞序位脉冲传导 (Wormhole Ordinal Spike Propagation)</h4>
-                            <p>基于 <b>V7 OrdinalSpike（序位势能）</b> 的升级。联想不再对称（壁炉&rarr;猫 &ne; 猫&rarr;壁炉）。当能量碰撞出超强张力（张力 = 目标节点残差新颖度 &times; 有向边权），电波直接穿过<b>“语义虫洞 (Wormhole)”</b>豁免动量消耗，瞬间激活跨越两个八度音阶的绝妙隐喻联想！</p>
-                        </div>
-                    </div>
-                    <div class="pipeline-step">
-                        <div class="step-num">06</div>
-                        <div class="step-content">
-                            <h4>特征多样性正交去重 (Semantic Deduplication)</h4>
-                            <p>在海量涌现出的知识丛林中，设定 <b>0.88 的余弦严格边界</b>。自动合并诸如“委内瑞拉局势”与“委内瑞拉危机”等高维重叠概念。冗余标签的能量以 20% 比例定向坍缩回代表性主轴，将稀缺的 Top-K 槽位彻底留给特征多样性。</p>
-                        </div>
-                    </div>
-                    <div class="pipeline-step">
-                        <div class="step-num">07</div>
-                        <div class="step-content">
-                            <h4>测地线非欧重排与向量坍缩 (Geodesic Rerank & Fusion)</h4>
-                            <p><b>V8 的核爆级杀手锏！</b> 复用脉冲扩散沉淀下来的全局能量距离场。针对 KNN 出来的冷冰冰的数据文本片段，丢弃欧氏空间直线距离，改用<b>“非欧贴地测地线长”</b>进行二次重排序。最终使用严格 Clamp 因子，将原生语义与脑网上下文向量融为一体，完成终极波函数坍缩！</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 全宽：工程硬核硬度与纪律 -->
-            <div class="card full-width">
-                <div class="card-title">🛡️ 铁血防线：V8.2-γ 工程学纪律与守卫</div>
-                <p style="color: var(--text-muted); margin-bottom: 15px;">
-                    再惊艳的数学思想，如果没有坚若磐石的工程学严谨落地，也只是空中楼阁。浪潮引擎在核心层面贯彻了以下铁律：
-                </p>
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="width: 20%;">防御链条 / 纪律</th>
-                            <th style="width: 40%;">物理机制与公式</th>
-                            <th style="width: 40%;">灾难防护落点</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><b>有向反转守卫</b></td>
-                            <td><code style="color:var(--primary)">backwardWeight &le; forwardWeight &times; 0.95</code></td>
-                            <td>保卫时间之箭与叙事方向公理，坚决防止有向图形成恶性正反馈振荡。</td>
-                        </tr>
-                        <tr>
-                            <td><b>冷启动强阻塞钩子</b></td>
-                            <td>首次启动 / 模型签名异动 🔍 触发 Rust 异步计算 <code style="color:var(--accent)">computePairwiseSimilarities</code></td>
-                            <td>防止 `getSim()` 缓存全空时产生全 0 Fallback，导致语义增益均匀压平整张图，诱发召回瘫痪。</td>
-                        </tr>
-                        <tr>
-                            <td><b>三层退化链条 (Geodesic)</b></td>
-                            <td>L0: 距离场为空 &rarr; 整体退化； L1: 采样数不足 &rarr; 单节点局部置 0； L2: maxGeo为 0 &rarr; 降级为纯 KNN</td>
-                            <td>在极端长尾或数据库为空的边界条件下，确保系统平滑、优雅降级，绝对不向用户抛出异常死机。</td>
-                        </tr>
-                        <tr>
-                            <td><b>跨签名失效盾</b></td>
-                            <td>SHA-256 复合签名：<code style="color:var(--secondary)">Hash(model_name : dimension)</code> 取前 16 位</td>
-                            <td>防止更换 Embedding 模型或切换维度时，误读取旧版 BLOB 二进制残渣，从物理层面杜绝内存越界。</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- VCP 官网页脚 -->
-    <footer style="padding: 5rem 2rem; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(10, 15, 29, 0.2); margin-top: 4rem;">
-        <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 3rem; margin-bottom: 3rem;">
-            <div>
-                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;">
-                    <div style="width: 2.5rem; height: 2.5rem; background: var(--secondary); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2">
-                            <rect x="4" y="4" width="6" height="6" rx="1"/>
-                            <rect x="14" y="4" width="6" height="6" rx="1"/>
-                            <rect x="4" y="14" width="6" height="6" rx="1"/>
-                            <rect x="14" y="14" width="6" height="6" rx="1"/>
-                        </svg>
-                    </div>
-                    <span style="font-size: 1.5rem; font-weight: 900;">VCP<span style="color: var(--primary);">.OS</span></span>
-                </div>
-                <p style="color: var(--text-muted); line-height: 1.6;">Variable & Command Protocol<br/>AI 存在的基础设施</p>
-            </div>
-            <div>
-                <h5 style="font-family: monospace; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--primary); margin-bottom: 1.5rem;">快速链接</h5>
-                <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 1rem;">
-                    <li><a href="/" style="color: var(--text-muted); text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-muted)'">返回首页</a></li>
-                    <li><a href="/#docs" style="color: var(--text-muted); text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-muted)'">文档中心</a></li>
-                    <li><a href="https://github.com/lioensky/VCPToolBox" target="_blank" style="color: var(--text-muted); text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-muted)'">ToolBox 后端</a></li>
-                    <li><a href="https://github.com/lioensky/VCPChat" target="_blank" style="color: var(--text-muted); text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-muted)'">VCPChat 前端</a></li>
-                </ul>
-            </div>
-            <div>
-                <h5 style="font-family: monospace; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--secondary); margin-bottom: 1.5rem;">核心技术</h5>
-                <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 1rem;">
-                    <li><a href="/vcp_wave_v8_engine.html" style="color: var(--text-muted); text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='var(--secondary)'" onmouseout="this.style.color='var(--text-muted)'">TagMemo 浪潮引擎</a></li>
-                    <li><a href="/#memory" style="color: var(--text-muted); text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='var(--secondary)'" onmouseout="this.style.color='var(--text-muted)'">神经记忆系统</a></li>
-                    <li><a href="/#desktop" style="color: var(--text-muted); text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='var(--secondary)'" onmouseout="this.style.color='var(--text-muted)'">VCP Desktop</a></li>
-                </ul>
             </div>
         </div>
-        <div style="max-width: 1200px; margin: 0 auto; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; font-family: monospace; font-size: 0.625rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(148, 163, 184, 0.6);">
-            <span>© 2026 VCP ECOSYSTEM. ALL RIGHTS RESERVED.</span>
-            <span>CC BY-NC-SA 4.0</span>
+    </section>
+
+    <!-- ============ Chapter 4: 钟形阻尼 ============ -->
+    <section class="chapter" data-chapter="4">
+        <div class="chapter-meta">CHAPTER 04 · BELL DAMPER</div>
+        <h2 class="chapter-title">钟形阻尼器：避免同义回音 & 噪声</h2>
+        <div class="chapter-body reverse">
+            <div class="text-pane">
+                <p class="lead">朴素直觉认为"语义越像越好"，但<strong>同义词其实是回音壁</strong>——<br/>"委内瑞拉局势"和"委内瑞拉危机"放大只会传播寂寞。</p>
+                <p>VCP 的钟形函数把<strong>黄金邻接区放大、两端衰减</strong>：</p>
+                <div class="bell-zones">
+                    <div class="zone z-noise"><span>sim → 0</span><em>偶然共现 · 沉到地形</em></div>
+                    <div class="zone z-gold"><span>sim ≈ 0.65</span><em>概念邻接 · 黄金区放大</em></div>
+                    <div class="zone z-echo"><span>sim → 1</span><em>同义复读 · 抑制回音</em></div>
+                </div>
+                <div class="code-tag mono-snippet small">
+gain(sim) = 0.5 + 0.8 · exp(−(sim − 0.65)² / (2 · 0.25²))
+                </div>
+            </div>
+            <div class="canvas-pane">
+                <canvas id="ch4Canvas" class="scene-canvas"></canvas>
+                <div class="bell-readout">
+                    <div>当前 sim: <span id="ch4SimValue">0.00</span></div>
+                    <div>钟形增益: <span id="ch4GainValue">0.00</span></div>
+                </div>
+            </div>
         </div>
-    </footer>
+    </section>
 
-    <script>
-        // --- 浪潮引擎仿真动画交互逻辑 ---
-        const nodesData = [
-            { id: 1, name: "量子力学", x: 120, y: 150, type: "seed", energy: 1.0 },
-            { id: 2, name: "热力学熵", x: 260, y: 120, type: "normal", energy: 0.0 },
-            { id: 3, name: "认知科学", x: 190, y: 280, type: "normal", energy: 0.0 },
-            { id: 4, name: "神经元突触", x: 380, y: 260, type: "emergent", energy: 0.0 },
-            { id: 5, name: "辩证哲学", x: 520, y: 140, type: "core", energy: 0.0 },
-            { id: 6, name: "信息几何", x: 450, y: 350, type: "emergent", energy: 0.0 },
-            { id: 7, name: "非欧流形", x: 640, y: 280, type: "wormhole", energy: 0.0 }
-        ];
+    <!-- ============ Chapter 5: 直线 vs 测地线 ============ -->
+    <section class="chapter" data-chapter="5">
+        <div class="chapter-meta">CHAPTER 05 · GEODESIC</div>
+        <h2 class="chapter-title">传统 RAG 走直线，VCP 走河道</h2>
+        <div class="chapter-body">
+            <div class="text-pane">
+                <p class="lead">embedding 空间不是平的——共现拓扑形成了语义"<strong>地形</strong>"。</p>
+                <p>传统 RAG 在两个 Tag 间画一条<strong>余弦直线</strong>（穿山）。<br/>VCP 计算<strong>流体力学最优路径</strong>（贴地绕山）。</p>
+                <p class="quote">这正是黎曼对广义相对论<br/><strong>空间曲率</strong>的总结。</p>
+                <div class="comparison">
+                    <div class="comp-card comp-rag">
+                        <div class="comp-label">传统 RAG</div>
+                        <div class="comp-value">cosine 直线</div>
+                        <div class="comp-tag bad">穿山而过</div>
+                    </div>
+                    <div class="comp-card comp-vcp">
+                        <div class="comp-label">VCP v8</div>
+                        <div class="comp-value">测地线重排</div>
+                        <div class="comp-tag good">贴地最优</div>
+                    </div>
+                </div>
+            </div>
+            <div class="canvas-pane">
+                <canvas id="ch5Canvas" class="scene-canvas"></canvas>
+                <div class="canvas-legend">
+                    <span class="legend-item"><i class="legend-line line-rag"></i>RAG 直线</span>
+                    <span class="legend-item"><i class="legend-line line-vcp"></i>VCP 测地线</span>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        const linksData = [
-            { source: 1, target: 2, weight: 0.75, type: 'normal' },
-            { source: 1, target: 3, weight: 0.85, type: 'normal' },
-            { source: 3, target: 4, weight: 0.90, type: 'normal' },
-            { source: 2, target: 5, weight: 0.60, type: 'normal' },
-            { source: 4, target: 6, weight: 0.80, type: 'normal' },
-            { source: 6, target: 7, weight: 0.95, type: 'wormhole' }, // 语义虫洞跃迁
-            { source: 5, target: 7, weight: 0.50, type: 'normal' }
-        ];
+    <!-- ============ Chapter 6: LIF 脉冲扩散 ============ -->
+    <section class="chapter" data-chapter="6">
+        <div class="chapter-meta">CHAPTER 06 · LIF SPIKE</div>
+        <h2 class="chapter-title">河道的阻力 = 神经元电流</h2>
+        <div class="chapter-body reverse">
+            <div class="text-pane">
+                <p class="lead">VCP 借用了生物神经网络里的 <strong>LIF（Leaky Integrate-and-Fire）</strong> 算法来计算阻力。</p>
+                <p>查询命中的 Tag 像神经元一样<strong>放电</strong>，沿河道传导：</p>
+                <ol class="step-list">
+                    <li><strong>初始注入</strong>：种子节点能量 = 命中权重</li>
+                    <li><strong>突触传导</strong>：超过 FIRING_THRESHOLD = 0.10 才放电</li>
+                    <li><strong>电位衰减</strong>：current = energy × coocW × decay</li>
+                    <li><strong>认知涌现</strong>：从未提及的概念，被涌现</li>
+                </ol>
+                <div class="code-tag mono-snippet">
+spike.energy = baseW × decay<sup>hop</sup><br/>
+if (spike.energy &gt; threshold) <span class="op-keyword">propagate</span>
+                </div>
+            </div>
+            <div class="canvas-pane">
+                <canvas id="ch6Canvas" class="scene-canvas"></canvas>
+                <button class="fire-btn" id="ch6FireBtn">
+                    <span class="fire-icon">⚡</span>
+                    <span>注入脉冲</span>
+                </button>
+            </div>
+        </div>
+    </section>
 
-        const nodeLayer = document.getElementById('node-layer');
-        const synapseLayer = document.getElementById('synapse-layer');
-        const viewport = document.getElementById('sim-viewport');
-        const logPanel = document.getElementById('sim-log');
-        const statusPanel = document.getElementById('sim-status');
-        const svgMesh = document.getElementById('svg-mesh');
+    <!-- ============ Chapter 7: 虫洞飞溅 ============ -->
+    <section class="chapter" data-chapter="7">
+        <div class="chapter-meta">CHAPTER 07 · WORMHOLE</div>
+        <h2 class="chapter-title">河道落差太大 = 浪花飞溅</h2>
+        <div class="chapter-body">
+            <div class="text-pane">
+                <p class="lead">当一条边的<strong>张力（共现 × 残差新颖度）</strong>突破阈值，<br/>脉冲就<strong>不再贴地传导</strong>，而是像瀑布飞溅。</p>
+                <p>这就是 V7 的<strong>虫洞路由</strong>——<br/>引力弹弓效应把稠密区的能量<strong>瞬间喷射</strong>到长尾远端。</p>
+                <div class="formula-box">
+                    Tension = coocWeight × neighborResidual<br/>
+                    if (Tension ≥ <strong>1.0</strong>) → 🌊 Wormhole
+                </div>
+                <div class="bullet-summary">
+                    <div class="bullet-item">
+                        <strong>普通边</strong>
+                        <span>动量 −1，强衰减 0.25</span>
+                    </div>
+                    <div class="bullet-item highlight">
+                        <strong>虫洞边</strong>
+                        <span>动量豁免，弱衰减 0.70</span>
+                    </div>
+                </div>
+            </div>
+            <div class="canvas-pane">
+                <canvas id="ch7Canvas" class="scene-canvas"></canvas>
+                <button class="fire-btn" id="ch7FireBtn">
+                    <span class="fire-icon">💥</span>
+                    <span>触发虫洞</span>
+                </button>
+            </div>
+        </div>
+    </section>
 
-        // 初始化绘制节点与突触
-        function initEngineNetwork() {
-            nodeLayer.innerHTML = '';
-            synapseLayer.innerHTML = '';
-            
-            // 绘制突触连线
-            linksData.forEach(link => {
-                const sNode = nodesData.find(n => n.id === link.source);
-                const tNode = nodesData.find(n => n.id === link.target);
-                if (!sNode || !tNode) return;
+    <!-- ============ Chapter 8: 残差金字塔 + SVD ============ -->
+    <section class="chapter" data-chapter="8">
+        <div class="chapter-meta">CHAPTER 08 · TOPOGRAPHY</div>
+        <h2 class="chapter-title">残差金字塔 = 河道地势图</h2>
+        <div class="chapter-body reverse">
+            <div class="text-pane">
+                <p class="lead">想象一张地势等高线图——<strong>残差金字塔</strong>就是它。</p>
+                <p>SVD 是<strong>河流区域分析图</strong>——决定"<code>Python</code>"跨域到"<code>蟒蛇</code>"需要多大阻尼。</p>
+                <div class="complexity-cards">
+                    <div class="complexity-card slow">
+                        <div class="cx-tag">O(n³)</div>
+                        <div class="cx-name">SVD 主题分解</div>
+                        <div class="cx-desc">离线预计算<br/>跨域阻尼建模</div>
+                    </div>
+                    <div class="complexity-card slow">
+                        <div class="cx-tag">O(n³)</div>
+                        <div class="cx-name">残差能量分析</div>
+                        <div class="cx-desc">Gram-Schmidt 正交化<br/>每个 Tag 的不可替代性</div>
+                    </div>
+                    <div class="complexity-card fast">
+                        <div class="cx-tag">O(1)</div>
+                        <div class="cx-name">流体寻址</div>
+                        <div class="cx-desc">查表式 KNN<br/><strong>预计算 → 热路径零开销</strong></div>
+                    </div>
+                </div>
+                <p class="footnote">→ 重计算预先完成，运行时只查河道地图。</p>
+            </div>
+            <div class="canvas-pane">
+                <canvas id="ch8Canvas" class="scene-canvas"></canvas>
+            </div>
+        </div>
+    </section>
 
-                const dx = tNode.x - sNode.x;
-                const dy = tNode.y - sNode.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    <!-- ============ Chapter 9: 朗飞结 ============ -->
+    <section class="chapter" data-chapter="9">
+        <div class="chapter-meta">CHAPTER 09 · RANVIER</div>
+        <h2 class="chapter-title">朗飞结 = AI 修建的运河</h2>
+        <div class="chapter-body">
+            <div class="text-pane">
+                <p class="lead">生物神经元有<strong>朗飞结（Node of Ranvier）</strong>——电信号跳跃式传导，绕开髓鞘。</p>
+                <p>VCP 用同样的思路实现<strong>跨域桥接</strong>：<br/>当两个语义流域天然不连通，AI 主动<strong>修建运河</strong>，<br/>让<code>决策 Python</code> 能跳到 <code>蟒蛇生物学</code>。</p>
+                <div class="ranvier-flow">
+                    <div class="r-node">技术域</div>
+                    <div class="r-leap">⟶ 朗飞结跳跃 ⟶</div>
+                    <div class="r-node">生物域</div>
+                </div>
+                <p class="quote">这是工程化的"语义涌现"——<br/>不是巧合，是<strong>有意修建</strong>的桥梁。</p>
+            </div>
+            <div class="canvas-pane">
+                <canvas id="ch9Canvas" class="scene-canvas"></canvas>
+            </div>
+        </div>
+    </section>
 
-                const line = document.createElement('div');
-                line.className = 'synapse-line';
-                line.id = `link-${link.source}-${link.target}`;
-                line.style.width = `${dist}px`;
-                line.style.left = `${sNode.x}px`;
-                line.style.top = `${sNode.y}px`;
-                line.style.transform = `rotate(${angle}deg)`;
-                
-                if (link.type === 'wormhole') {
-                    line.style.borderTop = "2px dashed var(--secondary)";
-                    line.style.animation = "pulseGlow 1s infinite alternate";
-                }
-                synapseLayer.appendChild(line);
-            });
+    <!-- ============ Chapter 10: 完整引擎全景 ============ -->
+    <section class="chapter chapter-finale" data-chapter="10">
+        <div class="chapter-meta">CHAPTER 10 · GRAND VIEW</div>
+        <h2 class="chapter-title">VCP 浪潮 v8.2 · 语义动力学</h2>
+        <div class="finale-pipeline">
+            <div class="pipe-step">
+                <div class="pipe-num">1</div>
+                <div class="pipe-name">EPA 投影</div>
+                <div class="pipe-desc">逻辑深度 + 共振</div>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-step">
+                <div class="pipe-num">2</div>
+                <div class="pipe-name">残差金字塔</div>
+                <div class="pipe-desc">新颖度 + 覆盖率</div>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-step">
+                <div class="pipe-num">3</div>
+                <div class="pipe-name">动态 Beta</div>
+                <div class="pipe-desc">σ(L · log(1+R) − S · noise)</div>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-step">
+                <div class="pipe-num">4</div>
+                <div class="pipe-name">语言门控</div>
+                <div class="pipe-desc">技术词跨域惩罚</div>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-step pipe-spotlight">
+                <div class="pipe-num">5</div>
+                <div class="pipe-name">LIF 脉冲</div>
+                <div class="pipe-desc">动量 + 虫洞</div>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-step">
+                <div class="pipe-num">6</div>
+                <div class="pipe-name">语义去重</div>
+                <div class="pipe-desc">同义合并</div>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-step">
+                <div class="pipe-num">7</div>
+                <div class="pipe-name">向量融合</div>
+                <div class="pipe-desc">α 混合 + 归一化</div>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-step pipe-final">
+                <div class="pipe-num">8</div>
+                <div class="pipe-name">测地线重排</div>
+                <div class="pipe-desc">复用距离场</div>
+            </div>
+        </div>
+        <canvas id="ch10Canvas" class="scene-canvas finale-canvas"></canvas>
+        <div class="finale-quote">
+            <p>"V4 是直线，V6 是扩散，V7 是势能与虫洞，V8.2 是流形。"</p>
+            <p class="quote-en">From cosine line to ordered bidirectional manifold.</p>
+        </div>
+        <footer class="finale-footer">
+            <div class="philosophy">
+                <span>Engine = </span>
+                <strong>Riemann × LIF × SVD × O(1) lookup</strong>
+            </div>
+            <div class="signature">
+                VCP TagMemo · 浪潮 v8.2 · 语义流体力学引擎
+            </div>
+        </footer>
+    </section>
 
-            // 绘制神经元节点
-            nodesData.forEach(node => {
-                const el = document.createElement('div');
-                el.className = 'node';
-                el.id = `node-${node.id}`;
-                el.style.left = `${node.x}px`;
-                el.style.top = `${node.y}px`;
-                
-                // 根据类型定制外观
-                let bColor = 'var(--primary)';
-                let size = '14px';
-                if (node.type === 'seed') { bColor = '#ff3366'; size = '18px'; }
-                else if (node.type === 'core') { bColor = 'var(--accent)'; size = '16px'; el.style.boxShadow = '0 0 15px var(--accent)'; }
-                else if (node.type === 'wormhole') { bColor = 'var(--secondary)'; size = '16px'; }
-                else if (node.type === 'emergent') { bColor = '#e2e8f0'; size = '12px'; opacity = 0.5; }
-
-                el.style.width = size;
-                el.style.height = size;
-                el.style.backgroundColor = bColor;
-                el.style.boxShadow = `0 0 10px ${bColor}`;
-
-                const label = document.createElement('div');
-                label.className = 'node-label';
-                label.innerText = `${node.name}`;
-                el.appendChild(label);
-
-                nodeLayer.appendChild(el);
-            });
-        }
-
-        // 模拟放电扩散动画
-        async function runSpikePropagation() {
-            statusPanel.innerText = "STATUS: LIF SPIKE PROPAGATION ACTIVE // MAX_HOPS: 4";
-            statusPanel.style.color = "var(--accent)";
-            logPanel.innerHTML = `[LIF 脉冲启动] ⚡ 观测到种子节点《量子力学》激发，初始注入能量 E_init = 1.000`;
-
-            // 还原节点样式
-            initEngineNetwork();
-
-            // 激发第1阶段
-            await delay(600);
-            animateFlashNode(1, '#ff3366', 1.4);
-            animatePulseBetween(1, 2);
-            animatePulseBetween(1, 3);
-            logPanel.innerHTML += `<br>[Hop 1] 节点[量子力学]突破放电阈值(0.10)！电位向相邻突触传导...`;
-
-            // 激发第2阶段
-            await delay(800);
-            animateFlashNode(2, 'var(--primary)', 1.2);
-            animateFlashNode(3, 'var(--primary)', 1.3);
-            animatePulseBetween(3, 4);
-            animatePulseBetween(2, 5);
-            logPanel.innerHTML += `<br>[Hop 2] 类脑网络电波扩散：[热力学熵]、[认知科学] 联合激发。`;
-
-            // 激发第3阶段（引出暗度陈仓的涌现与核心标签补全）
-            await delay(800);
-            animateFlashNode(4, 'var(--primary)', 1.1);
-            animateFlashNode(5, 'var(--accent)', 1.5);
-            animatePulseBetween(4, 6);
-            logPanel.innerHTML += `<br>[Hop 3] 🌟 触发认知涌现！核心锚点【辩证哲学】激活，获得 Core Boost (1.33x) 特权豁免门控。`;
-
-            // 激发第4阶段：虫洞跃迁与非欧几何折叠
-            await delay(800);
-            animateFlashNode(6, 'var(--primary)', 1.0);
-            // 虫洞特写
-            const wormholeLink = document.getElementById('link-6-7');
-            if (wormholeLink) {
-                wormholeLink.style.borderTop = "4px solid var(--secondary)";
-                wormholeLink.style.boxShadow = "0 0 25px var(--secondary)";
-            }
-            logPanel.innerHTML += `<br>[Wormhole Routing] 🌀 警告：突触张力（新颖度张力 = 1.42）超越临界阈值 1.0！激活虫洞路由！`;
-            
-            await delay(400);
-            animateFlashNode(7, 'var(--secondary)', 1.6);
-            logPanel.innerHTML += `<br>[Hop 4 终点] 电波穿透语义障碍，从未在字面提及的暗物质节点【非欧流形】瞬间空降召回(isPullback: true)！`;
-            
-            statusPanel.innerText = "STATUS: WAVE COMPRESSION COMPLETE // TOP-K COLLAPSED";
-            statusPanel.style.color = "var(--primary)";
-        }
-
-        // 模拟测地线重排地形场
-        let geodesicMode = false;
-        function toggleGeodesicMap() {
-            geodesicMode = !geodesicMode;
-            if (geodesicMode) {
-                statusPanel.innerText = "STATUS: GEODESIC RERANK ACTIVE // NON-EUCLIDEAN MANIFOLD";
-                statusPanel.style.color = "var(--secondary)";
-                svgMesh.style.display = "block";
-                
-                // 绘制网格等高线
-                let gridHtml = '';
-                for(let i=0; i<10; i++) {
-                    gridHtml += `<circle cx="380" cy="260" r="${i*45}" fill="none" stroke="rgba(189,0,255,0.08)" stroke-width="1.5" />`;
-                }
-                svgMesh.innerHTML = gridHtml;
-                
-                // 扭曲节点位置，模拟空间下陷
-                nodesData.forEach(n => {
-                    const el = document.getElementById(`node-${n.id}`);
-                    if(el) {
-                        // 向中心凹陷点 (380, 260) 微调拉扯
-                        const dx = 380 - n.x;
-                        const dy = 260 - n.y;
-                        el.style.transform = `translate(${-50 + dx*0.25}%, ${-50 + dy*0.25}%) scale(0.9)`;
-                    }
-                });
-                logPanel.innerHTML = `[测地线重排激活] 🪐 导入能量距离场（lastEnergyField）。系统已丢弃高维欧氏直线度量，改由等高拓扑势能下的非欧流形“地表贴地贴行距离”重新测算 KNN 候选 Chunk 分数。无偏差三层退化防护链 L0-L2 守卫就绪。`;
-            } else {
-                resetSpace();
-            }
-        }
-
-        function resetSpace() {
-            geodesicMode = false;
-            svgMesh.style.display = "none";
-            statusPanel.innerText = "STATUS: SYSTEM READY // MANIFOLD: FLAT";
-            statusPanel.style.color = "var(--primary)";
-            logPanel.innerHTML = "[控制台日志] 空间已恢复平坦状态。";
-            initEngineNetwork();
-        }
-
-        function animateFlashNode(id, color, scale) {
-            const el = document.getElementById(`node-${id}`);
-            if (!el) return;
-            el.style.backgroundColor = color;
-            el.style.transform = `translate(-50%, -50%) scale(${scale})`;
-            el.style.boxShadow = `0 0 30px ${color}`;
-        }
-
-        function animatePulseBetween(sourceId, targetId) {
-            const sNode = nodesData.find(n => n.id === sourceId);
-            const tNode = nodesData.find(n => n.id === targetId);
-            if (!sNode || !tNode) return;
-
-            const linkEl = document.getElementById(`link-${sourceId}-${targetId}`);
-            if (linkEl) {
-                linkEl.style.background = "linear-gradient(90deg, var(--accent), var(--secondary))";
-                linkEl.style.height = "3px";
-            }
-        }
-
-        function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
-
-        // 绑定按钮事件
-        document.getElementById('btn-pulse').addEventListener('click', runSpikePropagation);
-        document.getElementById('btn-geodesic').addEventListener('click', toggleGeodesicMap);
-        document.getElementById('btn-reset').addEventListener('click', resetSpace);
-
-        // 首次加载
-        initEngineNetwork();
-    </script>
+    <!-- 第三方依赖 -->
+    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+    <!-- 自有脚本 -->
+    <script src="river-engine.js"></script>
+    <script src="scenes.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
