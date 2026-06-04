@@ -13,7 +13,7 @@ category: changelog
 
 ## 最新更新
 
-### 2026-06-04 · 浪潮 V8 数据库全量重构与 Agnes 多模态生成插件
+### 2026-06-04 · 浪潮 V8 数据库全量重构
 
 浪潮 V8 数据库完成全量重构，重点修复 SQLite WAL 并发写入与极端运行环境下的瞬态一致性问题：新增 Rust 写租约门控，使 JS 主线程与 Rust 计算线程不再抢占 WAL 写入；健康检查升级为“checkpoint + 重开连接”的两阶段复检，避免短暂视图抖动被误判为 Corrupt；冷启动阶段与 epa-basis / matrix-rebuild 解耦，大库初始化不再抢跑 full scan。
 
