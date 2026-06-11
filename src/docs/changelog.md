@@ -1,7 +1,7 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-06-05 的真实演进记录，按时间倒序展示最新版本与关键里程碑。
-updatedAt: 2026-06-05
+summary: 汇总 VCP 从 2023-12 到 2026-06-11 的真实演进记录，按时间倒序展示最新版本与关键里程碑。
+updatedAt: 2026-06-11
 category: changelog
 ---
 
@@ -12,6 +12,40 @@ category: changelog
 ---
 
 ## 最新更新
+
+### 2026-06-11 · VCPMessageRenderer V3 与 TagMemo / Vexus 稳定性维护
+
+VCPMessageRenderer 全量重构到 V3，渲染性能再次大幅提升。长短缓存遍历改为 WeakMap，移除常驻 will-change，并将流式帧率控制统一为通用、平滑、打字机三类模式；DOM 帧率控制与分包策略完成动态化 Drain 架构改造，显著改善前台真实渲染 DOM 与后台非渲染 DOM 队列之间的性能交互。
+
+ScopedCSS 样式防火墙管线重构为只保护需要防御的块级元素，不再对所有气泡全量防御，并统一使用 HtmlHashLRU 管理气泡索引。流式 AST 解析器升级后，Stable 区 / Stream 区识别范围扩展到 Markdown 文档段、富媒体、JS 动画、LaTeX / KaTeX、节点图、表格、DIV 嵌套、HTML 块级元素与 Python 计算块等多类场景；稳定区与 Final 检查点运行完整管线，Stream 区使用 LightTail，并由 HeavyDom 守卫把控，实现“先流式渐入，再整体富渲染”的二阶段加速，超长复杂气泡文本流式性能从 O(n²) 降至 O(n) 甚至更低。
+
+占位符保护渲染端口完全统一，避免公式、工具调用与附件渲染重复全量扫描；新增 BuildTurnDepthMap，使全上下文 depth 占位符扫描从 O(n²) 回归 O(n)，并增强与气泡级 IIFE 重定向模块的兼容性。墓碑冻结升级到 V2：暂停态 rAF 从轮询改为事件唤醒，离屏动画暂停时真正停止帧调度；新增 rAF / setTimeout / setInterval 状态暂停与恢复管线，以及消息级 contain-intrinsic-size 渲染索引。所有富渲染现在出生即冻结，只在进入用户视线时解冻动画帧合成与事件监听，大幅提升超长多动画上下文的载入可靠性。
+
+涟漪渲染引擎引入多级缓冲加速队列，可在用户可见范围外智能识别渲染优先级，并按长上下文位置与内部动画等级分层排队，优先渲染布局尺寸和基础文本而非全量富样式。裸露 div 样式解析器支持嵌套栈、引号、注释、RAWTEXT 与 void 元素等边界情况，减少流式周期内 CSS / JS 源码被短暂误渲染为 Markdown 元素导致的布局闪烁，并配合更强的 div 块防火墙与 Stable / Stream 分离机制降低渲染负荷。
+
+新增消息级 raw HTML LRU 缓存，对 DOM、闭包与后处理结果进行轻量缓存；消息被建模为块序列，每块独立 hash、缓存 HTML 并独立富化，缓存键综合 content hash、设置指纹、管线版本与 depth 桶。超长上下文的历史加载与 finalize 文本到 HTML 解析被 Worker 化，并由涟漪渲染引擎管理；缓存系统避免与 ScopedCSS 竞态，并通过严格队列化缓存异步索引提升内存压缩与冷冻效率。
+
+TagMemo 浪潮 V8 引擎与 Vexus 数据库完成日常维护。矩阵重建新增多级兜底、增量检测与健康检查，失败进度可回填 changesAtStart，避免 tag change 计数丢失；V8 测地线查询级距离场进一步收口，增强旧缓存回收、多查询隔离与内存寻址可靠性，避免极端情况下测地线指针错位。语义去重阶段新增 normalizedVectorCache，缓存 tag 向量 view 与范数，内层比较不再重复 decode 向量 blob，余弦计算收口为“外层 decode / norm 一次，内层只做 dot”，降低 O(n²) 场景下的主线程延迟风险，并统一 coreBoostFactor 动态推理端口及一致性检查。
+
+Rust 索引写入风险进一步修复：VexusIndex.add_batch() 在 multi: false 索引配置下，批量写入前先尽力 remove 再 add，避免已存在 key 重嵌入时触发 duplicate key 导致整批失败。Rust IR 残差计算热点优化后，residual_norm_from_basis() 会预计算每个 basis 的投影系数，使 centroid / svd 路径复杂度从 O(k·dim²) 降至 O(k·dim)。RustNotify 也提升稳固性：Watcher JSON payload 改用 json_escape()，VexusWatcher.start_watch() 的 mutex 获取从 unwrap() 改为错误映射，stop_watch() 改为返回 Result<()>，避免 mutex poisoning 通过 FFI panic / abort。
+
+### 2026-06-09 · 独立敏捷记忆管线与热配置体系
+
+VCP 引入一套与向量化并行的独立记忆管线，由 RUST-DailyNoteAPI 维护。该管线不进行任何向量化查询，而是使用 BM25、数学方法与 if / else 逻辑匹配来构建记忆、背景信息和工具流，面向“敏捷生产”环境，避免向量化网络请求与 TagMemo 神经加速带来的额外延迟。
+
+本次更新还为顶层 Maid 字段引入 Valet 字段兼容，用于更自然地区分性别设定；VCP 劫持任意前端策略实现热配置，并优化请求头、元数据透传、后端面板 GUI 与多预设热切换能力。
+
+### 2026-06-07 · OneRing 正式稳定版与纯 HASH-SQL 仲裁设计
+
+OneRing 管线设计全面重构：移除 Rust 层依赖与所有数学方法，改用全新的纯 HASH-SQL 指令设计，并通过一个精巧的逻辑门取代原有复杂管线。代码量从约 4000 行 JS + 2000 行 Rust 缩减到约 400 行 JS，只需记录每一个 post 并维持 20 组窗口，即可实现分布式消息的客户端、时间戳与发送人溯源，且几乎无 CPU 占用。
+
+VCP 后端面板的上下文组装工厂 GUI 全面适配 OneRing 系统。至此，OneRing 完成第一个正式稳定版：它不需要前端提供时间轴，不依赖消息来自哪个前端、谁的发言标记、编辑历史、分支对话、数组历史修改、重试或流式中断信息；前端只需提供 role 和 content，OneRing 即可构建唯一真相上下文，并标记发言来源、前端信源、时间戳顺序、私信回复、新会话起点与分支对话合并点。可以将它理解为一个“无状态、无信任、分布式一致仲裁机”。
+
+### 2026-06-06 · OneRing 上下文处理管线重构与 Rust 环形加速
+
+VCP 重构上下文处理管线，统一向量化时对 AI 块、User 块与完整上下文的预处理方法，并由 9 个引力场相关模块统一调用。上下文复杂预处理顺序被重新配置，以最大化 OneRing 效果，并显著降低 AI 因 OneRing 系统产生幻觉的可能性。
+
+本次更新引入 OneRing 的 Vue 后端面板配置界面，并优化 Vue 后端面板中的上下文组装管网可视化 GUI，使其适配 OneRing 系统与全新管线。Oring 系统也完成重构与功能验证，并整体下沉到 Rust 端，通过环形内存加速与超线程并发将计算速度提升约 1500 倍。
 
 ### 2026-06-05 · OneRing 统一上下文系统上线
 
@@ -444,7 +478,7 @@ VCP 从构思阶段进入正式开发阶段。
 
 | 阶段 | 时间范围 | 关键进展 |
 | --- | --- | --- |
-| 正式版与知识图谱期 | 2026-04 ～ 2026-06 | VCP 1.0、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构与一期工程收尾 |
+| 正式版、OneRing 与知识图谱期 | 2026-04 ～ 2026-06 | VCP 1.0、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3 与一期工程收尾 |
 | 平台化扩展期 | 2026-03 ～ 2026-04 | VCPDesktop、桌面遥控、全局 API 虚拟化、PreText.js、7.5 版浪潮与官网上线 |
 | 系统化重构期 | 2026-02 ～ 2026-03 | 超栈追踪 V2、梦系统、SOM 桌面语义控制、多模态记忆、统一中央服务全面推进 |
 | 记忆与自主性爆发期 | 2025-09 ～ 2026-01 | RAG 语法、流式渲染器、Agent 自主巡航、TagMemo、上下文折叠持续成型 |
@@ -459,4 +493,4 @@ VCP 从构思阶段进入正式开发阶段。
 - [`src/docs/getting-started.md`](src/docs/getting-started.md)
 - [`VCP聚合文档.md`](VCP聚合文档.md)
 
-当前总览页已改为真实内容，并按更新日志常用方式调整为**倒序展示**，已补充到 2026-06-05。
+当前总览页已改为真实内容，并按更新日志常用方式调整为**倒序展示**，已补充到 2026-06-11。
