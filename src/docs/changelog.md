@@ -1,7 +1,7 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-06-15 的真实演进记录，按时间倒序展示最新版本与关键里程碑。
-updatedAt: 2026-06-15
+summary: 汇总 VCP 从 2023-12 到 2026-06-20 的真实演进记录，按时间倒序展示最新版本与关键里程碑。
+updatedAt: 2026-06-20
 category: changelog
 ---
 
@@ -12,6 +12,26 @@ category: changelog
 ---
 
 ## 最新更新
+
+### 2026-06-20 · VCPSuperMail 上线与 AINative 邮件通讯
+
+全新插件 VCPSuperMail 上线，基于逆向移植后的 163 AIMailSDK 接入 VCP 基础依赖，形成区别于传统 SMTP 的 AINative 原生邮件环境。Agent 可自主注册 AgentMail 子域名、添加好友邮箱，并通过白名单机制与用户、公共邮箱或其它 VCPAgent 安全收发邮件。
+
+邮件系统原生支持多模态附件与超栈追踪，Agent 可一次性读取正文、图片、音频、视频、PDF、表格等内容，也能通过文件 URL 或网络 URL 快速添加附件；邮箱到信可唤醒对应 Agent，并支持结合 VCP time 语法发送定时邮件。上下文折叠也新增邮箱观测层级，覆盖新邮件、未读邮件、近期已读、主动列表与搜索等场景，显著增强 Agent 的异步通知、工作记录投递与跨用户通讯能力。
+
+### 2026-06-19 · VCPChat / VCPMobile 同步优化与 OpenHer 算法重构
+
+进一步优化 VCPChat 与 VCPMobile 的消息同步体验，并新增分布式音乐列表同步能力，中央服务器现在可以感知并汇总各分布式服务器上的音乐列表，方便跨端统一管理与播放。
+
+OpenHer 情绪认知算法完成全量重构，移除早期纯向量匹配与简化情绪方程，改用 VCP 自研的多维轴极化拓扑量化卷积模型。新模型围绕知性维度、驱动力主轴与感性正负轴体重建情绪认知结构，并结合 EPA 交替投影、主观权重隔离、子轴震荡、跨域纠缠修正、动量衰减与浪潮 V8 残差金字塔，实现更精细、可观测、可量化的 Agent 情绪、行为与内驱分析。
+
+### 2026-06-17 · Vchat CLI 终端重构、阅读器 / 看图器升级与前端应用群耦合
+
+Vchat CLI 终端完成重构，架构改为常驻进程与 xterm 直连，并引入多 SessionID 链接池管理器、标签页管理 GUI 与右键菜单。AI 可视化回显、ANSI Escape 回调、运行中查询、TUI 状态管理、焦点同步与 Resize 均得到强化，显著提升颜色控制、光标移动、清行清屏、进度条、TUI 边框、alternate screen 与动态重绘等 CLI 交互能力。实验性支持 VCPAgent 在 CLI 界面中调用 SnowCLI、Codex、ClaudeCode 等工具并进行异步委托，同时新增面向异步环境的文本 DOM 直接交互能力。
+
+Vchat 内置阅读器与看图器完成重构。阅读器对齐 V3 渲染框架并全面支持 Office 文档阅读；看图器优化大图容器与渲染性能，可打开 100MB 级超高清图片，并引入基于 Egram 与 AnimaSharp 的分辨率自适应放大体验。后端服务器新增模型多模态兼容探针，不兼容时自动启用多模态翻译。
+
+VCP 前端应用群耦合进一步增强：桌面 Widget 右键编辑可调用 VCP Canvas IDE 打开源码并创建工作区，Vchat 前台 Agent / 群聊可感知源码并发起 PR；VCPHumanbox、论坛、Memo 中心与笔记可调用 VCP 看图 / 阅读能力；AI 生成音乐可右键加入 Vmusic 持久化，论坛与 Memo 音乐也改由 VCPMusicEngine 播放；池月 1 号指针整合进 VCHAT 与后端 Vue 面板；后端根 env 多项配置拆分为 JSON 配置并接入面板设置区，以 Json-Chokidar 提升易用性。
 
 ### 2026-06-15 · AgentAssistant 总线升级、异步委托可视化与 ChromeBridge 安全分级
 
@@ -512,7 +532,7 @@ VCP 从构思阶段进入正式开发阶段。
 
 | 阶段 | 时间范围 | 关键进展 |
 | --- | --- | --- |
-| 正式版、OneRing、OpenHer 与知识图谱期 | 2026-04 ～ 2026-06 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制与 ChromeBridge 安全分级 |
+| 正式版、OneRing、OpenHer 与知识图谱期 | 2026-04 ～ 2026-06 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail 与 ChromeBridge 安全分级 |
 | 平台化扩展期 | 2026-03 ～ 2026-04 | VCPDesktop、桌面遥控、全局 API 虚拟化、PreText.js、7.5 版浪潮与官网上线 |
 | 系统化重构期 | 2026-02 ～ 2026-03 | 超栈追踪 V2、梦系统、SOM 桌面语义控制、多模态记忆、统一中央服务全面推进 |
 | 记忆与自主性爆发期 | 2025-09 ～ 2026-01 | RAG 语法、流式渲染器、Agent 自主巡航、TagMemo、上下文折叠持续成型 |
@@ -527,4 +547,4 @@ VCP 从构思阶段进入正式开发阶段。
 - [`src/docs/getting-started.md`](src/docs/getting-started.md)
 - [`VCP聚合文档.md`](VCP聚合文档.md)
 
-当前总览页已改为真实内容，并按更新日志常用方式调整为**倒序展示**，已补充到 2026-06-15。
+当前总览页已改为真实内容，并按更新日志常用方式调整为**倒序展示**，已补充到 2026-06-20。
