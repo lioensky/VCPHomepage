@@ -1276,145 +1276,250 @@
     }
 
     // ============================================================
-    // Chapter 8 · 残差金字塔 + SVD = 地势图
+    // Chapter 8 · Anchored GS 残差定位
     // ============================================================
     function createScene_ch8(canvas) {
         let dims = null;
+        let target = null;
+        let neighbors = [];
+        let energyRings = [];
 
-        function build(w, h) { dims = { w, h }; }
+        const STAGES = [
+            { idx: 0, label: 'Anchor ①', residual: 0.78, gain: 0.42 },
+            { idx: 2, label: 'Anchor ②', residual: 0.54, gain: 0.31 },
+            { idx: 4, label: 'Anchor ③', residual: 0.36, gain: 0.22 },
+        ];
 
-        // 等高线 = 二维高斯叠加
-        function field(x, y, w, h, time) {
-            const cx1 = w * 0.35, cy1 = h * 0.55;
-            const cx2 = w * 0.65, cy2 = h * 0.4;
-            const cx3 = w * 0.5, cy3 = h * 0.75;
-            const sigma = Math.min(w, h) * 0.18;
-            const v1 = Math.exp(-((x - cx1) ** 2 + (y - cy1) ** 2) / (2 * sigma * sigma));
-            const v2 = 0.85 * Math.exp(-((x - cx2) ** 2 + (y - cy2) ** 2) / (2 * sigma * sigma));
-            const v3 = 0.6 * Math.exp(-((x - cx3) ** 2 + (y - cy3) ** 2) / (2 * sigma * sigma * 0.7));
-            const wobble = 0.05 * Math.sin(time * 0.3 + (x + y) * 0.005);
-            return v1 + v2 + v3 + wobble;
+        function build(w, h) {
+            dims = { w, h };
+            target = {
+                x: w * 0.52,
+                y: h * 0.52,
+                label: 'Target Tag',
+                residual: 1.0,
+            };
+            const cx = target.x, cy = target.y;
+            const raw = [
+                { a: -2.55, r: 0.34, label: 'VCP', semantic: 0.91, weight: 0.86, color: COLORS.cyan },
+                { a: -1.42, r: 0.42, label: 'RAG', semantic: 0.52, weight: 0.58, color: COLORS.blue },
+                { a: -0.35, r: 0.33, label: '流形', semantic: 0.84, weight: 0.74, color: COLORS.violet },
+                { a: 0.72, r: 0.43, label: '噪声', semantic: 0.18, weight: 0.91, color: COLORS.muted },
+                { a: 1.82, r: 0.35, label: 'EPA', semantic: 0.79, weight: 0.69, color: COLORS.gold },
+                { a: 2.65, r: 0.46, label: '同义回音', semantic: 0.96, weight: 0.35, color: COLORS.pink },
+            ];
+            neighbors = raw.map((n, i) => ({
+                ...n,
+                x: cx + Math.cos(n.a) * Math.min(w, h) * n.r,
+                y: cy + Math.sin(n.a) * Math.min(w, h) * n.r,
+                pulse: Math.random() * Math.PI * 2,
+                selectedAt: STAGES.findIndex(s => s.idx === i),
+            }));
+            energyRings = [];
+        }
+
+        function drawVector(ctx, from, to, color, alpha, width = 2, dashed = null) {
+            ctx.save();
+            ctx.strokeStyle = hexToRgba(color, alpha);
+            ctx.lineWidth = width;
+            ctx.lineCap = 'round';
+            ctx.shadowBlur = 10 * alpha;
+            ctx.shadowColor = color;
+            if (dashed) ctx.setLineDash(dashed);
+            ctx.beginPath();
+            ctx.moveTo(from.x, from.y);
+            ctx.lineTo(to.x, to.y);
+            ctx.stroke();
+
+            const angle = Math.atan2(to.y - from.y, to.x - from.x);
+            const head = 8;
+            ctx.beginPath();
+            ctx.moveTo(to.x, to.y);
+            ctx.lineTo(to.x - Math.cos(angle - 0.45) * head, to.y - Math.sin(angle - 0.45) * head);
+            ctx.lineTo(to.x - Math.cos(angle + 0.45) * head, to.y - Math.sin(angle + 0.45) * head);
+            ctx.closePath();
+            ctx.fillStyle = hexToRgba(color, alpha);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function drawNode(ctx, n, opts = {}) {
+            const active = opts.active ?? false;
+            const dimmed = opts.dimmed ?? false;
+            const radius = opts.radius ?? 6;
+            const color = opts.color || n.color || COLORS.cyan;
+            const alpha = dimmed ? 0.28 : 0.95;
+            n.pulse = (n.pulse || 0) + 0.045;
+            const pulse = 0.85 + Math.sin(n.pulse) * 0.15;
+
+            ctx.save();
+            ctx.shadowBlur = active ? 24 : 10;
+            ctx.shadowColor = color;
+            const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, radius * (active ? 4 : 2.5));
+            grad.addColorStop(0, hexToRgba(color, alpha * pulse));
+            grad.addColorStop(0.5, hexToRgba(color, alpha * 0.35 * pulse));
+            grad.addColorStop(1, hexToRgba(color, 0));
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(n.x, n.y, radius * (active ? 4 : 2.5), 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = hexToRgba(color, alpha);
+            ctx.beginPath();
+            ctx.arc(n.x, n.y, radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.shadowBlur = 0;
+            ctx.font = active ? 'bold 12px "Inter", sans-serif' : '11px "Inter", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = hexToRgba(COLORS.white, dimmed ? 0.45 : 0.9);
+            ctx.fillText(n.label, n.x, n.y - radius - 10);
+            if (n.semantic !== undefined) {
+                ctx.font = '9px "JetBrains Mono", monospace';
+                ctx.fillStyle = hexToRgba(color, dimmed ? 0.38 : 0.75);
+                ctx.fillText(`sem=${n.semantic.toFixed(2)} · w=${n.weight.toFixed(2)}`, n.x, n.y + radius + 14);
+            }
+            ctx.restore();
         }
 
         const runner = new SceneRunner(canvas, (ctx, w, h, time) => {
-            // 渲染等高线热图
-            const cellSize = 8;
-            const cols = Math.ceil(w / cellSize);
-            const rows = Math.ceil(h / cellSize);
+            const cycle = (time % 9) / 9;
+            const stageCursor = Math.min(STAGES.length - 1, Math.floor(cycle * STAGES.length));
+            const local = (cycle * STAGES.length) % 1;
+            const selectedStage = STAGES[stageCursor];
+            const selected = neighbors[selectedStage.idx];
+            const prevResidual = stageCursor === 0 ? 1.0 : STAGES[stageCursor - 1].residual;
+            const currentResidual = lerp(prevResidual, selectedStage.residual, clamp(local * 1.4, 0, 1));
 
-            // 离散高度网格
-            const grid = [];
-            for (let i = 0; i <= rows; i++) {
-                const row = [];
-                for (let j = 0; j <= cols; j++) {
-                    row.push(field(j * cellSize, i * cellSize, w, h, time));
-                }
-                grid.push(row);
-            }
-
-            // 颜色填充（低-暗，高-亮）
-            for (let i = 0; i < rows; i++) {
-                for (let j = 0; j < cols; j++) {
-                    const v = grid[i][j];
-                    const intensity = clamp(v, 0, 1);
-                    const r = Math.floor(80 + intensity * 100);
-                    const g = Math.floor(150 + intensity * 60);
-                    const b = Math.floor(220);
-                    ctx.fillStyle = `rgba(${r},${g},${b},${0.04 + intensity * 0.18})`;
-                    ctx.fillRect(j * cellSize, i * cellSize, cellSize, cellSize);
-                }
-            }
-
-            // 等高线
-            const levels = [0.2, 0.4, 0.6, 0.8, 1.0];
+            // 背景正交网格
             ctx.save();
+            ctx.strokeStyle = hexToRgba(COLORS.blue, 0.10);
             ctx.lineWidth = 1;
-            for (let li = 0; li < levels.length; li++) {
-                const lv = levels[li];
-                const alpha = 0.25 + li * 0.12;
-                ctx.strokeStyle = hexToRgba(COLORS.cyan, alpha);
-                ctx.shadowBlur = li > 2 ? 6 : 0;
-                ctx.shadowColor = COLORS.cyan;
-
-                // 简单 marching squares
-                ctx.beginPath();
-                for (let i = 0; i < rows; i++) {
-                    for (let j = 0; j < cols; j++) {
-                        const x0 = j * cellSize;
-                        const y0 = i * cellSize;
-                        const v00 = grid[i][j];
-                        const v10 = grid[i][j + 1];
-                        const v01 = grid[i + 1][j];
-                        const v11 = grid[i + 1][j + 1];
-                        // 双线性等值线检测
-                        const a = v00, b = v10, c = v11, d = v01;
-                        const idx = (a > lv ? 1 : 0) | (b > lv ? 2 : 0) | (c > lv ? 4 : 0) | (d > lv ? 8 : 0);
-                        if (idx === 0 || idx === 15) continue;
-                        // 简化：找出穿过的边
-                        const interp = (v1, v2) => (lv - v1) / (v2 - v1);
-                        const top = { x: x0 + interp(a, b) * cellSize, y: y0 };
-                        const right = { x: x0 + cellSize, y: y0 + interp(b, c) * cellSize };
-                        const bottom = { x: x0 + interp(d, c) * cellSize, y: y0 + cellSize };
-                        const left = { x: x0, y: y0 + interp(a, d) * cellSize };
-                        const drawSeg = (p1, p2) => {
-                            ctx.moveTo(p1.x, p1.y);
-                            ctx.lineTo(p2.x, p2.y);
-                        };
-                        switch (idx) {
-                            case 1: case 14: drawSeg(left, top); break;
-                            case 2: case 13: drawSeg(top, right); break;
-                            case 3: case 12: drawSeg(left, right); break;
-                            case 4: case 11: drawSeg(right, bottom); break;
-                            case 6: case 9: drawSeg(top, bottom); break;
-                            case 7: case 8: drawSeg(left, bottom); break;
-                            case 5: drawSeg(left, top); drawSeg(right, bottom); break;
-                            case 10: drawSeg(top, right); drawSeg(left, bottom); break;
-                        }
-                    }
-                }
-                ctx.stroke();
+            for (let x = 40; x < w; x += 42) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+            }
+            for (let y = 34; y < h; y += 42) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
             }
             ctx.restore();
 
-            // 标记三个高峰（残差能量中心）
-            const peaks = [
-                { x: w * 0.35, y: h * 0.55, label: 'Tag A · Residual 1.0', color: COLORS.gold },
-                { x: w * 0.65, y: h * 0.4, label: 'Tag B · Residual 0.85', color: COLORS.cyan },
-                { x: w * 0.5, y: h * 0.75, label: 'Tag C · Residual 0.6', color: COLORS.violet },
-            ];
-            peaks.forEach(p => {
+            // 残差地势晕圈：越扣减越收缩
+            const residualRadius = Math.min(w, h) * (0.33 * currentResidual + 0.08);
+            ctx.save();
+            const rg = ctx.createRadialGradient(target.x, target.y, 0, target.x, target.y, residualRadius);
+            rg.addColorStop(0, hexToRgba(COLORS.pink, 0.20 * currentResidual));
+            rg.addColorStop(0.55, hexToRgba(COLORS.violet, 0.12 * currentResidual));
+            rg.addColorStop(1, hexToRgba(COLORS.pink, 0));
+            ctx.fillStyle = rg;
+            ctx.beginPath();
+            ctx.arc(target.x, target.y, residualRadius, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = hexToRgba(COLORS.pink, 0.35);
+            ctx.setLineDash([6, 8]);
+            ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            ctx.arc(target.x, target.y, residualRadius * 0.72, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+
+            // 候选邻居连线与正交化状态
+            neighbors.forEach((n, i) => {
+                const selectedAt = n.selectedAt;
+                const alreadySelected = selectedAt >= 0 && selectedAt < stageCursor;
+                const isCurrent = i === selectedStage.idx;
+                const isNoise = n.semantic < 0.25;
+                const alpha = alreadySelected ? 0.72 : (isCurrent ? 0.95 : (isNoise ? 0.12 : 0.26));
+                const dash = alreadySelected || isCurrent ? null : [3, 6];
+                drawVector(ctx, n, target, alreadySelected ? COLORS.cyan : n.color, alpha, isCurrent ? 2.7 : 1.1, dash);
+
+                // 当前候选的“正交剥离”小切线
+                if (isCurrent) {
+                    const mx = lerp(n.x, target.x, 0.45);
+                    const my = lerp(n.y, target.y, 0.45);
+                    const dx = target.x - n.x, dy = target.y - n.y;
+                    const len = Math.hypot(dx, dy) || 1;
+                    const ortho = { x: mx - dy / len * 36, y: my + dx / len * 36 };
+                    drawVector(ctx, { x: mx, y: my }, ortho, COLORS.gold, 0.85, 2);
+                    ctx.save();
+                    ctx.font = '10px "JetBrains Mono", monospace';
+                    ctx.fillStyle = hexToRgba(COLORS.gold, 0.9);
+                    ctx.textAlign = 'center';
+                    ctx.fillText('orthogonalize', ortho.x, ortho.y - 8);
+                    ctx.restore();
+                }
+            });
+
+            // 被锚定的贡献流入目标并扣除
+            const flowPoint = {
+                x: lerp(selected.x, target.x, local),
+                y: lerp(selected.y, target.y, local),
+            };
+            ctx.save();
+            ctx.shadowBlur = 18;
+            ctx.shadowColor = COLORS.gold;
+            ctx.fillStyle = hexToRgba(COLORS.gold, 0.95);
+            ctx.beginPath();
+            ctx.arc(flowPoint.x, flowPoint.y, 4 + Math.sin(local * Math.PI) * 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            if (local > 0.72 && energyRings.length < stageCursor + 1) {
+                energyRings.push({ x: target.x, y: target.y, r: 0, life: 1, color: COLORS.pink });
+            }
+            energyRings = energyRings.filter(r => r.life > 0);
+            energyRings.forEach(r => {
+                r.r += 2.8;
+                r.life -= 0.025;
                 ctx.save();
+                ctx.strokeStyle = hexToRgba(r.color, r.life * 0.55);
+                ctx.lineWidth = 2 * r.life;
                 ctx.shadowBlur = 14;
-                ctx.shadowColor = p.color;
-                const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 18);
-                grad.addColorStop(0, hexToRgba(p.color, 1));
-                grad.addColorStop(0.5, hexToRgba(p.color, 0.4));
-                grad.addColorStop(1, hexToRgba(p.color, 0));
-                ctx.fillStyle = grad;
+                ctx.shadowColor = r.color;
                 ctx.beginPath();
-                ctx.arc(p.x, p.y, 18, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = hexToRgba(p.color, 1);
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.shadowBlur = 0;
-                ctx.font = '11px "JetBrains Mono", monospace';
-                ctx.textAlign = 'center';
-                ctx.fillStyle = hexToRgba(COLORS.white, 0.92);
-                ctx.fillText(p.label, p.x, p.y - 24);
+                ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
+                ctx.stroke();
                 ctx.restore();
             });
 
-            // 标题
+            // 节点绘制
+            neighbors.forEach((n, i) => {
+                drawNode(ctx, n, {
+                    active: i === selectedStage.idx || (n.selectedAt >= 0 && n.selectedAt < stageCursor),
+                    dimmed: n.semantic < 0.25 || n.selectedAt > stageCursor,
+                    radius: i === selectedStage.idx ? 7 : 5,
+                });
+            });
+
+            drawNode(ctx, { ...target, color: COLORS.gold, pulse: time * 2 }, {
+                active: true,
+                radius: 10 + currentResidual * 4,
+                color: COLORS.gold,
+            });
+
+            // 残差向量
+            const residualEnd = {
+                x: target.x + Math.cos(-0.78) * Math.min(w, h) * (0.16 + currentResidual * 0.16),
+                y: target.y + Math.sin(-0.78) * Math.min(w, h) * (0.16 + currentResidual * 0.16),
+            };
+            drawVector(ctx, target, residualEnd, COLORS.pink, 0.9, 3);
+            ctx.save();
+            ctx.font = 'bold 11px "JetBrains Mono", monospace';
+            ctx.textAlign = 'left';
+            ctx.fillStyle = hexToRgba(COLORS.pink, 0.95);
+            ctx.fillText(`residual L2 = ${currentResidual.toFixed(2)}`, residualEnd.x + 8, residualEnd.y + 4);
+            ctx.restore();
+
+            // HUD
             ctx.save();
             ctx.font = 'italic 12px "Inter", sans-serif';
             ctx.textAlign = 'left';
-            ctx.fillStyle = hexToRgba(COLORS.cyan, 0.85);
-            ctx.fillText('SVD · 残差金字塔 · 地势等高线', 16, 24);
+            ctx.fillStyle = hexToRgba(COLORS.cyan, 0.9);
+            ctx.fillText('Anchored Gram-Schmidt · greedy residual decomposition', 16, 24);
             ctx.font = '10px "JetBrains Mono", monospace';
-            ctx.fillStyle = hexToRgba(COLORS.muted, 0.75);
-            ctx.fillText('precomputed → O(1) lookup at runtime', 16, 42);
+            ctx.fillStyle = hexToRgba(COLORS.gold, 0.9);
+            ctx.fillText(`${selectedStage.label}: best_score = gain(${selectedStage.gain.toFixed(2)}) × orth × ln(1+w) × sem`, 16, 44);
+            ctx.fillStyle = hexToRgba(COLORS.muted, 0.8);
+            ctx.fillText('selected anchors explain the target; the pink vector is what neighbors cannot explain', 16, 62);
             ctx.restore();
         }, {
             onResize: ({ w, h }) => build(w, h),
@@ -1628,7 +1733,7 @@
 
             // 8 个 pipeline 锚点，从左到右
             const N = 8;
-            const labels = ['EPA', '残差', 'β', '门控', 'LIF', '去重', '融合', '测地线'];
+            const labels = ['EPA', 'Anchored GS', 'β', '门控', 'LIF', '去重', '融合', '测地线'];
             const colors = [COLORS.cyan, COLORS.blue, COLORS.violet, COLORS.gold,
                             COLORS.violet, COLORS.cyan, COLORS.blue, COLORS.cyan];
             const yMid = h * 0.5;

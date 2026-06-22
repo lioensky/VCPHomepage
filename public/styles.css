@@ -959,7 +959,7 @@ body {
     color: var(--river-pink);
 }
 
-/* ============ Ch 8 复杂度卡片 ============ */
+/* ============ Ch 8 Anchored GS 卡片 ============ */
 .complexity-cards {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -1013,6 +1013,41 @@ body {
         rgba(77, 208, 225, 0.12),
         rgba(91, 141, 239, 0.05));
     border-color: rgba(77, 208, 225, 0.4);
+}
+
+.gs-step-list li {
+    border-color: rgba(255, 183, 77, 0.22);
+    background: linear-gradient(135deg,
+        rgba(255, 183, 77, 0.08),
+        rgba(77, 208, 225, 0.04));
+}
+
+.gs-step-list li::before {
+    background: linear-gradient(135deg, var(--river-gold), var(--river-violet));
+    box-shadow: 0 0 12px rgba(255, 183, 77, 0.25);
+}
+
+.gs-cards .complexity-card.fast {
+    border-color: rgba(255, 183, 77, 0.34);
+}
+
+.gs-cards .complexity-card.fast:nth-child(2) {
+    background: linear-gradient(135deg,
+        rgba(138, 92, 246, 0.15),
+        rgba(77, 208, 225, 0.06));
+    border-color: rgba(138, 92, 246, 0.42);
+}
+
+.gs-cards .complexity-card.fast:nth-child(2) .cx-tag {
+    background: rgba(138, 92, 246, 0.22);
+    color: var(--river-violet);
+}
+
+.gs-cards .complexity-card.fast:nth-child(3) {
+    background: linear-gradient(135deg,
+        rgba(77, 208, 225, 0.14),
+        rgba(91, 141, 239, 0.06));
+    border-color: rgba(77, 208, 225, 0.42);
 }
 
 .footnote {

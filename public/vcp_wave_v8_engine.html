@@ -45,7 +45,7 @@
             <li data-chapter="5" class="dot"><span>RAG vs VCP</span></li>
             <li data-chapter="6" class="dot"><span>LIF 脉冲</span></li>
             <li data-chapter="7" class="dot"><span>虫洞飞溅</span></li>
-            <li data-chapter="8" class="dot"><span>残差地势</span></li>
+            <li data-chapter="8" class="dot"><span>锚定残差</span></li>
             <li data-chapter="9" class="dot"><span>朗飞结</span></li>
             <li data-chapter="10" class="dot"><span>语义动力学</span></li>
         </ul>
@@ -292,35 +292,49 @@ if (spike.energy &gt; threshold) <span class="op-keyword">propagate</span>
         </div>
     </section>
 
-    <!-- ============ Chapter 8: 残差金字塔 + SVD ============ -->
+    <!-- ============ Chapter 8: Anchored GS 残差地势 ============ -->
     <section class="chapter" data-chapter="8">
-        <div class="chapter-meta">CHAPTER 08 · TOPOGRAPHY</div>
-        <h2 class="chapter-title">残差金字塔 = 河道地势图</h2>
+        <div class="chapter-meta">CHAPTER 08 · ANCHORED GS</div>
+        <h2 class="chapter-title">Anchored GS：EPA 阶段的内生残差定位</h2>
         <div class="chapter-body reverse">
             <div class="text-pane">
-                <p class="lead">想象一张地势等高线图——<strong>残差金字塔</strong>就是它。</p>
-                <p>SVD 是<strong>河流区域分析图</strong>——决定"<code>Python</code>"跨域到"<code>蟒蛇</code>"需要多大阻尼。</p>
-                <div class="complexity-cards">
-                    <div class="complexity-card slow">
-                        <div class="cx-tag">O(n³)</div>
-                        <div class="cx-name">SVD 主题分解</div>
-                        <div class="cx-desc">离线预计算<br/>跨域阻尼建模</div>
+                <p class="lead">VCP 不再依赖传统稠密 SVD 去压缩所有邻居，而是用<strong>锚定式 Gram-Schmidt</strong>逐轮挑选最可信的解释方向。</p>
+                <p>每一轮都从候选邻居中选出“解释增益 × 正交新意 × 拓扑权重 × 语义门控”最高的锚点，然后从目标 Tag 中扣掉它能解释的分量。</p>
+                <ol class="step-list gs-step-list">
+                    <li><strong>初始化 residual</strong>：把目标 tag 向量当作剩余信息本体</li>
+                    <li><strong>候选正交化</strong>：剥离已选锚点的投影，只保留新方向</li>
+                    <li><strong>贪心锚定</strong>：按 explain_gain × orth_norm × ln(1+w) × semantic 打分</li>
+                    <li><strong>残差回写</strong>：剩余 L2 范数成为 EPA 阶段的独特性地势</li>
+                </ol>
+                <div class="complexity-cards gs-cards">
+                    <div class="complexity-card fast">
+                        <div class="cx-tag">Greedy</div>
+                        <div class="cx-name">锚定选基</div>
+                        <div class="cx-desc">只吸收最有解释力的邻居<br/>天然过滤噪声</div>
                     </div>
-                    <div class="complexity-card slow">
-                        <div class="cx-tag">O(n³)</div>
-                        <div class="cx-name">残差能量分析</div>
-                        <div class="cx-desc">Gram-Schmidt 正交化<br/>每个 Tag 的不可替代性</div>
+                    <div class="complexity-card fast">
+                        <div class="cx-tag">GS</div>
+                        <div class="cx-name">正交扣减</div>
+                        <div class="cx-desc">解释过的分量直接扣除<br/>留下不可替代信息</div>
                     </div>
                     <div class="complexity-card fast">
                         <div class="cx-tag">O(1)</div>
-                        <div class="cx-name">流体寻址</div>
-                        <div class="cx-desc">查表河道动力图<br/><strong>预计算河流网络 → 热路径零开销</strong></div>
+                        <div class="cx-name">EPA 消费</div>
+                        <div class="cx-desc">残差预计算入库<br/><strong>ranking / 元思考直接查表</strong></div>
                     </div>
                 </div>
-                <p class="footnote">→ 重计算预先完成，运行时只查河道地图。</p>
+                <div class="code-tag mono-snippet small">
+score = |residual · u| × orth_norm × ln(1 + weight) × semantic<br/>
+residual ← residual − (residual · u)u
+                </div>
             </div>
             <div class="canvas-pane">
                 <canvas id="ch8Canvas" class="scene-canvas"></canvas>
+                <div class="canvas-legend">
+                    <span class="legend-item"><i class="legend-node"></i>目标 Tag</span>
+                    <span class="legend-item"><i class="legend-line line-vcp"></i>已锚定解释方向</span>
+                    <span class="legend-item"><i class="legend-line line-rag"></i>内生残差</span>
+                </div>
             </div>
         </div>
     </section>
@@ -357,10 +371,10 @@ if (spike.energy &gt; threshold) <span class="op-keyword">propagate</span>
                 <div class="pipe-desc">逻辑深度 + 共振</div>
             </div>
             <div class="pipe-arrow">→</div>
-            <div class="pipe-step">
+            <div class="pipe-step pipe-spotlight">
                 <div class="pipe-num">2</div>
-                <div class="pipe-name">残差金字塔</div>
-                <div class="pipe-desc">新颖度 + 覆盖率</div>
+                <div class="pipe-name">Anchored GS</div>
+                <div class="pipe-desc">锚定残差 + EPA</div>
             </div>
             <div class="pipe-arrow">→</div>
             <div class="pipe-step">
@@ -375,7 +389,7 @@ if (spike.energy &gt; threshold) <span class="op-keyword">propagate</span>
                 <div class="pipe-desc">技术词跨域惩罚</div>
             </div>
             <div class="pipe-arrow">→</div>
-            <div class="pipe-step pipe-spotlight">
+            <div class="pipe-step">
                 <div class="pipe-num">5</div>
                 <div class="pipe-name">LIF 脉冲</div>
                 <div class="pipe-desc">动量 + 虫洞</div>
@@ -407,7 +421,7 @@ if (spike.energy &gt; threshold) <span class="op-keyword">propagate</span>
         <footer class="finale-footer">
             <div class="philosophy">
                 <span>Engine = </span>
-                <strong>Riemann × LIF × SVD × O(1) lookup</strong>
+                <strong>Riemann × LIF × Anchored GS × O(1) lookup</strong>
             </div>
             <div class="signature">
                 VCP TagMemo · 浪潮 v8.2 · 语义流体力学引擎
