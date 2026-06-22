@@ -28,7 +28,7 @@ import rehypeSlug from "rehype-slug";
 import {NeuralNetwork} from "./components/NeuralNetwork";
 import {DocsViewer} from "./components/DocsViewer";
 import {getAllDocs} from "./docs";
-import whitepaperV3Content, {metadata as whitepaperV3Metadata} from "../vcp白皮书V3.md";
+import whitepaperV3Content, {metadata as whitepaperV3Metadata} from "./docs/vcp-whitepaper-v3.md";
 
 const FeatureCard = ({icon: Icon, title, description, delay = 0}: {icon: any; title: string; description: string; delay?: number}) => (
   <motion.div
