@@ -705,8 +705,9 @@ body {
 
 .whitepaper-paged-layout {
   display: grid;
-  grid-template-columns: minmax(0, 18rem) minmax(0, 1fr);
-  gap: 2rem;
+  width: min(100%, 1760px);
+  grid-template-columns: clamp(16rem, 18vw, 22rem) minmax(0, 1fr);
+  gap: clamp(1.5rem, 3vw, 3.5rem);
   align-items: start;
 }
 
@@ -777,6 +778,7 @@ body {
 .whitepaper-page-stack {
   display: flex;
   min-width: 0;
+  width: 100%;
   flex-direction: column;
   gap: clamp(1.5rem, 4vw, 3.5rem);
 }
@@ -811,12 +813,22 @@ body {
   z-index: 1;
   max-height: none;
   border-radius: 35px;
-  padding: clamp(1.5rem, 4vw, 4rem);
+  padding: clamp(1.5rem, 4vw, 5.5rem);
   background:
     linear-gradient(180deg, rgba(7, 10, 18, 0.92), rgba(5, 5, 10, 0.96)),
     radial-gradient(circle at top left, rgba(0, 242, 255, 0.08), transparent 28rem);
   border: 1px solid rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(22px);
+}
+
+.whitepaper-reader > * {
+  max-width: min(100%, 1120px);
+}
+
+.whitepaper-reader > pre,
+.whitepaper-reader > table,
+.whitepaper-reader > .katex-display {
+  max-width: 100%;
 }
 
 .whitepaper-page-meta {
