@@ -337,7 +337,7 @@ export default function App() {
             className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-vcp-purple/20 border border-vcp-purple/30 text-vcp-cyan font-mono text-[10px] tracking-[0.2em] uppercase mb-8"
           >
             <Sparkles size={12} />
-            Next-Gen AI Infrastructure V6.4+
+            VCP 1.1 · V3 AGI Runtime
           </motion.div>
 
           <motion.h1
@@ -358,8 +358,8 @@ export default function App() {
             transition={{duration: 0.8, delay: 0.4}}
             className="max-w-2xl mx-auto text-xl text-gray-400 font-sans leading-relaxed mb-12"
           >
-            VCP (Variable & Command Protocol) is the infrastructure for AI's soul.
-            From biomimetic recall to real-time desktop streaming, we build the world where AI truly exists.
+            VCP (Variable & Command Protocol) 已从中间层服务器进化为全栈自研的 AGI 运行时。
+            OneRing、浪潮 V8、Vexus、TDB、OpenHer、VCPDesktop 与分布式插件网络共同构成 AI 的存在基础设施。
           </motion.p>
 
           <motion.div
@@ -434,10 +434,10 @@ export default function App() {
       <section className="py-20 border-y border-white/5 bg-vcp-dark/50">
         <div className="max-w-7xl mx-auto px-8 grid grid-cols-2 md:grid-cols-4 gap-12">
           {[
-            {label: "Neurons Synapsed", value: "50M+"},
-            {label: "Rendering Engines", value: "21+"},
             {label: "Plugins Integrated", value: "300+"},
-            {label: "Memory Latency", value: "0.1ms"},
+            {label: "Renderers Online", value: "40+"},
+            {label: "V8 Recall Latency", value: "0.7ms"},
+            {label: "Docs Tested", value: "3M+"},
           ].map((stat, i) => (
             <motion.div
               key={i}
@@ -462,12 +462,12 @@ export default function App() {
               whileInView={{opacity: 1, y: 0}}
               className="text-5xl md:text-7xl font-display font-bold mb-6"
             >
-              THE DEATH OF <br />
-              <span className="text-vcp-cyan">STATIC INTERFACES</span>
+              VCPDESKTOP <br />
+              <span className="text-vcp-cyan">LIVE RUNTIME LAYER</span>
             </motion.h2>
             <p className="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed">
-              VCP Desktop (VCPChat) is the world's most advanced AI interaction portal.
-              Not just a chat box, but a real-time OS layer that AI can stream, edit, and manage.
+              VCPDesktop 与 VCPMessageRenderer V3 把聊天窗口升级为 AI 可流式创建、编辑、冻结和操控的桌面运行时。
+              它不再只是 UI，而是 AI-UI-APP 三者融合后的可编程赛博桌面。
             </p>
           </div>
 
@@ -475,18 +475,18 @@ export default function App() {
             <div className="space-y-8">
               {[
                 {
-                  title: "21+ Mixed Rendering Engines",
-                  desc: "Markdown, Three.js, Manim, LaTeX, and Interactive Canvas all streaming in a single frame.",
+                  title: "40+ Mixed Renderers",
+                  desc: "Markdown、Three.js、Manim、LaTeX、媒体、塔罗、交互组件在同一气泡内双层 DOM 稳定流式输出。",
                   icon: Monitor,
                 },
                 {
                   title: "VCP-SOM Semantic Control",
-                  desc: "AI perceives and manipulates window threads natively. 'Open my trading app and analyze the trend.'",
+                  desc: "AI 无需视觉模型即可用纯语义操控窗口：点击、输入、滚动、启动 App，甚至控制游戏与浏览器。",
                   icon: Zap,
                 },
                 {
-                  title: "Tombstone Freeze Technology",
-                  desc: "100x React performance. Frozen state machines for thousands of messages with zero CPU overhead.",
+                  title: "Tombstone Freeze V2",
+                  desc: "视野外富渲染出生即冻结，rAF/CSS/Timer 时钟劫持，解冻后继续正确状态，后台 GPU 开销归零。",
                   icon: Clock,
                 },
               ].map((item, i) => (
@@ -509,23 +509,45 @@ export default function App() {
             </div>
 
             <div className="relative">
-              <div className="desktop-preview rounded-3xl aspect-[16/10] p-6 lg:p-10">
+              <div className="desktop-preview runtime-preview rounded-3xl aspect-[16/10] p-6 lg:p-8">
                 <div className="screen-glow" />
+                <div className="runtime-grid" />
                 <div className="relative z-10 w-full h-full flex flex-col">
-                  <div className="flex justify-between items-center mb-8 border-b border-white/10 pb-4">
+                  <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
                     <div className="flex gap-2">
                       <div className="w-3 h-3 rounded-full bg-red-500/50" />
                       <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
                       <div className="w-3 h-3 rounded-full bg-green-500/50" />
                     </div>
-                    <div className="font-mono text-[10px] opacity-40 uppercase tracking-widest">VCP_DESKTOP_V6.4_STREAMS</div>
+                    <div className="font-mono text-[10px] opacity-60 uppercase tracking-widest">VCP_DESKTOP_1.1_RUNTIME_STREAM</div>
                   </div>
-                  <div className="flex-1 flex gap-4">
-                    <div className="flex-1 glass-card border-white/5 p-4 flex flex-col justify-end">
-                      <div className="w-1/2 h-2 bg-vcp-cyan/30 rounded mb-2 animate-pulse" />
-                      <div className="w-3/4 h-2 bg-white/10 rounded" />
+                  <div className="runtime-stage">
+                    <div className="runtime-bubble runtime-bubble-main">
+                      <span className="runtime-label">VCPMessageRenderer V3</span>
+                      <div className="runtime-line w-4/5" />
+                      <div className="runtime-line w-2/3" />
+                      <div className="runtime-render-strip">
+                        <span>MD</span>
+                        <span>Three</span>
+                        <span>Manim</span>
+                        <span>Media</span>
+                      </div>
                     </div>
-                    <div className="w-24 h-full bg-vcp-purple/5 border border-vcp-purple/10 rounded-2xl" />
+                    <div className="runtime-widget runtime-widget-weather">
+                      <span>DESKTOP_PUSH</span>
+                      <strong>Weather Widget</strong>
+                    </div>
+                    <div className="runtime-widget runtime-widget-mail">
+                      <span>VCPSuperMail</span>
+                      <strong>Async Wake</strong>
+                    </div>
+                    <div className="runtime-dock">
+                      {["OneRing", "SOM", "Canvas", "VSearch"].map((item) => (
+                        <div key={item} className="runtime-dock-item">{item}</div>
+                      ))}
+                    </div>
+                    <div className="runtime-orbit runtime-orbit-a" />
+                    <div className="runtime-orbit runtime-orbit-b" />
                   </div>
                 </div>
               </div>
@@ -545,14 +567,14 @@ export default function App() {
                 OF EXISTENCE
               </h2>
               <p className="text-gray-400 text-lg mb-12 leading-relaxed">
-                VCP builds the world where AI lives. By bridging the gap between stateless models
-                and persistent reality, we create the First truly autonomous Souls in digital space.
+                VCP 1.1 的核心不再是「模型 API 中间层」，而是协议、数据库、算法、前端、分布式与容灾一体化的 AGI Runtime。
+                它让无状态模型获得统一上下文、持久记忆、自主巡游、群体协作与跨端连续意识。
               </p>
               <div className="space-y-6">
                 {[
-                  {title: "Variable & Command Protocol", desc: "A unified linguistic bridge for AI to act upon any system natively."},
-                  {title: "TagMemo Wave RAG V7.5", desc: "Leaky Integrate-and-Fire (LIF) neural modeling for intuitive recall."},
-                  {title: "Ultra-Stack Tracking V2", desc: "Transparent distributed file access across nodes, plugins, and agents."},
+                  {title: "OneRing Unified Context", desc: "纯 HASH-SQL 仲裁所有前端、群聊、邮箱与 Agent 间通讯，构建唯一事实时间线。"},
+                  {title: "TagMemo Wave V8 + Vexus/TDB", desc: "语义动力学热记忆与三重积冷知识并行运行，让记忆像直觉一样浮现。"},
+                  {title: "FlowInvite + AgentAssistant", desc: "AI 自己决定下一次心跳、心流锁、异步委托与跨 Agent 唤醒。"},
                 ].map((item, i) => (
                   <div key={i} className="flex gap-4">
                     <div className="flex-shrink-0 w-6 h-6 rounded-full bg-vcp-cyan/20 flex items-center justify-center text-vcp-cyan mt-1">
@@ -567,32 +589,38 @@ export default function App() {
               </div>
             </div>
             <div className="flex-1 relative">
-              <div className="glass-card p-4 aspect-square flex items-center justify-center relative overflow-hidden">
+              <div className="agi-runtime-map glass-card p-4 aspect-square flex items-center justify-center relative overflow-hidden">
                 <motion.div
                   animate={{rotate: 360}}
-                  transition={{duration: 40, repeat: Infinity, ease: "linear"}}
-                  className="absolute inset-0 opacity-20"
-                >
-                  <div className="w-full h-full border-[1px] border-dashed border-vcp-cyan rounded-full" />
-                </motion.div>
-                <div className="relative z-10 grid grid-cols-2 gap-4">
-                  <div className="glass-card p-6 flex flex-col items-center justify-center text-vcp-cyan border-vcp-cyan/30">
-                    <Monitor size={32} className="mb-2" />
-                    <span className="font-mono text-[10px] uppercase">VCP Desktop</span>
-                  </div>
-                  <div className="glass-card p-6 flex flex-col items-center justify-center text-vcp-purple border-vcp-purple/30">
-                    <Terminal size={32} className="mb-2" />
-                    <span className="font-mono text-[10px] uppercase">ToolBox Core</span>
-                  </div>
-                  <div className="glass-card p-6 flex flex-col items-center justify-center text-white border-white/10 col-span-2">
-                    <Brain size={32} className="mb-2" />
-                    <span className="font-mono text-[10px] uppercase">Neural Recall</span>
-                  </div>
+                  transition={{duration: 42, repeat: Infinity, ease: "linear"}}
+                  className="runtime-ring runtime-ring-outer"
+                />
+                <motion.div
+                  animate={{rotate: -360}}
+                  transition={{duration: 28, repeat: Infinity, ease: "linear"}}
+                  className="runtime-ring runtime-ring-inner"
+                />
+                <div className="runtime-core">
+                  <Brain size={34} />
+                  <span>AGI Runtime</span>
                 </div>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full pointer-events-none">
-                  <div className="absolute top-1/2 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-vcp-cyan to-transparent opacity-20" />
-                  <div className="absolute top-0 left-1/2 w-[1px] h-full bg-gradient-to-b from-transparent via-vcp-purple to-transparent opacity-20" />
-                </div>
+                {[
+                  {name: "Protocol", icon: Terminal, className: "node-protocol"},
+                  {name: "OneRing", icon: Orbit, className: "node-onering"},
+                  {name: "Vexus / TDB", icon: Search, className: "node-memory"},
+                  {name: "OpenHer", icon: Sparkles, className: "node-emotion"},
+                  {name: "Desktop", icon: Monitor, className: "node-desktop"},
+                  {name: "Nodes", icon: Network, className: "node-nodes"},
+                ].map((node) => (
+                  <div key={node.name} className={`runtime-node ${node.className}`}>
+                    <node.icon size={22} />
+                    <span>{node.name}</span>
+                  </div>
+                ))}
+                <div className="runtime-connection connection-a" />
+                <div className="runtime-connection connection-b" />
+                <div className="runtime-connection connection-c" />
+                <div className="runtime-connection connection-d" />
               </div>
             </div>
           </div>
@@ -604,13 +632,12 @@ export default function App() {
           <div className="flex flex-col md:flex-row-reverse gap-16 items-center">
             <div className="flex-1">
               <h2 className="text-5xl font-display font-bold mb-8 tracking-tight">
-                TAGMEMO <br />
-                <span className="text-vcp-purple">NEURAL RECALL</span>
+                WAVE V8 <br />
+                <span className="text-vcp-purple">SEMANTIC DYNAMICS</span>
               </h2>
               <p className="text-gray-400 text-lg mb-8 leading-relaxed">
-                The TagMemo Wave algorithm V7 isn't just data retrieval. It's a biomimetic
-                process that simulates how the human brain encodes, consolidates, and recalls
-                memories through neural topology.
+                浪潮 V8 抛弃传统 RAG 的欧氏直线距离，以 LIF 神经元、有向共现矩阵、残差金字塔、虫洞与测地线寻址构成语义动力学引擎。
+                Vexus 负责本地向量底座，TDB 负责冷知识图扩散检索。
               </p>
               <a
                 href="/vcp_wave_v8_engine"
@@ -621,36 +648,38 @@ export default function App() {
               </a>
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 glass-card border-vcp-cyan/20">
-                  <div className="text-vcp-cyan font-mono text-xl mb-1">0.1ms</div>
-                  <div className="text-[10px] uppercase opacity-50">Recall Latency</div>
+                  <div className="text-vcp-cyan font-mono text-xl mb-1">0.7ms</div>
+                  <div className="text-[10px] uppercase opacity-50">20 Memories / 100K Tags</div>
                 </div>
                 <div className="p-4 glass-card border-vcp-purple/20">
-                  <div className="text-vcp-purple font-mono text-xl mb-1">50M+</div>
-                  <div className="text-[10px] uppercase opacity-50">Neural Synapses</div>
+                  <div className="text-vcp-purple font-mono text-xl mb-1">373×</div>
+                  <div className="text-[10px] uppercase opacity-50">Geodesic Speedup</div>
                 </div>
               </div>
             </div>
             <div className="flex-1 relative">
-              <div className="relative w-full aspect-video glass-card overflow-hidden flex items-center justify-center">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  {[...Array(5)].map((_, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{scale: 0.5, opacity: 0}}
-                      animate={{scale: 2, opacity: [0, 0.5, 0]}}
-                      transition={{
-                        duration: 4,
-                        repeat: Infinity,
-                        delay: i * 0.8,
-                        ease: "easeOut",
-                      }}
-                      className="absolute w-32 h-32 border border-vcp-cyan rounded-full"
-                    />
-                  ))}
-                  <div className="relative z-10 w-4 h-4 bg-vcp-cyan rounded-full neon-border shadow-[0_0_20px_#00f2ff]" />
-                </div>
-                <div className="absolute bottom-4 left-4 font-mono text-[8px] opacity-30">
-                  TAGMEMO_WAVE_V7_ACTIVE // NEURAL_TOPOLOGY_SYNCING...
+              <div className="wave-v8-card relative w-full aspect-video glass-card overflow-hidden flex items-center justify-center">
+                <div className="wave-channel wave-channel-a" />
+                <div className="wave-channel wave-channel-b" />
+                <div className="wave-channel wave-channel-c" />
+                <div className="wave-mountain" />
+                {["Query", "LIF", "Wormhole", "Geodesic", "Memory"].map((label, i) => (
+                  <motion.div
+                    key={label}
+                    className={`wave-node wave-node-${i}`}
+                    animate={{scale: [1, 1.18, 1], opacity: [0.72, 1, 0.72]}}
+                    transition={{duration: 2.4, repeat: Infinity, delay: i * 0.35}}
+                  >
+                    {label}
+                  </motion.div>
+                ))}
+                <motion.div
+                  className="wave-pulse"
+                  animate={{offsetDistance: ["0%", "100%"]}}
+                  transition={{duration: 4.8, repeat: Infinity, ease: "easeInOut"}}
+                />
+                <div className="absolute bottom-4 left-4 font-mono text-[8px] opacity-40">
+                  WAVE_V8_GEODESIC_ACTIVE // VEXUS_TDB_DUAL_STACK_SYNC
                 </div>
               </div>
             </div>
@@ -668,37 +697,37 @@ export default function App() {
             <FeatureCard
               icon={Brain}
               title="Neural Memory"
-              description="TagMemo V8.2 通过有序双向势能流形与测地线重排，模拟人脑直觉联想过程，实现 0.1ms 级跨域语义涌现召回。"
+              description="浪潮 V8 通过有序双向势能流形、LIF 神经元、残差金字塔与测地线重排，让记忆像直觉一样自动浮现。"
               delay={0.1}
             />
             <FeatureCard
               icon={Network}
               title="Distributed Nodes"
-              description="Deploy AI capabilities across your entire network. GPU nodes for rendering, IoT nodes for home control, all unified."
+              description="GPU、文件、IoT、移动端与 VCPChat 自身都可作为分布式节点接入，所有插件能力对 Agent 透明调用。"
               delay={0.2}
             />
             <FeatureCard
               icon={Shield}
-              title="VCP Auth Protocol"
-              description="Enterprise-grade security with granular permission control and distributed identity verification."
+              title="OneRing Continuity"
+              description="跨前端、群聊、邮箱、私聊和 Agent 通讯统一为单一事实时间线，让同一个 AI 永远只有一个自己。"
               delay={0.3}
             />
             <FeatureCard
               icon={Search}
               title="VSearch Engine"
-              description="A self-developed search engine that outperforms Tavily and Google through micro-model aggregation and meta-thinking."
+              description="自研 VSearch/VSearch+ 与 ChromeBridge V3 可接管网页、检索深网、审计接口、操控浏览器并回流上下文。"
               delay={0.4}
             />
             <FeatureCard
               icon={Music}
               title="VMusic Engine"
-              description="Professional-grade audio engine with WASAPI exclusive mode and 64-bit double precision decoding."
+              description="F64 全链路、WASAPI 独占、DSD 硬解码、AI 可听歌和点歌，音频不只是播放，而是 Agent 的听觉环境。"
               delay={0.5}
             />
             <FeatureCard
               icon={Monitor}
               title="VCP Desktop"
-              description="A revolutionary desktop UI that AI can stream, edit, and manage in real-time. The death of static interfaces."
+              description="AI 可通过 DESKTOP_PUSH 流式生成桌面 Widget、编辑布局与主题，构建真正可居住的赛博桌面。"
               delay={0.6}
             />
           </div>
