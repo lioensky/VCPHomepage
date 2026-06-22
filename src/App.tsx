@@ -215,7 +215,11 @@ export default function App() {
   const docs = useMemo(() => getAllDocs().filter((doc) => doc.category !== "changelog"), []);
   const [activeDocSlug, setActiveDocSlug] = useState(docs[0]?.slug ?? "");
 
-  if (window.location.pathname === "/learn-vcp") {
+  const isWhitepaperRoute =
+    window.location.pathname === "/learn-vcp" ||
+    new URLSearchParams(window.location.search).get("page") === "learn-vcp";
+
+  if (isWhitepaperRoute) {
     return <WhitepaperPage />;
   }
 
@@ -373,7 +377,7 @@ export default function App() {
                 READ DOCUMENTATION
               </a>
               <a
-                href="/learn-vcp"
+                href="/?page=learn-vcp"
                 className="group flex items-center gap-3 px-8 py-4 glass-card rounded-full font-display font-bold hover:border-vcp-cyan transition-all"
               >
                 <Sparkles size={20} className="text-vcp-cyan" />
@@ -823,7 +827,7 @@ export default function App() {
           <div>
             <h5 className="font-mono text-xs uppercase tracking-widest text-vcp-purple mb-8">Ecosystem</h5>
             <ul className="space-y-4 text-gray-400">
-              <li><a href="/learn-vcp" className="hover:text-vcp-purple transition-colors">Learn VCP</a></li>
+              <li><a href="/?page=learn-vcp" className="hover:text-vcp-purple transition-colors">Learn VCP</a></li>
               <li><a href="#docs" className="hover:text-vcp-purple transition-colors">Docs Portal</a></li>
               <li><a href="#desktop" className="hover:text-vcp-purple transition-colors">VCP Desktop</a></li>
             </ul>
