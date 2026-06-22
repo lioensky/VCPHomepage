@@ -3,10 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VCP 浪潮 v8.2 引擎 · 语义流体力学可视化</title>
+    <title>VCP 浪潮 v8.2 引擎 · TagMemo 语义动力学官方介绍</title>
+    <meta name="description" content="VCP TagMemo 浪潮 v8.2 语义动力学引擎官方页面。介绍 LIF 脉冲扩散、有向共现矩阵、钟形阻尼、虫洞路由、Anchored GS 残差、朗飞结跨域桥接与测地线重排如何替代传统 RAG 直线检索。" />
+    <meta name="keywords" content="VCP,TagMemo,浪潮 V8,浪潮 v8.2,语义动力学,语义流体力学,LIF,Anchored GS,虫洞路由,测地线重排,RAG,Vexus,TDB,AI 记忆引擎" />
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+    <meta name="author" content="VCP Ecosystem" />
+    <link rel="canonical" href="https://www.vcptoolbox.com/vcp_wave_v8_engine" />
+    <link rel="icon" type="image/png" href="/assets/logo1.png" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="VCP-OS" />
+    <meta property="og:title" content="VCP 浪潮 v8.2 引擎 · TagMemo 语义动力学官方介绍" />
+    <meta property="og:description" content="了解 VCP TagMemo 浪潮 v8.2 如何用语义流体力学、LIF、虫洞路由、Anchored GS 与测地线重排构建 AI 记忆引擎。" />
+    <meta property="og:url" content="https://www.vcptoolbox.com/vcp_wave_v8_engine" />
+    <meta property="og:image" content="https://www.vcptoolbox.com/assets/logo1.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="VCP 浪潮 v8.2 引擎" />
+    <meta name="twitter:description" content="VCP TagMemo 官方语义动力学引擎页面：从传统 RAG 直线检索走向有序双向语义流形。" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "VCP 浪潮 v8.2 引擎 · TagMemo 语义动力学",
+        "description": "VCP TagMemo 浪潮 v8.2 语义动力学引擎官方介绍，覆盖 Tag 之河、有向共现矩阵、顺逆流阻尼、钟形语义增益、LIF 脉冲扩散、虫洞路由、Anchored GS 残差、朗飞结桥接和测地线重排。",
+        "url": "https://www.vcptoolbox.com/vcp_wave_v8_engine",
+        "inLanguage": "zh-CN",
+        "author": {
+          "@type": "Organization",
+          "name": "VCP Ecosystem"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "VCP Ecosystem",
+          "url": "https://www.vcptoolbox.com/"
+        },
+        "about": [
+          "VCP",
+          "TagMemo",
+          "浪潮 V8",
+          "语义动力学",
+          "AI 记忆引擎",
+          "RAG"
+        ],
+        "isPartOf": {
+          "@type": "WebSite",
+          "name": "VCP-OS",
+          "url": "https://www.vcptoolbox.com/"
+        }
+      }
+    </script>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <section class="seo-summary" aria-label="VCP 浪潮 v8.2 引擎摘要">
+        <h1>VCP TagMemo 浪潮 v8.2 语义动力学引擎</h1>
+        <p>
+            浪潮 v8.2 是 VCP 生态中的 AI 记忆与语义检索引擎。它不把 Tag 当作孤立关键词，
+            而是把日记、文档和上下文中的 Tag 序列建模为具备时序、势能、方向和语义距离的河道网络。
+        </p>
+        <p>
+            本页介绍 Tag 之河、有向共现矩阵、形色质三轴解耦、顺流与逆流阻尼、钟形语义增益、
+            LIF 脉冲扩散、虫洞路由、Anchored GS 残差地势、朗飞结跨域桥接和测地线重排。
+            这些机制让 VCP 从传统 RAG 的余弦直线检索升级为有序双向语义流形检索。
+        </p>
+        <nav aria-label="浪潮引擎章节索引">
+            <a href="#chapter-birth">河流诞生</a>
+            <a href="#chapter-confluence">河道网络</a>
+            <a href="#chapter-geodesic">RAG vs VCP 测地线</a>
+            <a href="#chapter-lif">LIF 脉冲扩散</a>
+            <a href="#chapter-wormhole">虫洞路由</a>
+            <a href="#chapter-grand-view">完整引擎全景</a>
+        </nav>
+    </section>
+
     <!-- 全局背景：星空噪点 + 暗流 -->
     <div class="cosmic-bg"></div>
     <canvas id="globalRiver" class="global-river"></canvas>
@@ -74,7 +142,7 @@
     </section>
 
     <!-- ============ Chapter 1: 河流的诞生 ============ -->
-    <section class="chapter" data-chapter="1">
+    <section id="chapter-birth" class="chapter" data-chapter="1">
         <div class="chapter-meta">CHAPTER 01 · BIRTH</div>
         <h2 class="chapter-title">每一篇日记 = 一条 Tag 之河</h2>
         <div class="chapter-body">
@@ -99,7 +167,7 @@
     </section>
 
     <!-- ============ Chapter 2: 河道网络 ============ -->
-    <section class="chapter" data-chapter="2">
+    <section id="chapter-confluence" class="chapter" data-chapter="2">
         <div class="chapter-meta">CHAPTER 02 · CONFLUENCE</div>
         <h2 class="chapter-title">同一个 Tag 跨日记 = 河道汇流</h2>
         <div class="chapter-body reverse">
@@ -199,7 +267,7 @@ gain(sim) = 0.5 + 0.8 · exp(−(sim − 0.65)² / (2 · 0.25²))
     </section>
 
     <!-- ============ Chapter 5: 直线 vs 测地线 ============ -->
-    <section class="chapter" data-chapter="5">
+    <section id="chapter-geodesic" class="chapter" data-chapter="5">
         <div class="chapter-meta">CHAPTER 05 · GEODESIC</div>
         <h2 class="chapter-title">传统 RAG 走直线，VCP 走河道</h2>
         <div class="chapter-body">
@@ -231,7 +299,7 @@ gain(sim) = 0.5 + 0.8 · exp(−(sim − 0.65)² / (2 · 0.25²))
     </section>
 
     <!-- ============ Chapter 6: LIF 脉冲扩散 ============ -->
-    <section class="chapter" data-chapter="6">
+    <section id="chapter-lif" class="chapter" data-chapter="6">
         <div class="chapter-meta">CHAPTER 06 · LIF SPIKE</div>
         <h2 class="chapter-title">河道的阻力 = 神经元电流</h2>
         <div class="chapter-body reverse">
@@ -260,7 +328,7 @@ if (spike.energy &gt; threshold) <span class="op-keyword">propagate</span>
     </section>
 
     <!-- ============ Chapter 7: 虫洞飞溅 ============ -->
-    <section class="chapter" data-chapter="7">
+    <section id="chapter-wormhole" class="chapter" data-chapter="7">
         <div class="chapter-meta">CHAPTER 07 · WORMHOLE</div>
         <h2 class="chapter-title">河道落差太大 = 浪花飞溅</h2>
         <div class="chapter-body">
@@ -361,7 +429,7 @@ residual ← residual − (residual · u)u
     </section>
 
     <!-- ============ Chapter 10: 完整引擎全景 ============ -->
-    <section class="chapter chapter-finale" data-chapter="10">
+    <section id="chapter-grand-view" class="chapter chapter-finale" data-chapter="10">
         <div class="chapter-meta">CHAPTER 10 · GRAND VIEW</div>
         <h2 class="chapter-title">VCP 浪潮 v8.2 · 语义动力学</h2>
         <div class="finale-pipeline">

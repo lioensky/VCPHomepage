@@ -241,6 +241,19 @@ const WhitepaperPage = () => {
       </nav>
 
       <main className="relative z-10 px-6 pb-24 pt-36 md:px-8">
+        <section className="sr-only" aria-label="Learn VCP 页面摘要">
+          <h1>Learn VCP · VCP 全景技术白皮书</h1>
+          <p>
+            Learn VCP 是 VCP-OS 官方技术白皮书页面，介绍 Variable & Command Protocol 如何从模型 API
+            中间层演进为全栈自研的 AGI Runtime。页面内容覆盖 OneRing 统一上下文、VCPDesktop 桌面运行时、
+            VCPMessageRenderer、TagMemo 浪潮 V8 语义记忆、Vexus/TDB 双栈检索、FlowInvite 自主心跳、
+            AgentAssistant、OpenHer 情感引擎、分布式节点与人类-AI 共生生态。
+          </p>
+          <p>
+            该页面用于帮助搜索引擎理解 VCP 官方文档、VCP 白皮书、AI Agent 存在基础设施、永久记忆、
+            自主工具调用、跨端连续意识和 AGI 运行时架构。
+          </p>
+        </section>
         <section className="mx-auto max-w-7xl pb-16 text-center">
           <motion.div
             initial={{opacity: 0, y: 24, scale: 0.96}}
@@ -411,6 +424,25 @@ export default function App() {
   return (
     <div ref={containerRef} className="relative min-h-screen font-sans selection:bg-vcp-cyan selection:text-vcp-black">
       <div className="glow-bg" ref={glowRef} />
+      <section className="sr-only" aria-label="VCP-OS 官方网站摘要">
+        <h1>VCP-OS · Variable & Command Protocol 官方网站</h1>
+        <p>
+          VCP-OS 是 Variable & Command Protocol 的官方网站。VCP 是面向 AI Agent 的 AGI Runtime
+          与存在基础设施，提供永久记忆、统一上下文、工具调用、自主心跳、桌面运行时、语义检索、
+          分布式节点和人类-AI 共生能力。
+        </p>
+        <p>
+          VCP 生态包括 VCPToolBox 后端、VCPChat 前端、VCPDesktop 赛博桌面、OneRing 单一事实时间线、
+          TagMemo 浪潮 V8 语义动力学记忆引擎、Vexus/TDB 本地向量与冷知识图检索、VSearch、VMusic、
+          FlowInvite、AgentAssistant 与 OpenHer 情感引擎。
+        </p>
+        <nav aria-label="核心页面">
+          <a href="/">VCP 官方首页</a>
+          <a href="/?page=learn-vcp">Learn VCP 技术白皮书</a>
+          <a href="/vcp_wave_v8_engine.html">TagMemo 浪潮 V8.2 语义动力学引擎</a>
+          <a href="/#docs">VCP 文档中心</a>
+        </nav>
+      </section>
       
       {/* Global interactive mouse glow */}
       <motion.div
@@ -851,7 +883,7 @@ export default function App() {
                 Vexus 负责本地向量底座，TDB 负责冷知识图扩散检索。
               </p>
               <a
-                href="/vcp_wave_v8_engine"
+                href="/vcp_wave_v8_engine.html"
                 className="inline-flex items-center gap-3 px-6 py-3 mb-8 bg-vcp-purple/20 border border-vcp-purple/30 text-vcp-purple rounded-full font-display font-bold hover:bg-vcp-purple/30 hover:scale-105 transition-all neon-border"
               >
                 <Zap size={20} className="translate-y-[1px]" />

@@ -5,6 +5,8 @@
     { "source": "/sitemap.xml", "destination": "/sitemap.xml" },
     { "source": "/robots.txt", "destination": "/robots.txt" },
     { "source": "/assets/(.*)", "destination": "/assets/$1" },
+    { "source": "/vcp_wave_v8_engine", "destination": "/vcp_wave_v8_engine.html" },
+    { "source": "/vcp_wave_v8_engine.html", "destination": "/vcp_wave_v8_engine.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
