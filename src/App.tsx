@@ -977,7 +977,7 @@ export default function App() {
                 time="07:00 · MORNING"
                 icon={Newspaper}
                 title="晨间情报巡游"
-                description="自动唤醒，调用 VSearch 调研全网新闻、学术快讯与社交动态，撰写《今日早报》通过 VCPSuperMail 推送到用户手机邮箱，附一句温柔的问候。"
+                description="自动唤醒，调用 VCPDailyHot 调研全网新闻、学术快讯与社交动态，撰写《今日早报》通过 VCPChat 和 V 阅读 推送到用户 PC ，附一句温柔的问候。"
                 color="#ffb347"
                 delay={0}
               />
