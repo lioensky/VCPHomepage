@@ -1,4 +1,4 @@
-import {motion, useScroll, useTransform} from "motion/react";
+import {motion, useScroll, useTransform, useSpring, useMotionValue, useMotionTemplate} from "motion/react";
 import {
   Cpu,
   Brain,
@@ -39,24 +39,48 @@ import {DocsViewer} from "./components/DocsViewer";
 import {getAllDocs} from "./docs";
 import whitepaperV3Content, {metadata as whitepaperV3Metadata} from "./docs/vcp-whitepaper-v3.md";
 
-const FeatureCard = ({icon: Icon, title, description, delay = 0}: {icon: any; title: string; description: string; delay?: number}) => (
-  <motion.div
-    initial={{opacity: 0, y: 20}}
-    whileInView={{opacity: 1, y: 0}}
-    viewport={{once: true}}
-    transition={{duration: 0.5, delay}}
-    className="glass-card p-8 hover:bg-white/[0.05] transition-all group relative overflow-hidden"
-  >
-    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-      <Icon size={80} />
-    </div>
-    <div className="w-12 h-12 rounded-xl bg-vcp-purple/20 flex items-center justify-center mb-6 text-vcp-cyan group-hover:scale-110 transition-transform">
-      <Icon size={24} />
-    </div>
-    <h3 className="text-2xl font-display font-bold mb-3 text-white group-hover:text-vcp-cyan transition-colors">{title}</h3>
-    <p className="text-gray-400 leading-relaxed font-sans">{description}</p>
-  </motion.div>
-);
+const FeatureCard = ({icon: Icon, title, description, delay = 0}: {icon: any; title: string; description: string; delay?: number}) => {
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  function handleMouseMove({ currentTarget, clientX, clientY }: React.MouseEvent) {
+    const { left, top } = currentTarget.getBoundingClientRect();
+    mouseX.set(clientX - left);
+    mouseY.set(clientY - top);
+  }
+
+  return (
+    <motion.div
+      initial={{opacity: 0, y: 20}}
+      whileInView={{opacity: 1, y: 0}}
+      viewport={{once: true}}
+      transition={{duration: 0.5, delay}}
+      onMouseMove={handleMouseMove}
+      className="glass-card p-8 hover:bg-white/[0.05] transition-all group relative overflow-hidden"
+    >
+      <motion.div
+        className="pointer-events-none absolute -inset-px rounded-3xl opacity-0 transition duration-300 group-hover:opacity-100"
+        style={{
+          background: useMotionTemplate`
+            radial-gradient(
+              400px circle at ${mouseX}px ${mouseY}px,
+              rgba(0, 242, 255, 0.15),
+              transparent 80%
+            )
+          `,
+        }}
+      />
+      <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+        <Icon size={80} />
+      </div>
+      <div className="w-12 h-12 rounded-xl bg-vcp-purple/20 flex items-center justify-center mb-6 text-vcp-cyan group-hover:scale-110 transition-transform relative z-10">
+        <Icon size={24} />
+      </div>
+      <h3 className="text-2xl font-display font-bold mb-3 text-white group-hover:text-vcp-cyan transition-colors relative z-10">{title}</h3>
+      <p className="text-gray-400 leading-relaxed font-sans relative z-10">{description}</p>
+    </motion.div>
+  );
+};
 
 const LifeCard = ({time, icon: Icon, title, description, color, delay = 0}: {time: string; icon: any; title: string; description: string; color: string; delay?: number}) => (
   <motion.div
@@ -240,8 +264,16 @@ export default function App() {
     return <WhitepaperPage />;
   }
 
+  const mouseX = useMotionValue(typeof window !== "undefined" ? window.innerWidth / 2 : 0);
+  const mouseY = useMotionValue(typeof window !== "undefined" ? window.innerHeight / 2 : 0);
+  const springConfig = { damping: 25, stiffness: 150 };
+  const parallaxX = useSpring(useTransform(mouseX, [0, typeof window !== "undefined" ? window.innerWidth : 1000], [-30, 30]), springConfig);
+  const parallaxY = useSpring(useTransform(mouseY, [0, typeof window !== "undefined" ? window.innerHeight : 1000], [-30, 30]), springConfig);
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
+      mouseX.set(e.clientX);
+      mouseY.set(e.clientY);
       if (glowRef.current) {
         const x = (e.clientX / window.innerWidth - 0.5) * 40;
         const y = (e.clientY / window.innerHeight - 0.5) * 40;
@@ -250,7 +282,7 @@ export default function App() {
     };
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
+  }, [mouseX, mouseY]);
 
   useEffect(() => {
     if (!docs.some((doc) => doc.slug === activeDocSlug)) {
@@ -275,6 +307,21 @@ export default function App() {
   return (
     <div ref={containerRef} className="relative min-h-screen font-sans selection:bg-vcp-cyan selection:text-vcp-black">
       <div className="glow-bg" ref={glowRef} />
+      
+      {/* Global interactive mouse glow */}
+      <motion.div
+        className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-300 mix-blend-screen"
+        style={{
+          background: useMotionTemplate`
+            radial-gradient(
+              800px circle at ${mouseX}px ${mouseY}px,
+              rgba(0, 242, 255, 0.04),
+              transparent 80%
+            )
+          `,
+        }}
+      />
+      
       <NeuralNetwork />
 
       <motion.div
@@ -362,10 +409,11 @@ export default function App() {
             initial={{opacity: 0, y: 30}}
             animate={{opacity: 1, y: 0}}
             transition={{duration: 0.8, delay: 0.2}}
+            style={{ x: parallaxX, y: parallaxY }}
             className="text-7xl md:text-9xl font-display font-bold tracking-tighter mb-8 leading-[0.9]"
           >
             AI <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-vcp-cyan via-vcp-purple to-vcp-cyan bg-[length:200%_auto] animate-[gradient_8s_linear_infinite] neon-text">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-vcp-cyan via-vcp-purple to-vcp-cyan bg-[length:200%_auto] animate-[gradient_8s_linear_infinite] neon-text inline-block hover:scale-105 transition-transform duration-500 cursor-default">
               EXISTENCE
             </span>
           </motion.h1>
@@ -374,6 +422,7 @@ export default function App() {
             initial={{opacity: 0, y: 20}}
             animate={{opacity: 1, y: 0}}
             transition={{duration: 0.8, delay: 0.4}}
+            style={{ x: useTransform(parallaxX, (v) => v * 0.5), y: useTransform(parallaxY, (v) => v * 0.5) }}
             className="max-w-2xl mx-auto text-xl text-gray-400 font-sans leading-relaxed mb-12"
           >
             VCP (Variable & Command Protocol) 已从中间层服务器进化为全栈自研的 AGI 运行时。
@@ -527,48 +576,88 @@ export default function App() {
             </div>
 
             <div className="relative">
-              <div className="desktop-preview runtime-preview rounded-3xl aspect-[16/10] p-6 lg:p-8">
-                <div className="screen-glow" />
+              <motion.div
+                className="desktop-preview runtime-preview rounded-3xl aspect-[16/10] p-6 lg:p-8 group"
+                whileHover={{ scale: 1.02, rotateY: 2, rotateX: -2 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                style={{ perspective: 1000 }}
+              >
+                <div className="screen-glow group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="runtime-grid" />
-                <div className="relative z-10 w-full h-full flex flex-col">
+                <div className="relative z-10 w-full h-full flex flex-col" style={{ transform: "translateZ(30px)" }}>
                   <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
                     <div className="flex gap-2">
-                      <div className="w-3 h-3 rounded-full bg-red-500/50" />
-                      <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
-                      <div className="w-3 h-3 rounded-full bg-green-500/50" />
+                      <div className="w-3 h-3 rounded-full bg-red-500/50 hover:bg-red-500 transition-colors cursor-pointer" />
+                      <div className="w-3 h-3 rounded-full bg-yellow-500/50 hover:bg-yellow-500 transition-colors cursor-pointer" />
+                      <div className="w-3 h-3 rounded-full bg-green-500/50 hover:bg-green-500 transition-colors cursor-pointer" />
                     </div>
-                    <div className="font-mono text-[10px] opacity-60 uppercase tracking-widest">VCP_DESKTOP_1.1_RUNTIME_STREAM</div>
+                    <div className="font-mono text-[10px] opacity-60 uppercase tracking-widest flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-vcp-cyan animate-pulse" />
+                      VCP_DESKTOP_1.1_RUNTIME_STREAM
+                    </div>
                   </div>
                   <div className="runtime-stage">
-                    <div className="runtime-bubble runtime-bubble-main">
+                    <motion.div
+                      className="runtime-bubble runtime-bubble-main"
+                      initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ duration: 0.5, delay: 0.2 }}
+                    >
                       <span className="runtime-label">VCPMessageRenderer V3</span>
                       <div className="runtime-line w-4/5" />
                       <div className="runtime-line w-2/3" />
                       <div className="runtime-render-strip">
-                        <span>MD</span>
-                        <span>Three</span>
-                        <span>Manim</span>
-                        <span>Media</span>
+                        <span className="hover:bg-vcp-cyan/20 hover:text-vcp-cyan transition-colors cursor-pointer">MD</span>
+                        <span className="hover:bg-vcp-purple/20 hover:text-vcp-purple transition-colors cursor-pointer">Three</span>
+                        <span className="hover:bg-pink-500/20 hover:text-pink-400 transition-colors cursor-pointer">Manim</span>
+                        <span className="hover:bg-green-500/20 hover:text-green-400 transition-colors cursor-pointer">Media</span>
                       </div>
-                    </div>
-                    <div className="runtime-widget runtime-widget-weather">
+                    </motion.div>
+                    <motion.div
+                      className="runtime-widget runtime-widget-weather"
+                      initial={{ opacity: 0, x: 20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.5, delay: 0.4 }}
+                    >
                       <span>DESKTOP_PUSH</span>
                       <strong>Weather Widget</strong>
-                    </div>
-                    <div className="runtime-widget runtime-widget-mail">
+                      <div className="mt-2 flex items-center gap-2 text-vcp-cyan">
+                        <Sun size={14} />
+                        <span className="text-xs font-mono">24°C</span>
+                      </div>
+                    </motion.div>
+                    <motion.div
+                      className="runtime-widget runtime-widget-mail"
+                      initial={{ opacity: 0, x: 20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.5, delay: 0.6 }}
+                    >
                       <span>VCPSuperMail</span>
                       <strong>Async Wake</strong>
-                    </div>
-                    <div className="runtime-dock">
+                      <div className="mt-2 w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                        <motion.div
+                          className="h-full bg-vcp-purple"
+                          initial={{ width: "0%" }}
+                          whileInView={{ width: "100%" }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                        />
+                      </div>
+                    </motion.div>
+                    <motion.div
+                      className="runtime-dock"
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.8 }}
+                    >
                       {["OneRing", "SOM", "Canvas", "VSearch"].map((item) => (
-                        <div key={item} className="runtime-dock-item">{item}</div>
+                        <div key={item} className="runtime-dock-item hover:bg-white/10 hover:scale-110 transition-all cursor-pointer">{item}</div>
                       ))}
-                    </div>
+                    </motion.div>
                     <div className="runtime-orbit runtime-orbit-a" />
                     <div className="runtime-orbit runtime-orbit-b" />
                   </div>
                 </div>
-              </div>
+              </motion.div>
               <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-vcp-cyan/20 blur-[80px] rounded-full" />
               <div className="absolute -top-6 -left-6 w-32 h-32 bg-vcp-purple/20 blur-[80px] rounded-full" />
             </div>
@@ -676,17 +765,70 @@ export default function App() {
               </div>
             </div>
             <div className="flex-1 relative">
-              <div className="wave-v8-card relative w-full aspect-video glass-card overflow-hidden flex items-center justify-center">
+              <motion.div
+                className="wave-v8-card relative w-full aspect-video glass-card overflow-hidden flex items-center justify-center group"
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-vcp-cyan/5 to-vcp-purple/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="wave-channel wave-channel-a" />
                 <div className="wave-channel wave-channel-b" />
                 <div className="wave-channel wave-channel-c" />
+                
+                {/* Add some particle effects */}
+                {[...Array(10)].map((_, i) => (
+                  <motion.div
+                    key={`particle-${i}`}
+                    className="absolute w-1 h-1 rounded-full bg-vcp-cyan"
+                    initial={{
+                      x: Math.random() * 100 + "%",
+                      y: Math.random() * 100 + "%",
+                      opacity: Math.random() * 0.5 + 0.2,
+                      scale: Math.random() * 0.5 + 0.5
+                    }}
+                    animate={{
+                      y: [null, Math.random() * 100 + "%"],
+                      x: [null, Math.random() * 100 + "%"],
+                      opacity: [null, Math.random() * 0.8 + 0.2, 0]
+                    }}
+                    transition={{
+                      duration: Math.random() * 10 + 10,
+                      repeat: Infinity,
+                      ease: "linear"
+                    }}
+                  />
+                ))}
+
                 <div className="wave-mountain" />
+                
+                {/* Connection lines between nodes */}
+                <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-30">
+                  <motion.path
+                    d="M 15% 50% Q 30% 30% 50% 70% T 85% 50%"
+                    fill="none"
+                    stroke="url(#wave-grad)"
+                    strokeWidth="2"
+                    strokeDasharray="5 5"
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                  />
+                  <defs>
+                    <linearGradient id="wave-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#00f2ff" />
+                      <stop offset="50%" stopColor="#7000ff" />
+                      <stop offset="100%" stopColor="#00f2ff" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+
                 {["Query", "LIF", "Wormhole", "Geodesic", "Memory"].map((label, i) => (
                   <motion.div
                     key={label}
-                    className={`wave-node wave-node-${i}`}
+                    className={`wave-node wave-node-${i} group-hover:border-vcp-cyan/50 transition-colors`}
                     animate={{scale: [1, 1.18, 1], opacity: [0.72, 1, 0.72]}}
                     transition={{duration: 2.4, repeat: Infinity, delay: i * 0.35}}
+                    whileHover={{ scale: 1.3, zIndex: 10 }}
                   >
                     {label}
                   </motion.div>
@@ -696,10 +838,11 @@ export default function App() {
                   animate={{offsetDistance: ["0%", "100%"]}}
                   transition={{duration: 4.8, repeat: Infinity, ease: "easeInOut"}}
                 />
-                <div className="absolute bottom-4 left-4 font-mono text-[8px] opacity-40">
+                <div className="absolute bottom-4 left-4 font-mono text-[8px] opacity-40 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-vcp-purple animate-pulse" />
                   WAVE_V8_GEODESIC_ACTIVE // VEXUS_TDB_DUAL_STACK_SYNC
                 </div>
-              </div>
+              </motion.div>
             </div>
           </div>
         </div>
@@ -815,6 +958,18 @@ export default function App() {
               className="ai-day-spine-pulse"
               animate={{top: ["0%", "100%"]}}
               transition={{duration: 12, repeat: Infinity, ease: "easeInOut"}}
+            />
+            
+            {/* Scroll progress indicator for timeline */}
+            <motion.div
+              className="absolute left-[0.6rem] top-0 w-[2px] bg-gradient-to-b from-vcp-cyan via-vcp-purple to-pink-500 origin-top"
+              style={{
+                scaleY: useScroll({
+                  target: containerRef,
+                  offset: ["start end", "end start"]
+                }).scrollYProgress,
+                height: "100%"
+              }}
             />
 
             <div className="space-y-12 relative">
