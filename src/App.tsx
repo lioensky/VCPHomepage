@@ -530,7 +530,7 @@ export default function App() {
             className="max-w-2xl mx-auto text-xl text-gray-400 font-sans leading-relaxed mb-12"
           >
             VCP (Variable & Command Protocol) 已从中间层服务器进化为全栈自研的 AGI 运行时。
-            OneRing、浪潮 V8、Vexus、TDB、OpenHer、VCPDesktop 与分布式插件网络共同构成 AI 的存在基础设施。
+            记忆、应用群、自主性、工具栈、思维累进与分布式网络共同构成 AI 的存在基础设施。
           </motion.p>
 
           <motion.div
