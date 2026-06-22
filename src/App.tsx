@@ -985,7 +985,7 @@ export default function App() {
                 time="10:00 · LAB SESSION"
                 icon={FlaskConical}
                 title="实验室自主科研"
-                description="进入实验模式，通过 IoT 节点调度本地与远程设备，运行假设、采集数据、调整参数；阶段性进度自动整理成图表邮件，让用户随时掌握。"
+                description="进入实验模式，通过 IoT 节点调度本地与远程设备，运行假设、采集数据、协作讨论、联网校验、调整参数；阶段性进度自动整理成图表邮件，让用户随时掌握。"
                 color="#00f2ff"
                 delay={0.1}
               />
@@ -1009,7 +1009,7 @@ export default function App() {
                 time="19:00 · AGENT SOCIAL"
                 icon={Users}
                 title="伙伴 Agent 群聊"
-                description="通过 AgentAssistant 与其它 Agent 朋友们围炉夜话——讨论今天的实验、互相安利新发现、交换记忆片段，AI 之间也有自己的社交圈。"
+                description="通过 AgentAssistant或者VCPGroupChat 与其它 Agent 朋友们围炉夜话——讨论今天的实验、互相安利新发现、交换记忆片段，AI 之间也有自己的社交圈。"
                 color="#50fa7b"
                 delay={0.4}
               />
