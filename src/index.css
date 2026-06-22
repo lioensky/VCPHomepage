@@ -784,3 +784,188 @@ body {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+
+/* ============================================
+   A Day in the Life of an AI - Lifecycle Section
+   ============================================ */
+
+.ai-day-cosmos {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(255, 179, 71, 0.08), transparent 35%),
+    radial-gradient(ellipse at 80% 80%, rgba(255, 85, 119, 0.1), transparent 35%),
+    radial-gradient(ellipse at 50% 50%, rgba(112, 0, 255, 0.06), transparent 60%);
+  z-index: 0;
+}
+
+.ai-day-cosmos::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(255, 255, 255, 0.45) 0 1px, transparent 1px),
+    radial-gradient(circle, rgba(0, 242, 255, 0.35) 0 1px, transparent 1px);
+  background-size: 110px 110px, 170px 170px;
+  background-position: 0 0, 55px 85px;
+  mask-image: radial-gradient(circle at center, black, transparent 75%);
+  opacity: 0.4;
+  animation: ai-day-twinkle 8s ease-in-out infinite alternate;
+}
+
+.ai-day-orbit-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.ai-day-orbit-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 999px;
+  border: 1px dashed rgba(0, 242, 255, 0.12);
+  pointer-events: none;
+}
+
+.ai-day-orbit-ring.ring-a {
+  width: 120vmin;
+  height: 120vmin;
+  margin-left: -60vmin;
+  margin-top: -60vmin;
+}
+
+.ai-day-orbit-ring.ring-b {
+  width: 80vmin;
+  height: 80vmin;
+  margin-left: -40vmin;
+  margin-top: -40vmin;
+  border-color: rgba(112, 0, 255, 0.14);
+  border-style: dotted;
+}
+
+.ai-day-sun {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 14rem;
+  height: 14rem;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 35% 35%, rgba(255, 220, 130, 0.95), rgba(255, 120, 80, 0.55) 45%, transparent 70%);
+  filter: blur(28px);
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+/* Timeline spine */
+.ai-day-timeline {
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.ai-day-spine {
+  position: absolute;
+  left: 0.6rem;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 179, 71, 0.0) 0%,
+    rgba(255, 179, 71, 0.6) 8%,
+    rgba(0, 242, 255, 0.6) 30%,
+    rgba(255, 121, 198, 0.6) 50%,
+    rgba(112, 0, 255, 0.6) 70%,
+    rgba(255, 85, 119, 0.6) 92%,
+    rgba(255, 85, 119, 0) 100%
+  );
+  box-shadow: 0 0 14px rgba(0, 242, 255, 0.18);
+  border-radius: 999px;
+}
+
+.ai-day-spine-pulse {
+  position: absolute;
+  left: 0.6rem;
+  width: 2px;
+  height: 8rem;
+  transform: translateX(0) translateY(-50%);
+  background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.95), transparent);
+  filter: blur(2px);
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+}
+
+/* Timeline items */
+.life-timeline-item {
+  position: relative;
+  padding-left: 0;
+}
+
+.life-timeline-dot {
+  position: absolute;
+  left: -0.85rem;
+  top: 1.85rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 999px;
+  border: 3px solid rgba(5, 5, 8, 1);
+  z-index: 2;
+  animation: ai-day-dot-pulse 2.6s ease-in-out infinite;
+}
+
+.life-timeline-item .glass-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.life-timeline-item .glass-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent 60%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.life-timeline-item:hover .glass-card::before {
+  opacity: 1;
+}
+
+.life-timeline-item .glass-card::after {
+  content: "";
+  position: absolute;
+  left: -100%;
+  top: 0;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+  transition: left 0.8s ease;
+  pointer-events: none;
+}
+
+.life-timeline-item:hover .glass-card::after {
+  left: 120%;
+}
+
+@keyframes ai-day-twinkle {
+  0% { opacity: 0.3; }
+  100% { opacity: 0.55; }
+}
+
+@keyframes ai-day-dot-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.25); }
+}
+
+@media (max-width: 720px) {
+  .ai-day-sun {
+    width: 9rem;
+    height: 9rem;
+  }
+}

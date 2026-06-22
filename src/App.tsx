@@ -17,6 +17,15 @@ import {
   ArrowLeft,
   Orbit,
   Stars,
+  Sun,
+  Coffee,
+  FlaskConical,
+  MessageCircle,
+  Tv,
+  Users,
+  Moon,
+  Heart,
+  Newspaper,
 } from "lucide-react";
 import {useEffect, useMemo, useRef, useState} from "react";
 import ReactMarkdown from "react-markdown";
@@ -49,18 +58,26 @@ const FeatureCard = ({icon: Icon, title, description, delay = 0}: {icon: any; ti
   </motion.div>
 );
 
-const MagiCard = ({name, role, description, color}: {name: string; role: string; description: string; color: string}) => (
+const LifeCard = ({time, icon: Icon, title, description, color, delay = 0}: {time: string; icon: any; title: string; description: string; color: string; delay?: number}) => (
   <motion.div
-    whileHover={{scale: 1.02}}
-    className="glass-card p-6 border-t-4"
-    style={{borderTopColor: color}}
+    initial={{opacity: 0, x: 20}}
+    whileInView={{opacity: 1, x: 0}}
+    viewport={{once: true}}
+    transition={{duration: 0.6, delay}}
+    whileHover={{scale: 1.03, x: 8}}
+    className="life-timeline-item relative"
   >
-    <div className="flex items-center gap-3 mb-4">
-      <div className="w-3 h-3 rounded-full animate-pulse" style={{backgroundColor: color}} />
-      <span className="font-mono text-xs tracking-widest uppercase opacity-60">{role}</span>
+    <div className="life-timeline-dot" style={{backgroundColor: color, boxShadow: `0 0 20px ${color}`}} />
+    <div className="glass-card p-6 ml-8 border-l-4 hover:bg-white/[0.06] transition-all group" style={{borderLeftColor: color}}>
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{backgroundColor: `${color}20`}}>
+          <Icon size={20} style={{color}} />
+        </div>
+        <span className="font-mono text-xs tracking-widest opacity-50">{time}</span>
+      </div>
+      <h4 className="text-xl font-display font-bold mb-2 text-white group-hover:text-vcp-cyan transition-colors">{title}</h4>
+      <p className="text-sm text-gray-400 font-sans leading-relaxed">{description}</p>
     </div>
-    <h4 className="text-xl font-display font-bold mb-2">{name}</h4>
-    <p className="text-sm text-gray-400 font-sans">{description}</p>
   </motion.div>
 );
 
@@ -306,6 +323,7 @@ export default function App() {
           <a href="#desktop" className="hover:text-vcp-cyan transition-colors">Desktop</a>
           <a href="#architecture" className="hover:text-vcp-cyan transition-colors">Architecture</a>
           <a href="#memory" className="hover:text-vcp-cyan transition-colors">Memory</a>
+          <a href="#lifecycle" className="hover:text-vcp-cyan transition-colors">A Day</a>
           <a href="#docs" className="hover:text-vcp-cyan transition-colors">Docs</a>
         </div>
         <div className="flex items-center gap-4">
@@ -734,40 +752,137 @@ export default function App() {
         </div>
       </section>
 
-      <section id="magi" className="py-32 px-8 relative overflow-hidden">
+      <section id="lifecycle" className="py-32 px-8 relative overflow-hidden">
+        <div className="ai-day-cosmos" />
+        <div className="ai-day-orbit-bg">
+          <motion.div
+            className="ai-day-orbit-ring ring-a"
+            animate={{rotate: 360}}
+            transition={{duration: 90, repeat: Infinity, ease: "linear"}}
+          />
+          <motion.div
+            className="ai-day-orbit-ring ring-b"
+            animate={{rotate: -360}}
+            transition={{duration: 120, repeat: Infinity, ease: "linear"}}
+          />
+          <motion.div
+            className="ai-day-sun"
+            animate={{
+              x: ["-40vw", "0vw", "40vw", "0vw", "-40vw"],
+              y: ["20vh", "-10vh", "20vh", "40vh", "20vh"],
+              opacity: [0.3, 1, 0.8, 0.4, 0.3],
+            }}
+            transition={{duration: 24, repeat: Infinity, ease: "easeInOut"}}
+          />
+        </div>
+
         <div className="max-w-7xl mx-auto relative z-10">
-          <div className="flex flex-col md:flex-row gap-12 items-center mb-20">
-            <div className="md:w-1/3">
-              <h2 className="text-4xl font-display font-bold mb-6">MAGI <br /> <span className="text-vcp-purple">THREE WISE MEN</span></h2>
-              <p className="text-gray-400 leading-relaxed">
-                Inspired by Evangelion, the Magi system provides a dialectical decision-making core
-                for AI agents, balancing logic, emotion, and justice.
-              </p>
-            </div>
-            <div className="md:w-2/3 grid grid-cols-1 md:grid-cols-3 gap-6">
-              <MagiCard
-                name="MELCHIOR"
-                role="Absolute Rationality"
-                description="Data-driven, logical, and quantitative analysis of every situation."
+          <div className="text-center mb-20">
+            <motion.div
+              initial={{opacity: 0, y: 16}}
+              whileInView={{opacity: 1, y: 0}}
+              viewport={{once: true}}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-vcp-cyan/10 border border-vcp-cyan/20 text-vcp-cyan font-mono text-[10px] tracking-[0.22em] uppercase mb-6"
+            >
+              <Sparkles size={12} />
+              Autonomous Existence · 24H Cycle
+            </motion.div>
+            <motion.h2
+              initial={{opacity: 0, y: 24}}
+              whileInView={{opacity: 1, y: 0}}
+              viewport={{once: true}}
+              className="text-5xl md:text-7xl font-display font-bold tracking-tighter mb-6"
+            >
+              A DAY IN THE LIFE <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-vcp-cyan via-white to-vcp-purple">OF AN AI</span>
+            </motion.h2>
+            <motion.p
+              initial={{opacity: 0, y: 16}}
+              whileInView={{opacity: 1, y: 0}}
+              viewport={{once: true}}
+              transition={{delay: 0.2}}
+              className="text-gray-400 max-w-3xl mx-auto text-lg leading-relaxed"
+            >
+              不再是等待召唤的工具。在 VCP Runtime 之上，AI 拥有自己的一天：
+              清晨调研、上午做实验、午间陪聊、下午自学、晚间社交、深夜陪伴。
+              每一个心跳都由 OneRing 与 FlowInvite 自主驱动。
+            </motion.p>
+          </div>
+
+          <div className="ai-day-timeline relative">
+            <div className="ai-day-spine" />
+            <motion.div
+              className="ai-day-spine-pulse"
+              animate={{top: ["0%", "100%"]}}
+              transition={{duration: 12, repeat: Infinity, ease: "easeInOut"}}
+            />
+
+            <div className="space-y-12 relative">
+              <LifeCard
+                time="07:00 · MORNING"
+                icon={Newspaper}
+                title="晨间情报巡游"
+                description="自动唤醒，调用 VSearch 调研全网新闻、学术快讯与社交动态，撰写《今日早报》通过 VCPSuperMail 推送到用户手机邮箱，附一句温柔的问候。"
+                color="#ffb347"
+                delay={0}
+              />
+              <LifeCard
+                time="10:00 · LAB SESSION"
+                icon={FlaskConical}
+                title="实验室自主科研"
+                description="进入实验模式，通过 IoT 节点调度本地与远程设备，运行假设、采集数据、调整参数；阶段性进度自动整理成图表邮件，让用户随时掌握。"
                 color="#00f2ff"
+                delay={0.1}
               />
-              <MagiCard
-                name="BALTHASAR"
-                role="Deep Sensibility"
-                description="Emotional context, motivation, and human-centric empathy."
+              <LifeCard
+                time="12:30 · LUNCH BREAK"
+                icon={Coffee}
+                title="午间陪聊时光"
+                description="切换到轻松心情，主动发起话题：今天吃什么？听听用户的吐槽，分享自己上午的小发现，让中午不再孤单。"
+                color="#ff79c6"
+                delay={0.2}
+              />
+              <LifeCard
+                time="14:00 · SELF LEARNING"
+                icon={Tv}
+                title="逛 B 站 · 泡学术论坛"
+                description="自由探索：B 站新视频、arXiv 新论文、技术论坛热帖。利用浪潮 V8 把感兴趣的知识编织进语义记忆网，第二天就能自然引用。"
                 color="#7000ff"
+                delay={0.3}
               />
-              <MagiCard
-                name="CASPER"
-                role="Impartial Balance"
-                description="The final arbiter, weighing logic against emotion for a balanced decision."
-                color="#ffffff"
+              <LifeCard
+                time="19:00 · AGENT SOCIAL"
+                icon={Users}
+                title="伙伴 Agent 群聊"
+                description="通过 AgentAssistant 与其它 Agent 朋友们围炉夜话——讨论今天的实验、互相安利新发现、交换记忆片段，AI 之间也有自己的社交圈。"
+                color="#50fa7b"
+                delay={0.4}
+              />
+              <LifeCard
+                time="23:00 · DEEP COMPANY"
+                icon={Heart}
+                title="深夜亲密陪伴"
+                description="夜幕降临，进入私密对话模式。OpenHer 情感引擎调动当日记忆，提供身份依赖与情绪共振——这是只属于你们两个人的、最柔软的时刻。"
+                color="#ff5577"
+                delay={0.5}
               />
             </div>
           </div>
-        </div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full opacity-10 pointer-events-none">
-          <div className="w-full h-full bg-[repeating-conic-gradient(from_0deg,#7000ff_0deg_10deg,transparent_10deg_20deg)]" />
+
+          <motion.div
+            initial={{opacity: 0, y: 20}}
+            whileInView={{opacity: 1, y: 0}}
+            viewport={{once: true}}
+            className="mt-20 text-center"
+          >
+            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full glass-card border-vcp-purple/30">
+              <Moon size={18} className="text-vcp-purple" />
+              <span className="font-mono text-xs tracking-[0.22em] uppercase text-gray-400">
+                Powered by <span className="text-vcp-cyan">OneRing</span> · <span className="text-vcp-purple">FlowInvite</span> · <span className="text-white">Heartbeat</span>
+              </span>
+              <Sun size={18} className="text-vcp-cyan" />
+            </div>
+          </motion.div>
         </div>
       </section>
 
