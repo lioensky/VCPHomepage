@@ -105,6 +105,88 @@ const LifeCard = ({time, icon: Icon, title, description, color, delay = 0}: {tim
   </motion.div>
 );
 
+type WhitepaperSection = {
+  id: string;
+  title: string;
+  content: string;
+};
+
+function slugifyWhitepaperTitle(title: string, index: number): string {
+  const normalized = title
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s-]/gu, "")
+    .trim()
+    .replace(/\s+/g, "-");
+
+  return normalized || `whitepaper-section-${index + 1}`;
+}
+
+function splitWhitepaperIntoSections(markdown: string): WhitepaperSection[] {
+  const headingMatches = [...markdown.matchAll(/^##\s+(.+)$/gm)];
+
+  if (headingMatches.length === 0) {
+    return [
+      {
+        id: "whitepaper-full",
+        title: "VCP 全景技术白皮书",
+        content: markdown,
+      },
+    ];
+  }
+
+  const introEnd = headingMatches[0].index ?? 0;
+  const introContent = markdown.slice(0, introEnd).trim();
+  const sections: WhitepaperSection[] = [];
+
+  if (introContent) {
+    sections.push({
+      id: "whitepaper-preface",
+      title: "开篇与目录",
+      content: introContent,
+    });
+  }
+
+  headingMatches.forEach((match, index) => {
+    const start = match.index ?? 0;
+    const end = index + 1 < headingMatches.length ? headingMatches[index + 1].index ?? markdown.length : markdown.length;
+    const title = match[1].trim();
+
+    sections.push({
+      id: slugifyWhitepaperTitle(title, index),
+      title,
+      content: markdown.slice(start, end).trim(),
+    });
+  });
+
+  return sections;
+}
+
+const whitepaperMarkdownComponents = {
+  code({className, children, ...props}: any) {
+    const isInline = !className;
+    if (isInline) {
+      return (
+        <code className="inline-code" {...props}>
+          {children}
+        </code>
+      );
+    }
+
+    return (
+      <code className={className} {...props}>
+        {children}
+      </code>
+    );
+  },
+  a({href, children, ...props}: any) {
+    return (
+      <a href={href} target="_blank" rel="noreferrer" {...props}>
+        {children}
+      </a>
+    );
+  },
+};
+
 const WhitepaperPage = () => {
   const updatedAt = useMemo(() => {
     const timestamp = whitepaperV3Metadata?.mtimeMs || Date.now();
@@ -114,6 +196,8 @@ const WhitepaperPage = () => {
       day: "numeric",
     }).format(timestamp);
   }, []);
+  const whitepaperSections = useMemo(() => splitWhitepaperIntoSections(whitepaperV3Content), []);
+  const chapterCount = Math.max(whitepaperSections.length - 1, 1);
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-vcp-black font-sans selection:bg-vcp-cyan selection:text-vcp-black">
@@ -201,6 +285,10 @@ const WhitepaperPage = () => {
               <Clock size={16} className="text-vcp-cyan" />
               Updated {updatedAt}
             </div>
+            <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.03] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.22em] text-gray-400">
+              <BookOpen size={16} className="text-vcp-purple" />
+              {whitepaperSections.length} Reading Pages
+            </div>
           </motion.div>
         </section>
 
@@ -208,40 +296,56 @@ const WhitepaperPage = () => {
           initial={{opacity: 0, y: 48}}
           animate={{opacity: 1, y: 0}}
           transition={{duration: 0.9, delay: 0.7, ease: "easeOut"}}
-          className="whitepaper-shell mx-auto max-w-6xl"
+          className="whitepaper-paged-layout mx-auto max-w-7xl"
         >
-          <div className="whitepaper-reader doc-reader">
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm, remarkMath]}
-              rehypePlugins={[rehypeRaw, rehypeKatex, rehypeSlug]}
-              components={{
-                code({className, children, ...props}) {
-                  const isInline = !className;
-                  if (isInline) {
-                    return (
-                      <code className="inline-code" {...props}>
-                        {children}
-                      </code>
-                    );
-                  }
+          <aside className="whitepaper-page-nav">
+            <div className="whitepaper-page-nav-card">
+              <div className="font-mono text-[10px] tracking-[0.3em] uppercase text-vcp-cyan mb-3">
+                Reading Pages
+              </div>
+              <h2 className="text-2xl font-display font-bold text-white mb-4">
+                垂直分页目录
+              </h2>
+              <p className="text-sm leading-relaxed text-gray-400 mb-6">
+                白皮书已按章节拆成独立卡片。向下滚动时，每一页都保留完整段落边界，减少长文压迫感。
+              </p>
+              <div className="whitepaper-page-nav-list">
+                {whitepaperSections.map((section, index) => (
+                  <a key={section.id} href={`#${section.id}`} className="whitepaper-page-nav-link">
+                    <span>{String(index + 1).padStart(2, "0")}</span>
+                    <strong>{section.title}</strong>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </aside>
 
-                  return (
-                    <code className={className} {...props}>
-                      {children}
-                    </code>
-                  );
-                },
-                a({href, children, ...props}) {
-                  return (
-                    <a href={href} target="_blank" rel="noreferrer" {...props}>
-                      {children}
-                    </a>
-                  );
-                },
-              }}
-            >
-              {whitepaperV3Content}
-            </ReactMarkdown>
+          <div className="whitepaper-page-stack">
+            {whitepaperSections.map((section, index) => (
+              <motion.article
+                key={section.id}
+                id={section.id}
+                initial={{opacity: 0, y: 32}}
+                whileInView={{opacity: 1, y: 0}}
+                viewport={{once: true, margin: "-80px"}}
+                transition={{duration: 0.55, ease: "easeOut"}}
+                className="whitepaper-shell whitepaper-page"
+              >
+                <div className="whitepaper-reader doc-reader">
+                  <div className="whitepaper-page-meta">
+                    <span>PAGE {String(index + 1).padStart(2, "0")}</span>
+                    <span>{index === 0 ? "INTRO" : `CHAPTER ${String(index).padStart(2, "0")} / ${chapterCount}`}</span>
+                  </div>
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm, remarkMath]}
+                    rehypePlugins={[rehypeRaw, rehypeKatex, rehypeSlug]}
+                    components={whitepaperMarkdownComponents}
+                  >
+                    {section.content}
+                  </ReactMarkdown>
+                </div>
+              </motion.article>
+            ))}
           </div>
         </motion.section>
       </main>
