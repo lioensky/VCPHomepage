@@ -14,12 +14,21 @@ import {
   Monitor,
   ExternalLink,
   BookOpen,
+  ArrowLeft,
+  Orbit,
+  Stars,
 } from "lucide-react";
 import {useEffect, useMemo, useRef, useState} from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import rehypeRaw from "rehype-raw";
+import rehypeSlug from "rehype-slug";
 import {NeuralNetwork} from "./components/NeuralNetwork";
 import {DocsViewer} from "./components/DocsViewer";
-import {ChangelogHub} from "./components/ChangelogHub";
 import {getAllDocs} from "./docs";
+import whitepaperV3Content, {metadata as whitepaperV3Metadata} from "../vcp白皮书V3.md";
 
 const FeatureCard = ({icon: Icon, title, description, delay = 0}: {icon: any; title: string; description: string; delay?: number}) => (
   <motion.div
@@ -55,13 +64,160 @@ const MagiCard = ({name, role, description, color}: {name: string; role: string;
   </motion.div>
 );
 
+const WhitepaperPage = () => {
+  const updatedAt = useMemo(() => {
+    const timestamp = whitepaperV3Metadata?.mtimeMs || Date.now();
+    return new Intl.DateTimeFormat("zh-CN", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }).format(timestamp);
+  }, []);
+
+  return (
+    <div className="relative min-h-screen overflow-hidden bg-vcp-black font-sans selection:bg-vcp-cyan selection:text-vcp-black">
+      <div className="whitepaper-cosmos" />
+      <NeuralNetwork />
+
+      <motion.div
+        className="fixed inset-0 pointer-events-none z-0 opacity-60"
+        initial={{opacity: 0}}
+        animate={{opacity: 0.6}}
+        transition={{duration: 1.2}}
+      >
+        <div className="absolute left-1/2 top-20 h-[44rem] w-[44rem] -translate-x-1/2 rounded-full bg-vcp-purple/20 blur-[140px]" />
+        <div className="absolute bottom-0 right-0 h-[34rem] w-[34rem] rounded-full bg-vcp-cyan/10 blur-[120px]" />
+        <motion.div
+          className="absolute left-1/2 top-1/2 h-[70vmin] w-[70vmin] -translate-x-1/2 -translate-y-1/2 rounded-full border border-vcp-cyan/10"
+          animate={{rotate: 360}}
+          transition={{duration: 80, repeat: Infinity, ease: "linear"}}
+        />
+        <motion.div
+          className="absolute left-1/2 top-1/2 h-[52vmin] w-[52vmin] -translate-x-1/2 -translate-y-1/2 rounded-full border border-vcp-purple/15"
+          animate={{rotate: -360}}
+          transition={{duration: 56, repeat: Infinity, ease: "linear"}}
+        />
+      </motion.div>
+
+      <nav className="fixed top-0 left-0 z-50 flex w-full items-center justify-between border-b border-white/5 bg-vcp-black/50 px-8 py-6 backdrop-blur-md">
+        <a href="/" className="flex items-center gap-2">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-vcp-purple neon-border">
+            <Cpu className="text-vcp-cyan" size={24} />
+          </div>
+          <span className="text-2xl font-display font-bold tracking-tighter">VCP<span className="text-vcp-cyan">.OS</span></span>
+        </a>
+        <a
+          href="/"
+          className="group inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.03] px-5 py-2 font-display text-sm font-bold text-white transition-all hover:border-vcp-cyan/50 hover:bg-vcp-cyan/10"
+        >
+          <ArrowLeft size={18} className="text-vcp-cyan transition-transform group-hover:-translate-x-1" />
+          BACK HOME
+        </a>
+      </nav>
+
+      <main className="relative z-10 px-6 pb-24 pt-36 md:px-8">
+        <section className="mx-auto max-w-7xl pb-16 text-center">
+          <motion.div
+            initial={{opacity: 0, y: 24, scale: 0.96}}
+            animate={{opacity: 1, y: 0, scale: 1}}
+            transition={{duration: 0.8, ease: "easeOut"}}
+            className="mb-8 inline-flex items-center gap-3 rounded-full border border-vcp-cyan/20 bg-vcp-cyan/10 px-5 py-2 font-mono text-[10px] uppercase tracking-[0.28em] text-vcp-cyan"
+          >
+            <Stars size={14} />
+            VCP Whitepaper V3 · AGI Runtime
+          </motion.div>
+
+          <motion.h1
+            initial={{opacity: 0, y: 36}}
+            animate={{opacity: 1, y: 0}}
+            transition={{duration: 0.9, delay: 0.15, ease: "easeOut"}}
+            className="mx-auto max-w-5xl text-5xl font-display font-bold leading-[0.95] tracking-tighter text-white md:text-8xl"
+          >
+            LEARN <span className="text-transparent bg-clip-text bg-gradient-to-r from-vcp-cyan via-white to-vcp-purple whitepaper-title-glow">VCP</span>
+          </motion.h1>
+
+          <motion.p
+            initial={{opacity: 0, y: 24}}
+            animate={{opacity: 1, y: 0}}
+            transition={{duration: 0.8, delay: 0.35}}
+            className="mx-auto mt-8 max-w-3xl text-lg leading-relaxed text-gray-400 md:text-xl"
+          >
+            用流动的星图、引力轨道与玻璃态阅读界面，重新展开 VCP 全景技术白皮书 V3：
+            一个全栈自研的 AGI 运行时。
+          </motion.p>
+
+          <motion.div
+            initial={{opacity: 0, y: 24}}
+            animate={{opacity: 1, y: 0}}
+            transition={{duration: 0.8, delay: 0.55}}
+            className="mt-10 flex flex-wrap justify-center gap-4"
+          >
+            <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.03] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.22em] text-gray-400">
+              <Orbit size={16} className="text-vcp-purple" />
+              Rendered Whitepaper
+            </div>
+            <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.03] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.22em] text-gray-400">
+              <Clock size={16} className="text-vcp-cyan" />
+              Updated {updatedAt}
+            </div>
+          </motion.div>
+        </section>
+
+        <motion.section
+          initial={{opacity: 0, y: 48}}
+          animate={{opacity: 1, y: 0}}
+          transition={{duration: 0.9, delay: 0.7, ease: "easeOut"}}
+          className="whitepaper-shell mx-auto max-w-6xl"
+        >
+          <div className="whitepaper-reader doc-reader">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm, remarkMath]}
+              rehypePlugins={[rehypeRaw, rehypeKatex, rehypeSlug]}
+              components={{
+                code({className, children, ...props}) {
+                  const isInline = !className;
+                  if (isInline) {
+                    return (
+                      <code className="inline-code" {...props}>
+                        {children}
+                      </code>
+                    );
+                  }
+
+                  return (
+                    <code className={className} {...props}>
+                      {children}
+                    </code>
+                  );
+                },
+                a({href, children, ...props}) {
+                  return (
+                    <a href={href} target="_blank" rel="noreferrer" {...props}>
+                      {children}
+                    </a>
+                  );
+                },
+              }}
+            >
+              {whitepaperV3Content}
+            </ReactMarkdown>
+          </div>
+        </motion.section>
+      </main>
+    </div>
+  );
+};
+
 export default function App() {
   const containerRef = useRef(null);
   const glowRef = useRef<HTMLDivElement>(null);
   const docsSectionRef = useRef<HTMLElement>(null);
-  const docs = useMemo(() => getAllDocs(), []);
-  const changelogs = useMemo(() => docs.filter((doc) => doc.category === "changelog"), [docs]);
+  const docs = useMemo(() => getAllDocs().filter((doc) => doc.category !== "changelog"), []);
   const [activeDocSlug, setActiveDocSlug] = useState(docs[0]?.slug ?? "");
+
+  if (window.location.pathname === "/learn-vcp") {
+    return <WhitepaperPage />;
+  }
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -147,7 +303,6 @@ export default function App() {
           <a href="#architecture" className="hover:text-vcp-cyan transition-colors">Architecture</a>
           <a href="#memory" className="hover:text-vcp-cyan transition-colors">Memory</a>
           <a href="#docs" className="hover:text-vcp-cyan transition-colors">Docs</a>
-          <a href="#changelog" className="hover:text-vcp-cyan transition-colors">Changelog</a>
         </div>
         <div className="flex items-center gap-4">
           <a
@@ -218,11 +373,11 @@ export default function App() {
                 READ DOCUMENTATION
               </a>
               <a
-                href="#changelog"
+                href="/learn-vcp"
                 className="group flex items-center gap-3 px-8 py-4 glass-card rounded-full font-display font-bold hover:border-vcp-cyan transition-all"
               >
-                <Clock size={20} className="text-vcp-cyan" />
-                VIEW CHANGELOG
+                <Sparkles size={20} className="text-vcp-cyan" />
+                Learn VCP
               </a>
             </div>
             <div className="flex flex-wrap justify-center gap-6">
@@ -627,12 +782,6 @@ export default function App() {
         </div>
       </section>
 
-      <section id="changelog" className="py-24 px-8">
-        <div className="max-w-7xl mx-auto">
-          <ChangelogHub changelogs={changelogs} onOpenDoc={openDoc} />
-        </div>
-      </section>
-
       <footer className="py-20 px-8 border-t border-white/5 bg-vcp-black/20">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
           <div className="col-span-1 md:col-span-2">
@@ -674,8 +823,8 @@ export default function App() {
           <div>
             <h5 className="font-mono text-xs uppercase tracking-widest text-vcp-purple mb-8">Ecosystem</h5>
             <ul className="space-y-4 text-gray-400">
+              <li><a href="/learn-vcp" className="hover:text-vcp-purple transition-colors">Learn VCP</a></li>
               <li><a href="#docs" className="hover:text-vcp-purple transition-colors">Docs Portal</a></li>
-              <li><a href="#changelog" className="hover:text-vcp-purple transition-colors">Changelog Hub</a></li>
               <li><a href="#desktop" className="hover:text-vcp-purple transition-colors">VCP Desktop</a></li>
             </ul>
           </div>

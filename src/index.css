@@ -279,3 +279,124 @@ body {
   overflow-y: hidden;
   padding: 0.5rem 0;
 }
+
+
+.whitepaper-cosmos {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(0, 242, 255, 0.16), transparent 28rem),
+    radial-gradient(circle at 78% 12%, rgba(112, 0, 255, 0.18), transparent 32rem),
+    radial-gradient(circle at 50% 85%, rgba(255, 255, 255, 0.06), transparent 24rem),
+    linear-gradient(180deg, rgba(5, 5, 5, 0.92), rgba(3, 4, 10, 0.98));
+  overflow: hidden;
+}
+
+.whitepaper-cosmos::before,
+.whitepaper-cosmos::after {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background-image:
+    radial-gradient(circle, rgba(255, 255, 255, 0.85) 0 1px, transparent 1px),
+    radial-gradient(circle, rgba(0, 242, 255, 0.55) 0 1px, transparent 1px);
+  background-size: 84px 84px, 132px 132px;
+  mask-image: radial-gradient(circle at center, black, transparent 72%);
+  animation: star-drift 70s linear infinite;
+  opacity: 0.32;
+}
+
+.whitepaper-cosmos::after {
+  animation-duration: 110s;
+  animation-direction: reverse;
+  filter: blur(0.5px);
+  opacity: 0.18;
+}
+
+.whitepaper-title-glow {
+  filter: drop-shadow(0 0 22px rgba(0, 242, 255, 0.35)) drop-shadow(0 0 38px rgba(112, 0, 255, 0.28));
+}
+
+.whitepaper-shell {
+  position: relative;
+  border-radius: 36px;
+  padding: 1px;
+  background:
+    linear-gradient(120deg, rgba(0, 242, 255, 0.7), rgba(112, 0, 255, 0.2), rgba(255, 255, 255, 0.25), rgba(0, 242, 255, 0.45));
+  box-shadow:
+    0 0 60px rgba(0, 242, 255, 0.12),
+    0 0 120px rgba(112, 0, 255, 0.14);
+  overflow: hidden;
+}
+
+.whitepaper-shell::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background: conic-gradient(from 90deg, transparent, rgba(0, 242, 255, 0.22), transparent, rgba(112, 0, 255, 0.2), transparent);
+  animation: whitepaper-orbit 18s linear infinite;
+  opacity: 0.7;
+}
+
+.whitepaper-reader {
+  position: relative;
+  z-index: 1;
+  max-height: none;
+  border-radius: 35px;
+  padding: clamp(1.5rem, 4vw, 4rem);
+  background:
+    linear-gradient(180deg, rgba(7, 10, 18, 0.92), rgba(5, 5, 10, 0.96)),
+    radial-gradient(circle at top left, rgba(0, 242, 255, 0.08), transparent 28rem);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(22px);
+}
+
+.whitepaper-reader h1 {
+  font-size: clamp(2.2rem, 6vw, 4.8rem);
+  line-height: 1;
+  margin-top: 0;
+  padding-bottom: 1.4rem;
+  border-bottom: 1px solid rgba(0, 242, 255, 0.18);
+  background: linear-gradient(90deg, #fff, var(--color-vcp-cyan), #b990ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.whitepaper-reader h2 {
+  margin-top: 4rem;
+  color: var(--color-vcp-cyan);
+  border-bottom-color: rgba(0, 242, 255, 0.16);
+}
+
+.whitepaper-reader h3 {
+  color: #ffffff;
+}
+
+.whitepaper-reader pre {
+  background:
+    linear-gradient(135deg, rgba(0, 242, 255, 0.05), rgba(112, 0, 255, 0.06)),
+    rgba(1, 5, 12, 0.92);
+  box-shadow: inset 0 0 24px rgba(0, 242, 255, 0.04);
+}
+
+.whitepaper-reader table {
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.whitepaper-reader blockquote {
+  border-left-color: rgba(112, 0, 255, 0.75);
+  background: linear-gradient(90deg, rgba(112, 0, 255, 0.1), rgba(0, 242, 255, 0.035));
+}
+
+@keyframes star-drift {
+  from { transform: translate3d(0, 0, 0) rotate(0deg); }
+  to { transform: translate3d(6rem, 4rem, 0) rotate(360deg); }
+}
+
+@keyframes whitepaper-orbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
