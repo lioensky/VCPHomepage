@@ -1,3 +1,9 @@
+---
+title: VCP 全景技术白皮书 V3
+summary: 详细介绍了VCP全栈运行时的工作原理和系统交互，是入门VCP的重要读物。
+updatedAt: 2026-06-21
+category: guide
+---
 
 # VCP 全景技术白皮书 V3：一个全栈自研的 AGI 运行时
 
