@@ -296,7 +296,7 @@ const WhitepaperPage = () => {
           initial={{opacity: 0, y: 48}}
           animate={{opacity: 1, y: 0}}
           transition={{duration: 0.9, delay: 0.7, ease: "easeOut"}}
-          className="whitepaper-paged-layout mx-auto max-w-7xl"
+          className="whitepaper-paged-layout mx-auto"
         >
           <aside className="whitepaper-page-nav">
             <div className="whitepaper-page-nav-card">
