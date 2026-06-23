@@ -345,7 +345,7 @@ const createInitialWikiSession = (target: WikiCockpitTarget): WikiChatSession =>
     {
       id: `${target.id}-welcome`,
       role: "system",
-      content: `已连接 ${target.repo} 的 DeepWiki MCP 通道。你可以直接询问源码结构、关键模块、调用链、渲染流程或插件机制。`,
+      content: `已连接 ${target.repo} 的 DeepWikiBot。你可以直接询问源码结构、关键模块、调用链、渲染流程或插件机制。`,
     },
   ],
 });
@@ -450,7 +450,7 @@ const WikiCockpitModal = ({
       const data = await response.json();
 
       if (!response.ok || data.status !== "success") {
-        throw new Error(data.error || "DeepWiki MCP 调用失败");
+        throw new Error(data.error || "DeepWiki 调用失败");
       }
 
       updateSessionQueryId(activeTarget.id, data.queryId ?? null);
@@ -463,7 +463,7 @@ const WikiCockpitModal = ({
       appendMessage(activeTarget.id, {
         id: `error-${Date.now()}`,
         role: "system",
-        content: `⚠️ ${error?.message || "DeepWiki MCP 暂时不可用"}\n\n你仍可点击右上角 Open 打开官方 DeepWiki 页面继续查询。`,
+        content: `⚠️ ${error?.message || "DeepWiki 暂时不可用"}\n\n你仍可点击右上角 Open 打开官方 DeepWiki 页面继续查询。`,
       });
     } finally {
       setIsAsking(false);
