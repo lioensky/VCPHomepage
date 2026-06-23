@@ -627,9 +627,15 @@ const WikiCockpitModal = ({
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
               onKeyDown={(event) => {
-                if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
-                  handleSubmit(event);
+                if (event.key !== "Enter") {
+                  return;
                 }
+
+                if (event.ctrlKey || event.shiftKey || event.metaKey) {
+                  return;
+                }
+
+                handleSubmit(event);
               }}
               placeholder={`询问 ${target.repo} 的源码细节...`}
               rows={2}
