@@ -111,6 +111,17 @@ type WhitepaperSection = {
   content: string;
 };
 
+type WaveParticle = {
+  id: string;
+  startLeft: string;
+  startTop: string;
+  endLeft: string;
+  endTop: string;
+  opacity: [number, number, number];
+  scale: number;
+  duration: number;
+};
+
 type ChangelogEntry = {
   id: string;
   date: string;
@@ -1095,6 +1106,31 @@ export default function App() {
   });
 
   const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+  const waveParticles = useMemo<WaveParticle[]>(() => {
+    const particleSeeds = [
+      [8, 24, 22, 66],
+      [18, 72, 38, 36],
+      [28, 42, 54, 78],
+      [40, 18, 66, 34],
+      [52, 62, 78, 24],
+      [64, 30, 84, 68],
+      [76, 76, 44, 52],
+      [86, 48, 58, 18],
+      [34, 82, 18, 38],
+      [70, 14, 92, 44],
+    ];
+
+    return particleSeeds.map(([startLeft, startTop, endLeft, endTop], index) => ({
+      id: `particle-${index}`,
+      startLeft: `${startLeft}%`,
+      startTop: `${startTop}%`,
+      endLeft: `${endLeft}%`,
+      endTop: `${endTop}%`,
+      opacity: [0.25 + (index % 4) * 0.1, 0.72 + (index % 3) * 0.08, 0],
+      scale: 0.65 + (index % 5) * 0.12,
+      duration: 10 + (index % 6) * 1.7,
+    }));
+  }, []);
 
   const openDoc = (slug: string) => {
     setActiveDocSlug(slug);
@@ -1621,25 +1657,25 @@ export default function App() {
                 <div className="wave-channel wave-channel-c" />
                 
                 {/* Add some particle effects */}
-                {[...Array(10)].map((_, i) => (
+                {waveParticles.map((particle) => (
                   <motion.div
-                    key={`particle-${i}`}
+                    key={particle.id}
                     className="absolute w-1 h-1 rounded-full bg-vcp-cyan"
                     initial={{
-                      x: Math.random() * 100 + "%",
-                      y: Math.random() * 100 + "%",
-                      opacity: Math.random() * 0.5 + 0.2,
-                      scale: Math.random() * 0.5 + 0.5
+                      left: particle.startLeft,
+                      top: particle.startTop,
+                      opacity: particle.opacity[0],
+                      scale: particle.scale,
                     }}
                     animate={{
-                      y: [null, Math.random() * 100 + "%"],
-                      x: [null, Math.random() * 100 + "%"],
-                      opacity: [null, Math.random() * 0.8 + 0.2, 0]
+                      left: [particle.startLeft, particle.endLeft],
+                      top: [particle.startTop, particle.endTop],
+                      opacity: particle.opacity,
                     }}
                     transition={{
-                      duration: Math.random() * 10 + 10,
+                      duration: particle.duration,
                       repeat: Infinity,
-                      ease: "linear"
+                      ease: "linear",
                     }}
                   />
                 ))}
