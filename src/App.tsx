@@ -482,7 +482,7 @@ const createInitialWikiSession = (target: WikiCockpitTarget): WikiChatSession =>
     {
       id: `${target.id}-welcome`,
       role: "system",
-      content: `已连接 ${target.repo} 的 DeepWikiBot。你可以直接询问源码结构、关键模块、调用链、渲染流程或插件机制。`,
+      content: `已连接 ${target.repo} 的 拓扑女仆 Nova。你可以直接询问源码结构、关键模块、调用链、渲染流程或插件机制。`,
     },
   ],
 });
