@@ -1299,12 +1299,12 @@ export default function App() {
   const parallaxY = useSpring(useTransform(mouseY, [0, typeof window !== "undefined" ? window.innerHeight : 1000], [-30, 30]), springConfig);
 
   const homeMeta = useMemo<PageMeta>(() => ({
-    title: "VCP-OS | Variable & Command Protocol 官方网站",
-    description: "VCP-OS 官方网站。VCP (Variable & Command Protocol) 是面向 AI Agent 的 AGI Runtime 与存在基础设施，基于vcptoolbox中央服务器和分布式生态，为AI提供永久记忆、工具调用、自主心跳、VCPDesktop、OneRing 上下文、TagMemo 浪潮 V8 语义动力学与分布式节点能力。",
+    title: "VCP-OS | VCPToolBox 官方网站",
+    description: "VCP-OS | VCPToolBox 官方网站。VCP (Variable & Command Protocol) 是面向 AI Agent 的 AGI Runtime 与存在基础设施，基于vcptoolbox中央服务器和分布式生态，为AI提供永久记忆、工具调用、自主心跳、VCPDesktop、OneRing 上下文、TagMemo 浪潮 V8 语义动力学与分布式节点能力。",
     keywords: "VCP,VCP-OS,Variable Command Protocol,AGI Runtime,AI Agent,AI 存在基础设施,VCPChat,VCPToolBox,VCPDesktop,OneRing,TagMemo,浪潮 V8,语义动力学",
     canonical: "https://www.vcptoolbox.com/",
-    ogTitle: "VCP-OS | Variable & Command Protocol 官方网站",
-    ogDescription: "VCP-OS 是面向 AI Agent 的 AGI Runtime 与存在基础设施，基于vcptoolbox中央服务器和分布式生态，让 AI 获得永久记忆、工具栈、自主心跳、桌面运行时与分布式协作能力。",
+    ogTitle: "VCP-OS | VCPToolBox 官方网站",
+    ogDescription: "VCP-OS | VCPToolBox 是面向 AI Agent 的 AGI Runtime 与存在基础设施，基于vcptoolbox中央服务器和分布式生态，让 AI 获得永久记忆、工具栈、自主心跳、桌面运行时与分布式协作能力。",
     ogUrl: "https://www.vcptoolbox.com/",
     twitterTitle: "VCP-OS | AI 存在基础设施",
     twitterDescription: "了解 VCP、VCPToolbox、VCPChat、VCPDesktop、OneRing、TagMemo 浪潮 V8 与 VCP应用群 组成的 AI Agent 运行时生态。",
