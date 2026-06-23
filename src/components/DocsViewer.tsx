@@ -92,7 +92,7 @@ export function DocsViewer({documents, activeSlug, onSelect}: DocsViewerProps) {
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-[320px_minmax(0,1fr)] gap-8">
-      <aside className="glass-card p-4 md:p-6 xl:sticky xl:top-28 h-fit">
+      <aside className="glass-card docs-sidebar p-4 md:p-6 xl:sticky xl:top-28">
         <div className="mb-6">
           <div className="font-mono text-[10px] tracking-[0.3em] uppercase text-vcp-cyan mb-3">
             Auto Imported Docs
@@ -105,7 +105,7 @@ export function DocsViewer({documents, activeSlug, onSelect}: DocsViewerProps) {
           </p>
         </div>
 
-        <div className="space-y-3">
+        <div className="docs-sidebar-list space-y-3">
           {documents.map((doc) => {
             const isActive = doc.slug === activeDoc.slug;
             return (

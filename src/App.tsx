@@ -111,6 +111,50 @@ type WhitepaperSection = {
   content: string;
 };
 
+type ChangelogEntry = {
+  id: string;
+  date: string;
+  title: string;
+  content: string;
+};
+
+type PageMeta = {
+  title: string;
+  description: string;
+  keywords: string;
+  canonical: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogUrl?: string;
+  twitterTitle?: string;
+  twitterDescription?: string;
+};
+
+function setMetaAttribute(selector: string, attribute: "content" | "href", value: string) {
+  const node = document.head.querySelector(selector);
+  if (node) {
+    node.setAttribute(attribute, value);
+  }
+}
+
+function usePageMeta(meta: PageMeta, enabled = true) {
+  useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
+    document.title = meta.title;
+    setMetaAttribute('meta[name="description"]', "content", meta.description);
+    setMetaAttribute('meta[name="keywords"]', "content", meta.keywords);
+    setMetaAttribute('link[rel="canonical"]', "href", meta.canonical);
+    setMetaAttribute('meta[property="og:title"]', "content", meta.ogTitle ?? meta.title);
+    setMetaAttribute('meta[property="og:description"]', "content", meta.ogDescription ?? meta.description);
+    setMetaAttribute('meta[property="og:url"]', "content", meta.ogUrl ?? meta.canonical);
+    setMetaAttribute('meta[name="twitter:title"]', "content", meta.twitterTitle ?? meta.ogTitle ?? meta.title);
+    setMetaAttribute('meta[name="twitter:description"]', "content", meta.twitterDescription ?? meta.ogDescription ?? meta.description);
+  }, [enabled, meta]);
+}
+
 function slugifyWhitepaperTitle(title: string, index: number): string {
   const normalized = title
     .toLowerCase()
@@ -119,6 +163,26 @@ function slugifyWhitepaperTitle(title: string, index: number): string {
     .replace(/\s+/g, "-");
 
   return normalized || `whitepaper-section-${index + 1}`;
+}
+
+function splitChangelogIntoEntries(markdown: string): ChangelogEntry[] {
+  const headingMatches = [...markdown.matchAll(/^###\s+(.+)$/gm)];
+
+  return headingMatches.map((match, index) => {
+    const start = match.index ?? 0;
+    const end = index + 1 < headingMatches.length ? headingMatches[index + 1].index ?? markdown.length : markdown.length;
+    const rawTitle = match[1].trim();
+    const [datePart, ...titleParts] = rawTitle.split("·").map((part) => part.trim());
+    const title = titleParts.join(" · ") || rawTitle;
+    const id = `changelog-${datePart.replace(/[^\p{L}\p{N}]+/gu, "-")}-${index}`;
+
+    return {
+      id,
+      date: datePart,
+      title,
+      content: markdown.slice(start + match[0].length, end).trim(),
+    };
+  });
 }
 
 function splitWhitepaperIntoSections(markdown: string): WhitepaperSection[] {
@@ -187,6 +251,153 @@ const whitepaperMarkdownComponents = {
   },
 };
 
+const ChangelogPage = ({content}: {content: string}) => {
+  const entries = useMemo(() => splitChangelogIntoEntries(content), [content]);
+  const latestEntry = entries[0];
+  const meta = useMemo<PageMeta>(() => ({
+    title: "VCP 更新日志 | Changelog Timeline",
+    description: "VCP 更新日志时间线，按倒序记录 VCP-OS、VCPToolBox、VCPChat、VCPDesktop、OneRing、TagMemo、OpenHer、AgentAssistant、VCPSuperMail 等核心能力的真实演进。",
+    keywords: "VCP 更新日志,VCP Changelog,VCP-OS,VCPToolBox,VCPChat,VCPDesktop,OneRing,TagMemo,OpenHer,AgentAssistant,VCPSuperMail,AGI Runtime",
+    canonical: "https://www.vcptoolbox.com/changelog",
+    ogTitle: "VCP 更新日志 · Changelog Timeline",
+    ogDescription: "以华丽时间线方式回顾 VCP 从 AI 中间层到 AGI Runtime 的真实演进记录。",
+    ogUrl: "https://www.vcptoolbox.com/changelog",
+    twitterTitle: "VCP 更新日志 · Changelog Timeline",
+    twitterDescription: "查看 VCP-OS、VCPToolBox、VCPChat 与 VCP 生态的完整更新轨迹。",
+  }), []);
+
+  usePageMeta(meta);
+
+  return (
+    <div className="relative min-h-screen overflow-hidden bg-vcp-black font-sans selection:bg-vcp-cyan selection:text-vcp-black">
+      <div className="changelog-cosmos" />
+      <NeuralNetwork />
+
+      <nav className="fixed top-0 left-0 z-50 flex w-full items-center justify-between border-b border-white/5 bg-vcp-black/50 px-8 py-6 backdrop-blur-md">
+        <a href="/" className="flex items-center gap-2">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-vcp-purple neon-border">
+            <Cpu className="text-vcp-cyan" size={24} />
+          </div>
+          <span className="text-2xl font-display font-bold tracking-tighter">VCP<span className="text-vcp-cyan">.OS</span></span>
+        </a>
+        <div className="flex items-center gap-3">
+          <a
+            href="/?page=learn-vcp"
+            className="hidden md:inline-flex items-center gap-3 rounded-full border border-vcp-purple/30 bg-vcp-purple/10 px-5 py-2 font-display text-sm font-bold text-white transition-all hover:border-vcp-purple/60 hover:bg-vcp-purple/20"
+          >
+            <Sparkles size={18} className="text-vcp-purple" />
+            LEARN VCP
+          </a>
+          <a
+            href="/"
+            className="group inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.03] px-5 py-2 font-display text-sm font-bold text-white transition-all hover:border-vcp-cyan/50 hover:bg-vcp-cyan/10"
+          >
+            <ArrowLeft size={18} className="text-vcp-cyan transition-transform group-hover:-translate-x-1" />
+            BACK HOME
+          </a>
+        </div>
+      </nav>
+
+      <main className="relative z-10 px-6 pb-24 pt-36 md:px-8">
+        <section className="sr-only" aria-label="VCP 更新日志页面摘要">
+          <h1>VCP 更新日志 · Changelog Timeline</h1>
+          <p>
+            VCP 更新日志页面以时间线形式展示 VCP-OS、VCPToolBox、VCPChat、VCPDesktop、OneRing、
+            TagMemo、OpenHer、AgentAssistant、PluginManager、VCPSuperMail 等模块的真实演进记录。
+          </p>
+        </section>
+
+        <section className="mx-auto max-w-7xl pb-20 text-center">
+          <motion.div
+            initial={{opacity: 0, y: 24, scale: 0.96}}
+            animate={{opacity: 1, y: 0, scale: 1}}
+            transition={{duration: 0.8, ease: "easeOut"}}
+            className="mb-8 inline-flex items-center gap-3 rounded-full border border-vcp-cyan/20 bg-vcp-cyan/10 px-5 py-2 font-mono text-[10px] uppercase tracking-[0.28em] text-vcp-cyan"
+          >
+            <Clock size={14} />
+            VCP Evolution Timeline
+          </motion.div>
+
+          <motion.h1
+            initial={{opacity: 0, y: 36}}
+            animate={{opacity: 1, y: 0}}
+            transition={{duration: 0.9, delay: 0.15, ease: "easeOut"}}
+            className="mx-auto max-w-5xl text-5xl font-display font-bold leading-[0.95] tracking-tighter text-white md:text-8xl"
+          >
+            CHANGE<span className="text-transparent bg-clip-text bg-gradient-to-r from-vcp-cyan via-white to-vcp-purple changelog-title-glow">LOG</span>
+          </motion.h1>
+
+          <motion.p
+            initial={{opacity: 0, y: 24}}
+            animate={{opacity: 1, y: 0}}
+            transition={{duration: 0.8, delay: 0.35}}
+            className="mx-auto mt-8 max-w-3xl text-lg leading-relaxed text-gray-400 md:text-xl"
+          >
+            以华丽时间线展开 VCP 从早期 AI 中间层到 AGI Runtime 的真实演进轨迹。每一次更新都是一次协议、记忆、前端应用群与 Agent 自主性的跃迁。
+          </motion.p>
+
+          <motion.div
+            initial={{opacity: 0, y: 24}}
+            animate={{opacity: 1, y: 0}}
+            transition={{duration: 0.8, delay: 0.55}}
+            className="mt-10 flex flex-wrap justify-center gap-4"
+          >
+            <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.03] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.22em] text-gray-400">
+              <Orbit size={16} className="text-vcp-purple" />
+              {entries.length} Timeline Nodes
+            </div>
+            {latestEntry && (
+              <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.03] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.22em] text-gray-400">
+                <Zap size={16} className="text-vcp-cyan" />
+                Latest {latestEntry.date}
+              </div>
+            )}
+            <a
+              href="#timeline"
+              className="inline-flex items-center gap-3 rounded-full border border-vcp-cyan/20 bg-vcp-cyan/10 px-5 py-3 font-mono text-[11px] uppercase tracking-[0.22em] text-vcp-cyan transition-all hover:border-vcp-cyan/60 hover:bg-vcp-cyan/20"
+            >
+              <Stars size={16} />
+              Scroll Timeline
+            </a>
+          </motion.div>
+        </section>
+
+        <section id="timeline" className="changelog-timeline mx-auto max-w-6xl">
+          {entries.map((entry, index) => (
+            <motion.article
+              key={entry.id}
+              id={entry.id}
+              initial={{opacity: 0, x: index % 2 === 0 ? -48 : 48, scale: 0.96}}
+              whileInView={{opacity: 1, x: 0, scale: 1}}
+              viewport={{once: true, margin: "-80px"}}
+              transition={{duration: 0.6, ease: "easeOut"}}
+              className={`changelog-entry ${index % 2 === 0 ? "changelog-entry-left" : "changelog-entry-right"}`}
+            >
+              <div className="changelog-entry-node">
+                <span>{String(index + 1).padStart(2, "0")}</span>
+              </div>
+              <div className="changelog-entry-card doc-reader">
+                <div className="changelog-entry-meta">
+                  <span>{entry.date}</span>
+                  <span>{index === 0 ? "LATEST" : "UPDATE"}</span>
+                </div>
+                <h2>{entry.title}</h2>
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm, remarkMath]}
+                  rehypePlugins={[rehypeRaw, rehypeKatex, rehypeSlug]}
+                  components={whitepaperMarkdownComponents}
+                >
+                  {entry.content}
+                </ReactMarkdown>
+              </div>
+            </motion.article>
+          ))}
+        </section>
+      </main>
+    </div>
+  );
+};
+
 const WhitepaperPage = () => {
   const updatedAt = useMemo(() => {
     const timestamp = whitepaperV3Metadata?.mtimeMs || Date.now();
@@ -198,6 +409,17 @@ const WhitepaperPage = () => {
   }, []);
   const whitepaperSections = useMemo(() => splitWhitepaperIntoSections(whitepaperV3Content), []);
   const chapterCount = Math.max(whitepaperSections.length - 1, 1);
+  const meta = useMemo<PageMeta>(() => ({
+    title: "Learn VCP | VCP Whitepaper V3",
+    description: "Learn VCP 是 VCP-OS 官方技术白皮书页面，系统介绍 Variable & Command Protocol、VCPToolBox、VCPChat、VCPDesktop、OneRing、TagMemo 浪潮 V8、OpenHer、AgentAssistant 与 AGI Runtime 架构。",
+    keywords: "Learn VCP,VCP Whitepaper,VCP 白皮书,VCP-OS,Variable Command Protocol,AGI Runtime,VCPToolBox,VCPChat,VCPDesktop,OneRing,TagMemo,OpenHer,AgentAssistant",
+    canonical: "https://www.vcptoolbox.com/learn-vcp",
+    ogTitle: "Learn VCP | VCP Whitepaper V3",
+    ogDescription: "阅读 VCP 全景技术白皮书 V3，理解 VCP 如何从 AI 中间层演进为 AGI Runtime。",
+    ogUrl: "https://www.vcptoolbox.com/learn-vcp",
+  }), []);
+
+  usePageMeta(meta);
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-vcp-black font-sans selection:bg-vcp-cyan selection:text-vcp-black">
@@ -231,13 +453,22 @@ const WhitepaperPage = () => {
           </div>
           <span className="text-2xl font-display font-bold tracking-tighter">VCP<span className="text-vcp-cyan">.OS</span></span>
         </a>
-        <a
-          href="/"
-          className="group inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.03] px-5 py-2 font-display text-sm font-bold text-white transition-all hover:border-vcp-cyan/50 hover:bg-vcp-cyan/10"
-        >
-          <ArrowLeft size={18} className="text-vcp-cyan transition-transform group-hover:-translate-x-1" />
-          BACK HOME
-        </a>
+        <div className="flex items-center gap-3">
+          <a
+            href="/?page=changelog"
+            className="hidden md:inline-flex items-center gap-3 rounded-full border border-vcp-cyan/25 bg-vcp-cyan/10 px-5 py-2 font-display text-sm font-bold text-white transition-all hover:border-vcp-cyan/60 hover:bg-vcp-cyan/20"
+          >
+            <Clock size={18} className="text-vcp-cyan" />
+            CHANGELOG
+          </a>
+          <a
+            href="/"
+            className="group inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.03] px-5 py-2 font-display text-sm font-bold text-white transition-all hover:border-vcp-cyan/50 hover:bg-vcp-cyan/10"
+          >
+            <ArrowLeft size={18} className="text-vcp-cyan transition-transform group-hover:-translate-x-1" />
+            BACK HOME
+          </a>
+        </div>
       </nav>
 
       <main className="relative z-10 px-6 pb-24 pt-36 md:px-8">
@@ -370,22 +601,37 @@ export default function App() {
   const containerRef = useRef(null);
   const glowRef = useRef<HTMLDivElement>(null);
   const docsSectionRef = useRef<HTMLElement>(null);
-  const docs = useMemo(() => getAllDocs().filter((doc) => doc.category !== "changelog"), []);
+  const docs = useMemo(() => getAllDocs(), []);
   const [activeDocSlug, setActiveDocSlug] = useState(docs[0]?.slug ?? "");
 
+  const pageParam = new URLSearchParams(window.location.search).get("page");
   const isWhitepaperRoute =
     window.location.pathname === "/learn-vcp" ||
-    new URLSearchParams(window.location.search).get("page") === "learn-vcp";
-
-  if (isWhitepaperRoute) {
-    return <WhitepaperPage />;
-  }
+    pageParam === "learn-vcp";
+  const isChangelogRoute =
+    window.location.pathname === "/changelog" ||
+    pageParam === "changelog";
+  const changelogDoc = docs.find((doc) => doc.slug === "changelog" || doc.category === "changelog");
 
   const mouseX = useMotionValue(typeof window !== "undefined" ? window.innerWidth / 2 : 0);
   const mouseY = useMotionValue(typeof window !== "undefined" ? window.innerHeight / 2 : 0);
   const springConfig = { damping: 25, stiffness: 150 };
   const parallaxX = useSpring(useTransform(mouseX, [0, typeof window !== "undefined" ? window.innerWidth : 1000], [-30, 30]), springConfig);
   const parallaxY = useSpring(useTransform(mouseY, [0, typeof window !== "undefined" ? window.innerHeight : 1000], [-30, 30]), springConfig);
+
+  const homeMeta = useMemo<PageMeta>(() => ({
+    title: "VCP-OS | Variable & Command Protocol 官方网站",
+    description: "VCP-OS 官方网站。VCP (Variable & Command Protocol) 是面向 AI Agent 的 AGI Runtime 与存在基础设施，基于vcptoolbox中央服务器和分布式生态，为AI提供永久记忆、工具调用、自主心跳、VCPDesktop、OneRing 上下文、TagMemo 浪潮 V8 语义动力学与分布式节点能力。",
+    keywords: "VCP,VCP-OS,Variable Command Protocol,AGI Runtime,AI Agent,AI 存在基础设施,VCPChat,VCPToolBox,VCPDesktop,OneRing,TagMemo,浪潮 V8,语义动力学",
+    canonical: "https://www.vcptoolbox.com/",
+    ogTitle: "VCP-OS | Variable & Command Protocol 官方网站",
+    ogDescription: "VCP-OS 是面向 AI Agent 的 AGI Runtime 与存在基础设施，基于vcptoolbox中央服务器和分布式生态，让 AI 获得永久记忆、工具栈、自主心跳、桌面运行时与分布式协作能力。",
+    ogUrl: "https://www.vcptoolbox.com/",
+    twitterTitle: "VCP-OS | AI 存在基础设施",
+    twitterDescription: "了解 VCP、VCPToolbox、VCPChat、VCPDesktop、OneRing、TagMemo 浪潮 V8 与 VCP应用群 组成的 AI Agent 运行时生态。",
+  }), []);
+
+  usePageMeta(homeMeta, !isWhitepaperRoute && !isChangelogRoute);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -421,6 +667,14 @@ export default function App() {
     });
   };
 
+  if (isWhitepaperRoute) {
+    return <WhitepaperPage />;
+  }
+
+  if (isChangelogRoute && changelogDoc) {
+    return <ChangelogPage content={changelogDoc.content} />;
+  }
+
   return (
     <div ref={containerRef} className="relative min-h-screen font-sans selection:bg-vcp-cyan selection:text-vcp-black">
       <div className="glow-bg" ref={glowRef} />
@@ -441,6 +695,7 @@ export default function App() {
           <a href="/?page=learn-vcp">Learn VCP 技术白皮书</a>
           <a href="/vcp_wave_v8_engine.html">TagMemo 浪潮 V8.2 语义动力学引擎</a>
           <a href="/#docs">VCP 文档中心</a>
+          <a href="/?page=changelog">VCP 更新日志</a>
         </nav>
       </section>
       
@@ -508,6 +763,7 @@ export default function App() {
           <a href="#memory" className="hover:text-vcp-cyan transition-colors">Memory</a>
           <a href="#lifecycle" className="hover:text-vcp-cyan transition-colors">A Day</a>
           <a href="#docs" className="hover:text-vcp-cyan transition-colors">Docs</a>
+          <a href="/?page=changelog" className="hover:text-vcp-cyan transition-colors">Changelog</a>
         </div>
         <div className="flex items-center gap-4">
           <a
@@ -585,6 +841,13 @@ export default function App() {
               >
                 <Sparkles size={20} className="text-vcp-cyan" />
                 Learn VCP
+              </a>
+              <a
+                href="/?page=changelog"
+                className="group flex items-center gap-3 px-8 py-4 glass-card rounded-full font-display font-bold hover:border-vcp-purple transition-all"
+              >
+                <Clock size={20} className="text-vcp-purple" />
+                Changelog
               </a>
             </div>
             <div className="flex flex-wrap justify-center gap-6">
@@ -1263,6 +1526,7 @@ export default function App() {
             <h5 className="font-mono text-xs uppercase tracking-widest text-vcp-purple mb-8">Ecosystem</h5>
             <ul className="space-y-4 text-gray-400">
               <li><a href="/?page=learn-vcp" className="hover:text-vcp-purple transition-colors">Learn VCP</a></li>
+              <li><a href="/?page=changelog" className="hover:text-vcp-purple transition-colors">Changelog</a></li>
               <li><a href="#docs" className="hover:text-vcp-purple transition-colors">Docs Portal</a></li>
               <li><a href="#desktop" className="hover:text-vcp-purple transition-colors">VCP Desktop</a></li>
             </ul>
