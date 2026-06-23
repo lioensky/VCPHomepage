@@ -542,6 +542,18 @@ body {
   letter-spacing: 0.18em;
 }
 
+.wiki-chat-bubble-wrap {
+  display: flex;
+  max-width: min(100%, 56rem);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+}
+
+.wiki-chat-message-user .wiki-chat-bubble-wrap {
+  align-items: flex-end;
+}
+
 .wiki-chat-bubble {
   max-width: min(100%, 56rem);
   border-radius: 1.25rem;
@@ -552,6 +564,33 @@ body {
     rgba(255, 255, 255, 0.035);
   box-shadow: 0 0 28px rgba(0, 242, 255, 0.06);
   backdrop-filter: blur(14px);
+}
+
+.wiki-chat-copy-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: fit-content;
+  border: 1px solid rgba(0, 242, 255, 0.2);
+  border-radius: 999px;
+  background: rgba(0, 242, 255, 0.055);
+  padding: 0.35rem 0.6rem;
+  color: rgba(255, 255, 255, 0.58);
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.14em;
+  transition: all 0.2s ease;
+}
+
+.wiki-chat-copy-button:hover {
+  border-color: rgba(0, 242, 255, 0.46);
+  background: rgba(0, 242, 255, 0.12);
+  color: var(--color-vcp-cyan);
+  transform: translateY(-1px);
+}
+
+.wiki-chat-copy-button span {
+  line-height: 1;
 }
 
 .wiki-chat-message-user .wiki-chat-bubble {
@@ -565,6 +604,45 @@ body {
   max-width: 100%;
   border-color: rgba(0, 242, 255, 0.18);
   background: rgba(0, 242, 255, 0.055);
+}
+
+.wiki-chat-nova-sticker-link {
+  display: inline-flex;
+  width: fit-content;
+  max-width: min(13.5rem, 72vw);
+  margin: 0.2rem 0 0.85rem;
+  border-radius: 1.1rem;
+  text-decoration: none;
+  vertical-align: top;
+}
+
+.wiki-chat-nova-sticker-link:hover {
+  text-decoration: none;
+}
+
+.wiki-chat-nova-sticker {
+  display: block;
+  width: auto;
+  max-width: min(13.5rem, 72vw);
+  max-height: 13.5rem;
+  object-fit: contain;
+  border-radius: 1.1rem;
+  border: 1px solid rgba(0, 242, 255, 0.18);
+  background:
+    radial-gradient(circle at 30% 0%, rgba(0, 242, 255, 0.12), transparent 65%),
+    rgba(255, 255, 255, 0.035);
+  box-shadow:
+    0 0 22px rgba(0, 242, 255, 0.12),
+    0 0 34px rgba(112, 0, 255, 0.1);
+  transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+}
+
+.wiki-chat-nova-sticker-link:hover .wiki-chat-nova-sticker {
+  border-color: rgba(0, 242, 255, 0.42);
+  box-shadow:
+    0 0 28px rgba(0, 242, 255, 0.2),
+    0 0 42px rgba(112, 0, 255, 0.16);
+  transform: translateY(-1px) scale(1.015);
 }
 
 .wiki-chat-bubble.doc-reader h1,
@@ -739,6 +817,12 @@ body {
 @media (max-width: 720px) {
   .wiki-chat-main {
     padding: 0.65rem;
+  }
+
+  .wiki-chat-nova-sticker-link,
+  .wiki-chat-nova-sticker {
+    max-width: min(11rem, 68vw);
+    max-height: 11rem;
   }
 
   .wiki-chat-inputbar {
