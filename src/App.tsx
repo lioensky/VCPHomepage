@@ -136,6 +136,14 @@ type PageMeta = {
   twitterDescription?: string;
 };
 
+type WikiCockpitTarget = {
+  id: "backend" | "frontend";
+  title: string;
+  subtitle: string;
+  url: string;
+  accent: "cyan" | "purple";
+};
+
 function setMetaAttribute(selector: string, attribute: "content" | "href", value: string) {
   const node = document.head.querySelector(selector);
   if (node) {
@@ -298,6 +306,152 @@ const whitepaperMarkdownComponents = {
       </a>
     );
   },
+};
+
+const wikiCockpitTargets: WikiCockpitTarget[] = [
+  {
+    id: "backend",
+    title: "VCPToolBox WikiBot",
+    subtitle: "Backend source cockpit · plugins / protocol / memory / runtime",
+    url: "https://deepwiki.com/lioensky/VCPToolBox",
+    accent: "cyan",
+  },
+  {
+    id: "frontend",
+    title: "VCPChat WikiBot",
+    subtitle: "Frontend source cockpit · renderer / desktop / chat / apps",
+    url: "https://deepwiki.com/lioensky/VCPChat",
+    accent: "purple",
+  },
+];
+
+const WikiCockpitModal = ({
+  target,
+  onClose,
+  onSwitch,
+}: {
+  target: WikiCockpitTarget;
+  onClose: () => void;
+  onSwitch: (target: WikiCockpitTarget) => void;
+}) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const accentClass = target.accent === "cyan" ? "text-vcp-cyan border-vcp-cyan/30 bg-vcp-cyan/10" : "text-vcp-purple border-vcp-purple/30 bg-vcp-purple/10";
+
+  useEffect(() => {
+    setIsLoading(true);
+  }, [target.url]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
+
+  return (
+    <motion.div
+      className="wiki-cockpit-overlay"
+      initial={{opacity: 0}}
+      animate={{opacity: 1}}
+      exit={{opacity: 0}}
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${target.title} cockpit`}
+    >
+      <button type="button" className="wiki-cockpit-backdrop" aria-label="关闭 Wiki 驾驶舱" onClick={onClose} />
+      <motion.div
+        className="wiki-cockpit-shell"
+        initial={{opacity: 0, y: 32, scale: 0.96}}
+        animate={{opacity: 1, y: 0, scale: 1}}
+        transition={{duration: 0.28, ease: "easeOut"}}
+      >
+        <div className="wiki-cockpit-glow wiki-cockpit-glow-a" />
+        <div className="wiki-cockpit-glow wiki-cockpit-glow-b" />
+        <div className="wiki-cockpit-header">
+          <div className="flex min-w-0 items-center gap-4">
+            <div className={`wiki-cockpit-orb ${target.accent === "cyan" ? "wiki-cockpit-orb-cyan" : "wiki-cockpit-orb-purple"}`}>
+              <MessageCircle size={22} />
+            </div>
+            <div className="min-w-0 text-left">
+              <div className="font-mono text-[10px] uppercase tracking-[0.28em] text-gray-500">
+                DeepWiki Embedded Console
+              </div>
+              <h2 className="truncate text-2xl font-display font-bold text-white md:text-3xl">{target.title}</h2>
+              <p className="mt-1 truncate text-xs text-gray-400 md:text-sm">{target.subtitle}</p>
+            </div>
+          </div>
+
+          <div className="wiki-cockpit-actions">
+            <div className="wiki-cockpit-tabs" role="tablist" aria-label="选择 Wiki 项目">
+              {wikiCockpitTargets.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={item.id === target.id}
+                  onClick={() => onSwitch(item)}
+                  className={`wiki-cockpit-tab ${item.id === target.id ? "wiki-cockpit-tab-active" : ""}`}
+                >
+                  {item.id === "backend" ? "Backend" : "Frontend"}
+                </button>
+              ))}
+            </div>
+            <a
+              href={target.url}
+              target="_blank"
+              rel="noreferrer"
+              className={`wiki-cockpit-external ${accentClass}`}
+            >
+              <ExternalLink size={16} />
+              Open
+            </a>
+            <button type="button" className="wiki-cockpit-close" onClick={onClose} aria-label="关闭 Wiki 驾驶舱">
+              ×
+            </button>
+          </div>
+        </div>
+
+        <div className="wiki-cockpit-statusbar">
+          <span className="wiki-cockpit-live-dot" />
+          <span>LIVE_SOURCE_QUERY_CHANNEL</span>
+          <span className="hidden md:inline">IFRAME_SANDBOX_OFF · DEEPWIKI_ORIGIN</span>
+          <span className="ml-auto hidden text-gray-500 md:inline">ESC TO CLOSE</span>
+        </div>
+
+        <div className="wiki-cockpit-frame-wrap">
+          {isLoading && (
+            <div className="wiki-cockpit-loader">
+              <div className="wiki-cockpit-loader-ring" />
+              <div>
+                <div className="font-display text-xl font-bold text-white">Connecting WikiBot...</div>
+                <p className="mt-2 max-w-md text-sm leading-relaxed text-gray-400">
+                  正在把 DeepWiki 装载进 VCP 驾驶舱。如果目标站点禁止 iframe 嵌入，请使用右上角 Open 外部打开。
+                </p>
+              </div>
+            </div>
+          )}
+          <iframe
+            key={target.url}
+            src={target.url}
+            title={target.title}
+            className="wiki-cockpit-frame"
+            onLoad={() => setIsLoading(false)}
+            referrerPolicy="strict-origin-when-cross-origin"
+            allow="clipboard-read; clipboard-write"
+          />
+        </div>
+      </motion.div>
+    </motion.div>
+  );
 };
 
 const ChangelogPage = ({content}: {content: string}) => {
@@ -688,6 +842,7 @@ export default function App() {
   const docsSectionRef = useRef<HTMLElement>(null);
   const docs = useMemo(() => getAllDocs(), []);
   const [activeDocSlug, setActiveDocSlug] = useState(docs[0]?.slug ?? "");
+  const [activeWikiTarget, setActiveWikiTarget] = useState<WikiCockpitTarget | null>(null);
 
   const pageParam = new URLSearchParams(window.location.search).get("page");
   const isWhitepaperRoute =
@@ -752,6 +907,10 @@ export default function App() {
     });
   };
 
+  const openWikiCockpit = (target: WikiCockpitTarget) => {
+    setActiveWikiTarget(target);
+  };
+
   if (isWhitepaperRoute) {
     return <WhitepaperPage />;
   }
@@ -799,6 +958,14 @@ export default function App() {
       />
       
       <NeuralNetwork />
+
+      {activeWikiTarget && (
+        <WikiCockpitModal
+          target={activeWikiTarget}
+          onClose={() => setActiveWikiTarget(null)}
+          onSwitch={setActiveWikiTarget}
+        />
+      )}
 
       <motion.div
         style={{y: backgroundY}}
@@ -936,24 +1103,22 @@ export default function App() {
               </a>
             </div>
             <div className="flex flex-wrap justify-center gap-6">
-              <a
-                href="https://deepwiki.com/lioensky/VCPToolBox"
-                target="_blank"
-                rel="noreferrer"
+              <button
+                type="button"
+                onClick={() => openWikiCockpit(wikiCockpitTargets[0])}
                 className="group flex items-center gap-3 px-6 py-4 glass-card rounded-full font-display font-medium hover:border-vcp-cyan transition-all text-sm"
               >
-                <ExternalLink size={18} className="text-vcp-cyan" />
+                <MessageCircle size={18} className="text-vcp-cyan" />
                 WIKI (BACKEND)
-              </a>
-              <a
-                href="https://deepwiki.com/lioensky/VCPChat"
-                target="_blank"
-                rel="noreferrer"
+              </button>
+              <button
+                type="button"
+                onClick={() => openWikiCockpit(wikiCockpitTargets[1])}
                 className="group flex items-center gap-3 px-6 py-4 glass-card rounded-full font-display font-medium hover:border-vcp-purple transition-all text-sm"
               >
-                <ExternalLink size={18} className="text-vcp-purple" />
+                <MessageCircle size={18} className="text-vcp-purple" />
                 WIKI (FRONTEND)
-              </a>
+              </button>
               <a
                 href="https://github.com/lioensky/VCPToolBox"
                 target="_blank"
