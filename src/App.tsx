@@ -140,8 +140,20 @@ type WikiCockpitTarget = {
   id: "backend" | "frontend";
   title: string;
   subtitle: string;
+  repo: string;
   url: string;
   accent: "cyan" | "purple";
+};
+
+type WikiChatMessage = {
+  id: string;
+  role: "user" | "assistant" | "system";
+  content: string;
+};
+
+type WikiChatSession = {
+  queryId: string | null;
+  messages: WikiChatMessage[];
 };
 
 function setMetaAttribute(selector: string, attribute: "content" | "href", value: string) {
@@ -313,6 +325,7 @@ const wikiCockpitTargets: WikiCockpitTarget[] = [
     id: "backend",
     title: "VCPToolBox WikiBot",
     subtitle: "Backend source cockpit · plugins / protocol / memory / runtime",
+    repo: "lioensky/VCPToolBox",
     url: "https://deepwiki.com/lioensky/VCPToolBox",
     accent: "cyan",
   },
@@ -320,10 +333,22 @@ const wikiCockpitTargets: WikiCockpitTarget[] = [
     id: "frontend",
     title: "VCPChat WikiBot",
     subtitle: "Frontend source cockpit · renderer / desktop / chat / apps",
+    repo: "lioensky/VCPChat",
     url: "https://deepwiki.com/lioensky/VCPChat",
     accent: "purple",
   },
 ];
+
+const createInitialWikiSession = (target: WikiCockpitTarget): WikiChatSession => ({
+  queryId: null,
+  messages: [
+    {
+      id: `${target.id}-welcome`,
+      role: "system",
+      content: `已连接 ${target.repo} 的 DeepWiki MCP 通道。你可以直接询问源码结构、关键模块、调用链、渲染流程或插件机制。`,
+    },
+  ],
+});
 
 const WikiCockpitModal = ({
   target,
@@ -334,7 +359,16 @@ const WikiCockpitModal = ({
   onClose: () => void;
   onSwitch: (target: WikiCockpitTarget) => void;
 }) => {
+  const [sessions, setSessions] = useState<Record<WikiCockpitTarget["id"], WikiChatSession>>({
+    backend: createInitialWikiSession(wikiCockpitTargets[0]),
+    frontend: createInitialWikiSession(wikiCockpitTargets[1]),
+  });
+  const [draft, setDraft] = useState("");
+  const [isAsking, setIsAsking] = useState(false);
+  const [deepResearch, setDeepResearch] = useState(false);
+  const messagesRef = useRef<HTMLDivElement>(null);
   const accentClass = target.accent === "cyan" ? "text-vcp-cyan border-vcp-cyan/30 bg-vcp-cyan/10" : "text-vcp-purple border-vcp-purple/30 bg-vcp-purple/10";
+  const session = sessions[target.id];
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -351,6 +385,99 @@ const WikiCockpitModal = ({
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [onClose]);
+
+  useEffect(() => {
+    messagesRef.current?.scrollTo({top: messagesRef.current.scrollHeight, behavior: "smooth"});
+  }, [session.messages, isAsking, target.id]);
+
+  const appendMessage = (targetId: WikiCockpitTarget["id"], message: WikiChatMessage) => {
+    setSessions((current) => ({
+      ...current,
+      [targetId]: {
+        ...current[targetId],
+        messages: [...current[targetId].messages, message],
+      },
+    }));
+  };
+
+  const updateSessionQueryId = (targetId: WikiCockpitTarget["id"], queryId: string | null) => {
+    if (!queryId) return;
+    setSessions((current) => ({
+      ...current,
+      [targetId]: {
+        ...current[targetId],
+        queryId,
+      },
+    }));
+  };
+
+  const clearSession = () => {
+    setSessions((current) => ({
+      ...current,
+      [target.id]: createInitialWikiSession(target),
+    }));
+  };
+
+  const askWikiBot = async (question: string) => {
+    const trimmed = question.trim();
+    if (!trimmed || isAsking) return;
+
+    const activeTarget = target;
+    const activeSession = sessions[activeTarget.id];
+    const userMessage: WikiChatMessage = {
+      id: `user-${Date.now()}`,
+      role: "user",
+      content: trimmed,
+    };
+
+    appendMessage(activeTarget.id, userMessage);
+    setDraft("");
+    setIsAsking(true);
+
+    try {
+      const response = await fetch("/api/deepwiki-chat", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          repo: activeTarget.repo,
+          question: activeSession.queryId ? undefined : trimmed,
+          followUpQuestion: activeSession.queryId ? trimmed : undefined,
+          queryId: activeSession.queryId,
+          deepResearch,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || data.status !== "success") {
+        throw new Error(data.error || "DeepWiki MCP 调用失败");
+      }
+
+      updateSessionQueryId(activeTarget.id, data.queryId ?? null);
+      appendMessage(activeTarget.id, {
+        id: `assistant-${Date.now()}`,
+        role: "assistant",
+        content: data.answer || "(DeepWiki 没有返回文本内容)",
+      });
+    } catch (error: any) {
+      appendMessage(activeTarget.id, {
+        id: `error-${Date.now()}`,
+        role: "system",
+        content: `⚠️ ${error?.message || "DeepWiki MCP 暂时不可用"}\n\n你仍可点击右上角 Open 打开官方 DeepWiki 页面继续查询。`,
+      });
+    } finally {
+      setIsAsking(false);
+    }
+  };
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    askWikiBot(draft);
+  };
+
+  const quickPrompts = target.id === "backend"
+    ? ["解释 VCPToolBox 插件加载流程", "VCP 后端有哪些核心模块？", "OneRing 在后端如何协作？"]
+    : ["解释 VCPChat 渲染器链路", "VCPDesktop 如何和聊天系统融合？", "前端状态与消息流怎么组织？"];
 
   return (
     <motion.div
@@ -378,10 +505,10 @@ const WikiCockpitModal = ({
             </div>
             <div className="min-w-0 text-left">
               <div className="font-mono text-[10px] uppercase tracking-[0.28em] text-gray-500">
-                DeepWiki Launch Console
+                DeepWiki MCP Chat Console
               </div>
               <h2 className="truncate text-2xl font-display font-bold text-white md:text-3xl">{target.title}</h2>
-              <p className="mt-1 truncate text-xs text-gray-400 md:text-sm">{target.subtitle}</p>
+              <p className="mt-1 truncate text-xs text-gray-400 md:text-sm">{target.repo} · {session.queryId ? `Session ${session.queryId}` : "New session"}</p>
             </div>
           </div>
 
@@ -400,6 +527,9 @@ const WikiCockpitModal = ({
                 </button>
               ))}
             </div>
+            <button type="button" className="wiki-cockpit-tab" onClick={clearSession}>
+              Clear
+            </button>
             <a
               href={target.url}
               target="_blank"
@@ -417,59 +547,97 @@ const WikiCockpitModal = ({
 
         <div className="wiki-cockpit-statusbar">
           <span className="wiki-cockpit-live-dot" />
-          <span>CSP_PROTECTED_ORIGIN_DETECTED</span>
-          <span className="hidden md:inline">FRAME_ANCESTORS_SELF · EXTERNAL_LAUNCH_REQUIRED</span>
+          <span>DEEPWIKI_MCP_CHANNEL_READY</span>
+          <span className="hidden md:inline">{target.repo} · {deepResearch ? "DEEP_RESEARCH_ON" : "FAST_ASK_MODE"}</span>
           <span className="ml-auto hidden text-gray-500 md:inline">ESC TO CLOSE</span>
         </div>
 
-        <div className="wiki-cockpit-frame-wrap wiki-cockpit-launch-wrap">
-          <div className="wiki-cockpit-loader wiki-cockpit-launch-panel">
-            <div className="wiki-cockpit-loader-ring" />
-            <div>
-              <div className="font-display text-2xl font-bold text-white">DeepWiki 已启用嵌入保护</div>
-              <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-gray-400">
-                DeepWiki 返回了 <span className="text-vcp-cyan">Content-Security-Policy: frame-ancestors 'self'</span>，
-                浏览器会强制禁止本站把它嵌入 iframe。这个限制属于浏览器安全边界，前端不能也不应该“欺骗”绕过。
-              </p>
+        <div className="wiki-cockpit-frame-wrap wiki-chat-wrap">
+          <div className="wiki-chat-main">
+            <div ref={messagesRef} className="wiki-chat-messages">
+              {session.messages.map((message) => (
+                <motion.div
+                  key={message.id}
+                  initial={{opacity: 0, y: 12}}
+                  animate={{opacity: 1, y: 0}}
+                  className={`wiki-chat-message wiki-chat-message-${message.role}`}
+                >
+                  <div className="wiki-chat-message-meta">
+                    {message.role === "user" ? "YOU" : message.role === "assistant" ? "DEEPWIKI BOT" : "SYSTEM"}
+                  </div>
+                  <div className="wiki-chat-bubble doc-reader">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm, remarkMath]}
+                      rehypePlugins={[rehypeRaw, rehypeKatex, rehypeSlug]}
+                      components={whitepaperMarkdownComponents}
+                    >
+                      {message.content}
+                    </ReactMarkdown>
+                  </div>
+                </motion.div>
+              ))}
+              {isAsking && (
+                <div className="wiki-chat-message wiki-chat-message-assistant">
+                  <div className="wiki-chat-message-meta">DEEPWIKI BOT</div>
+                  <div className="wiki-chat-bubble wiki-chat-thinking">
+                    <span />
+                    <span />
+                    <span />
+                    <strong>正在检索源码知识图谱...</strong>
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div className="wiki-cockpit-launch-grid">
-              <div className="wiki-cockpit-launch-card">
-                <span>Safe Fallback</span>
-                <strong>外部标签页打开</strong>
-                <p>保留驾驶舱入口与项目切换，但把 DeepWiki 聊天窗口交给它自己的安全上下文运行。</p>
+            <aside className="wiki-chat-side">
+              <div className="wiki-chat-side-card">
+                <div className="font-mono text-[10px] uppercase tracking-[0.24em] text-vcp-cyan">Quick Prompts</div>
+                <div className="mt-4 flex flex-col gap-3">
+                  {quickPrompts.map((prompt) => (
+                    <button
+                      key={prompt}
+                      type="button"
+                      className="wiki-chat-prompt"
+                      onClick={() => askWikiBot(prompt)}
+                      disabled={isAsking}
+                    >
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="wiki-cockpit-launch-card">
-                <span>Why Blocked</span>
-                <strong>frame-ancestors</strong>
-                <p>这是目标站点声明谁能嵌入它，不受本站 iframe 属性、CSS 或 JS 控制。</p>
+              <div className="wiki-chat-side-card">
+                <label className="wiki-chat-toggle">
+                  <input
+                    type="checkbox"
+                    checked={deepResearch}
+                    onChange={(event) => setDeepResearch(event.target.checked)}
+                  />
+                  <span>Deep Research</span>
+                </label>
+                <p className="mt-3 text-xs leading-relaxed text-gray-500">
+                  开启后会在问题前附加 [DEEP RESEARCH]，回答更深入但可能更慢。
+                </p>
               </div>
-              <div className="wiki-cockpit-launch-card">
-                <span>Next Route</span>
-                <strong>自建 WikiBot</strong>
-                <p>若要完全内嵌和美化聊天 UI，需要后续接 GitHub 源码索引/RAG，由本站自己渲染聊天面板。</p>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap justify-center gap-4">
-              <a
-                href={target.url}
-                target="_blank"
-                rel="noreferrer"
-                className={`wiki-cockpit-primary-launch ${accentClass}`}
-              >
-                <ExternalLink size={18} />
-                Launch {target.id === "backend" ? "Backend" : "Frontend"} WikiBot
-              </a>
-              <button
-                type="button"
-                onClick={() => onSwitch(wikiCockpitTargets.find((item) => item.id !== target.id) ?? target)}
-                className="wiki-cockpit-secondary-launch"
-              >
-                切换到 {target.id === "backend" ? "Frontend" : "Backend"}
-              </button>
-            </div>
+            </aside>
           </div>
+
+          <form className="wiki-chat-inputbar" onSubmit={handleSubmit}>
+            <textarea
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+                  handleSubmit(event);
+                }
+              }}
+              placeholder={`询问 ${target.repo} 的源码细节...`}
+              rows={2}
+            />
+            <button type="submit" disabled={isAsking || !draft.trim()}>
+              {isAsking ? "ASKING" : "SEND"}
+            </button>
+          </form>
         </div>
       </motion.div>
     </motion.div>
