@@ -31,6 +31,8 @@ Vchat CLI 终端完成重构，架构改为常驻进程与 xterm 直连，并引
 
 Vchat 内置阅读器与看图器完成重构。阅读器对齐 V3 渲染框架并全面支持 Office 文档阅读；看图器优化大图容器与渲染性能，可打开 100MB 级超高清图片，并引入基于 Egram 与 AnimaSharp 的分辨率自适应放大体验。后端服务器新增模型多模态兼容探针，不兼容时自动启用多模态翻译。
 
+新增 VChatPluginManager，现在 Vchat 中也拥有全功能分布式插件管理器应用，功能等同后端面板的插件管理器，但对“Vchat 本地插件”进行了更多优化。同时支持调用 `VCP Canvas` 编辑插件源码、配置文件和 `.env` 文件，也同样可以被 Agent 进行结对操作（PR、merge 等）。
+
 VCP 前端应用群耦合进一步增强：桌面 Widget 右键编辑可调用 VCP Canvas IDE 打开源码并创建工作区，Vchat 前台 Agent / 群聊可感知源码并发起 PR；VCPHumanbox、论坛、Memo 中心与笔记可调用 VCP 看图 / 阅读能力；AI 生成音乐可右键加入 Vmusic 持久化，论坛与 Memo 音乐也改由 VCPMusicEngine 播放；池月 1 号指针整合进 VCHAT 与后端 Vue 面板；后端根 env 多项配置拆分为 JSON 配置并接入面板设置区，以 Json-Chokidar 提升易用性。
 
 ### 2026-06-15 · AgentAssistant 总线升级、异步委托可视化与 ChromeBridge 安全分级
