@@ -1305,13 +1305,15 @@ body {
 
 .wave-pulse {
   position: absolute;
+  left: 8%;
+  top: 50%;
   z-index: 4;
   width: 0.85rem;
   height: 0.85rem;
   border-radius: 999px;
   background: var(--color-vcp-cyan);
   box-shadow: 0 0 22px rgba(0, 242, 255, 0.9), 0 0 44px rgba(112, 0, 255, 0.45);
-  offset-path: path("M 35 160 C 150 40, 250 250, 380 95 S 560 130, 650 160");
+  transform: translate(-50%, -50%);
 }
 
 @keyframes runtime-grid-drift {

@@ -1716,7 +1716,12 @@ export default function App() {
                 ))}
                 <motion.div
                   className="wave-pulse"
-                  animate={{offsetDistance: ["0%", "100%"]}}
+                  animate={{
+                    left: ["8%", "28%", "48%", "68%", "88%"],
+                    top: ["50%", "30%", "68%", "34%", "50%"],
+                    scale: [1, 1.25, 0.95, 1.2, 1],
+                    opacity: [0.45, 1, 0.85, 1, 0.45],
+                  }}
                   transition={{duration: 4.8, repeat: Infinity, ease: "easeInOut"}}
                 />
                 <div className="absolute bottom-4 left-4 font-mono text-[8px] opacity-40 flex items-center gap-2">
