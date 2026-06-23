@@ -1,7 +1,7 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-06-20 的真实演进记录，按时间倒序展示最新版本与关键里程碑。
-updatedAt: 2026-06-20
+summary: 汇总 VCP 从 2023-12 到 2026-06-23 的真实演进记录，按时间倒序展示最新版本与关键里程碑。
+updatedAt: 2026-06-23
 category: changelog
 ---
 
@@ -12,6 +12,14 @@ category: changelog
 ---
 
 ## 最新更新
+
+### 2026-06-23 · 官网大幅翻新、原理演示动画与源码地图 WikiBot
+
+VCP 官网完成大幅翻新与重做，整体信息展示能力显著增强。新版官网新增大量原理演示动画，尤其补充了浪潮 V8 引擎全部工程数学算法的原理说明与 3D 演示，使 TagMemo / 浪潮 V8 的有限元 Tag 矩阵、测地线距离、残差金字塔、LIF 神经元、语义动力学等核心机制可以通过更直观的交互式页面理解。
+
+官网同步新增 VCP 前端应用演示、子文档分页、独立系统功能原理文档与展示页，并新增独立更新日志展示页，使白皮书、功能原理、更新记录与应用展示从单一文档入口扩展为更完整的多页面展示体系。文档中心也强化了分页、导航与长文阅读体验，方便用户按主题逐步了解 VCP 的系统结构、前后端应用群与运行时能力。
+
+新增前后端源码地图 WikiBot，分别面向 VCPToolBox 后端与 VCPChat 前端源码仓库，用户可以直接询问 VCP 的源码实现、模块边界、工作原理与工程细节，降低理解 VCP 庞大代码库与分布式运行机制的门槛。
 
 ### 2026-06-20 · VCPSuperMail 上线与 AINative 邮件通讯
 
@@ -534,7 +542,7 @@ VCP 从构思阶段进入正式开发阶段。
 
 | 阶段 | 时间范围 | 关键进展 |
 | --- | --- | --- |
-| 正式版、OneRing、OpenHer 与知识图谱期 | 2026-04 ～ 2026-06 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail 与 ChromeBridge 安全分级 |
+| 正式版、OneRing、OpenHer 与知识图谱期 | 2026-04 ～ 2026-06 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页与源码地图 WikiBot |
 | 平台化扩展期 | 2026-03 ～ 2026-04 | VCPDesktop、桌面遥控、全局 API 虚拟化、PreText.js、7.5 版浪潮与官网上线 |
 | 系统化重构期 | 2026-02 ～ 2026-03 | 超栈追踪 V2、梦系统、SOM 桌面语义控制、多模态记忆、统一中央服务全面推进 |
 | 记忆与自主性爆发期 | 2025-09 ～ 2026-01 | RAG 语法、流式渲染器、Agent 自主巡航、TagMemo、上下文折叠持续成型 |
@@ -549,4 +557,4 @@ VCP 从构思阶段进入正式开发阶段。
 - [`src/docs/getting-started.md`](src/docs/getting-started.md)
 - [`VCP聚合文档.md`](VCP聚合文档.md)
 
-当前总览页已改为真实内容，并按更新日志常用方式调整为**倒序展示**，已补充到 2026-06-20。
+当前总览页已改为真实内容，并按更新日志常用方式调整为**倒序展示**，已补充到 2026-06-23。
