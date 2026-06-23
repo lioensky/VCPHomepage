@@ -118,6 +118,12 @@ type ChangelogEntry = {
   content: string;
 };
 
+type ChangelogMonth = {
+  id: string;
+  label: string;
+  count: number;
+};
+
 type PageMeta = {
   title: string;
   description: string;
@@ -165,6 +171,29 @@ function slugifyWhitepaperTitle(title: string, index: number): string {
   return normalized || `whitepaper-section-${index + 1}`;
 }
 
+function normalizeChangelogMonth(date: string): {id: string; label: string} {
+  const isoMonthMatch = date.match(/(\d{4})-(\d{2})/);
+  if (isoMonthMatch) {
+    return {
+      id: `month-${isoMonthMatch[1]}-${isoMonthMatch[2]}`,
+      label: `${isoMonthMatch[1]}-${isoMonthMatch[2]}`,
+    };
+  }
+
+  const yearMatch = date.match(/(\d{4})/);
+  if (yearMatch) {
+    return {
+      id: `month-${yearMatch[1]}`,
+      label: yearMatch[1],
+    };
+  }
+
+  return {
+    id: "month-archive",
+    label: "Archive",
+  };
+}
+
 function splitChangelogIntoEntries(markdown: string): ChangelogEntry[] {
   const headingMatches = [...markdown.matchAll(/^###\s+(.+)$/gm)];
 
@@ -183,6 +212,26 @@ function splitChangelogIntoEntries(markdown: string): ChangelogEntry[] {
       content: markdown.slice(start + match[0].length, end).trim(),
     };
   });
+}
+
+function getChangelogMonths(entries: ChangelogEntry[]): ChangelogMonth[] {
+  const monthMap = new Map<string, ChangelogMonth>();
+
+  entries.forEach((entry) => {
+    const month = normalizeChangelogMonth(entry.date);
+    const current = monthMap.get(month.id);
+    if (current) {
+      current.count += 1;
+      return;
+    }
+
+    monthMap.set(month.id, {
+      ...month,
+      count: 1,
+    });
+  });
+
+  return Array.from(monthMap.values());
 }
 
 function splitWhitepaperIntoSections(markdown: string): WhitepaperSection[] {
@@ -253,6 +302,7 @@ const whitepaperMarkdownComponents = {
 
 const ChangelogPage = ({content}: {content: string}) => {
   const entries = useMemo(() => splitChangelogIntoEntries(content), [content]);
+  const months = useMemo(() => getChangelogMonths(entries), [entries]);
   const latestEntry = entries[0];
   const meta = useMemo<PageMeta>(() => ({
     title: "VCP 更新日志 | Changelog Timeline",
@@ -362,36 +412,71 @@ const ChangelogPage = ({content}: {content: string}) => {
           </motion.div>
         </section>
 
-        <section id="timeline" className="changelog-timeline mx-auto max-w-6xl">
-          {entries.map((entry, index) => (
-            <motion.article
-              key={entry.id}
-              id={entry.id}
-              initial={{opacity: 0, x: index % 2 === 0 ? -48 : 48, scale: 0.96}}
-              whileInView={{opacity: 1, x: 0, scale: 1}}
-              viewport={{once: true, margin: "-80px"}}
-              transition={{duration: 0.6, ease: "easeOut"}}
-              className={`changelog-entry ${index % 2 === 0 ? "changelog-entry-left" : "changelog-entry-right"}`}
-            >
-              <div className="changelog-entry-node">
-                <span>{String(index + 1).padStart(2, "0")}</span>
+        <section id="timeline" className="changelog-reading-layout mx-auto max-w-7xl">
+          <aside className="changelog-month-nav" aria-label="Changelog 月份跳转">
+            <div className="changelog-month-nav-card">
+              <div className="font-mono text-[10px] tracking-[0.3em] uppercase text-vcp-cyan mb-3">
+                Timeline Index
               </div>
-              <div className="changelog-entry-card doc-reader">
-                <div className="changelog-entry-meta">
-                  <span>{entry.date}</span>
-                  <span>{index === 0 ? "LATEST" : "UPDATE"}</span>
-                </div>
-                <h2>{entry.title}</h2>
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm, remarkMath]}
-                  rehypePlugins={[rehypeRaw, rehypeKatex, rehypeSlug]}
-                  components={whitepaperMarkdownComponents}
+              <h2 className="text-2xl font-display font-bold text-white mb-4">
+                月份跳转
+              </h2>
+              <p className="text-sm leading-relaxed text-gray-400 mb-6">
+                更新日志已改为左侧时间轴与月份索引。点击月份可快速跳转，正文统一在右侧连续阅读。
+              </p>
+              <div className="changelog-month-nav-list">
+                {months.map((month) => (
+                  <a key={month.id} href={`#${month.id}`} className="changelog-month-nav-link">
+                    <span>{month.label}</span>
+                    <strong>{month.count} updates</strong>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </aside>
+
+          <div className="changelog-timeline">
+            {entries.map((entry, index) => {
+              const month = normalizeChangelogMonth(entry.date);
+              const previousMonth = index > 0 ? normalizeChangelogMonth(entries[index - 1].date).id : "";
+              const shouldRenderMonthAnchor = index === 0 || month.id !== previousMonth;
+
+              return (
+                <motion.article
+                  key={entry.id}
+                  id={entry.id}
+                  initial={{opacity: 0, y: 36, scale: 0.98}}
+                  whileInView={{opacity: 1, y: 0, scale: 1}}
+                  viewport={{once: true, margin: "-80px"}}
+                  transition={{duration: 0.6, ease: "easeOut"}}
+                  className="changelog-entry"
                 >
-                  {entry.content}
-                </ReactMarkdown>
-              </div>
-            </motion.article>
-          ))}
+                  {shouldRenderMonthAnchor && (
+                    <div id={month.id} className="changelog-month-marker">
+                      {month.label}
+                    </div>
+                  )}
+                  <div className="changelog-entry-node">
+                    <span>{String(index + 1).padStart(2, "0")}</span>
+                  </div>
+                  <div className="changelog-entry-card doc-reader">
+                    <div className="changelog-entry-meta">
+                      <span>{entry.date}</span>
+                      <span>{index === 0 ? "LATEST" : "UPDATE"}</span>
+                    </div>
+                    <h2>{entry.title}</h2>
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm, remarkMath]}
+                      rehypePlugins={[rehypeRaw, rehypeKatex, rehypeSlug]}
+                      components={whitepaperMarkdownComponents}
+                    >
+                      {entry.content}
+                    </ReactMarkdown>
+                  </div>
+                </motion.article>
+              );
+            })}
+          </div>
         </section>
       </main>
     </div>
