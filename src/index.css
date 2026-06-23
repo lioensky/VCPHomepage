@@ -606,6 +606,67 @@ body {
   background: rgba(0, 242, 255, 0.055);
 }
 
+.wiki-chat-nova-capsule {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  isolation: isolate;
+  margin: 0 0.18rem;
+  border-radius: 999px;
+  padding: 0.2rem 0.72rem 0.24rem;
+  border: 1px solid rgba(0, 242, 255, 0.48);
+  background:
+    linear-gradient(90deg, rgba(0, 242, 255, 0.16), rgba(112, 0, 255, 0.18), rgba(0, 242, 255, 0.14)),
+    radial-gradient(circle at 18% 20%, rgba(255, 255, 255, 0.28), transparent 38%),
+    rgba(4, 10, 24, 0.88);
+  color: #f7feff;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  text-shadow:
+    0 0 10px rgba(0, 242, 255, 0.72),
+    0 0 18px rgba(112, 0, 255, 0.52);
+  box-shadow:
+    0 0 18px rgba(0, 242, 255, 0.24),
+    0 0 34px rgba(112, 0, 255, 0.18),
+    inset 0 0 18px rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+  vertical-align: baseline;
+  animation: wiki-nova-capsule-breathe 2.8s ease-in-out infinite;
+}
+
+.wiki-chat-nova-capsule::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background:
+    linear-gradient(115deg, transparent 0 18%, rgba(0, 242, 255, 0.92) 34%, rgba(255, 255, 255, 0.9) 46%, rgba(112, 0, 255, 0.85) 60%, transparent 78%),
+    repeating-linear-gradient(90deg, rgba(0, 242, 255, 0.16) 0 1px, transparent 1px 10px);
+  opacity: 0.72;
+  mix-blend-mode: screen;
+  transform: translateX(-72%);
+  animation: wiki-nova-capsule-flow 3.2s linear infinite;
+}
+
+.wiki-chat-nova-capsule::after {
+  content: "";
+  position: absolute;
+  inset: 0.18rem;
+  z-index: -1;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 15% 50%, rgba(0, 242, 255, 0.88) 0 2px, transparent 2.5px),
+    radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.68) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 82% 52%, rgba(185, 144, 255, 0.82) 0 2px, transparent 2.6px),
+    linear-gradient(90deg, transparent 15%, rgba(0, 242, 255, 0.28), transparent 36%, rgba(112, 0, 255, 0.24), transparent 78%);
+  opacity: 0.72;
+  filter: drop-shadow(0 0 6px rgba(0, 242, 255, 0.72));
+  pointer-events: none;
+}
+
 .wiki-chat-nova-sticker-link {
   display: inline-flex;
   width: fit-content;
@@ -672,6 +733,28 @@ body {
 
 .wiki-chat-bubble.doc-reader pre {
   max-width: 100%;
+}
+
+@keyframes wiki-nova-capsule-flow {
+  from { transform: translateX(-74%); }
+  to { transform: translateX(74%); }
+}
+
+@keyframes wiki-nova-capsule-breathe {
+  0%, 100% {
+    border-color: rgba(0, 242, 255, 0.42);
+    box-shadow:
+      0 0 16px rgba(0, 242, 255, 0.22),
+      0 0 30px rgba(112, 0, 255, 0.16),
+      inset 0 0 16px rgba(255, 255, 255, 0.05);
+  }
+  50% {
+    border-color: rgba(0, 242, 255, 0.78);
+    box-shadow:
+      0 0 24px rgba(0, 242, 255, 0.38),
+      0 0 46px rgba(112, 0, 255, 0.28),
+      inset 0 0 22px rgba(255, 255, 255, 0.08);
+  }
 }
 
 .wiki-chat-thinking {
