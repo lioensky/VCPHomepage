@@ -918,8 +918,8 @@ const ChangelogPage = ({content}: {content: string}) => {
 
       <nav className="fixed top-0 left-0 z-50 flex w-full items-center justify-between border-b border-white/5 bg-vcp-black/50 px-8 py-6 backdrop-blur-md">
         <a href="/" className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg bg-vcp-purple shadow-[0_0_18px_rgba(0,242,255,0.45)]">
-            <img src="/assets/logo1.png" alt="VCP.OS logo" className="h-full w-full object-cover" />
+          <div className="flex h-10 w-10 items-center justify-center overflow-visible rounded-lg shadow-[0_0_18px_rgba(0,242,255,0.45)]">
+            <img src="/assets/logo1.png" alt="VCP.OS logo" className="h-full w-full object-contain" />
           </div>
           <span className="text-2xl font-display font-bold tracking-tighter">VCP<span className="text-vcp-cyan">.OS</span></span>
         </a>
@@ -1126,8 +1126,8 @@ const WhitepaperPage = () => {
 
       <nav className="fixed top-0 left-0 z-50 flex w-full items-center justify-between border-b border-white/5 bg-vcp-black/50 px-8 py-6 backdrop-blur-md">
         <a href="/" className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg bg-vcp-purple shadow-[0_0_18px_rgba(0,242,255,0.45)]">
-            <img src="/assets/logo1.png" alt="VCP.OS logo" className="h-full w-full object-cover" />
+          <div className="flex h-10 w-10 items-center justify-center overflow-visible rounded-lg shadow-[0_0_18px_rgba(0,242,255,0.45)]">
+            <img src="/assets/logo1.png" alt="VCP.OS logo" className="h-full w-full object-contain" />
           </div>
           <span className="text-2xl font-display font-bold tracking-tighter">VCP<span className="text-vcp-cyan">.OS</span></span>
         </a>
@@ -1468,8 +1468,8 @@ export default function App() {
 
       <nav className="fixed top-0 left-0 w-full z-50 px-8 py-6 flex justify-between items-center bg-vcp-black/50 backdrop-blur-md border-b border-white/5">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-vcp-purple rounded-lg flex items-center justify-center overflow-hidden shadow-[0_0_18px_rgba(0,242,255,0.45)]">
-            <img src="/assets/logo1.png" alt="VCP.OS logo" className="h-full w-full object-cover" />
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-visible shadow-[0_0_18px_rgba(0,242,255,0.45)]">
+            <img src="/assets/logo1.png" alt="VCP.OS logo" className="h-full w-full object-contain" />
           </div>
           <span className="text-2xl font-display font-bold tracking-tighter">VCP<span className="text-vcp-cyan">.OS</span></span>
         </div>
