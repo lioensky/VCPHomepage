@@ -250,7 +250,7 @@ const WhitepaperPage = () => {
             AgentAssistant、OpenHer 情感引擎、分布式节点与人类-AI 共生生态。
           </p>
           <p>
-            该页面用于帮助搜索引擎理解 VCP 官方文档、VCP 白皮书、AI Agent 存在基础设施、永久记忆、
+            VCP 官方文档、VCP 白皮书、AI Agent 存在基础设施、永久记忆、
             自主工具调用、跨端连续意识和 AGI 运行时架构。
           </p>
         </section>
