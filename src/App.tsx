@@ -334,12 +334,7 @@ const WikiCockpitModal = ({
   onClose: () => void;
   onSwitch: (target: WikiCockpitTarget) => void;
 }) => {
-  const [isLoading, setIsLoading] = useState(true);
   const accentClass = target.accent === "cyan" ? "text-vcp-cyan border-vcp-cyan/30 bg-vcp-cyan/10" : "text-vcp-purple border-vcp-purple/30 bg-vcp-purple/10";
-
-  useEffect(() => {
-    setIsLoading(true);
-  }, [target.url]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -383,7 +378,7 @@ const WikiCockpitModal = ({
             </div>
             <div className="min-w-0 text-left">
               <div className="font-mono text-[10px] uppercase tracking-[0.28em] text-gray-500">
-                DeepWiki Embedded Console
+                DeepWiki Launch Console
               </div>
               <h2 className="truncate text-2xl font-display font-bold text-white md:text-3xl">{target.title}</h2>
               <p className="mt-1 truncate text-xs text-gray-400 md:text-sm">{target.subtitle}</p>
@@ -422,32 +417,59 @@ const WikiCockpitModal = ({
 
         <div className="wiki-cockpit-statusbar">
           <span className="wiki-cockpit-live-dot" />
-          <span>LIVE_SOURCE_QUERY_CHANNEL</span>
-          <span className="hidden md:inline">IFRAME_SANDBOX_OFF · DEEPWIKI_ORIGIN</span>
+          <span>CSP_PROTECTED_ORIGIN_DETECTED</span>
+          <span className="hidden md:inline">FRAME_ANCESTORS_SELF · EXTERNAL_LAUNCH_REQUIRED</span>
           <span className="ml-auto hidden text-gray-500 md:inline">ESC TO CLOSE</span>
         </div>
 
-        <div className="wiki-cockpit-frame-wrap">
-          {isLoading && (
-            <div className="wiki-cockpit-loader">
-              <div className="wiki-cockpit-loader-ring" />
-              <div>
-                <div className="font-display text-xl font-bold text-white">Connecting WikiBot...</div>
-                <p className="mt-2 max-w-md text-sm leading-relaxed text-gray-400">
-                  正在把 DeepWiki 装载进 VCP 驾驶舱。如果目标站点禁止 iframe 嵌入，请使用右上角 Open 外部打开。
-                </p>
+        <div className="wiki-cockpit-frame-wrap wiki-cockpit-launch-wrap">
+          <div className="wiki-cockpit-loader wiki-cockpit-launch-panel">
+            <div className="wiki-cockpit-loader-ring" />
+            <div>
+              <div className="font-display text-2xl font-bold text-white">DeepWiki 已启用嵌入保护</div>
+              <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-gray-400">
+                DeepWiki 返回了 <span className="text-vcp-cyan">Content-Security-Policy: frame-ancestors 'self'</span>，
+                浏览器会强制禁止本站把它嵌入 iframe。这个限制属于浏览器安全边界，前端不能也不应该“欺骗”绕过。
+              </p>
+            </div>
+
+            <div className="wiki-cockpit-launch-grid">
+              <div className="wiki-cockpit-launch-card">
+                <span>Safe Fallback</span>
+                <strong>外部标签页打开</strong>
+                <p>保留驾驶舱入口与项目切换，但把 DeepWiki 聊天窗口交给它自己的安全上下文运行。</p>
+              </div>
+              <div className="wiki-cockpit-launch-card">
+                <span>Why Blocked</span>
+                <strong>frame-ancestors</strong>
+                <p>这是目标站点声明谁能嵌入它，不受本站 iframe 属性、CSS 或 JS 控制。</p>
+              </div>
+              <div className="wiki-cockpit-launch-card">
+                <span>Next Route</span>
+                <strong>自建 WikiBot</strong>
+                <p>若要完全内嵌和美化聊天 UI，需要后续接 GitHub 源码索引/RAG，由本站自己渲染聊天面板。</p>
               </div>
             </div>
-          )}
-          <iframe
-            key={target.url}
-            src={target.url}
-            title={target.title}
-            className="wiki-cockpit-frame"
-            onLoad={() => setIsLoading(false)}
-            referrerPolicy="strict-origin-when-cross-origin"
-            allow="clipboard-read; clipboard-write"
-          />
+
+            <div className="flex flex-wrap justify-center gap-4">
+              <a
+                href={target.url}
+                target="_blank"
+                rel="noreferrer"
+                className={`wiki-cockpit-primary-launch ${accentClass}`}
+              >
+                <ExternalLink size={18} />
+                Launch {target.id === "backend" ? "Backend" : "Frontend"} WikiBot
+              </a>
+              <button
+                type="button"
+                onClick={() => onSwitch(wikiCockpitTargets.find((item) => item.id !== target.id) ?? target)}
+                className="wiki-cockpit-secondary-launch"
+              >
+                切换到 {target.id === "backend" ? "Frontend" : "Backend"}
+              </button>
+            </div>
+          </div>
         </div>
       </motion.div>
     </motion.div>

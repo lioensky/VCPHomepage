@@ -329,6 +329,12 @@ body {
   background: white;
 }
 
+.wiki-cockpit-launch-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .wiki-cockpit-loader {
   position: absolute;
   inset: clamp(0.75rem, 1.5vw, 1.25rem);
@@ -354,6 +360,97 @@ body {
   border-right-color: rgba(112, 0, 255, 0.8);
   animation: runtime-spin 1.1s linear infinite;
   box-shadow: 0 0 28px rgba(0, 242, 255, 0.2);
+}
+
+.wiki-cockpit-launch-panel {
+  position: relative;
+  inset: auto;
+  width: min(100%, 980px);
+  padding: clamp(1.25rem, 3vw, 3rem);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 0 50px rgba(0, 242, 255, 0.08),
+    inset 0 0 30px rgba(112, 0, 255, 0.06);
+}
+
+.wiki-cockpit-launch-grid {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+  margin: 1.25rem 0 0.5rem;
+}
+
+.wiki-cockpit-launch-card {
+  min-height: 9rem;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(135deg, rgba(0, 242, 255, 0.05), rgba(112, 0, 255, 0.07)),
+    rgba(255, 255, 255, 0.025);
+  padding: 1rem;
+  text-align: left;
+}
+
+.wiki-cockpit-launch-card span {
+  display: block;
+  margin-bottom: 0.55rem;
+  color: var(--color-vcp-cyan);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.wiki-cockpit-launch-card strong {
+  display: block;
+  margin-bottom: 0.55rem;
+  color: white;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+
+.wiki-cockpit-launch-card p {
+  color: rgba(255, 255, 255, 0.52);
+  font-size: 0.78rem;
+  line-height: 1.65;
+}
+
+.wiki-cockpit-primary-launch,
+.wiki-cockpit-secondary-launch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  border-radius: 999px;
+  padding: 0.8rem 1.2rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  transition: all 0.22s ease;
+}
+
+.wiki-cockpit-primary-launch {
+  gap: 0.6rem;
+  border: 1px solid;
+  text-decoration: none;
+  box-shadow: 0 0 30px rgba(0, 242, 255, 0.1);
+}
+
+.wiki-cockpit-primary-launch:hover,
+.wiki-cockpit-secondary-launch:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+
+.wiki-cockpit-secondary-launch {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.045);
+  color: rgba(255, 255, 255, 0.76);
+}
+
+@media (max-width: 900px) {
+  .wiki-cockpit-launch-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @keyframes wiki-cockpit-pulse {
