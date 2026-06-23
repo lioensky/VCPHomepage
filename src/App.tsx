@@ -1567,22 +1567,22 @@ export default function App() {
               </a>
             </div>
             <div className="flex flex-wrap justify-center gap-6">
-              <div className="flex flex-wrap items-center justify-center gap-3 px-6 py-4 glass-card rounded-full font-display font-medium text-sm">
-                <div className="flex items-center gap-3 text-white">
+              <div className="ask-nova-panel flex flex-wrap items-center justify-center gap-3 px-6 py-4 glass-card rounded-full font-display font-medium text-sm">
+                <div className="relative z-10 flex items-center gap-3 text-white">
                   <MessageCircle size={18} className="text-vcp-cyan" />
                   ASK NOVA ABOUT VCP
                 </div>
                 <button
                   type="button"
                   onClick={() => openWikiCockpit(wikiCockpitTargets[1])}
-                  className="rounded-full border border-vcp-purple/30 bg-vcp-purple/10 px-4 py-2 text-vcp-purple transition-all hover:border-vcp-purple hover:bg-vcp-purple/20"
+                  className="relative z-10 rounded-full border border-vcp-purple/30 bg-vcp-purple/10 px-4 py-2 text-vcp-purple transition-all hover:border-vcp-purple hover:bg-vcp-purple/20"
                 >
                   FRONTEND
                 </button>
                 <button
                   type="button"
                   onClick={() => openWikiCockpit(wikiCockpitTargets[0])}
-                  className="rounded-full border border-vcp-cyan/30 bg-vcp-cyan/10 px-4 py-2 text-vcp-cyan transition-all hover:border-vcp-cyan hover:bg-vcp-cyan/20"
+                  className="relative z-10 rounded-full border border-vcp-cyan/30 bg-vcp-cyan/10 px-4 py-2 text-vcp-cyan transition-all hover:border-vcp-cyan hover:bg-vcp-cyan/20"
                 >
                   BACKEND
                 </button>
