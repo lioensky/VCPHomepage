@@ -284,7 +284,8 @@ body {
 
 .wiki-cockpit-tabs {
   position: relative;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.35rem;
   padding: 0.3rem;
   border-radius: 999px;
@@ -319,6 +320,7 @@ body {
 .wiki-cockpit-tab {
   position: relative;
   z-index: 1;
+  min-width: 0;
   border: 0;
   border-radius: 999px;
   padding: 0.55rem 0.85rem;
@@ -327,7 +329,9 @@ body {
   font-family: var(--font-mono);
   font-size: 0.65rem;
   letter-spacing: 0.14em;
+  text-align: center;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .wiki-cockpit-tab:hover,
