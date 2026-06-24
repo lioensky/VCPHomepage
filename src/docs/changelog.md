@@ -23,6 +23,8 @@ VCPRagManger 召回管线开始全面重构，RAG 召回侧整体速度提升约
 
 新增rag浪潮预设参数主题管理器，方便用户在切换向量模型时可以导入不同的预设参数以校准向量空间。
 
+同日新增“隐私防护小助手”模块，可在工具调用审核管理界面开启，并支持按不同 Agent 单独设置 0～4 级防护强度。该模块会对工具返回字段进行审查，自动识别并打码可能包含隐私或敏感凭据的信息，覆盖 key、token、auth、mail、password 等常见字段；级别越高策略越激进，能够提供更强保护，但也可能带来一定误判。
+
 围绕 RAG 广播与结果回填链路，本次更新进一步优化 VCPinfo 在 RAG 信息广播中的管线，合并大量序列化队列；合并日记附件转 base64 缓存管线，避免多个 chunk 各自为战；并继续优化 RAG 查询结果缓存管线，提高交互效率。新的召回耗时分布大致为：向量化网络请求约 1～2 秒；解析一次 post 中多个日记本 / 知识库占位符并引入管线计算约 10～100ms；浪潮 V8 神经元引擎加速召回记忆约 0.0x～0.xms，因速度极快已接近物理抖动统计边界；记忆召回内容回填系统提示词约 5～20ms。
 
 ### 2026-06-23 · 官网大幅翻新、原理演示动画与源码地图 WikiBot
@@ -554,7 +556,7 @@ VCP 从构思阶段进入正式开发阶段。
 
 | 阶段 | 时间范围 | 关键进展 |
 | --- | --- | --- |
-| 正式版、OneRing、OpenHer 与知识图谱期 | 2026-04 ～ 2026-06 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页、源码地图 WikiBot、VCPRagManger 召回管线重构与 RAG 侧 10～100 倍加速 |
+| 正式版、OneRing、OpenHer 与知识图谱期 | 2026-04 ～ 2026-06 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页、源码地图 WikiBot、VCPRagManger 召回管线重构与 RAG 侧 10～100 倍加速、隐私防护小助手 |
 | 平台化扩展期 | 2026-03 ～ 2026-04 | VCPDesktop、桌面遥控、全局 API 虚拟化、PreText.js、7.5 版浪潮与官网上线 |
 | 系统化重构期 | 2026-02 ～ 2026-03 | 超栈追踪 V2、梦系统、SOM 桌面语义控制、多模态记忆、统一中央服务全面推进 |
 | 记忆与自主性爆发期 | 2025-09 ～ 2026-01 | RAG 语法、流式渲染器、Agent 自主巡航、TagMemo、上下文折叠持续成型 |
