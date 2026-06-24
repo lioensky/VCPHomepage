@@ -30,6 +30,7 @@ import {
   Check,
 } from "lucide-react";
 import {useEffect, useMemo, useRef, useState} from "react";
+import mermaid from "mermaid";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
@@ -168,6 +169,77 @@ type WikiChatSession = {
   queryId: string | null;
   messages: WikiChatMessage[];
 };
+
+type MermaidBlockProps = {
+  chart: string;
+};
+
+function MermaidBlock({chart}: MermaidBlockProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const renderId = useMemo(() => `mermaid-${Math.random().toString(36).slice(2)}`, []);
+
+  useEffect(() => {
+    let disposed = false;
+
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "dark",
+      securityLevel: "loose",
+      themeVariables: {
+        background: "transparent",
+        primaryColor: "#173656",
+        primaryTextColor: "#f8fbff",
+        primaryBorderColor: "#7defff",
+        lineColor: "#8bdcff",
+        secondaryColor: "#34235f",
+        tertiaryColor: "#0e1b2f",
+        fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
+      },
+    });
+
+    async function renderChart() {
+      if (!containerRef.current) {
+        return;
+      }
+
+      try {
+        const {svg} = await mermaid.render(renderId, chart);
+        if (!disposed && containerRef.current) {
+          containerRef.current.innerHTML = svg;
+        }
+      } catch (error) {
+        if (!disposed && containerRef.current) {
+          containerRef.current.textContent = String(error);
+          containerRef.current.classList.add("mermaid-error");
+        }
+      }
+    }
+
+    renderChart();
+
+    return () => {
+      disposed = true;
+    };
+  }, [chart, renderId]);
+
+  return <div ref={containerRef} className="mermaid-diagram" />;
+}
+
+function extractCode(children: React.ReactNode): string {
+  if (typeof children === "string") {
+    return children;
+  }
+
+  if (Array.isArray(children)) {
+    return children.map(extractCode).join("");
+  }
+
+  if (children && typeof children === "object" && "props" in children) {
+    return extractCode((children as {props?: {children?: React.ReactNode}}).props?.children ?? "");
+  }
+
+  return "";
+}
 
 type NovaStickerPart =
   | {
@@ -423,6 +495,14 @@ function splitWhitepaperIntoSections(markdown: string): WhitepaperSection[] {
 
 const whitepaperMarkdownComponents = {
   code({className, children, ...props}: any) {
+    const match = /language-(\w+)/.exec(className || "");
+    const language = match?.[1];
+    const content = extractCode(children).trim();
+
+    if (language === "mermaid") {
+      return <MermaidBlock chart={content} />;
+    }
+
     const isInline = !className;
     if (isInline) {
       return (
@@ -854,7 +934,7 @@ const WikiCockpitModal = ({
                     <span />
                     <span />
                     <span />
-                    <strong>正在检索源码知识图谱...</strong>
+                    <strong>正在检索源码知识图谱 / Mermaid / LaTeX...</strong>
                   </div>
                 </div>
               )}
