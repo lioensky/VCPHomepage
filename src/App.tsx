@@ -28,6 +28,9 @@ import {
   Newspaper,
   Copy,
   Check,
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
 } from "lucide-react";
 import {useEffect, useMemo, useRef, useState} from "react";
 import mermaid from "mermaid";
@@ -177,22 +180,34 @@ type MermaidBlockProps = {
 function MermaidBlock({chart}: MermaidBlockProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const renderId = useMemo(() => `mermaid-${Math.random().toString(36).slice(2)}`, []);
+  const [scale, setScale] = useState(1);
 
   useEffect(() => {
     let disposed = false;
 
     mermaid.initialize({
       startOnLoad: false,
-      theme: "dark",
+      theme: "base",
       securityLevel: "loose",
       themeVariables: {
         background: "transparent",
-        primaryColor: "#173656",
-        primaryTextColor: "#f8fbff",
-        primaryBorderColor: "#7defff",
-        lineColor: "#8bdcff",
-        secondaryColor: "#34235f",
-        tertiaryColor: "#0e1b2f",
+        mainBkg: "#f8fbff",
+        secondBkg: "#eef4ff",
+        tertiaryColor: "#f6f0ff",
+        primaryColor: "#f8fbff",
+        primaryTextColor: "#07111f",
+        primaryBorderColor: "#43cfe8",
+        secondaryColor: "#eef4ff",
+        secondaryTextColor: "#07111f",
+        secondaryBorderColor: "#9f7bff",
+        tertiaryTextColor: "#07111f",
+        lineColor: "#23647a",
+        textColor: "#07111f",
+        nodeTextColor: "#07111f",
+        edgeLabelBackground: "#ffffff",
+        clusterBkg: "#f2f7ff",
+        clusterBorder: "#43cfe8",
+        titleColor: "#07111f",
         fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
       },
     });
@@ -201,6 +216,8 @@ function MermaidBlock({chart}: MermaidBlockProps) {
       if (!containerRef.current) {
         return;
       }
+
+      containerRef.current.classList.remove("mermaid-error");
 
       try {
         const {svg} = await mermaid.render(renderId, chart);
@@ -222,7 +239,34 @@ function MermaidBlock({chart}: MermaidBlockProps) {
     };
   }, [chart, renderId]);
 
-  return <div ref={containerRef} className="mermaid-diagram" />;
+  const zoomOut = () => setScale((current) => Math.max(0.5, Number((current - 0.1).toFixed(2))));
+  const zoomIn = () => setScale((current) => Math.min(2.4, Number((current + 0.1).toFixed(2))));
+  const resetZoom = () => setScale(1);
+
+  return (
+    <div className="mermaid-panel">
+      <div className="mermaid-toolbar" aria-label="Mermaid 图表缩放工具栏">
+        <span>MERMAID</span>
+        <button type="button" onClick={zoomOut} aria-label="缩小 Mermaid 图表">
+          <ZoomOut size={14} />
+        </button>
+        <strong>{Math.round(scale * 100)}%</strong>
+        <button type="button" onClick={zoomIn} aria-label="放大 Mermaid 图表">
+          <ZoomIn size={14} />
+        </button>
+        <button type="button" onClick={resetZoom} aria-label="重置 Mermaid 图表缩放">
+          <RotateCcw size={14} />
+        </button>
+      </div>
+      <div className="mermaid-diagram">
+        <div
+          ref={containerRef}
+          className="mermaid-diagram-canvas"
+          style={{"--mermaid-scale": scale} as React.CSSProperties}
+        />
+      </div>
+    </div>
+  );
 }
 
 function extractCode(children: React.ReactNode): string {
