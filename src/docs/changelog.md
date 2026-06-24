@@ -1,7 +1,7 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-06-23 的真实演进记录，按时间倒序展示最新版本与关键里程碑。
-updatedAt: 2026-06-23
+summary: 汇总 VCP 从 2023-12 到 2026-06-24 的真实演进记录，按时间倒序展示最新版本与关键里程碑。
+updatedAt: 2026-06-24
 category: changelog
 ---
 
@@ -12,6 +12,16 @@ category: changelog
 ---
 
 ## 最新更新
+
+### 2026-06-24 · VCPRagManger 召回管线全面重构与 RAG 侧 10～100 倍加速
+
+VCPRagManger 召回管线开始全面重构，RAG 召回侧整体速度提升约 10～100 倍。BM25 / BM25+、Fileget、mmtime 等全局算法与文件检索管线统一下沉到 DailyNoteRust API，配合 BM25 渐进遍历路由，使大批量并发索引查询可以通过一次全局 BM25 计算完成分发，显著降低多索引、多日记本场景中的重复扫描与调度开销。
+
+本次重构引入浪潮 V8 引擎批处理加速合并：一次查询中的 N 个日记索引会先统一完成浪潮感应，再进入寻址队列分发；多索引动态 K 分配也统一为批处理管线，通过一次缓存遍历完成一次 post 中所有聚合索引的 K 分配。VCPRagManger 在 TagMemo 感应阶段与 KBD.js 构建内存直连，避免序列化往返；KBD.js 加载索引时直接构建内存级 timeline，便于 RAG time 处理直接查询，而内存真相仍由 rust-notify 维护，从而绕开对文件真相源的直接操作。
+
+语义向量清洗净化函数被统一抽象为公共模块，方便所有公共插件复用。filechunk 相关方法也完成统一，使一次 post 中多索引查询的任意语法后缀在需要与文件交互时，可以通过一次遍历完成。Associate 语法触发方式得到大幅优化，chunk 会直接携带 vector 坐标，避免内存联想阶段反复往返；Expand 语法新增更高效的缓存机制，使热记忆无需重复展开查表。
+
+围绕 RAG 广播与结果回填链路，本次更新进一步优化 VCPinfo 在 RAG 信息广播中的管线，合并大量序列化队列；合并日记附件转 base64 缓存管线，避免多个 chunk 各自为战；并继续优化 RAG 查询结果缓存管线，提高交互效率。新的召回耗时分布大致为：向量化网络请求约 1～2 秒；解析一次 post 中多个日记本 / 知识库占位符并引入管线计算约 10～100ms；浪潮 V8 神经元引擎加速召回记忆约 0.0x～0.xms，因速度极快已接近物理抖动统计边界；记忆召回内容回填系统提示词约 5～20ms。
 
 ### 2026-06-23 · 官网大幅翻新、原理演示动画与源码地图 WikiBot
 
@@ -542,7 +552,7 @@ VCP 从构思阶段进入正式开发阶段。
 
 | 阶段 | 时间范围 | 关键进展 |
 | --- | --- | --- |
-| 正式版、OneRing、OpenHer 与知识图谱期 | 2026-04 ～ 2026-06 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页与源码地图 WikiBot |
+| 正式版、OneRing、OpenHer 与知识图谱期 | 2026-04 ～ 2026-06 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页、源码地图 WikiBot、VCPRagManger 召回管线重构与 RAG 侧 10～100 倍加速 |
 | 平台化扩展期 | 2026-03 ～ 2026-04 | VCPDesktop、桌面遥控、全局 API 虚拟化、PreText.js、7.5 版浪潮与官网上线 |
 | 系统化重构期 | 2026-02 ～ 2026-03 | 超栈追踪 V2、梦系统、SOM 桌面语义控制、多模态记忆、统一中央服务全面推进 |
 | 记忆与自主性爆发期 | 2025-09 ～ 2026-01 | RAG 语法、流式渲染器、Agent 自主巡航、TagMemo、上下文折叠持续成型 |
@@ -557,4 +567,4 @@ VCP 从构思阶段进入正式开发阶段。
 - [`src/docs/getting-started.md`](src/docs/getting-started.md)
 - [`VCP聚合文档.md`](VCP聚合文档.md)
 
-当前总览页已改为真实内容，并按更新日志常用方式调整为**倒序展示**，已补充到 2026-06-23。
+当前总览页已改为真实内容，并按更新日志常用方式调整为**倒序展示**，已补充到 2026-06-24。
