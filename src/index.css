@@ -265,6 +265,16 @@ body {
   box-shadow: 0 0 28px rgba(112, 0, 255, 0.3);
 }
 
+.wiki-cockpit-orb-hybrid {
+  color: white;
+  background:
+    linear-gradient(135deg, rgba(0, 242, 255, 0.18), rgba(112, 0, 255, 0.2)),
+    rgba(255, 255, 255, 0.05);
+  box-shadow:
+    0 0 30px rgba(0, 242, 255, 0.22),
+    0 0 42px rgba(112, 0, 255, 0.22);
+}
+
 .wiki-cockpit-actions {
   display: flex;
   flex: 0 0 auto;
@@ -273,12 +283,28 @@ body {
 }
 
 .wiki-cockpit-tabs {
+  position: relative;
   display: flex;
   gap: 0.35rem;
   padding: 0.3rem;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.035);
+  overflow: hidden;
+}
+
+.wiki-cockpit-tabs::before {
+  content: "";
+  position: absolute;
+  inset: 0.3rem auto 0.3rem 0.3rem;
+  width: calc((100% - 0.6rem - 0.7rem) / 3);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.18), transparent 42%),
+    linear-gradient(90deg, rgba(0, 242, 255, 0.16), rgba(112, 0, 255, 0.16));
+  box-shadow: 0 0 22px rgba(0, 242, 255, 0.12);
+  transform: translateX(var(--wiki-tab-index, 0));
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .wiki-cockpit-tab,
@@ -291,6 +317,8 @@ body {
 }
 
 .wiki-cockpit-tab {
+  position: relative;
+  z-index: 1;
   border: 0;
   border-radius: 999px;
   padding: 0.55rem 0.85rem;
@@ -304,7 +332,6 @@ body {
 
 .wiki-cockpit-tab:hover,
 .wiki-cockpit-tab-active {
-  background: rgba(0, 242, 255, 0.1);
   color: white;
 }
 
@@ -535,6 +562,10 @@ body {
   .wiki-cockpit-tabs {
     order: 3;
     width: 100%;
+  }
+
+  .wiki-cockpit-tabs::before {
+    width: calc((100% - 0.6rem - 0.7rem) / 3);
   }
 
   .wiki-cockpit-tab {

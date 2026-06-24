@@ -141,10 +141,25 @@ function normalizeRepo(repo) {
   if (!repo || typeof repo !== "string") return null;
   const cleaned = repo
     .trim()
-    .replace(/^https?:\/\/(www\.)?(github\.com|deepwiki\.com)\//, "")
+    .replace(/^https?:\/\/(www\.)?(github\.com|gitlab\.com|bitbucket\.org|deepwiki\.com)\//, "")
     .replace(/\/+$/, "");
   const parts = cleaned.split("/").filter(Boolean);
   return parts.length >= 2 ? `${parts[0]}/${parts[1]}` : null;
+}
+
+function normalizeRepoInput(input) {
+  const rawItems = Array.isArray(input)
+    ? input
+    : String(input || "")
+        .split(",")
+        .map((item) => item.trim());
+
+  const repos = Array.from(
+    new Set(rawItems.map((item) => normalizeRepo(item)).filter(Boolean)),
+  ).slice(0, 10);
+
+  if (repos.length === 0) return null;
+  return repos.length === 1 ? repos[0] : repos;
 }
 
 function buildQuestion(question, deepResearch) {
@@ -167,13 +182,13 @@ export default async function handler(req, res) {
 
   try {
     const body = typeof req.body === "object" && req.body ? req.body : JSON.parse(req.body || "{}");
-    const repoName = normalizeRepo(body.repo || body.repoName);
+    const repoName = normalizeRepoInput(body.repo || body.repoName || body.repos);
     const question = body.question || body.followUpQuestion || body.query || body.q;
     const queryId = typeof body.queryId === "string" && body.queryId.trim() ? body.queryId.trim() : null;
     const deepResearch = body.deepResearch === true || body.deep_research === true;
 
     if (!repoName) {
-      return json(res, 400, { status: "error", error: "缺少或无法解析 repo，请使用 owner/repo 格式。" });
+      return json(res, 400, { status: "error", error: "缺少或无法解析 repo，请使用 owner/repo 格式；多仓库可传数组或用英文逗号分隔，最多 10 个。" });
     }
 
     if (!question || !String(question).trim()) {

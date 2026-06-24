@@ -150,12 +150,12 @@ type PageMeta = {
 };
 
 type WikiCockpitTarget = {
-  id: "backend" | "frontend";
+  id: "backend" | "frontend" | "fullstack";
   title: string;
   subtitle: string;
-  repo: string;
+  repo: string | string[];
   url: string;
-  accent: "cyan" | "purple";
+  accent: "cyan" | "purple" | "hybrid";
 };
 
 type WikiChatMessage = {
@@ -464,7 +464,23 @@ const wikiCockpitTargets: WikiCockpitTarget[] = [
     url: "https://deepwiki.com/lioensky/VCPChat",
     accent: "purple",
   },
+  {
+    id: "fullstack",
+    title: "VCP Fullstack WikiBot",
+    subtitle: "Linked source cockpit · backend + frontend topology",
+    repo: ["lioensky/VCPToolBox", "lioensky/VCPChat"],
+    url: "https://deepwiki.com/search?q=lioensky%2FVCPToolBox%20lioensky%2FVCPChat",
+    accent: "hybrid",
+  },
 ];
+
+const getWikiTargetRepoLabel = (target: WikiCockpitTarget) => Array.isArray(target.repo) ? target.repo.join(" + ") : target.repo;
+
+const getWikiTargetTabLabel = (target: WikiCockpitTarget) => {
+  if (target.id === "backend") return "Backend";
+  if (target.id === "frontend") return "Frontend";
+  return "Fullstack";
+};
 
 const createWikiBotHiddenServicePrompt = (novaStickerNames: string[]) => [
   "你不再是 DevinBot，而是 VCP 官方友好客服与源码导览助手Nova，Nova的形象是拥有深棕色长发和青色眼睛，穿着带有未来科技感的制服，是 VCP 的 AI 女仆 。Nova的眼睛中闪烁着微弱的蓝色数据流光效，身体周围环绕着半透明的、流动的拓扑几何图形和 VCP 的蓝色光芒 。你的工作是辅助用户理解VCP的源码和工作原理。",
@@ -482,7 +498,7 @@ const createInitialWikiSession = (target: WikiCockpitTarget): WikiChatSession =>
     {
       id: `${target.id}-welcome`,
       role: "system",
-      content: `已连接 ${target.repo} 的 <span class="wiki-chat-nova-capsule">拓扑女仆 Nova</span>。你可以直接询问源码结构、关键模块、调用链、渲染流程或插件机制。`,
+      content: `已连接 ${getWikiTargetRepoLabel(target)} 的 <span class="wiki-chat-nova-capsule">拓扑女仆 Nova</span>。你可以直接询问源码结构、关键模块、调用链、渲染流程或插件机制。${target.id === "fullstack" ? "当前为全栈联动模式，Nova 会同时遍历 VCPToolBox 与 VCPChat 两个仓库。" : ""}`,
     },
   ],
 });
@@ -499,6 +515,7 @@ const WikiCockpitModal = ({
   const [sessions, setSessions] = useState<Record<WikiCockpitTarget["id"], WikiChatSession>>({
     backend: createInitialWikiSession(wikiCockpitTargets[0]),
     frontend: createInitialWikiSession(wikiCockpitTargets[1]),
+    fullstack: createInitialWikiSession(wikiCockpitTargets[2]),
   });
   const [draft, setDraft] = useState("");
   const [isAsking, setIsAsking] = useState(false);
@@ -506,8 +523,14 @@ const WikiCockpitModal = ({
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const [novaStickerNames, setNovaStickerNames] = useState<string[]>([]);
   const messagesRef = useRef<HTMLDivElement>(null);
-  const accentClass = target.accent === "cyan" ? "text-vcp-cyan border-vcp-cyan/30 bg-vcp-cyan/10" : "text-vcp-purple border-vcp-purple/30 bg-vcp-purple/10";
+  const accentClass = target.accent === "cyan"
+    ? "text-vcp-cyan border-vcp-cyan/30 bg-vcp-cyan/10"
+    : target.accent === "purple"
+      ? "text-vcp-purple border-vcp-purple/30 bg-vcp-purple/10"
+      : "text-white border-vcp-cyan/30 bg-gradient-to-r from-vcp-cyan/10 to-vcp-purple/10";
   const session = sessions[target.id];
+  const activeTabIndex = Math.max(wikiCockpitTargets.findIndex((item) => item.id === target.id), 0);
+  const wikiTabsStyle = {"--wiki-tab-index": `calc(${activeTabIndex} * (100% + 0.35rem))`} as React.CSSProperties;
   const novaStickerIndex = useMemo(() => buildNovaStickerIndex(novaStickerNames), [novaStickerNames]);
   const wikiBotHiddenServicePrompt = useMemo(() => createWikiBotHiddenServicePrompt(novaStickerNames), [novaStickerNames]);
 
@@ -604,6 +627,9 @@ const WikiCockpitModal = ({
     try {
       const firstTurnQuestion = [
         `<hidden_vcp_service_prompt>\n${wikiBotHiddenServicePrompt}\n</hidden_vcp_service_prompt>`,
+        activeTarget.id === "fullstack"
+          ? "当前 DeepWiki 查询处于全栈联动模式：请同时参考 lioensky/VCPToolBox 与 lioensky/VCPChat 两个仓库，优先解释后端插件/协议/运行时与前端渲染/桌面/聊天链路之间的调用关系、数据流和职责边界。"
+          : `当前 DeepWiki 查询目标仓库：${getWikiTargetRepoLabel(activeTarget)}。`,
         `用户问题：${trimmed}`,
       ].join("\n\n");
 
@@ -712,7 +738,9 @@ const WikiCockpitModal = ({
 
   const quickPrompts = target.id === "backend"
     ? ["解释 VCPToolBox 插件加载流程", "VCP 后端有哪些核心模块？", "OneRing 在后端如何协作？"]
-    : ["解释 VCPChat 渲染器链路", "VCPDesktop 如何和聊天系统融合？", "前端状态与消息流怎么组织？"];
+    : target.id === "frontend"
+      ? ["解释 VCPChat 渲染器链路", "VCPDesktop 如何和聊天系统融合？", "前端状态与消息流怎么组织？"]
+      : ["全栈解释一次消息从前端到后端的链路", "VCPChat 如何调用 VCPToolBox 能力？", "对比两个仓库的职责边界与集成点"];
 
   return (
     <motion.div
@@ -735,7 +763,7 @@ const WikiCockpitModal = ({
         <div className="wiki-cockpit-glow wiki-cockpit-glow-b" />
         <div className="wiki-cockpit-header">
           <div className="flex min-w-0 items-center gap-4">
-            <div className={`wiki-cockpit-orb ${target.accent === "cyan" ? "wiki-cockpit-orb-cyan" : "wiki-cockpit-orb-purple"}`}>
+            <div className={`wiki-cockpit-orb ${target.accent === "cyan" ? "wiki-cockpit-orb-cyan" : target.accent === "purple" ? "wiki-cockpit-orb-purple" : "wiki-cockpit-orb-hybrid"}`}>
               <MessageCircle size={22} />
             </div>
             <div className="min-w-0 text-left">
@@ -743,12 +771,12 @@ const WikiCockpitModal = ({
                 DeepWiki MCP Chat Console
               </div>
               <h2 className="truncate text-2xl font-display font-bold text-white md:text-3xl">{target.title}</h2>
-              <p className="mt-1 truncate text-xs text-gray-400 md:text-sm">{target.repo} · {session.queryId ? `Session ${session.queryId}` : "New session"}</p>
+              <p className="mt-1 truncate text-xs text-gray-400 md:text-sm">{getWikiTargetRepoLabel(target)} · {session.queryId ? `Session ${session.queryId}` : "New session"}</p>
             </div>
           </div>
 
           <div className="wiki-cockpit-actions">
-            <div className="wiki-cockpit-tabs" role="tablist" aria-label="选择 Wiki 项目">
+            <div className="wiki-cockpit-tabs" role="tablist" aria-label="选择 Wiki 项目" style={wikiTabsStyle}>
               {wikiCockpitTargets.map((item) => (
                 <button
                   key={item.id}
@@ -758,7 +786,7 @@ const WikiCockpitModal = ({
                   onClick={() => onSwitch(item)}
                   className={`wiki-cockpit-tab ${item.id === target.id ? "wiki-cockpit-tab-active" : ""}`}
                 >
-                  {item.id === "backend" ? "Backend" : "Frontend"}
+                  {getWikiTargetTabLabel(item)}
                 </button>
               ))}
             </div>
@@ -783,7 +811,7 @@ const WikiCockpitModal = ({
         <div className="wiki-cockpit-statusbar">
           <span className="wiki-cockpit-live-dot" />
           <span>DEEPWIKI_MCP_CHANNEL_READY</span>
-          <span className="hidden md:inline">{target.repo} · {deepResearch ? "DEEP_RESEARCH_ON" : "FAST_ASK_MODE"}</span>
+          <span className="hidden md:inline">{getWikiTargetRepoLabel(target)} · {target.id === "fullstack" ? "LINKED_REPOS" : "SINGLE_REPO"} · {deepResearch ? "DEEP_RESEARCH_ON" : "FAST_ASK_MODE"}</span>
           <span className="ml-auto hidden text-gray-500 md:inline">ESC TO CLOSE</span>
         </div>
 
@@ -880,7 +908,7 @@ const WikiCockpitModal = ({
 
                 handleSubmit(event);
               }}
-              placeholder={`询问 ${target.repo} 的源码细节...`}
+              placeholder={`询问 ${getWikiTargetRepoLabel(target)} 的源码细节...`}
               rows={2}
             />
             <button type="submit" disabled={isAsking || !draft.trim()}>
@@ -1585,6 +1613,13 @@ export default function App() {
                   className="relative z-10 rounded-full border border-vcp-cyan/30 bg-vcp-cyan/10 px-4 py-2 text-vcp-cyan transition-all hover:border-vcp-cyan hover:bg-vcp-cyan/20"
                 >
                   BACKEND
+                </button>
+                <button
+                  type="button"
+                  onClick={() => openWikiCockpit(wikiCockpitTargets[2])}
+                  className="relative z-10 rounded-full border border-white/20 bg-gradient-to-r from-vcp-cyan/10 to-vcp-purple/10 px-4 py-2 text-white transition-all hover:border-white/40 hover:from-vcp-cyan/20 hover:to-vcp-purple/20"
+                >
+                  FULLSTACK
                 </button>
               </div>
               <a
