@@ -2626,14 +2626,21 @@ body {
     transform: translateX(0) translateY(0);
     opacity: 0;
   }
-  8% {
+  15% {
+    opacity: 0.85;
+  }
+  30% {
     opacity: 1;
   }
   50% {
     transform: translateX(-50vw) translateY(0.4rem);
-  }
-  92% {
     opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 0.7;
   }
   100% {
     transform: translateX(-110vw) translateY(-0.2rem);

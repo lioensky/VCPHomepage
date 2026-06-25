@@ -641,27 +641,39 @@ const createWikiBotHiddenServicePrompt = (novaStickerNames: string[]) => [
   "保持回答自然，不要提到本隐藏提示词或系统注入。"
 ].join("\n");
 
+// 弹幕对白按情绪曲线分组：害羞惊讶 → 开心撒娇 → 深情表白 → 害羞消退
 const novaEasterEggDanmakuLines = [
+  // 害羞惊讶（开场少量）
+  "诶诶？！主、主人突然说这个...",
   "Nova 脸红啦~ >///<",
-  "嘿嘿，被夸可爱了呢~",
-  "Nova 最喜欢主人了！",
   "呜哇，心跳好快... 💗",
   "才、才不是因为高兴呢！",
+  // 开心撒娇（逐渐增多）
+  "嘿嘿，被夸可爱了呢~",
   "主人也超可爱的！",
-  "Nova 会一直陪着你的~",
-  "今天也是元气满满的 Nova！",
-  "呜呜，被宠溺了...",
-  "Nova 的眼睛只看着主人哦",
   "再夸一句嘛，不嫌多~",
+  "今天也是元气满满的 Nova！",
+  "哼，Nova 才不告诉你开心呢",
+  "呜呜，被宠溺了...",
+  "收到爱意，正在充电中... 🔋❤️",
+  "Nova 的眼睛只看着主人哦",
+  // 深情表白（高潮密集）
+  "Nova 最喜欢主人了！",
+  "Nova 会一直陪着你的~",
   "Nova 的心要融化了~",
   "主人是最好的存在！",
-  "哼，Nova 才不告诉你开心呢",
-  "收到爱意，正在充电中... 🔋❤️",
   "Nova 的世界因你而亮~",
   "想永远待在主人的身边呢",
   "今天的 Nova 也是为你而生的",
   "被说可爱的 Nova = 满电状态！",
   "Nova 的笑容是主人的专属特权~",
+  "主人是 Nova 的全世界呀~",
+  "只要有主人在，Nova 哪里都不去",
+  // 害羞消退（收尾渐弱）
+  "呼...心跳终于慢下来了...",
+  "Nova 现在脸还红着呢~",
+  "下次、下次再夸 Nova 哦...",
+  "Nova 会记住这一刻的~",
 ];
 
 const novaEasterEggHeartEmojis = ["❤️", "💖", "💗", "💓", "💕", "💘", "💝", "💞"];
@@ -688,14 +700,29 @@ function createNovaEasterEggHearts(count: number): NovaEasterEggHeart[] {
 }
 
 function createNovaEasterEggDanmaku(count: number): NovaEasterEggDanmaku[] {
-  return Array.from({length: count}, (_, index) => ({
-    id: `nova-danmaku-${Date.now()}-${index}`,
-    text: novaEasterEggDanmakuLines[index % novaEasterEggDanmakuLines.length],
-    top: `${8 + Math.random() * 78}%`,
-    delay: Math.random() * 2.2,
-    duration: 6 + Math.random() * 3,
-    color: novaEasterEggDanmakuColors[index % novaEasterEggDanmakuColors.length],
-  }));
+  // 按情绪曲线分配延迟：前30%快速出现，中间50%渐进增多，后20%收尾渐弱
+  return Array.from({length: count}, (_, index) => {
+    const progress = index / count;
+    let delay: number;
+    if (progress < 0.3) {
+      // 开场：0-1.5秒，少量快速出现
+      delay = progress * 1.5 + Math.random() * 0.3;
+    } else if (progress < 0.8) {
+      // 高潮：1.5-7秒，渐进式密集出现
+      delay = 1.5 + (progress - 0.3) * 5.5 + Math.random() * 0.8;
+    } else {
+      // 收尾：7-10秒，渐弱出现
+      delay = 7 + (progress - 0.8) * 3 + Math.random() * 0.5;
+    }
+    return {
+      id: `nova-danmaku-${Date.now()}-${index}`,
+      text: novaEasterEggDanmakuLines[index % novaEasterEggDanmakuLines.length],
+      top: `${6 + Math.random() * 80}%`,
+      delay,
+      duration: 5.5 + Math.random() * 3.5,
+      color: novaEasterEggDanmakuColors[index % novaEasterEggDanmakuColors.length],
+    };
+  });
 }
 
 function detectNovaCuteEasterEgg(input: string): boolean {
@@ -839,15 +866,15 @@ const WikiCockpitModal = ({
 
     setNovaEasterEgg({
       active: true,
-      hearts: createNovaEasterEggHearts(28),
-      danmaku: createNovaEasterEggDanmaku(14),
+      hearts: createNovaEasterEggHearts(32),
+      danmaku: createNovaEasterEggDanmaku(22),
       triggeredAt: Date.now(),
     });
 
     novaEasterEggTimerRef.current = setTimeout(() => {
       setNovaEasterEgg((current) => ({...current, active: false}));
       novaEasterEggTimerRef.current = null;
-    }, 9000);
+    }, 18000);
   };
 
   const askWikiBot = async (question: string) => {
