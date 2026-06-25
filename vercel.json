@@ -9,6 +9,8 @@
     { "source": "/learn-vcp.html", "destination": "/learn-vcp.html" },
     { "source": "/changelog", "destination": "/changelog.html" },
     { "source": "/changelog.html", "destination": "/changelog.html" },
+    { "source": "/nova", "destination": "/nova.html" },
+    { "source": "/nova.html", "destination": "/nova.html" },
     { "source": "/vcp_wave_v8_engine", "destination": "/vcp_wave_v8_engine.html" },
     { "source": "/vcp_wave_v8_engine.html", "destination": "/vcp_wave_v8_engine.html" },
     { "source": "/(.*)", "destination": "/index.html" }

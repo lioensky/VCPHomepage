@@ -1615,6 +1615,8 @@ export default function App() {
   const docs = useMemo(() => getAllDocs(), []);
   const [activeDocSlug, setActiveDocSlug] = useState(docs[0]?.slug ?? "");
   const [activeWikiTarget, setActiveWikiTarget] = useState<WikiCockpitTarget | null>(null);
+  const novaPortalClickCountRef = useRef(0);
+  const novaPortalClickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const pageParam = new URLSearchParams(window.location.search).get("page");
   const isWhitepaperRoute =
@@ -1623,6 +1625,7 @@ export default function App() {
   const isChangelogRoute =
     window.location.pathname === "/changelog" ||
     pageParam === "changelog";
+  const isNovaRoute = window.location.pathname === "/nova";
   const changelogDoc = docs.find((doc) => doc.slug === "changelog" || doc.category === "changelog");
 
   const mouseX = useMotionValue(typeof window !== "undefined" ? window.innerWidth / 2 : 0);
@@ -1707,6 +1710,33 @@ export default function App() {
   const openWikiCockpit = (target: WikiCockpitTarget) => {
     setActiveWikiTarget(target);
   };
+
+  const handleNovaPortalClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if ((event.target as HTMLElement).closest("[data-nova-action]")) {
+      return;
+    }
+
+    novaPortalClickCountRef.current += 1;
+
+    if (novaPortalClickTimerRef.current) {
+      clearTimeout(novaPortalClickTimerRef.current);
+    }
+
+    if (novaPortalClickCountRef.current >= 5) {
+      window.location.href = "/nova";
+      return;
+    }
+
+    novaPortalClickTimerRef.current = setTimeout(() => {
+      novaPortalClickCountRef.current = 0;
+      novaPortalClickTimerRef.current = null;
+    }, 1800);
+  };
+
+  if (isNovaRoute) {
+    window.location.replace("/nova.html");
+    return null;
+  }
 
   if (isWhitepaperRoute) {
     return <WhitepaperPage />;
@@ -1900,13 +1930,18 @@ export default function App() {
               </a>
             </div>
             <div className="flex flex-wrap justify-center gap-6">
-              <div className="ask-nova-panel flex flex-wrap items-center justify-center gap-3 px-6 py-4 glass-card rounded-full font-display font-medium text-sm">
+              <div
+                className="ask-nova-panel flex flex-wrap items-center justify-center gap-3 px-6 py-4 glass-card rounded-full font-display font-medium text-sm"
+                onClick={handleNovaPortalClick}
+                title="连续点击面板内非按钮区域 5 次进入 Nova 彩蛋页"
+              >
                 <div className="relative z-10 flex items-center gap-3 text-white">
                   <MessageCircle size={18} className="text-vcp-cyan" />
                   ASK NOVA ABOUT VCP
                 </div>
                 <button
                   type="button"
+                  data-nova-action="wiki-frontend"
                   onClick={() => openWikiCockpit(wikiCockpitTargets[1])}
                   className="relative z-10 rounded-full border border-vcp-purple/30 bg-vcp-purple/10 px-4 py-2 text-vcp-purple transition-all hover:border-vcp-purple hover:bg-vcp-purple/20"
                 >
@@ -1914,6 +1949,7 @@ export default function App() {
                 </button>
                 <button
                   type="button"
+                  data-nova-action="wiki-backend"
                   onClick={() => openWikiCockpit(wikiCockpitTargets[0])}
                   className="relative z-10 rounded-full border border-vcp-cyan/30 bg-vcp-cyan/10 px-4 py-2 text-vcp-cyan transition-all hover:border-vcp-cyan hover:bg-vcp-cyan/20"
                 >
@@ -1921,6 +1957,7 @@ export default function App() {
                 </button>
                 <button
                   type="button"
+                  data-nova-action="wiki-fullstack"
                   onClick={() => openWikiCockpit(wikiCockpitTargets[2])}
                   className="relative z-10 rounded-full border border-white/20 bg-gradient-to-r from-vcp-cyan/10 to-vcp-purple/10 px-4 py-2 text-white transition-all hover:border-white/40 hover:from-vcp-cyan/20 hover:to-vcp-purple/20"
                 >
