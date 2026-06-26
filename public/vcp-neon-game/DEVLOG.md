@@ -1022,3 +1022,128 @@ public/vcp-neon-game/js/weapons.js
   - RuntimeVersionBump / 版本直升：5%。
   - EmergencyRollback / 紧急回滚：3%，回复 30% 最大生命。
   - 其余 92% 从常规限时 Buff 中随机。
+
+
+---
+
+## 17. 追加记录：标记满级与渲染架构性能优化
+
+更新时间：2026-06-26
+
+本轮针对“池月 1 号升到 5 级后，大量敌人被标记导致粒子和特效过多、画面明显卡顿”的反馈，完成了一轮 Canvas 渲染压力优化。
+
+### 17.1 问题定位
+
+主要性能热点：
+
+- `applyMark()` 每次标记都会生成较多红橙粒子。
+- 标记敌人死亡转移时，转移逻辑额外再次触发一轮粒子，形成重复爆发。
+- 大量被标记敌人每帧都会绘制：
+  - 高 shadowBlur 环形描边。
+  - 虚线旋转环。
+  - 3 个带霓虹阴影的轨道点。
+- `ParticleSystem.draw()` 原先每个粒子都会调用一次 `fillNeonCircle()`，意味着每个粒子都有独立 `save()` / `restore()` / `shadowBlur` / `arc()`。
+- HUD 每帧更新 DOM，在敌人、子弹、粒子数量高时会和 Canvas 绘制竞争主线程。
+- 背景每帧重新创建径向渐变，并用霓虹圆绘制星点，有额外绘制成本。
+
+### 17.2 粒子系统优化
+
+涉及位置：
+
+```text
+public/vcp-neon-game/js/entities.js
+```
+
+调整：
+
+- `ParticleSystem` 增加粒子池上限：
+  - `maxItems = 260`
+  - `softLimit = 190`
+- 当粒子数量超过软上限后，自动减少新爆发粒子数量和力度。
+- 接近硬上限时进一步降级，避免粒子数组无限膨胀。
+- `update()` 从 `filter()` 改为原地压缩写回，减少高频数组分配。
+- `draw()` 改为批量轻量绘制：
+  - 单次 `ctx.save()` / `ctx.restore()`。
+  - 不再为每个粒子单独开启霓虹阴影。
+  - 保留透明度衰减和小圆点视觉。
+
+设计取舍：
+
+- 大爆炸仍然有反馈。
+- 高压场景下粒子会自动“省电模式”。
+- 牺牲少量霓虹颗粒光晕，换取明显更稳定的帧率。
+
+### 17.3 标记视觉优化
+
+涉及位置：
+
+```text
+public/vcp-neon-game/js/entities.js
+public/vcp-neon-game/js/weapons.js
+public/vcp-neon-game/js/game.js
+```
+
+调整：
+
+- `Enemy.draw()` 中的标记视觉改为轻量环形进度描边。
+- 普通标记敌人不再绘制 3 个带阴影的轨道点。
+- 虚线外环只保留给精英和最终 Boss，普通怪不再绘制。
+- 标记环的 `shadowBlur` 降低：
+  - 普通怪：低阴影。
+  - 精英/Boss：保留更明显但仍较克制的阴影。
+- `applyMark()` 根据当前已标记敌人数量动态压缩粒子数量。
+- 标记死亡转移时移除重复粒子爆发，只保留 `applyMark()` 内部的统一反馈。
+- `fusion_collapse()` 对所有标记敌人的粒子爆发设置总预算，避免满屏标记时一次坍缩生成过多粒子。
+
+效果：
+
+- 池月 1 号高等级标记多个敌人时，标记辨识度仍然保留。
+- 大量普通怪被标记时，不再出现“每个怪自带一套高成本光效”的情况。
+- 标记转移仍可见，但不会因为连锁击杀瞬间生成粒子洪峰。
+
+### 17.4 主渲染循环优化
+
+涉及位置：
+
+```text
+public/vcp-neon-game/js/game.js
+```
+
+调整：
+
+- HUD 更新从每帧一次改为约每 0.08 秒一次。
+  - 视觉上仍接近实时。
+  - 减少 `textContent`、`style.width`、`innerHTML` 的 DOM 写入频率。
+- 背景径向渐变增加缓存：
+  - resize 时清空缓存。
+  - 平时不再每帧重新 `createRadialGradient()`。
+- 背景星点从 `fillNeonCircle()` 改为轻量 `fillRect()` 小点。
+- 星点数量从 36 降到 28。
+- 背景整体霓虹氛围保留，但减少不必要的 per-frame 阴影圆绘制。
+
+### 17.5 当前验证
+
+已执行语法检查：
+
+```bat
+node --check public\vcp-neon-game\js\entities.js && node --check public\vcp-neon-game\js\weapons.js && node --check public\vcp-neon-game\js\game.js
+```
+
+结果：
+
+```text
+通过
+```
+
+### 17.6 后续可选优化方向
+
+如果后续仍遇到 8 分钟后极限高压卡顿，可继续做：
+
+- 子弹、敌人、经验对象池，减少频繁 new 和 GC。
+- 敌人碰撞 broad-phase 分桶，降低子弹 x 敌人的全量碰撞复杂度。
+- 对屏幕外敌人/粒子做更激进的绘制裁剪。
+- 增加“低特效模式”开关：
+  - 降低粒子池上限。
+  - 关闭背景星点。
+  - 关闭普通敌人阴影。
+- 将背景网格绘制到离屏 canvas，只在 resize 或网格参数变化时重绘。
