@@ -185,6 +185,18 @@ export class WeaponSystem {
           enemy.takeDamage((18 + level * 6) * dt, this.game, "onering");
         }
       }
+
+      for (const bullet of this.game.enemyBullets) {
+        if (bullet.dead) continue;
+        const d = Math.hypot(bullet.x - orb.x, bullet.y - orb.y);
+        if (d < bullet.r + orb.r) {
+          bullet.dead = true;
+          this.game.particles.burst(bullet.x, bullet.y, COLORS.sky, 5, 0.45);
+          if (chance(0.18 + level * 0.04)) {
+            this.game.spawnXp(bullet.x, bullet.y, 0.25, COLORS.gold);
+          }
+        }
+      }
     }
   }
 

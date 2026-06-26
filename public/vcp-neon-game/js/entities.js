@@ -1,4 +1,4 @@
-import { COLORS, ENEMIES, ELITES, PLAYER } from "./config.js";
+import { COLORS, ENEMIES, ELITES, FINAL_BOSS, PLAYER } from "./config.js";
 import { TAU, angleTo, chance, fillNeonCircle, neonCircle, normalize, outsideScreen, pick, pointFromAngle, rand, weightedPick } from "./utils.js";
 
 let nextId = 1;
@@ -223,7 +223,10 @@ export class Enemy {
       splitter: data.splitter,
       charge: data.charge,
       radial: data.radial,
+      paradox: data.paradox,
+      jitter: data.jitter,
       pattern: data.pattern,
+      finalBoss: data.id === FINAL_BOSS.id,
       shootTimer: rand(0.8, 2.2),
       pulse: rand(0, TAU),
       chargeCooldown: rand(1.5, 3.2),
@@ -252,8 +255,12 @@ export class Enemy {
       this.x += Math.cos(toPlayer) * speed * dt + Math.sin(this.pulse * 2) * 18 * dt;
       this.y += Math.sin(toPlayer) * speed * dt + Math.cos(this.pulse * 1.7) * 18 * dt;
     } else {
-      this.x += Math.cos(toPlayer) * speed * dt;
-      this.y += Math.sin(toPlayer) * speed * dt;
+      const jitterAngle = this.jitter ? this.pulse * 5.2 : 0;
+      const jitterX = this.jitter ? Math.cos(jitterAngle) * 54 * dt : 0;
+      const jitterY = this.jitter ? Math.sin(jitterAngle * 1.3) * 54 * dt : 0;
+      this.pulse += this.jitter ? dt : 0;
+      this.x += Math.cos(toPlayer) * speed * dt + jitterX;
+      this.y += Math.sin(toPlayer) * speed * dt + jitterY;
     }
 
     this.shootTimer -= dt;
@@ -279,6 +286,24 @@ export class Enemy {
       }));
     }
 
+    if (this.paradox) {
+      const base = angleTo(this, game.player);
+      for (let i = 0; i < 2; i += 1) {
+        const angle = base + i * Math.PI;
+        game.enemyBullets.push(new Bullet({
+          x: this.x,
+          y: this.y,
+          vx: Math.cos(angle) * 142,
+          vy: Math.sin(angle) * 142,
+          r: 5,
+          damage: 9,
+          color: i ? COLORS.enemyPink : COLORS.violet,
+          enemy: true,
+          life: 5,
+        }));
+      }
+    }
+
     if (this.radial) {
       for (let i = 0; i < 9; i += 1) {
         const angle = i * TAU / 9 + game.time * 0.8;
@@ -297,21 +322,100 @@ export class Enemy {
     }
 
     if (this.elite) {
-      const count = this.pattern === "spiral" ? 14 : this.pattern === "rings" ? 18 : 12;
-      for (let i = 0; i < count; i += 1) {
-        const angle = i * TAU / count + game.time * (this.pattern === "spiral" ? 1.7 : 0.35);
-        const speed = this.pattern === "burst" ? rand(110, 230) : 150;
+      if (this.pattern === "spiral") {
+        for (let i = 0; i < 16; i += 1) {
+          const angle = i * TAU / 16 + game.time * 1.9;
+          game.enemyBullets.push(new Bullet({
+            x: this.x,
+            y: this.y,
+            vx: Math.cos(angle) * 168,
+            vy: Math.sin(angle) * 168,
+            r: 4,
+            damage: 11,
+            color: this.color,
+            enemy: true,
+            life: 6,
+          }));
+        }
+        const snipe = angleTo(this, game.player);
         game.enemyBullets.push(new Bullet({
           x: this.x,
           y: this.y,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed,
-          r: this.pattern === "rings" ? 5 : 4,
-          damage: 11,
-          color: this.color,
+          vx: Math.cos(snipe) * 235,
+          vy: Math.sin(snipe) * 235,
+          r: 5,
+          damage: 12,
+          color: COLORS.red,
           enemy: true,
-          life: 6,
+          life: 5,
         }));
+      } else if (this.pattern === "burst") {
+        for (let i = 0; i < 5; i += 1) {
+          const base = angleTo(this, game.player) + (i - 2) * 0.22;
+          for (let j = 0; j < 2; j += 1) {
+            const speed = 128 + j * 78;
+            game.enemyBullets.push(new Bullet({
+              x: this.x,
+              y: this.y,
+              vx: Math.cos(base) * speed,
+              vy: Math.sin(base) * speed,
+              r: 5,
+              damage: 13,
+              color: this.color,
+              enemy: true,
+              life: 6,
+            }));
+          }
+        }
+      } else if (this.pattern === "rings") {
+        for (let ring = 0; ring < 2; ring += 1) {
+          const count = ring ? 14 : 10;
+          for (let i = 0; i < count; i += 1) {
+            const angle = i * TAU / count + game.time * 0.28 + ring * TAU / (count * 2);
+            const speed = ring ? 178 : 118;
+            game.enemyBullets.push(new Bullet({
+              x: this.x,
+              y: this.y,
+              vx: Math.cos(angle) * speed,
+              vy: Math.sin(angle) * speed,
+              r: ring ? 4 : 6,
+              damage: 10,
+              color: ring ? COLORS.enemyPink : this.color,
+              enemy: true,
+              life: 7,
+            }));
+          }
+        }
+      } else if (this.pattern === "cloudOutage") {
+        for (let i = 0; i < 20; i += 1) {
+          const angle = i * TAU / 20 + Math.sin(game.time * 0.9) * 0.45;
+          const speed = i % 2 ? 128 : 194;
+          game.enemyBullets.push(new Bullet({
+            x: this.x,
+            y: this.y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            r: i % 3 === 0 ? 7 : 5,
+            damage: 15,
+            color: i % 2 ? COLORS.enemyPink : COLORS.crimson,
+            enemy: true,
+            life: 7,
+          }));
+        }
+        for (let i = 0; i < 4; i += 1) {
+          const angle = angleTo(this, game.player) + (i - 1.5) * 0.18;
+          game.enemyBullets.push(new Bullet({
+            x: this.x,
+            y: this.y,
+            vx: Math.cos(angle) * 250,
+            vy: Math.sin(angle) * 250,
+            r: 6,
+            damage: 18,
+            color: COLORS.red,
+            enemy: true,
+            life: 5,
+          }));
+        }
       }
     }
   }
@@ -320,7 +424,7 @@ export class Enemy {
     let final = amount;
     if (this.marked) final *= 1.28;
     this.hp -= final;
-    game.particles.burst(this.x, this.y, this.marked ? COLORS.enemyHot : this.color, 3, 0.7);
+    game.particles.burst(this.x, this.y, COLORS.ash, 2, 0.42);
     if (this.hp <= 0) {
       this.dead = true;
       game.onEnemyKilled(this, source);
@@ -387,7 +491,27 @@ export class Enemy {
       ctx.strokeStyle = COLORS.white;
       ctx.globalAlpha = 0.45;
       ctx.beginPath();
-      ctx.arc(0, 0, this.r + 9 + Math.sin(time * 5) * 3, 0, TAU);
+      if (this.pattern === "spiral") {
+        for (let i = 0; i < 3; i += 1) {
+          ctx.arc(0, 0, this.r + 7 + i * 6 + Math.sin(time * 5 + i) * 2, i * TAU / 3, i * TAU / 3 + TAU * 0.42);
+        }
+      } else if (this.pattern === "burst") {
+        for (let i = 0; i < 8; i += 1) {
+          const a = i * TAU / 8;
+          ctx.moveTo(Math.cos(a) * (this.r + 4), Math.sin(a) * (this.r + 4));
+          ctx.lineTo(Math.cos(a) * (this.r + 18), Math.sin(a) * (this.r + 18));
+        }
+      } else if (this.pattern === "rings") {
+        ctx.arc(0, 0, this.r + 9 + Math.sin(time * 5) * 3, 0, TAU);
+        ctx.moveTo(this.r + 20, 0);
+        ctx.arc(0, 0, this.r + 20, 0, TAU);
+      } else if (this.pattern === "cloudOutage") {
+        for (let i = 0; i < 5; i += 1) {
+          const a = i * TAU / 5 + time * 0.7;
+          ctx.moveTo(Math.cos(a) * (this.r + 6), Math.sin(a) * (this.r + 6));
+          ctx.quadraticCurveTo(0, 0, Math.cos(a + 0.7) * (this.r + 26), Math.sin(a + 0.7) * (this.r + 26));
+        }
+      }
       ctx.stroke();
     }
     ctx.restore();
@@ -543,16 +667,23 @@ export class ParticleSystem {
 export function randomEnemyType(time) {
   const minute = time / 60;
   return weightedPick([
-    { value: "mosquito", weight: Math.max(4, 12 - minute) },
-    { value: "prompt", weight: 3 + minute * 0.7 },
-    { value: "shard", weight: 1.5 + minute * 0.55 },
-    { value: "charger", weight: 1 + minute * 0.7 },
-    { value: "eye", weight: Math.max(0.2, minute * 0.45) },
+    { value: "mosquito", weight: Math.max(3.2, 10 - minute) },
+    { value: "prompt", weight: 2.4 + minute * 0.52 },
+    { value: "shard", weight: 1.2 + minute * 0.42 },
+    { value: "charger", weight: 0.85 + minute * 0.55 },
+    { value: "eye", weight: Math.max(0.18, minute * 0.35) },
+    { value: "paradox", weight: Math.max(0, minute - 0.8) * 0.34 },
+    { value: "tokenpile", weight: Math.max(0, minute - 1.4) * 0.26 },
+    { value: "chunkmiss", weight: 0.55 + Math.min(1.8, minute * 0.24) },
   ]);
 }
 
 export function spawnElite(width, height) {
   return new Enemy("elite", width, height, pick(ELITES));
+}
+
+export function spawnFinalBoss(width, height) {
+  return new Enemy("finalBoss", width, height, FINAL_BOSS);
 }
 
 export function spawnEnemy(width, height, time) {
@@ -574,8 +705,16 @@ export function maybeSplitEnemy(enemy, game) {
 }
 
 export function maybeDropBuff(enemy, game) {
+  if (chance(0.05)) {
+    game.buffDrops.push(new BuffDrop(enemy.x, enemy.y, game.buffs.find((buff) => buff.id === "levelup")));
+  }
+  if (chance(0.03)) {
+    game.buffDrops.push(new BuffDrop(enemy.x + rand(-12, 12), enemy.y + rand(-12, 12), game.buffs.find((buff) => buff.id === "heal")));
+  }
+
   const probability = enemy.elite ? 0.9 : 0.035;
   if (chance(probability)) {
-    game.buffDrops.push(new BuffDrop(enemy.x, enemy.y, pick(game.buffs)));
+    const timedBuffs = game.buffs.filter((buff) => !buff.instant);
+    game.buffDrops.push(new BuffDrop(enemy.x, enemy.y, pick(timedBuffs)));
   }
 }

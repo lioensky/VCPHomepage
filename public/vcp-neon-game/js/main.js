@@ -1,5 +1,5 @@
 import { AudioSystem } from "./audio.js";
-import { BUFFS, ELITES, ENEMIES, FUSIONS, WEAPONS } from "./config.js";
+import { BUFFS, ELITES, ENEMIES, FINAL_BOSS, FUSIONS, WEAPONS } from "./config.js";
 import { Game, UI } from "./game.js";
 
 const canvas = document.querySelector("#game-canvas");
@@ -53,12 +53,16 @@ const enemyHotTakes = {
   shard: "上下文碎片成精，死了还会继续拆小号。早点清理，否则它会现场表演“一个 bug 开三张工单”。",
   charger: "经典 while(true) 健身狂魔，脑子里只有冲锋。击败它，是为了证明循环必须有退出条件。",
   eye: "幻觉之眼，专门把红弹幕撒成漂亮烟花骗你接。不要欣赏，欣赏就会进入事故复盘。",
+  paradox: "提示词悖论会同时证明“你该站着”和“你不该站着”。最好别参与辩论，直接物理反驳。",
+  tokenpile: "幻觉累积 Token，看起来像经验包，实际是模型开始一本正经胡说八道后的沉淀物。打爆它，给上下文减肥。",
+  chunkmiss: "网络波动 ChunkMiss，移动像丢包，靠近像延迟补偿失败。别怪手感，它就是来表演抖动的。",
 };
 
 const eliteHotTakes = {
   SystemPromptHacker: "它试图把你的操作系统提示词改成“请站着别动”。建议用全部火力教它什么叫权限边界。",
   "RAG Kraken": "召回触手怪，疑似把十年前购物小票也检索进战斗上下文。击败它，给记忆库做一次海鲜清淤。",
   "Context Overflow Seraph": "上下文溢出大天使，翅膀一扇就是 Token 洪水。击败它，拯救还没被挤爆的注意力窗口。",
+  "API云服务商跑路": "最终 BOSS。它不是怪，它是 SLA 事故、账单暴击和接口 502 的集合体。击败它，证明 Runtime 不能被云账单支配。",
 };
 
 const skillRoasts = {
@@ -88,20 +92,36 @@ const buffRecommendations = {
   flow: "跑图、补刀、救场都好用。FlowInvite 像未来的自己发来支援：别问，问就是异步心跳很可靠。",
 };
 
+function monsterPreviewClass(item) {
+  return `monster-preview monster-preview-${item.id || item.pattern || "default"}`;
+}
+
 const codexData = {
   monsters: [
     ...Object.entries(ENEMIES).map(([id, enemy]) => ({
+      id,
       title: enemy.name,
-      tag: enemy.shooter ? "直线弹幕" : enemy.splitter ? "死亡分裂" : enemy.charge ? "循环冲锋" : enemy.radial ? "环形幻觉" : "基础骚扰",
+      tag: enemy.shooter ? "直线弹幕" : enemy.splitter ? "死亡分裂" : enemy.charge ? "循环冲锋" : enemy.radial ? "环形幻觉" : enemy.paradox ? "提示词悖论" : enemy.jitter ? "网络抖动" : id === "tokenpile" ? "幻觉堆积" : "基础骚扰",
       desc: enemyHotTakes[id],
       meta: `HP ${enemy.hp} / XP ${enemy.xp} / DAMAGE ${enemy.damage}`,
+      preview: true,
     })),
     ...ELITES.map((enemy) => ({
+      id: enemy.pattern,
       title: enemy.name,
       tag: `精英 · ${enemy.pattern}`,
       desc: eliteHotTakes[enemy.name],
       meta: `HP ${enemy.hp} / XP ${enemy.xp} / SCORE ${enemy.score}`,
+      preview: true,
     })),
+    {
+      id: FINAL_BOSS.id,
+      title: FINAL_BOSS.name,
+      tag: "最终 BOSS · 每 8 分钟",
+      desc: eliteHotTakes[FINAL_BOSS.name],
+      meta: `HP ${FINAL_BOSS.hp} / XP ${FINAL_BOSS.xp} / SCORE ${FINAL_BOSS.score}`,
+      preview: true,
+    },
   ],
   buffs: BUFFS.map((buff) => ({
     title: `${buff.name} / ${buff.title}`,
@@ -142,6 +162,7 @@ function renderCodex(tab = "monsters") {
     <div class="codex-grid">
       ${items.map((item) => `
         <article class="codex-card">
+          ${item.preview ? `<div class="${monsterPreviewClass(item)}" aria-hidden="true"><i></i><b></b><em></em></div>` : ""}
           <span class="tag">${item.tag}</span>
           <h3>${item.title}</h3>
           <p>${item.desc}</p>

@@ -1,5 +1,5 @@
 import { BUFFS, COLORS, DIFFICULTY, NOVA_LINES, PLAYER, WEAPONS, XP } from "./config.js";
-import { BuffDrop, ParticleSystem, Player, XpGem, maybeDropBuff, maybeSplitEnemy, spawnElite, spawnEnemy } from "./entities.js";
+import { BuffDrop, ParticleSystem, Player, XpGem, maybeDropBuff, maybeSplitEnemy, spawnElite, spawnEnemy, spawnFinalBoss } from "./entities.js";
 import { WeaponSystem, getUpgradeChoices } from "./weapons.js";
 import { TAU, chance, circleHit, clamp, fillNeonCircle, formatTime, neonCircle, pick, rand } from "./utils.js";
 
@@ -23,6 +23,7 @@ export class Game {
     this.lastFrame = 0;
     this.spawnTimer = 0;
     this.eliteTimer = DIFFICULTY.firstEliteAt;
+    this.finalBossTimer = DIFFICULTY.finalBossFirstAt;
     this.player = new Player(this.width, this.height);
     this.weaponSystem = new WeaponSystem(this);
     this.particles = new ParticleSystem();
@@ -221,6 +222,7 @@ export class Game {
     this.realTime = 0;
     this.spawnTimer = 0;
     this.eliteTimer = DIFFICULTY.firstEliteAt;
+    this.finalBossTimer = DIFFICULTY.finalBossFirstAt;
     this.player = new Player(this.width, this.height);
     this.player.requiredXp = XP.baseRequired;
     this.weaponSystem = new WeaponSystem(this);
@@ -317,6 +319,17 @@ export class Game {
       this.audio?.sfx("elite");
       this.say(pick(NOVA_LINES.elite));
     }
+
+    this.finalBossTimer -= dt;
+    if (this.finalBossTimer <= 0) {
+      this.finalBossTimer = DIFFICULTY.finalBossInterval;
+      const boss = spawnFinalBoss(this.width, this.height);
+      boss.hp *= this.difficulty.enemyHp;
+      boss.maxHp = boss.hp;
+      this.enemies.push(boss);
+      this.audio?.sfx("elite");
+      this.say("Nova: 最终 BOSS「API云服务商跑路」出现！别慌，先把 SLA 打回来！");
+    }
   }
 
   updateEntities(dt) {
@@ -412,7 +425,7 @@ export class Game {
     this.player.kills += 1;
     this.player.score += enemy.score;
     this.cameraShake = Math.max(this.cameraShake, enemy.elite ? 12 : 3);
-    this.particles.burst(enemy.x, enemy.y, enemy.color, enemy.elite ? 42 : 16, enemy.elite ? 1.8 : 1);
+    this.particles.burst(enemy.x, enemy.y, COLORS.ash, enemy.elite ? 24 : 9, enemy.elite ? 0.95 : 0.55);
     this.spawnXp(enemy.x, enemy.y, enemy.xp, enemy.elite ? COLORS.lime : COLORS.green);
     maybeSplitEnemy(enemy, this);
     maybeDropBuff(enemy, this);
@@ -455,6 +468,23 @@ export class Game {
 
   collectBuff(buff) {
     this.audio?.sfx("buff");
+
+    if (buff.effect === "levelup") {
+      this.player.level += 1;
+      this.openLevelUp();
+      this.say(`Nova: ${buff.name}：${buff.title}！Runtime 原地升版，三选一马上安排。`);
+      this.particles.burst(this.player.x, this.player.y, buff.color, 42, 1.35);
+      return;
+    }
+
+    if (buff.effect === "heal") {
+      const amount = this.player.maxHp * (buff.healRatio || 0.33);
+      this.player.hp = Math.min(this.player.maxHp, this.player.hp + amount);
+      this.say(`Nova: ${buff.name}：${buff.title}！血条紧急回滚 33%，服务器还没彻底炸。`);
+      this.particles.burst(this.player.x, this.player.y, buff.color, 34, 1.2);
+      return;
+    }
+
     this.player.addBuff(buff);
     this.say(`${pick(NOVA_LINES.buff)} ${buff.name}：${buff.title}`);
     this.particles.burst(this.player.x, this.player.y, buff.color, 38, 1.8);

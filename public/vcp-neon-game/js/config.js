@@ -20,12 +20,14 @@ export const COLORS = {
   enemyHot: "#ff5a36",
   enemyPink: "#ff2f86",
   white: "#f7fdff",
+  ash: "#dfe8ee",
+  ashDim: "#9aa8b3",
 };
 
 export const PLAYER = {
   radius: 15,
   speed: 330,
-  maxHp: 100,
+  maxHp: 108,
   invulnAfterHit: 1.05,
   magnetRadius: 130,
 };
@@ -39,6 +41,8 @@ export const DIFFICULTY = {
   softWinSeconds: 600,
   firstEliteAt: 55,
   eliteInterval: 64,
+  finalBossFirstAt: 480,
+  finalBossInterval: 480,
 };
 
 export const NOVA_LINES = {
@@ -325,6 +329,27 @@ export const BUFFS = [
     duration: 8,
     desc: "周期释放心跳冲击波和未来支援火力。",
   },
+  {
+    id: "levelup",
+    name: "RuntimeVersionBump",
+    title: "版本直升",
+    color: COLORS.gold,
+    duration: 0,
+    instant: true,
+    effect: "levelup",
+    desc: "稀有掉落。立即触发一次升级选择，像热更新一样把 Runtime 往上抬一级。",
+  },
+  {
+    id: "heal",
+    name: "EmergencyRollback",
+    title: "紧急回滚",
+    color: COLORS.lime,
+    duration: 0,
+    instant: true,
+    effect: "heal",
+    healRatio: 0.33,
+    desc: "稀有掉落。立即回复 33% 最大生命，把即将炸服的血条回滚到还能抢救。",
+  },
 ];
 
 export const ENEMIES = {
@@ -382,6 +407,38 @@ export const ENEMIES = {
     score: 60,
     radial: true,
   },
+  paradox: {
+    name: "Prompt Paradox",
+    color: COLORS.violet,
+    radius: 17,
+    hp: 42,
+    speed: 44,
+    xp: 7,
+    damage: 15,
+    score: 34,
+    paradox: true,
+  },
+  tokenpile: {
+    name: "Hallucinated Token Pile",
+    color: COLORS.enemyPink,
+    radius: 23,
+    hp: 78,
+    speed: 30,
+    xp: 13,
+    damage: 18,
+    score: 72,
+  },
+  chunkmiss: {
+    name: "ChunkMiss Gremlin",
+    color: COLORS.orange,
+    radius: 11,
+    hp: 14,
+    speed: 118,
+    xp: 3,
+    damage: 10,
+    score: 14,
+    jitter: true,
+  },
 };
 
 export const ELITES = [
@@ -419,3 +476,16 @@ export const ELITES = [
     pattern: "rings",
   },
 ];
+
+export const FINAL_BOSS = {
+  id: "api-cloud-runaway",
+  name: "API云服务商跑路",
+  color: COLORS.violet,
+  radius: 58,
+  hp: 1250,
+  speed: 24,
+  xp: 120,
+  damage: 42,
+  score: 1400,
+  pattern: "cloudOutage",
+};
