@@ -847,8 +847,8 @@ public/vcp-neon-game/js/game.js
 
 | Buff | 概率 | 效果 |
 |---|---:|---|
-| RuntimeVersionBump / 版本直升 | 5% | 立即触发一次升级选择 |
-| EmergencyRollback / 紧急回滚 | 3% | 回复 33% 最大生命 |
+| RuntimeVersionBump / 版本直升 | 3% | 立即触发一次升级选择 |
+| EmergencyRollback / 紧急回滚 | 1% | 回复 15% 最大生命 |
 
 说明：
 

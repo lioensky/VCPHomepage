@@ -88,6 +88,18 @@ export const NOVA_LINES = {
     "Nova: 投喂成功！现在进入快乐水加速模式。",
     "Nova: 好运来！Buff 已送达，趁热打爆它们。",
   ],
+  instantBuff: {
+    levelup: [
+      "Nova: 稀有热更新到账！Runtime 原地升版，构筑脑细胞开始加班。",
+      "Nova: 版本号自己跳了一级！这不是升级，这是命运给你发补丁。",
+      "Nova: RuntimeVersionBump 触发，三选一窗口已弹出，别问，问就是 CI/CD 之神显灵。",
+    ],
+    heal: [
+      "Nova: 欧皇检测通过！1% 紧急回滚到账，血条被命运轻轻扶了一把。",
+      "Nova: EmergencyRollback 生效，欧气浓度超标，服务器没炸，主人也还活着。",
+      "Nova: 生命值回滚 15%，这波不是奶，是欧皇从事故报告里抽到 SSR。",
+    ],
+  },
   levelStreak: [
     "Nova: 连续升级！知识图谱正在暴走，主人有点东西！",
     "Nova: 等等，你刚刚是不是又升级了？这局节奏开始离谱。",
@@ -337,7 +349,7 @@ export const BUFFS = [
     duration: 0,
     instant: true,
     effect: "levelup",
-    desc: "稀有掉落。立即触发一次升级选择，像热更新一样把 Runtime 往上抬一级。",
+    desc: "3% 稀有掉落。立即触发一次升级选择，像热更新一样把 Runtime 往上抬一级。",
   },
   {
     id: "heal",
@@ -347,8 +359,8 @@ export const BUFFS = [
     duration: 0,
     instant: true,
     effect: "heal",
-    healRatio: 0.33,
-    desc: "稀有掉落。立即回复 33% 最大生命，把即将炸服的血条回滚到还能抢救。",
+    healRatio: 0.15,
+    desc: "欧皇级稀有掉落。立即回复 15% 最大生命，把即将炸服的血条小幅回滚到还能抢救。",
   },
 ];
 

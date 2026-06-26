@@ -472,15 +472,15 @@ export class Game {
     if (buff.effect === "levelup") {
       this.player.level += 1;
       this.openLevelUp();
-      this.say(`Nova: ${buff.name}：${buff.title}！Runtime 原地升版，三选一马上安排。`);
+      this.say(`${pick(NOVA_LINES.instantBuff.levelup)} ${buff.name}：${buff.title}`);
       this.particles.burst(this.player.x, this.player.y, buff.color, 42, 1.35);
       return;
     }
 
     if (buff.effect === "heal") {
-      const amount = this.player.maxHp * (buff.healRatio || 0.33);
+      const amount = this.player.maxHp * (buff.healRatio || 0.15);
       this.player.hp = Math.min(this.player.maxHp, this.player.hp + amount);
-      this.say(`Nova: ${buff.name}：${buff.title}！血条紧急回滚 33%，服务器还没彻底炸。`);
+      this.say(`${pick(NOVA_LINES.instantBuff.heal)} ${buff.name}：${buff.title}`);
       this.particles.burst(this.player.x, this.player.y, buff.color, 34, 1.2);
       return;
     }

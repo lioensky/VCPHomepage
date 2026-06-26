@@ -705,10 +705,10 @@ export function maybeSplitEnemy(enemy, game) {
 }
 
 export function maybeDropBuff(enemy, game) {
-  if (chance(0.05)) {
+  if (chance(0.03)) {
     game.buffDrops.push(new BuffDrop(enemy.x, enemy.y, game.buffs.find((buff) => buff.id === "levelup")));
   }
-  if (chance(0.03)) {
+  if (chance(0.01)) {
     game.buffDrops.push(new BuffDrop(enemy.x + rand(-12, 12), enemy.y + rand(-12, 12), game.buffs.find((buff) => buff.id === "heal")));
   }
 
