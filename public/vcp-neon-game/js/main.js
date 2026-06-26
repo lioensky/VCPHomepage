@@ -22,4 +22,21 @@ document.querySelector("#sound-button").addEventListener("click", (event) => {
   game.say(enabled ? "Nova: 8bit 声卡上线，开始电子蹦迪。" : "Nova: 静音模式。现在只剩你和弹幕的沉默。");
 });
 
+const mobileControlButton = document.querySelector("#mobile-control-button");
+const mobileControlLabels = {
+  auto: "移动控制 自动",
+  on: "移动控制 开",
+  off: "移动控制 关",
+};
+
+function syncMobileControlButton() {
+  mobileControlButton.textContent = mobileControlLabels[game.mobileControlsMode] || mobileControlLabels.auto;
+}
+
+mobileControlButton.addEventListener("click", () => {
+  game.cycleMobileControlsMode();
+  syncMobileControlButton();
+});
+
+syncMobileControlButton();
 game.draw();

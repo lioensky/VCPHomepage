@@ -1,7 +1,7 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-06-24 的真实演进记录，按时间倒序展示最新版本与关键里程碑。
-updatedAt: 2026-06-24
+summary: 汇总 VCP 从 2023-12 到 2026-06-26 的真实演进记录，按时间倒序展示最新版本与关键里程碑。
+updatedAt: 2026-06-26
 category: changelog
 ---
 
@@ -12,6 +12,12 @@ category: changelog
 ---
 
 ## 最新更新
+
+### 2026-06-26 · Tool 解析器、OneRing、VCPMail、RAG 日记与 AA 通讯管线标准化
+
+VCP 对 Tool 解析器、OneRing、VCPMail、RAG 日记解析器、AgentAssistant 通讯等前后端关键管线完成标准化统一。非真实上下文额外信息标记、嵌套解析、Fuzzy 检查点等机制被整理为更一致的内部交互规范，使多个系统之间的函数调用、解析边界、异常兜底与结果回填更加稳定，大幅提升 Agent 在工具调用、统一上下文、邮件通讯、日记检索与异步协作中的跨模块协同能力。
+
+同日官网新增内嵌小游戏 **VCP Neon Runtime Survivor**。这是一个 VCP 主题的霓虹弹幕肉鸽小游戏：玩家在 Canvas 场景中移动躲避敌人与红色弹幕，角色会自动攻击，击杀敌人获得绿色经验，升级时进行三选一构筑；蓝色是玩家火力，红色是危险敌弹，黄色是临时 Buff。当前包含 Vexus、浪潮 V8、OneRing、VCPModel、AgentAssistant、VCPSuperMail、ChromeBridge、OpenHer、VCP-SOM、池月 1 号等 10 个主题技能，并支持 5 种融合技能、精英怪、8bit BGM 与音效开关。小游戏主打即开即玩，没有局外成长，目标是在 3～10 分钟内体验一局轻量、爽快、带 VCP 梗的霓虹生存战。
 
 ### 2026-06-24 · VCPRagManger 召回管线全面重构与 RAG 侧 10～100 倍加速
 
@@ -560,7 +566,7 @@ VCP 从构思阶段进入正式开发阶段。
 
 | 阶段 | 时间范围 | 关键进展 |
 | --- | --- | --- |
-| 正式版、OneRing、OpenHer 与知识图谱期 | 2026-04 ～ 2026-06 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页、源码地图 WikiBot、VCPRagManger 召回管线重构与 RAG 侧 10～100 倍加速、隐私防护小助手 |
+| 正式版、OneRing、OpenHer 与知识图谱期 | 2026-04 ～ 2026-06 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页、源码地图 WikiBot、VCPRagManger 召回管线重构与 RAG 侧 10～100 倍加速、隐私防护小助手、Tool / OneRing / VCPMail / RAG 日记 / AA 通讯管线标准化、官网内嵌 VCP Neon Runtime Survivor 小游戏 |
 | 平台化扩展期 | 2026-03 ～ 2026-04 | VCPDesktop、桌面遥控、全局 API 虚拟化、PreText.js、7.5 版浪潮与官网上线 |
 | 系统化重构期 | 2026-02 ～ 2026-03 | 超栈追踪 V2、梦系统、SOM 桌面语义控制、多模态记忆、统一中央服务全面推进 |
 | 记忆与自主性爆发期 | 2025-09 ～ 2026-01 | RAG 语法、流式渲染器、Agent 自主巡航、TagMemo、上下文折叠持续成型 |
@@ -575,4 +581,4 @@ VCP 从构思阶段进入正式开发阶段。
 - [`src/docs/getting-started.md`](src/docs/getting-started.md)
 - [`VCP聚合文档.md`](VCP聚合文档.md)
 
-当前总览页已改为真实内容，并按更新日志常用方式调整为**倒序展示**，已补充到 2026-06-24。
+当前总览页已改为真实内容，并按更新日志常用方式调整为**倒序展示**，已补充到 2026-06-26。

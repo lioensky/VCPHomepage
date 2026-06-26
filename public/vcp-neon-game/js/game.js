@@ -12,6 +12,7 @@ export class Game {
     this.input = {
       keys: new Set(),
       mouse: { x: 0, y: 0, active: false },
+      touchMove: { x: 0, y: 0, active: false },
     };
     this.width = 1280;
     this.height = 720;
@@ -43,12 +44,62 @@ export class Game {
     this.overtimeAnnounced = false;
     this.comboHinted = new Set();
     this.lastDamageSource = "unknown";
+    this.mobileControlsMode = "auto";
+    this.mobileControlsEnabled = false;
+    this.joystick = {
+      element: document.querySelector("#touch-joystick"),
+      stick: document.querySelector(".joystick-stick"),
+      pointerId: null,
+      centerX: 0,
+      centerY: 0,
+      radius: 52,
+    };
     this.setupInput();
+    this.setMobileControlsMode(this.loadMobileControlsMode(), { silent: true });
     this.resize();
+  }
+
+  loadMobileControlsMode() {
+    const saved = localStorage.getItem("vcp-neon-mobile-controls");
+    return ["auto", "on", "off"].includes(saved) ? saved : "auto";
+  }
+
+  setMobileControlsMode(mode, options = {}) {
+    this.mobileControlsMode = ["auto", "on", "off"].includes(mode) ? mode : "auto";
+    localStorage.setItem("vcp-neon-mobile-controls", this.mobileControlsMode);
+    this.refreshMobileControls();
+    if (!options.silent) {
+      const label = this.mobileControlsMode === "auto" ? "自动" : this.mobileControlsMode === "on" ? "开启" : "关闭";
+      this.say(`Nova: 移动端控制已切到${label}。手机横屏，左摇杆走位就能开冲。`);
+    }
+    return this.mobileControlsMode;
+  }
+
+  cycleMobileControlsMode() {
+    const modes = ["auto", "on", "off"];
+    const index = modes.indexOf(this.mobileControlsMode);
+    return this.setMobileControlsMode(modes[(index + 1) % modes.length]);
+  }
+
+  shouldEnableMobileControls() {
+    if (this.mobileControlsMode === "on") return true;
+    if (this.mobileControlsMode === "off") return false;
+
+    const touchLike = navigator.maxTouchPoints > 0 || window.matchMedia?.("(pointer: coarse)")?.matches;
+    const smallScreen = Math.min(window.innerWidth, window.innerHeight) <= 820;
+    return Boolean(touchLike && smallScreen);
+  }
+
+  refreshMobileControls() {
+    this.mobileControlsEnabled = this.shouldEnableMobileControls();
+    document.body.classList.toggle("mobile-controls-active", this.mobileControlsEnabled);
+    document.body.classList.toggle("portrait", window.innerHeight > window.innerWidth);
+    if (!this.mobileControlsEnabled) this.resetJoystick();
   }
 
   setupInput() {
     window.addEventListener("resize", () => this.resize());
+    window.addEventListener("orientationchange", () => setTimeout(() => this.refreshMobileControls(), 120));
     window.addEventListener("keydown", (event) => {
       this.input.keys.add(event.code);
       if ((event.code === "Space" || event.code === "KeyP") && !this.pauseLatch && this.state === "playing") {
@@ -73,8 +124,70 @@ export class Game {
     });
     window.addEventListener("blur", () => {
       this.input.keys.clear();
+      this.resetJoystick();
       if (this.state === "playing") this.state = "paused";
     });
+    this.setupJoystickInput();
+  }
+
+  setupJoystickInput() {
+    if (!this.joystick.element) return;
+
+    this.joystick.element.addEventListener("pointerdown", (event) => {
+      if (!this.mobileControlsEnabled) return;
+      event.preventDefault();
+      this.joystick.pointerId = event.pointerId;
+      this.joystick.element.setPointerCapture(event.pointerId);
+      this.updateJoystick(event);
+    });
+
+    this.joystick.element.addEventListener("pointermove", (event) => {
+      if (event.pointerId !== this.joystick.pointerId) return;
+      event.preventDefault();
+      this.updateJoystick(event);
+    });
+
+    const release = (event) => {
+      if (event.pointerId !== this.joystick.pointerId) return;
+      event.preventDefault();
+      this.resetJoystick();
+    };
+
+    this.joystick.element.addEventListener("pointerup", release);
+    this.joystick.element.addEventListener("pointercancel", release);
+    this.joystick.element.addEventListener("lostpointercapture", () => this.resetJoystick());
+  }
+
+  updateJoystick(event) {
+    const rect = this.joystick.element.getBoundingClientRect();
+    this.joystick.centerX = rect.left + rect.width / 2;
+    this.joystick.centerY = rect.top + rect.height / 2;
+    this.joystick.radius = Math.max(36, Math.min(rect.width, rect.height) * 0.34);
+
+    const dx = event.clientX - this.joystick.centerX;
+    const dy = event.clientY - this.joystick.centerY;
+    const distance = Math.hypot(dx, dy);
+    const ratio = distance > 0 ? Math.min(1, distance / this.joystick.radius) : 0;
+    const nx = distance > 0 ? dx / distance : 0;
+    const ny = distance > 0 ? dy / distance : 0;
+
+    this.input.touchMove.x = nx * ratio;
+    this.input.touchMove.y = ny * ratio;
+    this.input.touchMove.active = ratio > 0.08;
+
+    if (this.joystick.stick) {
+      this.joystick.stick.style.transform = `translate(calc(-50% + ${nx * ratio * this.joystick.radius}px), calc(-50% + ${ny * ratio * this.joystick.radius}px))`;
+    }
+  }
+
+  resetJoystick() {
+    this.joystick.pointerId = null;
+    this.input.touchMove.x = 0;
+    this.input.touchMove.y = 0;
+    this.input.touchMove.active = false;
+    if (this.joystick.stick) {
+      this.joystick.stick.style.transform = "translate(-50%, -50%)";
+    }
   }
 
   resize() {
@@ -86,6 +199,7 @@ export class Game {
     this.canvas.style.width = `${this.width}px`;
     this.canvas.style.height = `${this.height}px`;
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    this.refreshMobileControls();
     if (this.player) {
       this.player.x = clamp(this.player.x, this.player.r, this.width - this.player.r);
       this.player.y = clamp(this.player.y, this.player.r, this.height - this.player.r);

@@ -55,14 +55,15 @@
           没有局外成长，只有每局 3-10 分钟的随机快乐。
         </p>
         <div class="control-grid">
-          <span><b>移动</b> WASD / 方向键</span>
+          <span><b>移动</b> WASD / 方向键 / 左虚拟摇杆</span>
           <span><b>鼠标</b> 指向射击偏好</span>
+          <span><b>手机</b> 横屏 + 单摇杆自动瞄准</span>
           <span><b>暂停</b> Space / P</span>
-          <span><b>目标</b> 活得久，打得爽</span>
         </div>
         <div class="button-row">
           <button id="start-button" class="primary-button">启动 Runtime</button>
           <button id="sound-button" class="ghost-button" type="button">声音 ON</button>
+          <button id="mobile-control-button" class="ghost-button" type="button">移动控制 自动</button>
         </div>
       </div>
     </section>
@@ -112,6 +113,15 @@
       <img class="nova-face" src="https://raw.githubusercontent.com/lioensky/VCPToolBox/refs/heads/main/image/Nova%E8%A1%A8%E6%83%85%E5%8C%85/%E7%96%AF%E7%8B%82%E5%90%90%E6%A7%BD.png" alt="Nova 疯狂吐槽表情包头像" loading="lazy" />
       <p id="nova-line">Nova: 别脸接弹幕，除非你想测试容灾。</p>
     </aside>
+
+    <div id="orientation-hint" aria-hidden="true">建议横屏游玩，左下角摇杆移动，自动瞄准自动射击。</div>
+
+    <div id="touch-joystick" aria-hidden="true">
+      <div class="joystick-base">
+        <div class="joystick-stick"></div>
+      </div>
+      <span class="joystick-label">MOVE</span>
+    </div>
   </main>
 
   <script type="module" src="/vcp-neon-game/js/main.js"></script>

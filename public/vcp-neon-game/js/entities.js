@@ -69,6 +69,11 @@ export class Player {
     if (input.keys.has("KeyS") || input.keys.has("ArrowDown")) my += 1;
     if (input.keys.has("KeyA") || input.keys.has("ArrowLeft")) mx -= 1;
     if (input.keys.has("KeyD") || input.keys.has("ArrowRight")) mx += 1;
+    if (input.touchMove?.active) {
+      mx += input.touchMove.x;
+      my += input.touchMove.y;
+    }
+
     const move = normalize(mx, my);
     const speed = PLAYER.speed * (this.hasBuff("flow") ? 1.12 : 1);
     this.x = Math.max(this.r, Math.min(width - this.r, this.x + move.x * speed * dt));
