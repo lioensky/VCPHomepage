@@ -199,7 +199,7 @@ export const WEAPONS = [
     tag: "环绕护体",
     color: COLORS.sky,
     maxLevel: 5,
-    desc: "生成围绕玩家旋转的统一光环。升级增加光球数量和伤害。",
+    desc: "生成围绕玩家旋转的统一光环。轨道球可伤害敌人并点防御拦截敌弹，升级增加光球数量和伤害。",
   },
   {
     id: "model",
