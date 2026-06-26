@@ -478,7 +478,7 @@ export class Game {
     }
 
     if (buff.effect === "heal") {
-      const amount = this.player.maxHp * (buff.healRatio || 0.15);
+      const amount = this.player.maxHp * (buff.healRatio || 0.3);
       this.player.hp = Math.min(this.player.maxHp, this.player.hp + amount);
       this.say(`${pick(NOVA_LINES.instantBuff.heal)} ${buff.name}：${buff.title}`);
       this.particles.burst(this.player.x, this.player.y, buff.color, 34, 1.2);
@@ -519,6 +519,18 @@ export class Game {
       this.audio?.sfx("fusion");
       this.say(`${pick(NOVA_LINES.fusion)} ${choice.name}`);
       this.particles.burst(this.player.x, this.player.y, choice.color, 64, 2.2);
+    } else if (choice.kind === "fallback") {
+      if (choice.id === "maxhp") {
+        const gain = this.player.maxHp * 0.03;
+        this.player.maxHp += gain;
+        this.player.hp = Math.min(this.player.maxHp, this.player.hp + gain);
+        this.say("Nova: 保底强化：最大 HP +3%。没有新模块也没关系，血条可以偷偷变厚。");
+        this.particles.burst(this.player.x, this.player.y, COLORS.lime, 30, 1.1);
+      } else if (choice.id === "attack") {
+        this.player.attackBonus = (this.player.attackBonus || 0) + 0.03;
+        this.say("Nova: 保底强化：全局攻击力 +3%。技能满了？那就把所有伤害再拧一格。");
+        this.particles.burst(this.player.x, this.player.y, COLORS.cyan, 30, 1.1);
+      }
     }
     this.state = "playing";
     this.ui.hideAllOverlays();

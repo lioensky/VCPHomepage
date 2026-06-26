@@ -97,7 +97,7 @@ export const NOVA_LINES = {
     heal: [
       "Nova: 欧皇检测通过！1% 紧急回滚到账，血条被命运轻轻扶了一把。",
       "Nova: EmergencyRollback 生效，欧气浓度超标，服务器没炸，主人也还活着。",
-      "Nova: 生命值回滚 15%，这波不是奶，是欧皇从事故报告里抽到 SSR。",
+      "Nova: 生命值回滚 30%，这波不是奶，是欧皇从事故报告里抽到 SSR。",
     ],
   },
   levelStreak: [
@@ -359,8 +359,8 @@ export const BUFFS = [
     duration: 0,
     instant: true,
     effect: "heal",
-    healRatio: 0.15,
-    desc: "欧皇级稀有掉落。立即回复 15% 最大生命，把即将炸服的血条小幅回滚到还能抢救。",
+    healRatio: 0.3,
+    desc: "总 Buff 掉落中的 3% 稀有分布。立即回复 30% 最大生命，把即将炸服的血条回滚到还能抢救。",
   },
 ];
 

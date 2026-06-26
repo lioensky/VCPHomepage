@@ -703,7 +703,27 @@ export function getUpgradeChoices(player) {
     });
 
   const shuffled = weaponChoices.sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, 3);
+  const choices = shuffled.slice(0, 3);
+  if (choices.length) return choices;
+
+  return [
+    {
+      kind: "fallback",
+      id: "maxhp",
+      name: "Runtime 耐久扩容",
+      tag: "保底强化 / 最大 HP +3%",
+      desc: "所有模块已满载时出现。最大生命提升 3%，当前生命也小幅补回。",
+      color: COLORS.lime,
+    },
+    {
+      kind: "fallback",
+      id: "attack",
+      name: "全局火力调参",
+      tag: "保底强化 / 攻击力 +3%",
+      desc: "所有模块已满载时出现。所有玩家伤害永久提升 3%。",
+      color: COLORS.cyan,
+    },
+  ];
 }
 
 export { BUFFS, WEAPONS, FUSIONS };

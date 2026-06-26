@@ -19,6 +19,7 @@ export class Player {
     this.weapons = new Map();
     this.fusions = new Set();
     this.buffs = new Map();
+    this.attackBonus = 0;
     this.fireAngle = -Math.PI / 2;
   }
 
@@ -421,7 +422,7 @@ export class Enemy {
   }
 
   takeDamage(amount, game, source = null) {
-    let final = amount;
+    let final = amount * (1 + (game.player.attackBonus || 0));
     if (this.marked) final *= 1.28;
     this.hp -= final;
     game.particles.burst(this.x, this.y, COLORS.ash, 2, 0.42);
@@ -705,16 +706,20 @@ export function maybeSplitEnemy(enemy, game) {
 }
 
 export function maybeDropBuff(enemy, game) {
-  if (chance(0.03)) {
+  const probability = enemy.elite ? 0.9 : 0.035;
+  if (!chance(probability)) return;
+
+  const roll = rand(0, 1);
+  if (roll < 0.05) {
     game.buffDrops.push(new BuffDrop(enemy.x, enemy.y, game.buffs.find((buff) => buff.id === "levelup")));
-  }
-  if (chance(0.01)) {
-    game.buffDrops.push(new BuffDrop(enemy.x + rand(-12, 12), enemy.y + rand(-12, 12), game.buffs.find((buff) => buff.id === "heal")));
+    return;
   }
 
-  const probability = enemy.elite ? 0.9 : 0.035;
-  if (chance(probability)) {
-    const timedBuffs = game.buffs.filter((buff) => !buff.instant);
-    game.buffDrops.push(new BuffDrop(enemy.x, enemy.y, pick(timedBuffs)));
+  if (roll < 0.08) {
+    game.buffDrops.push(new BuffDrop(enemy.x, enemy.y, game.buffs.find((buff) => buff.id === "heal")));
+    return;
   }
+
+  const timedBuffs = game.buffs.filter((buff) => !buff.instant);
+  game.buffDrops.push(new BuffDrop(enemy.x, enemy.y, pick(timedBuffs)));
 }

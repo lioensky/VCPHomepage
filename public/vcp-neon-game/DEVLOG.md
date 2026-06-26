@@ -843,12 +843,12 @@ public/vcp-neon-game/js/game.js
 
 ### 16.2 Buff 掉落新增稀有即时效果
 
-新增两个稀有掉落：
+新增两个稀有掉落。注意：这里的概率是“已触发总 Buff 掉落之后的内部分布概率”，不是每次击杀额外独立判定。
 
-| Buff | 概率 | 效果 |
+| Buff | 总 Buff 掉落内部分布 | 效果 |
 |---|---:|---|
-| RuntimeVersionBump / 版本直升 | 3% | 立即触发一次升级选择 |
-| EmergencyRollback / 紧急回滚 | 1% | 回复 15% 最大生命 |
+| RuntimeVersionBump / 版本直升 | 5% | 立即触发一次升级选择 |
+| EmergencyRollback / 紧急回滚 | 3% | 回复 30% 最大生命 |
 
 说明：
 
@@ -982,3 +982,43 @@ public/vcp-neon-game/js/weapons.js
 ### 16.10 验证
 
 本轮改动后执行了 JS 语法检查，首次检查通过。OneRing 点防御追加后仍需再次执行最终语法检查。
+
+
+### 16.11 满级后保底升级
+
+修复问题：
+
+- 当所有普通技能满级、融合也无可选项时，升级三选一可能没有任何选项，导致升级界面卡住。
+
+调整：
+
+- `getUpgradeChoices()` 在没有武器/融合可选时，返回保底强化。
+- 当前保底项：
+  - Runtime 耐久扩容：最大 HP +3%，当前 HP 同步小幅补回。
+  - 全局火力调参：全局攻击力 +3%，影响所有玩家伤害。
+- 攻击力加成记录在 `player.attackBonus`，在敌人受伤结算时统一乘算。
+
+涉及位置：
+
+```text
+public/vcp-neon-game/js/entities.js
+public/vcp-neon-game/js/game.js
+public/vcp-neon-game/js/weapons.js
+```
+
+### 16.12 Buff 掉落概率修正
+
+修复问题：
+
+- 早期实现把 RuntimeVersionBump 和 EmergencyRollback 做成“每次击杀额外独立判定”。
+- 在高击杀密度下会导致升级/回血掉落远高于预期。
+
+调整为：
+
+- 先按总 Buff 掉落概率判定是否掉落：
+  - 普通敌人：3.5%。
+  - 精英/Boss：90%。
+- 若触发 Buff 掉落，再按内部分布决定类型：
+  - RuntimeVersionBump / 版本直升：5%。
+  - EmergencyRollback / 紧急回滚：3%，回复 30% 最大生命。
+  - 其余 92% 从常规限时 Buff 中随机。

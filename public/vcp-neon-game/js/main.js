@@ -90,8 +90,8 @@ const buffRecommendations = {
   tools: "看到就拿。工具过载就是临时把 ToolBox 塞满兴奋剂，适合所有“我现在只想爽”的构筑。",
   folding: "弹幕多时优先级极高。ContextFoldingV2 把危险折成经验，堪称把坏消息压缩成成长素材。",
   flow: "跑图、补刀、救场都好用。FlowInvite 像未来的自己发来支援：别问，问就是异步心跳很可靠。",
-  levelup: "3% 稀有直升补丁。捡到就像 Runtime 偷偷热更新，立刻多一次三选一构筑机会，看到请尖叫。",
-  heal: "欧皇级救命回滚点。1% 掉率、15% 最大生命回复，抽到就是 Nova 认证的 SSR 抢救机会。",
+  levelup: "总 Buff 掉落中的 5% 稀有直升补丁。捡到就像 Runtime 偷偷热更新，立刻多一次三选一构筑机会，看到请尖叫。",
+  heal: "总 Buff 掉落中的 3% 欧皇级救命回滚点。30% 最大生命回复，抽到就是 Nova 认证的 SSR 抢救机会。",
 };
 
 function monsterPreviewClass(item) {
