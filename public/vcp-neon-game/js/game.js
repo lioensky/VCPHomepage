@@ -690,15 +690,19 @@ export class UI {
     `;
   }
 
+  normalizeNovaComment(text) {
+    return text.replace(/^Nova[：:]\s*/i, "");
+  }
+
   deathComment(game) {
     const deathLines = NOVA_LINES.death;
-    if (game.time < 90) return pick(deathLines.early);
-    if (game.lastDamageSource === "elite") return pick(deathLines.elite);
-    if (game.lastDamageSource === "collision") return pick(deathLines.collision);
-    if (game.lastDamageSource === "bullet") return pick(deathLines.bullet);
-    if (game.player.fusions.size > 0) return pick(deathLines.fusion);
-    if (game.time > 420) return pick(deathLines.longRun);
-    return pick(deathLines.default);
+    if (game.time < 90) return this.normalizeNovaComment(pick(deathLines.early));
+    if (game.lastDamageSource === "elite") return this.normalizeNovaComment(pick(deathLines.elite));
+    if (game.lastDamageSource === "collision") return this.normalizeNovaComment(pick(deathLines.collision));
+    if (game.lastDamageSource === "bullet") return this.normalizeNovaComment(pick(deathLines.bullet));
+    if (game.player.fusions.size > 0) return this.normalizeNovaComment(pick(deathLines.fusion));
+    if (game.time > 420) return this.normalizeNovaComment(pick(deathLines.longRun));
+    return this.normalizeNovaComment(pick(deathLines.default));
   }
 
   update(game) {

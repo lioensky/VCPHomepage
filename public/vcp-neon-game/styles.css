@@ -231,6 +231,155 @@ h2 {
   width: min(980px, calc(100vw - 32px));
 }
 
+.codex-panel {
+  width: min(1080px, calc(100vw - 32px));
+  max-height: min(820px, calc(100vh - 32px));
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.codex-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.codex-close-button {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 auto;
+  border: 1px solid rgba(255, 61, 242, 0.48);
+  border-radius: 50%;
+  color: var(--pink);
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1;
+  background: rgba(4, 8, 18, 0.58);
+  box-shadow:
+    inset 0 0 18px rgba(255, 61, 242, 0.08),
+    0 0 18px rgba(255, 61, 242, 0.16);
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.codex-close-button:hover {
+  transform: rotate(8deg) scale(1.06);
+  border-color: rgba(255, 230, 109, 0.72);
+  color: var(--gold);
+}
+
+.codex-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.codex-tab {
+  border: 1px solid rgba(53, 248, 255, 0.34);
+  border-radius: 999px;
+  padding: 10px 16px;
+  color: rgba(235, 249, 255, 0.78);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  background: rgba(4, 8, 18, 0.48);
+  cursor: pointer;
+  transition: transform 0.16s ease, color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.codex-tab:hover,
+.codex-tab.active {
+  transform: translateY(-2px);
+  border-color: rgba(255, 230, 109, 0.72);
+  color: var(--gold);
+  box-shadow:
+    inset 0 0 18px rgba(255, 230, 109, 0.08),
+    0 0 18px rgba(255, 230, 109, 0.14);
+}
+
+.codex-content {
+  min-height: 0;
+  overflow: auto;
+  padding-right: 6px;
+}
+
+.codex-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.codex-content::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.codex-content::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: linear-gradient(var(--cyan), var(--pink));
+}
+
+.codex-intro {
+  margin: 0 0 16px;
+  border: 1px solid rgba(255, 230, 109, 0.28);
+  border-radius: 18px;
+  padding: 14px 16px;
+  color: rgba(247, 252, 255, 0.86);
+  line-height: 1.7;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(255, 230, 109, 0.14), transparent 32%),
+    rgba(4, 8, 18, 0.48);
+}
+
+.codex-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.codex-card {
+  border: 1px solid rgba(53, 248, 255, 0.26);
+  border-radius: 20px;
+  padding: 18px;
+  background:
+    radial-gradient(circle at 16% 0%, rgba(53, 248, 255, 0.16), transparent 28%),
+    linear-gradient(150deg, rgba(8, 15, 38, 0.82), rgba(19, 8, 32, 0.74));
+  box-shadow:
+    inset 0 0 24px rgba(53, 248, 255, 0.06),
+    0 0 20px rgba(53, 248, 255, 0.09);
+}
+
+.codex-card .tag {
+  display: inline-flex;
+  margin-bottom: 10px;
+  border: 1px solid rgba(255, 230, 109, 0.42);
+  border-radius: 999px;
+  padding: 4px 9px;
+  color: var(--gold);
+  font-size: 12px;
+}
+
+.codex-card h3 {
+  margin: 0 0 9px;
+  color: var(--cyan);
+  font-size: 22px;
+  text-shadow: 0 0 12px rgba(53, 248, 255, 0.5);
+}
+
+.codex-card p {
+  margin: 0;
+  color: rgba(238, 247, 255, 0.8);
+  line-height: 1.65;
+}
+
+.codex-card small {
+  display: block;
+  margin-top: 12px;
+  color: rgba(182, 240, 255, 0.58);
+  line-height: 1.5;
+}
+
 .upgrade-options {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -506,8 +655,22 @@ body.mobile-controls-active #game-canvas {
   }
 
   .control-grid,
-  .upgrade-options {
+  .upgrade-options,
+  .codex-grid {
     grid-template-columns: 1fr;
+  }
+
+  .codex-panel {
+    gap: 14px;
+  }
+
+  .codex-header {
+    align-items: center;
+  }
+
+  .codex-tab {
+    padding: 9px 12px;
+    font-size: 12px;
   }
 
   #nova-widget {
@@ -527,6 +690,18 @@ body.mobile-controls-active #game-canvas {
   .panel {
     max-height: calc(100vh - 24px);
     overflow: auto;
+  }
+
+  .codex-panel {
+    overflow: hidden;
+  }
+
+  .codex-card {
+    padding: 14px;
+  }
+
+  .codex-card h3 {
+    font-size: 19px;
   }
 
   #hud {

@@ -64,7 +64,27 @@
           <button id="start-button" class="primary-button">启动 Runtime</button>
           <button id="sound-button" class="ghost-button" type="button">声音 ON</button>
           <button id="mobile-control-button" class="ghost-button" type="button">移动控制 自动</button>
+          <button id="codex-button" class="ghost-button" type="button">游戏图鉴</button>
         </div>
+      </div>
+    </section>
+
+    <section id="codex-screen" class="overlay">
+      <div class="panel codex-panel" role="dialog" aria-modal="true" aria-labelledby="codex-title">
+        <div class="codex-header">
+          <div>
+            <p class="eyebrow">VCP FIELD CODEX</p>
+            <h2 id="codex-title">游戏图鉴</h2>
+          </div>
+          <button id="codex-close-button" class="codex-close-button" type="button" aria-label="关闭游戏图鉴">×</button>
+        </div>
+        <div class="codex-tabs" role="tablist" aria-label="游戏图鉴分类">
+          <button class="codex-tab active" type="button" data-codex-tab="monsters">怪物图鉴</button>
+          <button class="codex-tab" type="button" data-codex-tab="buffs">Buff 推荐</button>
+          <button class="codex-tab" type="button" data-codex-tab="skills">技能图鉴</button>
+          <button class="codex-tab" type="button" data-codex-tab="fusions">融合神器</button>
+        </div>
+        <div id="codex-content" class="codex-content"></div>
       </div>
     </section>
 
