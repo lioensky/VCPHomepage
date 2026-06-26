@@ -338,7 +338,10 @@ export class WeaponSystem {
     target.marked = duration;
     target.markedMax = duration;
     target.markLevel = level;
-    this.game.particles.burst(target.x, target.y, COLORS.enemyHot, 14 + level * 2, 1);
+
+    const markedCount = this.game.enemies.reduce((sum, enemy) => sum + (enemy.marked && !enemy.dead ? 1 : 0), 0);
+    const count = Math.max(4, Math.floor((10 + level) / Math.max(1, markedCount * 0.45)));
+    this.game.particles.burst(target.x, target.y, COLORS.enemyHot, count, 0.72);
   }
 
   fusion_geodesic(dt) {
@@ -424,9 +427,11 @@ export class WeaponSystem {
     this.setTimer("fusion_collapse", this.game.player.hp / this.game.player.maxHp < 0.36 ? 4.2 : 6.2);
     const marked = this.game.enemies.filter((e) => e.marked && !e.dead);
     if (!marked.length) return;
+    const particleBudget = 42;
+    const perEnemyParticles = Math.max(3, Math.floor(particleBudget / marked.length));
     for (const enemy of marked) {
       enemy.takeDamage(42, this.game, "collapse");
-      this.game.particles.burst(enemy.x, enemy.y, COLORS.playerAlt, 22, 1.3);
+      this.game.particles.burst(enemy.x, enemy.y, COLORS.playerAlt, perEnemyParticles, 0.95);
     }
   }
 

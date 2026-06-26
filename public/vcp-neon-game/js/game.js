@@ -35,6 +35,8 @@ export class Game {
     this.buffs = BUFFS;
     this.difficulty = { spawn: 1, enemySpeed: 1, enemyHp: 1, fireRate: 1 };
     this.cameraShake = 0;
+    this.uiUpdateTimer = 0;
+    this.backgroundGradient = null;
     this.pauseLatch = false;
     this.selectedChoices = [];
     this.lowHpLineCooldown = 0;
@@ -200,6 +202,7 @@ export class Game {
     this.canvas.style.width = `${this.width}px`;
     this.canvas.style.height = `${this.height}px`;
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    this.backgroundGradient = null;
     this.refreshMobileControls();
     if (this.player) {
       this.player.x = clamp(this.player.x, this.player.r, this.width - this.player.r);
@@ -233,6 +236,7 @@ export class Game {
     this.gems = [];
     this.buffDrops = [];
     this.cameraShake = 0;
+    this.uiUpdateTimer = 0;
     this.lowHpLineCooldown = 0;
     this.levelStreakWindow = 0;
     this.levelStreakCount = 0;
@@ -270,7 +274,12 @@ export class Game {
     this.updateCollisions();
     this.updateMarks(dt);
     this.particles.update(dt);
-    this.ui.update(this);
+
+    this.uiUpdateTimer -= dt;
+    if (this.uiUpdateTimer <= 0) {
+      this.uiUpdateTimer = 0.08;
+      this.ui.update(this);
+    }
 
     if (this.player.hp / this.player.maxHp < 0.32 && this.lowHpLineCooldown <= 0) {
       this.lowHpLineCooldown = 12;
@@ -442,7 +451,6 @@ export class Game {
 
       for (const other of candidates) {
         this.weaponSystem.applyMark(other, transferDuration, level);
-        this.particles.burst(other.x, other.y, COLORS.enemyHot, 16, 1.1);
       }
     }
 
@@ -577,11 +585,13 @@ export class Game {
   drawBackground(ctx) {
     ctx.save();
     ctx.clearRect(0, 0, this.width, this.height);
-    const gradient = ctx.createRadialGradient(this.width * 0.5, this.height * 0.5, 0, this.width * 0.5, this.height * 0.5, Math.max(this.width, this.height) * 0.8);
-    gradient.addColorStop(0, "rgba(17, 20, 54, 0.72)");
-    gradient.addColorStop(0.55, "rgba(4, 5, 18, 0.94)");
-    gradient.addColorStop(1, "rgba(1, 2, 8, 1)");
-    ctx.fillStyle = gradient;
+    if (!this.backgroundGradient) {
+      this.backgroundGradient = ctx.createRadialGradient(this.width * 0.5, this.height * 0.5, 0, this.width * 0.5, this.height * 0.5, Math.max(this.width, this.height) * 0.8);
+      this.backgroundGradient.addColorStop(0, "rgba(17, 20, 54, 0.72)");
+      this.backgroundGradient.addColorStop(0.55, "rgba(4, 5, 18, 0.94)");
+      this.backgroundGradient.addColorStop(1, "rgba(1, 2, 8, 1)");
+    }
+    ctx.fillStyle = this.backgroundGradient;
     ctx.fillRect(0, 0, this.width, this.height);
 
     const grid = 64;
@@ -602,11 +612,13 @@ export class Game {
       ctx.stroke();
     }
 
-    ctx.globalAlpha = 0.18;
-    for (let i = 0; i < 36; i += 1) {
+    ctx.globalAlpha = 0.16;
+    ctx.shadowBlur = 0;
+    for (let i = 0; i < 28; i += 1) {
       const x = (Math.sin(i * 99.2 + this.time * 0.12) * 0.5 + 0.5) * this.width;
       const y = (Math.cos(i * 53.1 + this.time * 0.17) * 0.5 + 0.5) * this.height;
-      fillNeonCircle(ctx, x, y, 1.5, i % 2 ? COLORS.pink : COLORS.cyan, 0.75);
+      ctx.fillStyle = i % 2 ? COLORS.pink : COLORS.cyan;
+      ctx.fillRect(x, y, 2, 2);
     }
     ctx.restore();
   }

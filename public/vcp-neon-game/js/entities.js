@@ -435,32 +435,25 @@ export class Enemy {
   draw(ctx, time) {
     if (this.marked) {
       const markRatio = Math.max(0, Math.min(1, this.marked / Math.max(1, this.markedMax || this.marked)));
-      const pulse = 0.5 + Math.sin(time * 9 + this.id) * 0.5;
+      const pulse = 0.5 + Math.sin(time * 8 + this.id) * 0.5;
       ctx.save();
       ctx.translate(this.x, this.y);
       ctx.shadowColor = COLORS.enemyHot;
-      ctx.shadowBlur = 24;
+      ctx.shadowBlur = this.elite ? 18 : 10;
       ctx.strokeStyle = COLORS.enemyHot;
-      ctx.lineWidth = 2.2 + pulse * 1.5;
-      ctx.globalAlpha = 0.82;
+      ctx.lineWidth = this.elite ? 2.6 : 2;
+      ctx.globalAlpha = this.elite ? 0.78 : 0.62;
       ctx.beginPath();
-      ctx.arc(0, 0, this.r + 10 + pulse * 5, -Math.PI / 2, -Math.PI / 2 + TAU * markRatio);
+      ctx.arc(0, 0, this.r + 9 + pulse * 3, -Math.PI / 2, -Math.PI / 2 + TAU * markRatio);
       ctx.stroke();
 
-      ctx.globalAlpha = 0.35;
-      ctx.setLineDash([5, 6]);
-      ctx.rotate(-time * 2.4);
-      ctx.beginPath();
-      ctx.arc(0, 0, this.r + 18, 0, TAU);
-      ctx.stroke();
-
-      ctx.setLineDash([]);
-      ctx.globalAlpha = 0.62;
-      for (let i = 0; i < 3; i += 1) {
-        const a = time * 2.8 + i * TAU / 3;
-        const x = Math.cos(a) * (this.r + 18);
-        const y = Math.sin(a) * (this.r + 18);
-        fillNeonCircle(ctx, x, y, 3.2, COLORS.enemyHot, 0.9);
+      if (this.elite || this.finalBoss) {
+        ctx.globalAlpha = 0.26;
+        ctx.setLineDash([7, 8]);
+        ctx.beginPath();
+        ctx.arc(0, 0, this.r + 18, 0, TAU);
+        ctx.stroke();
+        ctx.setLineDash([]);
       }
       ctx.restore();
     }
@@ -627,41 +620,73 @@ export class BuffDrop {
 export class ParticleSystem {
   constructor() {
     this.items = [];
+    this.maxItems = 260;
+    this.softLimit = 190;
   }
 
   burst(x, y, color, count = 10, power = 1) {
-    for (let i = 0; i < count; i += 1) {
+    const pressure = this.items.length / this.maxItems;
+    let budget = count;
+
+    if (this.items.length > this.softLimit) {
+      budget = Math.ceil(count * 0.45);
+      power *= 0.75;
+    }
+
+    if (this.items.length > this.maxItems * 0.92) {
+      budget = Math.ceil(count * 0.22);
+      power *= 0.55;
+    }
+
+    budget = Math.min(budget, this.maxItems - this.items.length);
+    if (budget <= 0) return;
+
+    for (let i = 0; i < budget; i += 1) {
       const angle = rand(0, TAU);
-      const speed = rand(40, 240) * power;
+      const speed = rand(36, 205) * power * (1 - Math.min(0.4, pressure * 0.25));
+      const life = rand(0.22, 0.72) * power;
       this.items.push({
         x,
         y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
-        r: rand(1, 4) * power,
+        r: Math.max(0.8, rand(1, 3.3) * power),
         color,
-        life: rand(0.25, 0.85) * power,
-        maxLife: 0,
+        life,
+        maxLife: life,
       });
-      this.items[this.items.length - 1].maxLife = this.items[this.items.length - 1].life;
     }
   }
 
   update(dt) {
-    for (const p of this.items) {
+    let write = 0;
+    for (let read = 0; read < this.items.length; read += 1) {
+      const p = this.items[read];
       p.x += p.vx * dt;
       p.y += p.vy * dt;
       p.vx *= 0.98;
       p.vy *= 0.98;
       p.life -= dt;
+      if (p.life > 0) {
+        this.items[write] = p;
+        write += 1;
+      }
     }
-    this.items = this.items.filter((p) => p.life > 0);
+    this.items.length = write;
   }
 
   draw(ctx) {
+    ctx.save();
+    ctx.shadowBlur = 0;
     for (const p of this.items) {
-      fillNeonCircle(ctx, p.x, p.y, p.r, p.color, Math.max(0, p.life / p.maxLife));
+      const alpha = Math.max(0, p.life / p.maxLife);
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, TAU);
+      ctx.fill();
     }
+    ctx.restore();
   }
 }
 
