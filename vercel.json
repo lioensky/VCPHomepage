@@ -13,6 +13,9 @@
     { "source": "/nova.html", "destination": "/nova.html" },
     { "source": "/vcp_wave_v8_engine", "destination": "/vcp_wave_v8_engine.html" },
     { "source": "/vcp_wave_v8_engine.html", "destination": "/vcp_wave_v8_engine.html" },
+    { "source": "/vcp-neon-game", "destination": "/vcp-neon-game/index.html" },
+    { "source": "/vcp-neon-game/index.html", "destination": "/vcp-neon-game/index.html" },
+    { "source": "/vcp-neon-game/(.*)", "destination": "/vcp-neon-game/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

@@ -1766,7 +1766,7 @@ export default function App() {
           <a href="/">VCP 官方首页</a>
           <a href="/?page=learn-vcp">Learn VCP 技术白皮书</a>
           <a href="/vcp_wave_v8_engine.html">TagMemo 浪潮 V8.2 语义动力学引擎</a>
-          <a href="/vcp-neon-game/index.html">VCP Neon Striker 霓虹弹幕小游戏</a>
+          <a href="/vcp-neon-game">VCP Neon Striker 霓虹弹幕小游戏</a>
           <a href="/#docs">VCP 文档中心</a>
           <a href="/?page=changelog">VCP 更新日志</a>
         </nav>
@@ -2251,7 +2251,7 @@ export default function App() {
                   探索浪潮 V8.2 引擎
                 </a>
                 <a
-                  href="/vcp-neon-game/index.html"
+                  href="/vcp-neon-game"
                   className="inline-flex items-center gap-3 px-6 py-3 bg-vcp-cyan/15 border border-vcp-cyan/35 text-vcp-cyan rounded-full font-display font-bold hover:bg-vcp-cyan/25 hover:scale-105 transition-all neon-border"
                 >
                   <Gamepad2 size={20} className="translate-y-[1px]" />
