@@ -1252,9 +1252,24 @@ const ChangelogPage = ({content}: {content: string}) => {
 
       <nav className="fixed top-0 left-0 z-50 flex w-full items-center justify-between border-b border-white/5 bg-vcp-black/50 px-8 py-6 backdrop-blur-md">
         <a href="/" className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center overflow-visible rounded-lg shadow-[0_0_18px_rgba(0,242,255,0.45)]">
+          <motion.div
+            className="flex h-10 w-10 items-center justify-center overflow-visible rounded-lg shadow-[0_0_18px_rgba(0,242,255,0.45)]"
+            animate={{
+              boxShadow: [
+                "0 0 14px rgba(0,242,255,0.32), 0 10px 28px rgba(0,242,255,0.16)",
+                "0 0 26px rgba(0,242,255,0.72), 0 14px 44px rgba(0,242,255,0.34)",
+                "0 0 14px rgba(0,242,255,0.32), 0 10px 28px rgba(0,242,255,0.16)",
+              ],
+              filter: [
+                "drop-shadow(0 0 4px rgba(0,242,255,0.28))",
+                "drop-shadow(0 0 12px rgba(0,242,255,0.72))",
+                "drop-shadow(0 0 4px rgba(0,242,255,0.28))",
+              ],
+            }}
+            transition={{duration: 3.2, repeat: Infinity, ease: "easeInOut"}}
+          >
             <img src="/assets/logo1.png" alt="VCP.OS logo" className="h-full w-full object-contain" />
-          </div>
+          </motion.div>
           <span className="text-2xl font-display font-bold tracking-tighter">VCP<span className="text-vcp-cyan">.OS</span></span>
         </a>
         <div className="flex items-center gap-3">
@@ -1460,9 +1475,24 @@ const WhitepaperPage = () => {
 
       <nav className="fixed top-0 left-0 z-50 flex w-full items-center justify-between border-b border-white/5 bg-vcp-black/50 px-8 py-6 backdrop-blur-md">
         <a href="/" className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center overflow-visible rounded-lg shadow-[0_0_18px_rgba(0,242,255,0.45)]">
+          <motion.div
+            className="flex h-10 w-10 items-center justify-center overflow-visible rounded-lg shadow-[0_0_18px_rgba(0,242,255,0.45)]"
+            animate={{
+              boxShadow: [
+                "0 0 14px rgba(0,242,255,0.32), 0 10px 28px rgba(0,242,255,0.16)",
+                "0 0 26px rgba(0,242,255,0.72), 0 14px 44px rgba(0,242,255,0.34)",
+                "0 0 14px rgba(0,242,255,0.32), 0 10px 28px rgba(0,242,255,0.16)",
+              ],
+              filter: [
+                "drop-shadow(0 0 4px rgba(0,242,255,0.28))",
+                "drop-shadow(0 0 12px rgba(0,242,255,0.72))",
+                "drop-shadow(0 0 4px rgba(0,242,255,0.28))",
+              ],
+            }}
+            transition={{duration: 3.2, repeat: Infinity, ease: "easeInOut"}}
+          >
             <img src="/assets/logo1.png" alt="VCP.OS logo" className="h-full w-full object-contain" />
-          </div>
+          </motion.div>
           <span className="text-2xl font-display font-bold tracking-tighter">VCP<span className="text-vcp-cyan">.OS</span></span>
         </a>
         <div className="flex items-center gap-3">
@@ -1833,9 +1863,24 @@ export default function App() {
 
       <nav className="fixed top-0 left-0 w-full z-50 px-8 py-6 flex justify-between items-center bg-vcp-black/50 backdrop-blur-md border-b border-white/5">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-visible shadow-[0_0_18px_rgba(0,242,255,0.45)]">
+          <motion.div
+            className="w-10 h-10 rounded-lg flex items-center justify-center overflow-visible shadow-[0_0_18px_rgba(0,242,255,0.45)]"
+            animate={{
+              boxShadow: [
+                "0 0 14px rgba(0,242,255,0.32), 0 10px 28px rgba(0,242,255,0.16)",
+                "0 0 26px rgba(0,242,255,0.72), 0 14px 44px rgba(0,242,255,0.34)",
+                "0 0 14px rgba(0,242,255,0.32), 0 10px 28px rgba(0,242,255,0.16)",
+              ],
+              filter: [
+                "drop-shadow(0 0 4px rgba(0,242,255,0.28))",
+                "drop-shadow(0 0 12px rgba(0,242,255,0.72))",
+                "drop-shadow(0 0 4px rgba(0,242,255,0.28))",
+              ],
+            }}
+            transition={{duration: 3.2, repeat: Infinity, ease: "easeInOut"}}
+          >
             <img src="/assets/logo1.png" alt="VCP.OS logo" className="h-full w-full object-contain" />
-          </div>
+          </motion.div>
           <span className="text-2xl font-display font-bold tracking-tighter">VCP<span className="text-vcp-cyan">.OS</span></span>
         </div>
         <div className="hidden md:flex items-center gap-8 font-mono text-xs tracking-widest uppercase">
