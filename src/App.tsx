@@ -1257,12 +1257,12 @@ const ChangelogPage = ({content}: {content: string}) => {
             animate={{
               boxShadow: [
                 "0 0 14px rgba(0,242,255,0.32), 0 10px 28px rgba(0,242,255,0.16)",
-                "0 0 26px rgba(0,242,255,0.72), 0 14px 44px rgba(0,242,255,0.34)",
+                "0 0 20px rgba(0,242,255,0.56), 0 10px 30px rgba(0,242,255,0.22)",
                 "0 0 14px rgba(0,242,255,0.32), 0 10px 28px rgba(0,242,255,0.16)",
               ],
               filter: [
                 "drop-shadow(0 0 4px rgba(0,242,255,0.28))",
-                "drop-shadow(0 0 12px rgba(0,242,255,0.72))",
+                "drop-shadow(0 0 8px rgba(0,242,255,0.52))",
                 "drop-shadow(0 0 4px rgba(0,242,255,0.28))",
               ],
             }}
@@ -1480,12 +1480,12 @@ const WhitepaperPage = () => {
             animate={{
               boxShadow: [
                 "0 0 14px rgba(0,242,255,0.32), 0 10px 28px rgba(0,242,255,0.16)",
-                "0 0 26px rgba(0,242,255,0.72), 0 14px 44px rgba(0,242,255,0.34)",
+                "0 0 20px rgba(0,242,255,0.56), 0 10px 30px rgba(0,242,255,0.22)",
                 "0 0 14px rgba(0,242,255,0.32), 0 10px 28px rgba(0,242,255,0.16)",
               ],
               filter: [
                 "drop-shadow(0 0 4px rgba(0,242,255,0.28))",
-                "drop-shadow(0 0 12px rgba(0,242,255,0.72))",
+                "drop-shadow(0 0 8px rgba(0,242,255,0.52))",
                 "drop-shadow(0 0 4px rgba(0,242,255,0.28))",
               ],
             }}
@@ -1868,12 +1868,12 @@ export default function App() {
             animate={{
               boxShadow: [
                 "0 0 14px rgba(0,242,255,0.32), 0 10px 28px rgba(0,242,255,0.16)",
-                "0 0 26px rgba(0,242,255,0.72), 0 14px 44px rgba(0,242,255,0.34)",
+                "0 0 20px rgba(0,242,255,0.56), 0 10px 30px rgba(0,242,255,0.22)",
                 "0 0 14px rgba(0,242,255,0.32), 0 10px 28px rgba(0,242,255,0.16)",
               ],
               filter: [
                 "drop-shadow(0 0 4px rgba(0,242,255,0.28))",
-                "drop-shadow(0 0 12px rgba(0,242,255,0.72))",
+                "drop-shadow(0 0 8px rgba(0,242,255,0.52))",
                 "drop-shadow(0 0 4px rgba(0,242,255,0.28))",
               ],
             }}
