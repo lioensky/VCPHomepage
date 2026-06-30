@@ -1,7 +1,7 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-06-26 的真实演进记录，按时间倒序展示最新版本与关键里程碑。
-updatedAt: 2026-06-26
+summary: 汇总 VCP 从 2023-12 到 2026-06-29 的真实演进记录，按时间倒序展示最新版本与关键里程碑。
+updatedAt: 2026-06-29
 category: changelog
 ---
 
@@ -12,6 +12,20 @@ category: changelog
 ---
 
 ## 最新更新
+
+### 2026-06-29 · 后端服务器面板第三次全量重构、离线通知补发与浪潮调参增强
+
+VCP 后端服务器面板完成第三次全量重构，整体视觉风格、布局和模块化结构重新设计。数十个标签页改为统一的视觉规范和布局标准，并新增精细化主题调试能力：可自定义颜色、背景、字体、按钮、折叠区、下拉框、滑杆、布局比例、卡片样式，也支持额外 CSS 补充。大量配置页同步加入更顺手的交互优化，使常用配置更直观、更容易理解，也减少了重复操作。
+
+后端面板新增多类监控与查询页面，包括服务器通知栏、流式浪潮记忆监控、插件运行时报告监控、服务器多模块内存缓存监控、服务器内存内容查询器等。API 管线也进行了全面梳理和统一，网络交互能力更稳定，配置项操作更简单。
+
+服务器新增“离线通知逐设备缓存补发”功能。VCP 前端应用群在离线期间错过的通知会由服务器按设备缓存，设备重新上线后自动补发，减少重要通知丢失。
+
+YoutubeFetch 完成重构，现在改为基于 Google 官方 YouTube V3 API 工作，不再依赖 cookie 方案，稳定性和规范性更好。
+
+LightMemo 新增 `map_distance` 向量测绘功能。输入起点向量 A 和多个终点向量 B / C / D 后，插件会返回 KNN 距离、TagMemo 距离和测地线距离的三合一表格，并包含能量传播图网，方便进行更工业化的向量空间测绘、浪潮调参和 AI 主导的参数矫正。
+
+TagMemoEngine 新增更精细的预训练管理。用户可以调整浪潮 V8 引擎的预训练周期、自训练阈值、闲时判断、预训练内容和预训练方法；预训练内容覆盖 Tag 矩阵、EPA-GAS、残差金字塔、河流网重绘等，方法支持增量、全量和稀疏模式。后端面板也新增一键重绘重训练控制器和自训练配置面板，方便直接管理浪潮引擎状态。
 
 ### 2026-06-26 · Tool 解析器、OneRing、VCPMail、RAG 日记与 AA 通讯管线标准化
 
@@ -566,7 +580,7 @@ VCP 从构思阶段进入正式开发阶段。
 
 | 阶段 | 时间范围 | 关键进展 |
 | --- | --- | --- |
-| 正式版、OneRing、OpenHer 与知识图谱期 | 2026-04 ～ 2026-06 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页、源码地图 WikiBot、VCPRagManger 召回管线重构与 RAG 侧 10～100 倍加速、隐私防护小助手、Tool / OneRing / VCPMail / RAG 日记 / AA 通讯管线标准化、官网内嵌 VCP Neon Runtime Survivor 小游戏 |
+| 正式版、OneRing、OpenHer 与知识图谱期 | 2026-04 ～ 2026-06 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页、源码地图 WikiBot、VCPRagManger 召回管线重构与 RAG 侧 10～100 倍加速、隐私防护小助手、Tool / OneRing / VCPMail / RAG 日记 / AA 通讯管线标准化、官网内嵌 VCP Neon Runtime Survivor 小游戏、后端服务器面板第三次全量重构、离线通知补发、YoutubeFetch 官方 API 重构、LightMemo 向量测绘、TagMemoEngine 预训练管理 |
 | 平台化扩展期 | 2026-03 ～ 2026-04 | VCPDesktop、桌面遥控、全局 API 虚拟化、PreText.js、7.5 版浪潮与官网上线 |
 | 系统化重构期 | 2026-02 ～ 2026-03 | 超栈追踪 V2、梦系统、SOM 桌面语义控制、多模态记忆、统一中央服务全面推进 |
 | 记忆与自主性爆发期 | 2025-09 ～ 2026-01 | RAG 语法、流式渲染器、Agent 自主巡航、TagMemo、上下文折叠持续成型 |
@@ -581,4 +595,4 @@ VCP 从构思阶段进入正式开发阶段。
 - [`src/docs/getting-started.md`](src/docs/getting-started.md)
 - [`VCP聚合文档.md`](VCP聚合文档.md)
 
-当前总览页已改为真实内容，并按更新日志常用方式调整为**倒序展示**，已补充到 2026-06-26。
+当前总览页已改为真实内容，并按更新日志常用方式调整为**倒序展示**，已补充到 2026-06-29。
