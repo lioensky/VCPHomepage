@@ -1,7 +1,7 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-07-01 的真实演进记录，按时间倒序展示最新版本与关键里程碑。
-updatedAt: 2026-07-01
+summary: 汇总 VCP 从 2023-12 到 2026-07-02 的真实演进记录，按时间倒序展示最新版本与关键里程碑。
+updatedAt: 2026-07-02
 category: changelog
 ---
 
@@ -12,6 +12,16 @@ category: changelog
 ---
 
 ## 最新更新
+
+### 2026-07-02 · BM25 检索管线合并与自研查询优化器上线
+
+BM25 管线完成新一轮重构，现已并入 DailyNoteRust API，并被多个 VCP 管理器统一复用。新的自研 BM25 查询优化器会把用户原始输入与 AI 补充文本融合成更适合日记 RAG 检索的关键词查询，同时根据话题相关性动态分配两侧权重，避免跑题扩写污染检索结果。
+
+本次更新重点提升了关键词召回质量：系统会增强角色名、模型名、插件名、API 名、文件名、变量名、URL 等实体词和技术标识符，对纯数字、中文单字等弱信息词降权，并通过词频开平方、局部高频词惩罚和中文长词增强，减少重复词或普通高频词对结果的干扰。
+
+查询生成也更可控：优化器会按词分数自动决定关键词重复次数，用重复 token 模拟 BM25 查询权重，并支持最大 token 数、最大关键词数、最大重复次数等限制。它还支持外部注入分词器与文本归一化函数，并内置 fallback 分词逻辑，可识别中文短语、英文标识符和数字版本号。
+
+整体上，这次更新让 BM25 从“简单关键词匹配”升级为“可控、可解释、抗噪声的轻量检索管线”。配合 DailyNoteRust API 的单索引全量初筛，检索前的计算范围更小，调试信息也更完整，可直接查看选中词、词分数、用户 / AI 占比、主题重叠度和高频词列表。
 
 ### 2026-07-01 · LightMemo 向量测绘、浪潮 V8 预训练管理与测地线置信度守卫
 
@@ -591,7 +601,7 @@ VCP 从构思阶段进入正式开发阶段。
 
 | 阶段 | 时间范围 | 关键进展 |
 | --- | --- | --- |
-| 正式版、OneRing、OpenHer 与知识图谱期 | 2026-04 ～ 2026-07 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页、源码地图 WikiBot、VCPRagManger 召回管线重构与 RAG 侧 10～100 倍加速、隐私防护小助手、Tool / OneRing / VCPMail / RAG 日记 / AA 通讯管线标准化、官网内嵌 VCP Neon Runtime Survivor 小游戏、后端服务器面板第三次全量重构、离线通知补发、YoutubeFetch 官方 API 重构、LightMemo 向量测绘、TagMemoEngine 预训练管理、日记本后缀权重语法、浪潮 V8 测地线置信度守卫 |
+| 正式版、OneRing、OpenHer 与知识图谱期 | 2026-04 ～ 2026-07 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页、源码地图 WikiBot、VCPRagManger 召回管线重构与 RAG 侧 10～100 倍加速、隐私防护小助手、Tool / OneRing / VCPMail / RAG 日记 / AA 通讯管线标准化、官网内嵌 VCP Neon Runtime Survivor 小游戏、后端服务器面板第三次全量重构、离线通知补发、YoutubeFetch 官方 API 重构、LightMemo 向量测绘、TagMemoEngine 预训练管理、日记本后缀权重语法、浪潮 V8 测地线置信度守卫、BM25 管线合并 DailyNoteRust API、自研 BM25QueryOptimizer 查询优化器 |
 | 平台化扩展期 | 2026-03 ～ 2026-04 | VCPDesktop、桌面遥控、全局 API 虚拟化、PreText.js、7.5 版浪潮与官网上线 |
 | 系统化重构期 | 2026-02 ～ 2026-03 | 超栈追踪 V2、梦系统、SOM 桌面语义控制、多模态记忆、统一中央服务全面推进 |
 | 记忆与自主性爆发期 | 2025-09 ～ 2026-01 | RAG 语法、流式渲染器、Agent 自主巡航、TagMemo、上下文折叠持续成型 |
