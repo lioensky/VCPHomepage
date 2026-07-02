@@ -767,7 +767,7 @@ const createInitialWikiSession = (target: WikiCockpitTarget): WikiChatSession =>
   ],
 });
 
-const officialPluginRegistryUrl = "https://raw.githubusercontent.com/lioensky/VCPDistributedServer/main/plugins.json";
+const officialPluginRegistryUrl = "官方订阅链接\nhttps://raw.githubusercontent.com/lioensky/VCPDistributedServer/main/plugins.json";
 
 const pluginCategoryLabels: Record<string, string> = {
   tool: "工具插件",
