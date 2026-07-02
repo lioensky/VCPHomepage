@@ -2365,6 +2365,353 @@ body {
 }
 
 
+.plugin-store-cosmos {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 16%, rgba(0, 242, 255, 0.2), transparent 30rem),
+    radial-gradient(circle at 78% 20%, rgba(112, 0, 255, 0.2), transparent 34rem),
+    radial-gradient(circle at 50% 88%, rgba(255, 255, 255, 0.07), transparent 28rem),
+    linear-gradient(180deg, rgba(3, 5, 12, 0.96), rgba(5, 5, 5, 0.98));
+}
+
+.plugin-store-cosmos::before,
+.plugin-store-cosmos::after {
+  content: "";
+  position: absolute;
+  inset: -18%;
+  background-image:
+    radial-gradient(circle, rgba(0, 242, 255, 0.7) 0 1px, transparent 1px),
+    radial-gradient(circle, rgba(185, 144, 255, 0.55) 0 1px, transparent 1px),
+    linear-gradient(rgba(0, 242, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(112, 0, 255, 0.06) 1px, transparent 1px);
+  background-size: 118px 118px, 172px 172px, 92px 92px, 92px 92px;
+  mask-image: radial-gradient(circle at center, black, transparent 74%);
+  opacity: 0.3;
+  animation: changelog-grid-drift 88s linear infinite;
+}
+
+.plugin-store-cosmos::after {
+  opacity: 0.18;
+  filter: blur(0.8px);
+  animation-duration: 138s;
+  animation-direction: reverse;
+}
+
+.plugin-store-title-glow {
+  filter: drop-shadow(0 0 24px rgba(0, 242, 255, 0.42)) drop-shadow(0 0 48px rgba(112, 0, 255, 0.35));
+}
+
+.plugin-store-info-card,
+.plugin-store-guide-card,
+.plugin-store-toolbar,
+.plugin-store-card,
+.plugin-store-error {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(0, 242, 255, 0.1), transparent 16rem),
+    linear-gradient(135deg, rgba(0, 242, 255, 0.045), rgba(112, 0, 255, 0.065)),
+    rgba(8, 12, 24, 0.72);
+  backdrop-filter: blur(18px);
+  box-shadow:
+    0 0 42px rgba(0, 242, 255, 0.08),
+    0 0 72px rgba(112, 0, 255, 0.08);
+}
+
+.plugin-store-info-card {
+  min-height: 8.5rem;
+  border-radius: 24px;
+  padding: 1.25rem;
+  overflow: hidden;
+}
+
+.plugin-store-info-card span {
+  display: block;
+  margin-bottom: 0.85rem;
+  color: var(--color-vcp-cyan);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.plugin-store-info-card strong {
+  display: block;
+  overflow-wrap: anywhere;
+  color: white;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.plugin-store-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.plugin-store-guide-card {
+  border-radius: 28px;
+  padding: clamp(1.25rem, 2.2vw, 2rem);
+}
+
+.plugin-store-guide-card p {
+  margin-top: 1rem;
+  color: #b7bcc8;
+  line-height: 1.85;
+}
+
+.plugin-store-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  margin-bottom: 1rem;
+  border-radius: 28px;
+  padding: clamp(1.25rem, 2.2vw, 2rem);
+}
+
+.plugin-store-search {
+  display: flex;
+  width: min(100%, 28rem);
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 242, 255, 0.24);
+  background: rgba(255, 255, 255, 0.055);
+  padding: 0.85rem 1rem;
+  color: var(--color-vcp-cyan);
+}
+
+.plugin-store-search input {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: white;
+  outline: none;
+  font-size: 0.95rem;
+}
+
+.plugin-store-search input::placeholder {
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.plugin-store-category-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.plugin-store-category-row button {
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.035);
+  padding: 0.7rem 1rem;
+  color: rgba(255, 255, 255, 0.72);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: all 0.22s ease;
+}
+
+.plugin-store-category-row button:hover,
+.plugin-store-category-row .plugin-store-category-active {
+  border-color: rgba(0, 242, 255, 0.44);
+  background: rgba(0, 242, 255, 0.11);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.plugin-store-category-row span {
+  color: var(--color-vcp-cyan);
+}
+
+.plugin-store-error {
+  margin-bottom: 1.25rem;
+  border-color: rgba(255, 121, 198, 0.35);
+  border-radius: 20px;
+  padding: 1rem 1.2rem;
+  color: #ffd6e6;
+}
+
+.plugin-store-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.plugin-store-card {
+  position: relative;
+  display: flex;
+  min-height: 24rem;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 26px;
+  padding: 1.25rem;
+  transition: all 0.28s ease;
+}
+
+.plugin-store-card::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background: conic-gradient(from 120deg, transparent, rgba(0, 242, 255, 0.12), transparent, rgba(112, 0, 255, 0.14), transparent);
+  opacity: 0;
+  animation: whitepaper-orbit 18s linear infinite;
+  transition: opacity 0.28s ease;
+  pointer-events: none;
+}
+
+.plugin-store-card:hover {
+  border-color: rgba(0, 242, 255, 0.34);
+  transform: translateY(-4px);
+  box-shadow:
+    0 0 54px rgba(0, 242, 255, 0.13),
+    0 0 92px rgba(112, 0, 255, 0.12);
+}
+
+.plugin-store-card:hover::before {
+  opacity: 0.7;
+}
+
+.plugin-store-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.plugin-store-card-head {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.plugin-store-plugin-orb {
+  display: flex;
+  width: 3.2rem;
+  height: 3.2rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1.1rem;
+  border: 1px solid rgba(0, 242, 255, 0.24);
+  background: rgba(0, 242, 255, 0.08);
+  color: var(--color-vcp-cyan);
+  box-shadow: 0 0 24px rgba(0, 242, 255, 0.13);
+}
+
+.plugin-store-card-category {
+  margin-bottom: 0.35rem;
+  color: var(--color-vcp-cyan);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.plugin-store-card h3 {
+  color: white;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.plugin-store-plugin-name {
+  margin-top: 0.35rem;
+  color: rgba(255, 255, 255, 0.42);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+}
+
+.plugin-store-card-desc {
+  flex: 1;
+  color: #b7bcc8;
+  font-size: 0.92rem;
+  line-height: 1.75;
+}
+
+.plugin-store-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.1rem 0;
+}
+
+.plugin-store-card-meta span {
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.045);
+  padding: 0.35rem 0.55rem;
+  color: rgba(255, 255, 255, 0.68);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+}
+
+.plugin-store-download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 242, 255, 0.28);
+  background: rgba(0, 242, 255, 0.09);
+  padding: 0.85rem 1rem;
+  color: var(--color-vcp-cyan);
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.22s ease;
+}
+
+.plugin-store-download:hover {
+  border-color: rgba(0, 242, 255, 0.58);
+  background: rgba(0, 242, 255, 0.16);
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+
+.plugin-store-card-skeleton {
+  min-height: 24rem;
+  animation: plugin-store-skeleton 1.5s ease-in-out infinite;
+}
+
+@keyframes plugin-store-skeleton {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 0.86; }
+}
+
+@media (max-width: 1180px) {
+  .plugin-store-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .plugin-store-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .plugin-store-search {
+    width: 100%;
+  }
+}
+
+@media (max-width: 760px) {
+  .plugin-store-guide-grid,
+  .plugin-store-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .plugin-store-info-card {
+    min-height: auto;
+  }
+}
+
 /* ============================================
    A Day in the Life of an AI - Lifecycle Section
    ============================================ */

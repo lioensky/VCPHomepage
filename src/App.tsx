@@ -199,6 +199,29 @@ type NovaEasterEggState = {
   triggeredAt: number;
 };
 
+type RegistryPlugin = {
+  name: string;
+  displayName: string;
+  description: string;
+  version: string;
+  author: string;
+  icon?: string;
+  category: string;
+  downloadUrl: string;
+  license?: string;
+};
+
+type PluginRegistryPayload = {
+  schemaVersion: number;
+  generatedAt: string;
+  source: {
+    name: string;
+    repository: string;
+    branch: string;
+  };
+  plugins: RegistryPlugin[];
+};
+
 type MermaidBlockProps = {
   chart: string;
 };
@@ -743,6 +766,341 @@ const createInitialWikiSession = (target: WikiCockpitTarget): WikiChatSession =>
     },
   ],
 });
+
+const officialPluginRegistryUrl = "https://raw.githubusercontent.com/lioensky/VCPDistributedServer/main/plugins.json";
+
+const pluginCategoryLabels: Record<string, string> = {
+  tool: "工具插件",
+  service: "服务插件",
+  "data-provider": "数据提供器",
+  "system-integration": "系统集成",
+};
+
+const PluginStorePage = () => {
+  const [registry, setRegistry] = useState<PluginRegistryPayload | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState("all");
+  const meta = useMemo<PageMeta>(() => ({
+    title: "VCP 插件商店 | VCP 官方插件源",
+    description: "VCP 官方插件商店展示未预装的 VCP 插件源内容。官网实时从官方 registry 订阅地址获取插件清单，并推荐通过 VCP 管理员面板安装、更新和卸载插件。",
+    keywords: "VCP 插件商店,VCP 官方插件源,VCP registry,VCP 插件,VCPToolBox 插件,管理员面板,插件管理",
+    canonical: "https://www.vcptoolbox.com/plugin-store",
+    ogTitle: "VCP 插件商店 · 官方插件源",
+    ogDescription: "查看 VCP 官方 registry 插件源，并通过管理员面板获得自动版本管理、依赖管理与 Zip 安装能力。",
+    ogUrl: "https://www.vcptoolbox.com/plugin-store",
+  }), []);
+
+  usePageMeta(meta);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadRegistry() {
+      setIsLoading(true);
+      setLoadError(null);
+
+      try {
+        const response = await fetch(officialPluginRegistryUrl, {cache: "no-store"});
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json() as PluginRegistryPayload;
+        if (!Array.isArray(data.plugins)) {
+          throw new Error("插件源格式不正确");
+        }
+
+        if (!cancelled) {
+          setRegistry(data);
+        }
+      } catch (error: any) {
+        if (!cancelled) {
+          setLoadError(error?.message || "官方插件源加载失败");
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    loadRegistry();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const plugins = registry?.plugins ?? [];
+  const categories = useMemo(() => {
+    const categoryMap = new Map<string, number>();
+    plugins.forEach((plugin) => {
+      categoryMap.set(plugin.category, (categoryMap.get(plugin.category) ?? 0) + 1);
+    });
+    return Array.from(categoryMap.entries()).sort((a, b) => b[1] - a[1]);
+  }, [plugins]);
+
+  const filteredPlugins = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+
+    return plugins.filter((plugin) => {
+      const matchesCategory = activeCategory === "all" || plugin.category === activeCategory;
+      const searchText = [
+        plugin.name,
+        plugin.displayName,
+        plugin.description,
+        plugin.author,
+        plugin.category,
+      ].join(" ").toLowerCase();
+
+      return matchesCategory && (!normalizedQuery || searchText.includes(normalizedQuery));
+    });
+  }, [activeCategory, plugins, query]);
+
+  const generatedAtLabel = useMemo(() => {
+    if (!registry?.generatedAt) {
+      return "实时订阅";
+    }
+
+    const timestamp = Date.parse(registry.generatedAt);
+    if (!timestamp) {
+      return registry.generatedAt;
+    }
+
+    return new Intl.DateTimeFormat("zh-CN", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(timestamp);
+  }, [registry?.generatedAt]);
+
+  return (
+    <div className="relative min-h-screen overflow-hidden bg-vcp-black font-sans selection:bg-vcp-cyan selection:text-vcp-black">
+      <div className="plugin-store-cosmos" />
+      <NeuralNetwork />
+
+      <nav className="fixed top-0 left-0 z-50 flex w-full items-center justify-between border-b border-white/5 bg-vcp-black/50 px-8 py-6 backdrop-blur-md">
+        <a href="/" className="flex items-center gap-2">
+          <motion.div
+            className="flex h-10 w-10 items-center justify-center overflow-visible rounded-lg shadow-[0_0_18px_rgba(0,242,255,0.45)]"
+            animate={{
+              boxShadow: [
+                "0 0 14px rgba(0,242,255,0.32), 0 10px 28px rgba(0,242,255,0.16)",
+                "0 0 20px rgba(0,242,255,0.56), 0 10px 30px rgba(0,242,255,0.22)",
+                "0 0 14px rgba(0,242,255,0.32), 0 10px 28px rgba(0,242,255,0.16)",
+              ],
+            }}
+            transition={{duration: 3.2, repeat: Infinity, ease: "easeInOut"}}
+          >
+            <img src="/assets/logo1.png" alt="VCP.OS logo" className="h-full w-full object-contain" />
+          </motion.div>
+          <span className="text-2xl font-display font-bold tracking-tighter">VCP<span className="text-vcp-cyan">.OS</span></span>
+        </a>
+        <div className="flex items-center gap-3">
+          <a
+            href="/?page=learn-vcp"
+            className="hidden md:inline-flex items-center gap-3 rounded-full border border-vcp-purple/30 bg-vcp-purple/10 px-5 py-2 font-display text-sm font-bold text-white transition-all hover:border-vcp-purple/60 hover:bg-vcp-purple/20"
+          >
+            <Sparkles size={18} className="text-vcp-purple" />
+            LEARN VCP
+          </a>
+          <a
+            href="/"
+            className="group inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.03] px-5 py-2 font-display text-sm font-bold text-white transition-all hover:border-vcp-cyan/50 hover:bg-vcp-cyan/10"
+          >
+            <ArrowLeft size={18} className="text-vcp-cyan transition-transform group-hover:-translate-x-1" />
+            BACK HOME
+          </a>
+        </div>
+      </nav>
+
+      <main className="relative z-10 px-6 pb-24 pt-36 md:px-8">
+        <section className="sr-only" aria-label="VCP 插件商店页面摘要">
+          <h1>VCP 插件商店 · 官方插件源</h1>
+          <p>
+            VCP 插件商店展示官方 registry 插件源中的插件。VCP 服务器已经预装了大量核心插件，
+            因此商店内容主要是未预装、可按需订阅和安装的扩展插件。
+          </p>
+        </section>
+
+        <section className="mx-auto max-w-7xl pb-16 text-center">
+          <motion.div
+            initial={{opacity: 0, y: 24, scale: 0.96}}
+            animate={{opacity: 1, y: 0, scale: 1}}
+            transition={{duration: 0.8, ease: "easeOut"}}
+            className="mb-8 inline-flex items-center gap-3 rounded-full border border-vcp-cyan/20 bg-vcp-cyan/10 px-5 py-2 font-mono text-[10px] uppercase tracking-[0.28em] text-vcp-cyan"
+          >
+            <Terminal size={14} />
+            VCP Official Plugin Registry
+          </motion.div>
+
+          <motion.h1
+            initial={{opacity: 0, y: 36}}
+            animate={{opacity: 1, y: 0}}
+            transition={{duration: 0.9, delay: 0.15, ease: "easeOut"}}
+            className="mx-auto max-w-5xl text-5xl font-display font-bold leading-[0.95] tracking-tighter text-white md:text-8xl"
+          >
+            PLUGIN <span className="text-transparent bg-clip-text bg-gradient-to-r from-vcp-cyan via-white to-vcp-purple plugin-store-title-glow">STORE</span>
+          </motion.h1>
+
+          <motion.p
+            initial={{opacity: 0, y: 24}}
+            animate={{opacity: 1, y: 0}}
+            transition={{duration: 0.8, delay: 0.35}}
+            className="mx-auto mt-8 max-w-3xl text-lg leading-relaxed text-gray-400 md:text-xl"
+          >
+            官网插件展示实时读取官方订阅地址，而不是读取站点本地示例 JSON。VCP 服务器后端面板默认已订阅官方插件源；
+            商店中展示的是官方源内可按需安装的部分，很多基础插件已随服务器预装。
+          </motion.p>
+
+          <motion.div
+            initial={{opacity: 0, y: 24}}
+            animate={{opacity: 1, y: 0}}
+            transition={{duration: 0.8, delay: 0.55}}
+            className="mt-10 grid grid-cols-1 gap-4 text-left md:grid-cols-3"
+          >
+            <div className="plugin-store-info-card">
+              <span>Subscription URL</span>
+              <strong>{officialPluginRegistryUrl}</strong>
+            </div>
+            <div className="plugin-store-info-card">
+              <span>Subscription Type</span>
+              <strong>registry</strong>
+            </div>
+            <div className="plugin-store-info-card">
+              <span>Recommended Install Path</span>
+              <strong>管理员面板 · 插件商店</strong>
+            </div>
+          </motion.div>
+        </section>
+
+        <section className="mx-auto mb-10 max-w-7xl">
+          <div className="plugin-store-guide-grid">
+            <div className="plugin-store-guide-card">
+              <div className="flex items-center gap-3 text-vcp-cyan">
+                <Shield size={22} />
+                <h2 className="text-2xl font-display font-bold text-white">推荐通过管理员面板管理</h2>
+              </div>
+              <p>
+                请优先在 VCP 管理员面板的插件商店中安装、更新和卸载插件。面板自带自动版本管理、依赖管理等关键能力，
+                能避免手动覆盖文件造成版本错配或依赖缺失。
+              </p>
+            </div>
+            <div className="plugin-store-guide-card">
+              <div className="flex items-center gap-3 text-vcp-purple">
+                <ExternalLink size={22} />
+                <h2 className="text-2xl font-display font-bold text-white">手动下载时仍建议 Zip 安装</h2>
+              </div>
+              <p>
+                如果你从网页手动下载插件 Zip，请在管理员面板插件商店页选择“以zip形式安装插件”。
+                不建议直接解压并丢入 plugin 目录，以免绕过版本校验、依赖处理和生命周期管理。
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl">
+          <div className="plugin-store-toolbar">
+            <div>
+              <div className="font-mono text-[10px] uppercase tracking-[0.26em] text-vcp-cyan">
+                Registry Snapshot
+              </div>
+              <h2 className="mt-2 text-3xl font-display font-bold text-white">
+                {isLoading ? "正在连接官方插件源..." : `${filteredPlugins.length} / ${plugins.length} Plugins`}
+              </h2>
+              <p className="mt-2 text-sm text-gray-500">
+                Source: {registry?.source?.name ?? "VCP 官方插件商店"} · Updated: {generatedAtLabel}
+              </p>
+            </div>
+            <label className="plugin-store-search">
+              <Search size={18} />
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="搜索插件名称、描述、作者..."
+              />
+            </label>
+          </div>
+
+          <div className="plugin-store-category-row">
+            <button
+              type="button"
+              onClick={() => setActiveCategory("all")}
+              className={activeCategory === "all" ? "plugin-store-category-active" : ""}
+            >
+              全部 <span>{plugins.length}</span>
+            </button>
+            {categories.map(([category, count]) => (
+              <button
+                key={category}
+                type="button"
+                onClick={() => setActiveCategory(category)}
+                className={activeCategory === category ? "plugin-store-category-active" : ""}
+              >
+                {pluginCategoryLabels[category] ?? category} <span>{count}</span>
+              </button>
+            ))}
+          </div>
+
+          {loadError && (
+            <div className="plugin-store-error">
+              官方插件源暂时无法加载：{loadError}。请稍后刷新，或在管理员面板检查默认订阅源。
+            </div>
+          )}
+
+          <div className="plugin-store-grid">
+            {isLoading && Array.from({length: 6}, (_, index) => (
+              <div key={index} className="plugin-store-card plugin-store-card-skeleton" />
+            ))}
+
+            {!isLoading && filteredPlugins.map((plugin, index) => (
+              <motion.article
+                key={plugin.name}
+                initial={{opacity: 0, y: 24}}
+                whileInView={{opacity: 1, y: 0}}
+                viewport={{once: true, margin: "-80px"}}
+                transition={{duration: 0.45, delay: Math.min(index * 0.035, 0.35)}}
+                className="plugin-store-card"
+              >
+                <div className="plugin-store-card-head">
+                  <div className="plugin-store-plugin-orb">
+                    <Terminal size={22} />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="plugin-store-card-category">
+                      {pluginCategoryLabels[plugin.category] ?? plugin.category}
+                    </div>
+                    <h3>{plugin.displayName || plugin.name}</h3>
+                    <p className="plugin-store-plugin-name">{plugin.name}</p>
+                  </div>
+                </div>
+                <p className="plugin-store-card-desc">{plugin.description}</p>
+                <div className="plugin-store-card-meta">
+                  <span>v{plugin.version}</span>
+                  <span>{plugin.author}</span>
+                  {plugin.license && <span>{plugin.license}</span>}
+                </div>
+                <a
+                  href={plugin.downloadUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="plugin-store-download"
+                >
+                  Download Zip
+                  <ExternalLink size={15} />
+                </a>
+              </motion.article>
+            ))}
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+};
 
 const WikiCockpitModal = ({
   target,
@@ -1656,6 +2014,9 @@ export default function App() {
   const isChangelogRoute =
     window.location.pathname === "/changelog" ||
     pageParam === "changelog";
+  const isPluginStoreRoute =
+    window.location.pathname === "/plugin-store" ||
+    pageParam === "plugin-store";
   const isNovaRoute = window.location.pathname === "/nova";
   const changelogDoc = docs.find((doc) => doc.slug === "changelog" || doc.category === "changelog");
 
@@ -1677,7 +2038,7 @@ export default function App() {
     twitterDescription: "了解 VCP、VCPToolbox、VCPChat、VCPDesktop、OneRing、TagMemo 浪潮 V8、VCP Neon Striker 与 VCP应用群 组成的 AI Agent 运行时生态。",
   }), []);
 
-  usePageMeta(homeMeta, !isWhitepaperRoute && !isChangelogRoute);
+  usePageMeta(homeMeta, !isWhitepaperRoute && !isChangelogRoute && !isPluginStoreRoute);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -1777,6 +2138,10 @@ export default function App() {
     return <ChangelogPage content={changelogDoc.content} />;
   }
 
+  if (isPluginStoreRoute) {
+    return <PluginStorePage />;
+  }
+
   return (
     <div ref={containerRef} className="relative min-h-screen font-sans selection:bg-vcp-cyan selection:text-vcp-black">
       <div className="glow-bg" ref={glowRef} />
@@ -1799,6 +2164,7 @@ export default function App() {
           <a href="/vcp-neon-game">VCP Neon Striker 霓虹弹幕小游戏</a>
           <a href="/#docs">VCP 文档中心</a>
           <a href="/?page=changelog">VCP 更新日志</a>
+          <a href="/?page=plugin-store">VCP 插件商店</a>
         </nav>
       </section>
       
@@ -1890,6 +2256,7 @@ export default function App() {
           <a href="#lifecycle" className="hover:text-vcp-cyan transition-colors">A Day</a>
           <a href="#docs" className="hover:text-vcp-cyan transition-colors">Docs</a>
           <a href="/?page=changelog" className="hover:text-vcp-cyan transition-colors">Changelog</a>
+          <a href="/?page=plugin-store" className="hover:text-vcp-cyan transition-colors">Plugin Store</a>
         </div>
         <div className="flex items-center gap-4">
           <a
@@ -1974,6 +2341,13 @@ export default function App() {
               >
                 <Clock size={20} className="text-vcp-purple" />
                 Changelog
+              </a>
+              <a
+                href="/?page=plugin-store"
+                className="group flex items-center gap-3 px-8 py-4 glass-card rounded-full font-display font-bold hover:border-vcp-cyan transition-all"
+              >
+                <Terminal size={20} className="text-vcp-cyan" />
+                Plugin Store
               </a>
             </div>
             <div className="flex flex-wrap justify-center gap-6">
@@ -2683,6 +3057,7 @@ export default function App() {
             <ul className="space-y-4 text-gray-400">
               <li><a href="/?page=learn-vcp" className="hover:text-vcp-purple transition-colors">Learn VCP</a></li>
               <li><a href="/?page=changelog" className="hover:text-vcp-purple transition-colors">Changelog</a></li>
+              <li><a href="/?page=plugin-store" className="hover:text-vcp-purple transition-colors">Plugin Store</a></li>
               <li><a href="#docs" className="hover:text-vcp-purple transition-colors">Docs Portal</a></li>
               <li><a href="#desktop" className="hover:text-vcp-purple transition-colors">VCP Desktop</a></li>
             </ul>
