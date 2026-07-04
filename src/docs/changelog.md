@@ -1,7 +1,7 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-07-02 的真实演进记录，按时间倒序展示最新版本与关键里程碑。
-updatedAt: 2026-07-02
+summary: 汇总 VCP 从 2023-12 到 2026-07-04 的真实演进记录，按时间倒序展示最新版本与关键里程碑。
+updatedAt: 2026-07-04
 category: changelog
 ---
 
@@ -12,6 +12,26 @@ category: changelog
 ---
 
 ## 最新更新
+
+### 2026-07-04 · VCPUrlFetch V3 与 VCPChromeService 上线
+
+VCPUrlFetch 重构到 V3，不再只是一次性的网页抓取工具，而是升级为公共持久化浏览器服务 VCPChromeService。它会在服务器侧运行一个真正的无头浏览器，所有 Fetch 行为都通过真实 Tab 创建完成，因此 Cookie、历史记录、登录态和动态 JS 页面状态都可以被持续保留。系统支持多 Profile 管理，并会根据工具调用中的 maid / valet 署名字段，自动为不同 Agent 维护独立浏览器数据库，使网页访问从“临时请求”升级为“可长期使用的虚拟浏览器环境”。
+
+该服务内置 VCPChromeV3，可在用户真实 Chrome 不在线时，让 Agent 直接操作服务器上的沙盒浏览器。Agent 可以主动启动或关闭 VCPChromeService，避免长期占用内存；服务空闲时也会自动回收线程。UrlFetch 等网页业务插件现在统一调用该模块，因此网页读取、搜索、登录后页面访问、动态站点交互都可以共享同一套浏览器会话与持久化能力。
+
+VCPChromeBridge 的连接逻辑也重新设计：当用户自己的 Chrome 上线并主动开启 Bridge 链接时，控制目标会从服务器沙盒浏览器切换到用户真实浏览器；如果用户浏览器离线，Agent 仍然可以继续使用 VCPChromeService 中的虚拟浏览器完成任务。这样既保留了本地浏览器协同能力，也让 Agent 在无人值守场景下不再依赖用户前台浏览器在线。
+
+安全模式被拆分为 agent / user 两套权限模型。在 VCPChromeService 中，浏览器插件默认运行 agent 模式，Agent 拥有沙盒浏览器的完整管理能力，包括 Chrome 线程管理、账号创建、Cookie 持久化、多指纹 Profile、高级 CDP 与 JS 注入等；而 user 模式面向用户真实浏览器，内置隐私与安全保护器，会尽量避免 Agent 误触真实邮箱、Cookie、认证信息等敏感内容，并使用白名单 CDP 执行器，不提供 Chrome 本体进程管理能力。
+
+同时，VCPChromeBridge 的 Html 转 Markdown 协议完成全面重构。新的协议会用自研置信度算法评估页面元素的语义、可见性和可交互性，把复杂网页整理成更适合 Agent 理解和操作的结构化描述。Agent 不再必须精确指定 CSS 选择器，而是可以用“在搜索框输入 vcp，然后点击搜索”这类自然语言指令完成 B 站、Bing、Google、百度等站点的模糊网页操作。
+
+串行执行能力也显著增强：系统现在可以在页面刷新、动态 JS 渲染、模态窗弹出、按钮状态变化等复杂场景下按步骤等待和推进，并在 ChromeBridge 串行指令中加入条件分支、步进式判断和定时指令。整体上，这次更新把 VCP 的网页能力从“读取网页内容”推进到“可持久化、可切换浏览器、可自然语言控制复杂动态网页”的浏览器自动化基础设施。
+
+### 2026-07-03 · 插件商店全面重构与官方订阅源上线
+
+VCP 后端服务器面板插件商店完成全面重构，并默认内置官方插件订阅源。商店现在支持 URL、JSON、XML、ZIP 直装、JSON 插件源与 GitHub 仓库等多种订阅方式，可同时订阅多个来源，并自动按同名插件版本进行比对与更新判断。
+
+插件安装链路也升级为内置依赖与版本管理，不再依赖 Git。下载 Rust 插件会自动构建，Python 插件会自动创建 uv 虚拟环境；订阅插件还支持源码比对、版本追踪与自动更新，显著降低插件分发、安装和维护成本。
 
 ### 2026-07-02 · BM25 检索管线合并与自研查询优化器上线
 
@@ -601,7 +621,7 @@ VCP 从构思阶段进入正式开发阶段。
 
 | 阶段 | 时间范围 | 关键进展 |
 | --- | --- | --- |
-| 正式版、OneRing、OpenHer 与知识图谱期 | 2026-04 ～ 2026-07 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页、源码地图 WikiBot、VCPRagManger 召回管线重构与 RAG 侧 10～100 倍加速、隐私防护小助手、Tool / OneRing / VCPMail / RAG 日记 / AA 通讯管线标准化、官网内嵌 VCP Neon Runtime Survivor 小游戏、后端服务器面板第三次全量重构、离线通知补发、YoutubeFetch 官方 API 重构、LightMemo 向量测绘、TagMemoEngine 预训练管理、日记本后缀权重语法、浪潮 V8 测地线置信度守卫、BM25 管线合并 DailyNoteRust API、自研 BM25QueryOptimizer 查询优化器 |
+| 正式版、OneRing、OpenHer 与知识图谱期 | 2026-04 ～ 2026-07 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页、源码地图 WikiBot、VCPRagManger 召回管线重构与 RAG 侧 10～100 倍加速、隐私防护小助手、Tool / OneRing / VCPMail / RAG 日记 / AA 通讯管线标准化、官网内嵌 VCP Neon Runtime Survivor 小游戏、后端服务器面板第三次全量重构、离线通知补发、YoutubeFetch 官方 API 重构、LightMemo 向量测绘、TagMemoEngine 预训练管理、日记本后缀权重语法、浪潮 V8 测地线置信度守卫、BM25 管线合并 DailyNoteRust API、自研 BM25QueryOptimizer 查询优化器、插件商店订阅体系重构、VCPUrlFetch V3、VCPChromeService 持久化浏览器服务、ChromeBridge 自然语言网页控制增强 |
 | 平台化扩展期 | 2026-03 ～ 2026-04 | VCPDesktop、桌面遥控、全局 API 虚拟化、PreText.js、7.5 版浪潮与官网上线 |
 | 系统化重构期 | 2026-02 ～ 2026-03 | 超栈追踪 V2、梦系统、SOM 桌面语义控制、多模态记忆、统一中央服务全面推进 |
 | 记忆与自主性爆发期 | 2025-09 ～ 2026-01 | RAG 语法、流式渲染器、Agent 自主巡航、TagMemo、上下文折叠持续成型 |
