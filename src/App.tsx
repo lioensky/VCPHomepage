@@ -2589,34 +2589,67 @@ export default function App() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row gap-16 items-center">
             <div className="flex-1">
-              <h2 className="text-5xl font-display font-bold mb-8 tracking-tight">
+              <motion.h2
+                initial={{opacity: 0, x: -36, y: 14}}
+                whileInView={{opacity: 1, x: 0, y: 0}}
+                viewport={{once: true, amount: 0.45}}
+                transition={{duration: 0.72, ease: "easeOut"}}
+                className="text-5xl font-display font-bold mb-8 tracking-tight"
+              >
                 THE <span className="text-vcp-cyan">INFRASTRUCTURE</span> <br />
                 OF EXISTENCE
-              </h2>
-              <p className="text-gray-400 text-lg mb-12 leading-relaxed">
+              </motion.h2>
+              <motion.p
+                initial={{opacity: 0, x: -28, y: 12}}
+                whileInView={{opacity: 1, x: 0, y: 0}}
+                viewport={{once: true, amount: 0.45}}
+                transition={{duration: 0.7, delay: 0.14, ease: "easeOut"}}
+                className="text-gray-400 text-lg mb-12 leading-relaxed"
+              >
                 VCP 1.1 的核心不再是「模型 API 中间层」，而是协议、数据库、算法、前端、分布式与容灾一体化的 AGI Runtime。
                 它让无状态模型获得统一上下文、持久记忆、自主巡游、群体协作与跨端连续意识。
-              </p>
+              </motion.p>
               <div className="space-y-6">
                 {[
                   {title: "OneRing Unified Context", desc: "纯 HASH-SQL 仲裁所有前端、群聊、邮箱与 Agent 间通讯，构建唯一事实时间线。"},
                   {title: "TagMemo Wave V8 + Vexus/TDB", desc: "语义动力学热记忆与三重积冷知识并行运行，让记忆像直觉一样浮现。"},
                   {title: "FlowInvite + AgentAssistant", desc: "AI 自己决定下一次心跳、心流锁、异步委托与跨 Agent 唤醒。"},
                 ].map((item, i) => (
-                  <div key={i} className="flex gap-4">
-                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-vcp-cyan/20 flex items-center justify-center text-vcp-cyan mt-1">
+                  <motion.div
+                    key={i}
+                    initial={{opacity: 0, x: -24}}
+                    whileInView={{opacity: 1, x: 0}}
+                    viewport={{once: true, amount: 0.6}}
+                    transition={{duration: 0.55, delay: 0.26 + i * 0.13, ease: "easeOut"}}
+                    className="flex gap-4"
+                  >
+                    <motion.div
+                      className="flex-shrink-0 w-6 h-6 rounded-full bg-vcp-cyan/20 flex items-center justify-center text-vcp-cyan mt-1"
+                      animate={{scale: [1, 1.18, 1]}}
+                      transition={{duration: 2.6, repeat: Infinity, delay: i * 0.35, ease: "easeInOut"}}
+                    >
                       <Zap size={12} />
-                    </div>
+                    </motion.div>
                     <div>
                       <h4 className="font-display font-bold text-white">{item.title}</h4>
                       <p className="text-sm text-gray-500">{item.desc}</p>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>
-            <div className="flex-1 relative">
-              <div className="agi-runtime-map glass-card p-4 aspect-square flex items-center justify-center relative overflow-hidden">
+            <motion.div
+              initial={{opacity: 0, x: 42, scale: 0.94}}
+              whileInView={{opacity: 1, x: 0, scale: 1}}
+              viewport={{once: true, amount: 0.3}}
+              transition={{duration: 0.85, delay: 0.18, ease: "easeOut"}}
+              className="flex-1 relative"
+            >
+              <motion.div
+                className="agi-runtime-map glass-card p-4 aspect-square flex items-center justify-center relative overflow-hidden"
+                whileHover={{scale: 1.015}}
+                transition={{type: "spring", stiffness: 220, damping: 22}}
+              >
                 <motion.div
                   animate={{rotate: 360}}
                   transition={{duration: 42, repeat: Infinity, ease: "linear"}}
@@ -2638,18 +2671,32 @@ export default function App() {
                   {name: "OpenHer", icon: Sparkles, className: "node-emotion"},
                   {name: "Desktop", icon: Monitor, className: "node-desktop"},
                   {name: "Nodes", icon: Network, className: "node-nodes"},
-                ].map((node) => (
-                  <div key={node.name} className={`runtime-node ${node.className}`}>
+                ].map((node, index) => (
+                  <motion.div
+                    key={node.name}
+                    className={`runtime-node ${node.className}`}
+                    animate={{
+                      y: [0, index % 2 === 0 ? -9 : 8, 0],
+                      rotate: [0, index % 2 === 0 ? 0.8 : -0.8, 0],
+                    }}
+                    whileHover={{scale: 1.1, zIndex: 8}}
+                    transition={{
+                      duration: 4.2 + index * 0.35,
+                      repeat: Infinity,
+                      delay: index * 0.28,
+                      ease: "easeInOut",
+                    }}
+                  >
                     <node.icon size={22} />
                     <span>{node.name}</span>
-                  </div>
+                  </motion.div>
                 ))}
                 <div className="runtime-connection connection-a" />
                 <div className="runtime-connection connection-b" />
                 <div className="runtime-connection connection-c" />
                 <div className="runtime-connection connection-d" />
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </div>
         </div>
       </section>
