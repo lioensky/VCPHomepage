@@ -4081,7 +4081,7 @@ nav.fixed {
 .ask-nova-panel::before {
   inset: 0;
   width: 100%;
-  background-image: url("/assets/nova_button.png");
+  background-image: url("/assets/nova_button_light.png");
   background-repeat: no-repeat;
   background-position: right center;
   background-size: auto 145%;
@@ -4107,6 +4107,10 @@ nav.fixed {
     rgba(0, 0, 0, 0.9) 90%,
     #000 100%
   );
+}
+
+:root[data-theme="industrial"] .ask-nova-panel::before {
+  background-image: url("/assets/nova_button.png");
 }
 
 
