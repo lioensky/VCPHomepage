@@ -46,6 +46,78 @@ import {DocsViewer} from "./components/DocsViewer";
 import {getAllDocs} from "./docs";
 import whitepaperV3Content, {metadata as whitepaperV3Metadata} from "./docs/vcp-whitepaper-v3.md";
 
+type SiteTheme = "editorial" | "industrial";
+
+const siteThemeStorageKey = "vcp-site-theme";
+
+function getInitialSiteTheme(): SiteTheme {
+  if (typeof window === "undefined") return "editorial";
+
+  const storedTheme = window.localStorage.getItem(siteThemeStorageKey);
+  if (storedTheme === "editorial" || storedTheme === "industrial") {
+    return storedTheme;
+  }
+
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "industrial" : "editorial";
+}
+
+function useSiteTheme() {
+  const [theme, setTheme] = useState<SiteTheme>(getInitialSiteTheme);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme === "industrial" ? "dark" : "light";
+    window.localStorage.setItem(siteThemeStorageKey, theme);
+  }, [theme]);
+
+  return {
+    theme,
+    toggleTheme: () => setTheme((current) => current === "editorial" ? "industrial" : "editorial"),
+  };
+}
+
+const VcpLogo = ({compact = false}: {compact?: boolean}) => (
+  <span className={`vcp-brand ${compact ? "vcp-brand-compact" : ""}`} aria-label="VCP.OS">
+    <svg className="vcp-logo-mark" viewBox="0 0 48 48" role="img" aria-hidden="true">
+      <path className="vcp-logo-frame" d="M7 4h29l5 5v30l-5 5H7l-4-4V8z" />
+      <path className="vcp-logo-fold" d="M31 4v9h10" />
+      <path className="vcp-logo-glyph" d="M12 15l9 21h6l9-21h-7l-5 13-5-13z" />
+      <path className="vcp-logo-register" d="M10 10h14M10 40h20" />
+    </svg>
+    {!compact && (
+      <span className="vcp-brand-wordmark">
+        <strong>VCP</strong><span>.OS</span>
+      </span>
+    )}
+  </span>
+);
+
+const ThemeToggle = () => {
+  const {theme, toggleTheme} = useSiteTheme();
+  const isDark = theme === "industrial";
+
+  return (
+    <button
+      type="button"
+      className="site-theme-toggle"
+      onClick={toggleTheme}
+      aria-label={isDark ? "切换到纸墨浅色主题" : "切换到工业石墨深色主题"}
+      aria-pressed={isDark}
+      title={isDark ? "当前：工业石墨深" : "当前：编辑部纸墨浅"}
+    >
+      <span className="site-theme-toggle-track" aria-hidden="true">
+        <Sun size={14} />
+        <Moon size={14} />
+        <span className="site-theme-toggle-thumb" />
+      </span>
+      <span className="site-theme-toggle-label">
+        <small>{isDark ? "02" : "01"}</small>
+        {isDark ? "工业石墨" : "纸墨浅"}
+      </span>
+    </button>
+  );
+};
+
 const FeatureCard = ({icon: Icon, title, description, delay = 0}: {icon: any; title: string; description: string; delay?: number}) => {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -884,23 +956,11 @@ const PluginStorePage = () => {
       <NeuralNetwork />
 
       <nav className="fixed top-0 left-0 z-50 flex w-full items-center justify-between border-b border-white/5 bg-vcp-black/50 px-8 py-6 backdrop-blur-md">
-        <a href="/" className="flex items-center gap-2">
-          <motion.div
-            className="flex h-10 w-10 items-center justify-center overflow-visible rounded-lg shadow-[0_0_18px_rgba(0,242,255,0.45)]"
-            animate={{
-              boxShadow: [
-                "0 0 14px rgba(0,242,255,0.32), 0 10px 28px rgba(0,242,255,0.16)",
-                "0 0 20px rgba(0,242,255,0.56), 0 10px 30px rgba(0,242,255,0.22)",
-                "0 0 14px rgba(0,242,255,0.32), 0 10px 28px rgba(0,242,255,0.16)",
-              ],
-            }}
-            transition={{duration: 3.2, repeat: Infinity, ease: "easeInOut"}}
-          >
-            <img src="/assets/logo1.png" alt="VCP.OS logo" className="h-full w-full object-contain" />
-          </motion.div>
-          <span className="text-2xl font-display font-bold tracking-tighter">VCP<span className="text-vcp-cyan">.OS</span></span>
+        <a href="/" className="site-brand-link">
+          <VcpLogo />
         </a>
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           <a
             href="/?page=learn-vcp"
             className="hidden md:inline-flex items-center gap-3 rounded-full border border-vcp-purple/30 bg-vcp-purple/10 px-5 py-2 font-display text-sm font-bold text-white transition-all hover:border-vcp-purple/60 hover:bg-vcp-purple/20"
@@ -1609,28 +1669,11 @@ const ChangelogPage = ({content}: {content: string}) => {
       <NeuralNetwork />
 
       <nav className="fixed top-0 left-0 z-50 flex w-full items-center justify-between border-b border-white/5 bg-vcp-black/50 px-8 py-6 backdrop-blur-md">
-        <a href="/" className="flex items-center gap-2">
-          <motion.div
-            className="flex h-10 w-10 items-center justify-center overflow-visible rounded-lg shadow-[0_0_18px_rgba(0,242,255,0.45)]"
-            animate={{
-              boxShadow: [
-                "0 0 14px rgba(0,242,255,0.32), 0 10px 28px rgba(0,242,255,0.16)",
-                "0 0 20px rgba(0,242,255,0.56), 0 10px 30px rgba(0,242,255,0.22)",
-                "0 0 14px rgba(0,242,255,0.32), 0 10px 28px rgba(0,242,255,0.16)",
-              ],
-              filter: [
-                "drop-shadow(0 0 4px rgba(0,242,255,0.28))",
-                "drop-shadow(0 0 8px rgba(0,242,255,0.52))",
-                "drop-shadow(0 0 4px rgba(0,242,255,0.28))",
-              ],
-            }}
-            transition={{duration: 3.2, repeat: Infinity, ease: "easeInOut"}}
-          >
-            <img src="/assets/logo1.png" alt="VCP.OS logo" className="h-full w-full object-contain" />
-          </motion.div>
-          <span className="text-2xl font-display font-bold tracking-tighter">VCP<span className="text-vcp-cyan">.OS</span></span>
+        <a href="/" className="site-brand-link">
+          <VcpLogo />
         </a>
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           <a
             href="/?page=learn-vcp"
             className="hidden md:inline-flex items-center gap-3 rounded-full border border-vcp-purple/30 bg-vcp-purple/10 px-5 py-2 font-display text-sm font-bold text-white transition-all hover:border-vcp-purple/60 hover:bg-vcp-purple/20"
@@ -1832,28 +1875,11 @@ const WhitepaperPage = () => {
       </motion.div>
 
       <nav className="fixed top-0 left-0 z-50 flex w-full items-center justify-between border-b border-white/5 bg-vcp-black/50 px-8 py-6 backdrop-blur-md">
-        <a href="/" className="flex items-center gap-2">
-          <motion.div
-            className="flex h-10 w-10 items-center justify-center overflow-visible rounded-lg shadow-[0_0_18px_rgba(0,242,255,0.45)]"
-            animate={{
-              boxShadow: [
-                "0 0 14px rgba(0,242,255,0.32), 0 10px 28px rgba(0,242,255,0.16)",
-                "0 0 20px rgba(0,242,255,0.56), 0 10px 30px rgba(0,242,255,0.22)",
-                "0 0 14px rgba(0,242,255,0.32), 0 10px 28px rgba(0,242,255,0.16)",
-              ],
-              filter: [
-                "drop-shadow(0 0 4px rgba(0,242,255,0.28))",
-                "drop-shadow(0 0 8px rgba(0,242,255,0.52))",
-                "drop-shadow(0 0 4px rgba(0,242,255,0.28))",
-              ],
-            }}
-            transition={{duration: 3.2, repeat: Infinity, ease: "easeInOut"}}
-          >
-            <img src="/assets/logo1.png" alt="VCP.OS logo" className="h-full w-full object-contain" />
-          </motion.div>
-          <span className="text-2xl font-display font-bold tracking-tighter">VCP<span className="text-vcp-cyan">.OS</span></span>
+        <a href="/" className="site-brand-link">
+          <VcpLogo />
         </a>
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           <a
             href="/?page=changelog"
             className="hidden md:inline-flex items-center gap-3 rounded-full border border-vcp-cyan/25 bg-vcp-cyan/10 px-5 py-2 font-display text-sm font-bold text-white transition-all hover:border-vcp-cyan/60 hover:bg-vcp-cyan/20"
@@ -2228,27 +2254,9 @@ export default function App() {
       </motion.div>
 
       <nav className="fixed top-0 left-0 w-full z-50 px-8 py-6 flex justify-between items-center bg-vcp-black/50 backdrop-blur-md border-b border-white/5">
-        <div className="flex items-center gap-2">
-          <motion.div
-            className="w-10 h-10 rounded-lg flex items-center justify-center overflow-visible shadow-[0_0_18px_rgba(0,242,255,0.45)]"
-            animate={{
-              boxShadow: [
-                "0 0 14px rgba(0,242,255,0.32), 0 10px 28px rgba(0,242,255,0.16)",
-                "0 0 20px rgba(0,242,255,0.56), 0 10px 30px rgba(0,242,255,0.22)",
-                "0 0 14px rgba(0,242,255,0.32), 0 10px 28px rgba(0,242,255,0.16)",
-              ],
-              filter: [
-                "drop-shadow(0 0 4px rgba(0,242,255,0.28))",
-                "drop-shadow(0 0 8px rgba(0,242,255,0.52))",
-                "drop-shadow(0 0 4px rgba(0,242,255,0.28))",
-              ],
-            }}
-            transition={{duration: 3.2, repeat: Infinity, ease: "easeInOut"}}
-          >
-            <img src="/assets/logo1.png" alt="VCP.OS logo" className="h-full w-full object-contain" />
-          </motion.div>
-          <span className="text-2xl font-display font-bold tracking-tighter">VCP<span className="text-vcp-cyan">.OS</span></span>
-        </div>
+        <a href="/" className="site-brand-link">
+          <VcpLogo />
+        </a>
         <div className="hidden md:flex items-center gap-8 font-mono text-xs tracking-widest uppercase">
           <a href="#desktop" className="hover:text-vcp-cyan transition-colors">Desktop</a>
           <a href="#architecture" className="hover:text-vcp-cyan transition-colors">Architecture</a>
@@ -2259,6 +2267,7 @@ export default function App() {
           <a href="/?page=plugin-store" className="hover:text-vcp-cyan transition-colors">Plugin Store</a>
         </div>
         <div className="flex items-center gap-4">
+          <ThemeToggle />
           <a
             href="https://github.com/lioensky/VCPChat"
             target="_blank"
@@ -2413,7 +2422,7 @@ export default function App() {
         </div>
       </section>
 
-      <section className="py-20 border-y border-white/5 bg-vcp-dark/50">
+      <section className="site-section site-section-metrics py-20 border-y border-white/5 bg-vcp-dark/50">
         <div className="max-w-7xl mx-auto px-8 grid grid-cols-2 md:grid-cols-4 gap-12">
           {[
             {label: "Plugins Integrated", value: "300+"},
@@ -2436,7 +2445,7 @@ export default function App() {
         </div>
       </section>
 
-      <section id="desktop" className="py-32 px-8 relative overflow-hidden">
+      <section id="desktop" className="site-section site-section-desktop py-32 px-8 relative overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <motion.h2
@@ -2580,7 +2589,7 @@ export default function App() {
         </div>
       </section>
 
-      <section id="architecture" className="py-32 px-8 relative">
+      <section id="architecture" className="site-section site-section-architecture py-32 px-8 relative overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row gap-16 items-center">
             <div className="flex-1">
@@ -2649,7 +2658,7 @@ export default function App() {
         </div>
       </section>
 
-      <section id="memory" className="py-32 px-8 overflow-hidden">
+      <section id="memory" className="site-section site-section-memory py-32 px-8 relative overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row-reverse gap-16 items-center">
             <div className="flex-1">
@@ -2777,7 +2786,7 @@ export default function App() {
         </div>
       </section>
 
-      <section className="py-32 px-8 bg-vcp-dark/30">
+      <section className="site-section site-section-capabilities py-32 px-8 bg-vcp-dark/30">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-4xl font-display font-bold mb-4">CORE CAPABILITIES</h2>
@@ -2824,7 +2833,7 @@ export default function App() {
         </div>
       </section>
 
-      <section id="lifecycle" className="py-32 px-8 relative overflow-hidden">
+      <section id="lifecycle" className="site-section site-section-lifecycle py-32 px-8 relative overflow-hidden">
         <div className="ai-day-cosmos" />
         <div className="ai-day-orbit-bg">
           <motion.div
@@ -2970,7 +2979,7 @@ export default function App() {
         </div>
       </section>
 
-      <section id="docs" ref={docsSectionRef} className="py-32 px-8 bg-vcp-dark/50">
+      <section id="docs" ref={docsSectionRef} className="site-section site-section-docs py-32 px-8 relative overflow-hidden bg-vcp-dark/50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-display font-bold mb-6">DOCS PORTAL</h2>
@@ -3017,11 +3026,8 @@ export default function App() {
       <footer className="py-20 px-8 border-t border-white/5 bg-vcp-black/20">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
           <div className="col-span-1 md:col-span-2">
-            <div className="flex items-center gap-2 mb-6">
-              <div className="w-10 h-10 bg-vcp-purple rounded-lg flex items-center justify-center">
-                <Cpu className="text-vcp-cyan" size={24} />
-              </div>
-              <span className="text-2xl font-display font-bold tracking-tighter">VCP<span className="text-vcp-cyan">.OS</span></span>
+            <div className="mb-6">
+              <VcpLogo />
             </div>
             <p className="text-gray-500 text-lg max-w-md leading-relaxed">
               Variable & Command Protocol. <br />
