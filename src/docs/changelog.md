@@ -1,7 +1,7 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-07-06 的真实演进记录，按时间倒序展示最新版本与关键里程碑。
-updatedAt: 2026-07-06
+summary: 汇总 VCP 从 2023-12 到 2026-07-08 的真实演进记录，按时间倒序展示最新版本与关键里程碑。
+updatedAt: 2026-07-08
 category: changelog
 ---
 
@@ -13,7 +13,15 @@ category: changelog
 
 ## 最新更新
 
-### 2026-07-06 · VCPToolRecord 数据库上线
+### 2026-07-08 · 日记插件集、硬件 I/O 可视化与 Sarprompt 优化
+
+优化日记写入、搜索、整理和更新时对应插件集中的多处 Fuzzy 解析与安全检查点，进一步提升 AI 写日记、检索日记和整理日记时的易用性与鲁棒性。
+
+新增浪潮运行时硬件 I/O 可视化管线。现在，浪潮记忆与 TDB 知识库相关管线的硬件占用均可即时观测，便于分析运行负载、定位性能瓶颈并进行参数调优。
+
+优化 Sarprompt 的模型注入方式。系统现在可以根据模型自动注入对应提示词，无需再主动输入 `Sarprompt1`、`Sarprompt2`、`Sarprompt3` 等独立绑定模型名规则；原有独立规则仍继续适用，以保持向后兼容。
+
+### 2026-07-06 · VCPToolRecord 数据库上线与 TDB 向量引擎优化
 
 全新 VCPToolRecord 数据库上架。此前 VCP 已经具备若干分散的工具追踪能力：异步任务与委托异步任务的 ID 可以查询和取消，定时委托任务等 ID 也可追踪，24 小时内的工具调用结果会保存在内存中，多媒体插件生成的数据会进入 File 库，深度研究产生的报告会进入知识库。但这些机制都没有保存工具从发起到结束的完整运行时。
 
@@ -22,6 +30,8 @@ VCPToolRecord 将同步、异步、系统与人类发起的工具调用统一纳
 AI 通知栏现在可以直接显示当前上下文中所有工具调用记录的 ID，便于用户、Agent 与管理员在后续对话、排障或复盘中精确引用。后端管理员面板同步新增 VCPToolRecord 数据库的全功能配置与管理页面，可集中查看、筛选、维护和治理工具调用记录。
 
 同时新增元插件“调用记录查询器”。该插件支持按 ID、发起人、时间范围、工具名、状态、运行时内容与模糊字段匹配等多种条件查询 VCPToolRecord 数据库；也可以直接拉取任意插件运行时中的多模态数据，并基于 VCPFileAPI 进行二次操作、阅读或后续处理。由此，VCP 的工具调用从“可见结果”升级为“完整运行时可追溯资产”。
+
+TDB 数据库的向量化方式也得到优化。由于 TDB 尚不具备 VCP 数据库的纯增量写库机制，本次为其专门实现流式队列化向量引擎，将大型索引的向量化与入库过程拆分为可控的流式队列任务，避免巨型索引一次性入库导致反复 OOM，提升大规模知识库构建时的稳定性。
 
 ### 2026-07-04 · VCPUrlFetch V3 与 VCPChromeService 上线
 
@@ -631,7 +641,7 @@ VCP 从构思阶段进入正式开发阶段。
 
 | 阶段 | 时间范围 | 关键进展 |
 | --- | --- | --- |
-| 正式版、OneRing、OpenHer 与知识图谱期 | 2026-04 ～ 2026-07 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页、源码地图 WikiBot、VCPRagManger 召回管线重构与 RAG 侧 10～100 倍加速、隐私防护小助手、Tool / OneRing / VCPMail / RAG 日记 / AA 通讯管线标准化、官网内嵌 VCP Neon Runtime Survivor 小游戏、后端服务器面板第三次全量重构、离线通知补发、YoutubeFetch 官方 API 重构、LightMemo 向量测绘、TagMemoEngine 预训练管理、日记本后缀权重语法、浪潮 V8 测地线置信度守卫、BM25 管线合并 DailyNoteRust API、自研 BM25QueryOptimizer 查询优化器、插件商店订阅体系重构、VCPUrlFetch V3、VCPChromeService 持久化浏览器服务、ChromeBridge 自然语言网页控制增强、VCPToolRecord 工具调用完整运行时数据库、调用记录查询器元插件 |
+| 正式版、OneRing、OpenHer 与知识图谱期 | 2026-04 ～ 2026-07 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页、源码地图 WikiBot、VCPRagManger 召回管线重构与 RAG 侧 10～100 倍加速、隐私防护小助手、Tool / OneRing / VCPMail / RAG 日记 / AA 通讯管线标准化、官网内嵌 VCP Neon Runtime Survivor 小游戏、后端服务器面板第三次全量重构、离线通知补发、YoutubeFetch 官方 API 重构、LightMemo 向量测绘、TagMemoEngine 预训练管理、日记本后缀权重语法、浪潮 V8 测地线置信度守卫、BM25 管线合并 DailyNoteRust API、自研 BM25QueryOptimizer 查询优化器、插件商店订阅体系重构、VCPUrlFetch V3、VCPChromeService 持久化浏览器服务、ChromeBridge 自然语言网页控制增强、VCPToolRecord 工具调用完整运行时数据库、调用记录查询器元插件、TDB 流式队列化向量引擎、日记插件集 Fuzzy 与安全检查优化、浪潮 / TDB 硬件 I/O 可视化、Sarprompt 模型自动注入 |
 | 平台化扩展期 | 2026-03 ～ 2026-04 | VCPDesktop、桌面遥控、全局 API 虚拟化、PreText.js、7.5 版浪潮与官网上线 |
 | 系统化重构期 | 2026-02 ～ 2026-03 | 超栈追踪 V2、梦系统、SOM 桌面语义控制、多模态记忆、统一中央服务全面推进 |
 | 记忆与自主性爆发期 | 2025-09 ～ 2026-01 | RAG 语法、流式渲染器、Agent 自主巡航、TagMemo、上下文折叠持续成型 |
