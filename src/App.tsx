@@ -110,10 +110,6 @@ const ThemeToggle = () => {
         <Moon size={14} />
         <span className="site-theme-toggle-thumb" />
       </span>
-      <span className="site-theme-toggle-label">
-        <small>{isDark ? "02" : "01"}</small>
-        {isDark ? "工业石墨" : "纸墨浅"}
-      </span>
     </button>
   );
 };

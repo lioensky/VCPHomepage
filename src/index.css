@@ -3174,11 +3174,10 @@ textarea {
   display: inline-flex;
   min-height: 2.55rem;
   align-items: center;
-  gap: 0.65rem;
   border: 1px solid var(--site-line);
   border-radius: 0.6rem;
   background: var(--site-surface);
-  padding: 0.32rem 0.65rem 0.32rem 0.38rem;
+  padding: 0.32rem 0.38rem;
   color: var(--site-text);
   box-shadow: 2px 2px 0 var(--site-surface-2);
   cursor: pointer;
