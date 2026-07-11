@@ -1,7 +1,7 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-07-08 的真实演进记录，按时间倒序展示最新版本与关键里程碑。
-updatedAt: 2026-07-08
+summary: 汇总 VCP 从 2023-12 到 2026-07-11 的真实演进记录，按时间倒序展示最新版本与关键里程碑。
+updatedAt: 2026-07-11
 category: changelog
 ---
 
@@ -12,6 +12,18 @@ category: changelog
 ---
 
 ## 最新更新
+
+### 2026-07-11 · VChat 渲染管线优化与长期认知系统升级
+
+VChat 界面完成新一轮渲染性能优化。侧栏拖拽与输入框高度调整均改为帧级合并，避免高频交互过程中重复触发布局计算与样式写入，显著降低拖拽、输入时的 CPU 开销和页面抖动。自动滚动逻辑同步精简，减少无效滚动；右侧缝合条观察器也完成收束，合并重复监听与样式更新，进一步降低界面常驻开销。
+
+异步聊天渲染管线得到重点升级，引入面向多话题、多 Agent 的单窗口多界面切换渐进式流渲染管线。不同会话界面在持续接收流式内容时可以更平滑地切换、恢复和推进渲染，改善多任务并行场景下的界面连贯性与响应效率。
+
+OpenHer 上线全自动情绪参数校平系统。系统在基于语义锚点的情绪识别基础上，引入由真实运行数据驱动的连续数学校准机制，通过动态 Softmax 系数修正不同情绪锚点在实际向量空间中的分布偏差，降低锚点不均衡造成的主观统计偏差，使长期情绪观测与参数演化更加稳定。
+
+OneRing V2 新增 OneRingMemo。此前 OneRing 虽然能够统一多来源上下文并形成 Agent 的持久认知，但受实际上下文窗口限制，较早内容仍会随着对话推进而退出可见范围。现在，OneRing 会为全部对话持续维护“一句话摘要 + 时间戳”记录，并可按需自动注入最近若干小时内、精确到分钟的连续事件节点，使不同客户端上的行为认知保持一致。该机制通常仅占用数百 Token，即可在较低上下文负担下维持跨会话、跨客户端的近时连续认知。
+
+VCPTimeLine V2 同步上线，并接入上下文折叠 V2。Agent 会始终保留按月压缩的一句话行为总结，即使覆盖五年时间跨度，基础索引也仅约占 800 Token；当当前上下文与历史月份产生较强语义关联时，系统会依据上下文语义引力场，动态展开对应月份的分级时间粒度，从周期任务一路下钻至具体日期与工作流。具体的展开与寻址由 Bridge 系统中的浪潮管线负责，在低常驻 Token 占用下兼顾长期时间感知与细粒度历史回溯。
 
 ### 2026-07-08 · 日记插件集、硬件 I/O 可视化与 Sarprompt 优化
 
@@ -641,7 +653,7 @@ VCP 从构思阶段进入正式开发阶段。
 
 | 阶段 | 时间范围 | 关键进展 |
 | --- | --- | --- |
-| 正式版、OneRing、OpenHer 与知识图谱期 | 2026-04 ～ 2026-07 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页、源码地图 WikiBot、VCPRagManger 召回管线重构与 RAG 侧 10～100 倍加速、隐私防护小助手、Tool / OneRing / VCPMail / RAG 日记 / AA 通讯管线标准化、官网内嵌 VCP Neon Runtime Survivor 小游戏、后端服务器面板第三次全量重构、离线通知补发、YoutubeFetch 官方 API 重构、LightMemo 向量测绘、TagMemoEngine 预训练管理、日记本后缀权重语法、浪潮 V8 测地线置信度守卫、BM25 管线合并 DailyNoteRust API、自研 BM25QueryOptimizer 查询优化器、插件商店订阅体系重构、VCPUrlFetch V3、VCPChromeService 持久化浏览器服务、ChromeBridge 自然语言网页控制增强、VCPToolRecord 工具调用完整运行时数据库、调用记录查询器元插件、TDB 流式队列化向量引擎、日记插件集 Fuzzy 与安全检查优化、浪潮 / TDB 硬件 I/O 可视化、Sarprompt 模型自动注入 |
+| 正式版、OneRing、OpenHer 与知识图谱期 | 2026-04 ～ 2026-07 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页、源码地图 WikiBot、VCPRagManger 召回管线重构与 RAG 侧 10～100 倍加速、隐私防护小助手、Tool / OneRing / VCPMail / RAG 日记 / AA 通讯管线标准化、官网内嵌 VCP Neon Runtime Survivor 小游戏、后端服务器面板第三次全量重构、离线通知补发、YoutubeFetch 官方 API 重构、LightMemo 向量测绘、TagMemoEngine 预训练管理、日记本后缀权重语法、浪潮 V8 测地线置信度守卫、BM25 管线合并 DailyNoteRust API、自研 BM25QueryOptimizer 查询优化器、插件商店订阅体系重构、VCPUrlFetch V3、VCPChromeService 持久化浏览器服务、ChromeBridge 自然语言网页控制增强、VCPToolRecord 工具调用完整运行时数据库、调用记录查询器元插件、TDB 流式队列化向量引擎、日记插件集 Fuzzy 与安全检查优化、浪潮 / TDB 硬件 I/O 可视化、Sarprompt 模型自动注入、VChat 帧级交互合并与多界面渐进流渲染、OpenHer 情绪参数自动校平、OneRingMemo 近时连续认知、VCPTimeLine V2 长期时间线 |
 | 平台化扩展期 | 2026-03 ～ 2026-04 | VCPDesktop、桌面遥控、全局 API 虚拟化、PreText.js、7.5 版浪潮与官网上线 |
 | 系统化重构期 | 2026-02 ～ 2026-03 | 超栈追踪 V2、梦系统、SOM 桌面语义控制、多模态记忆、统一中央服务全面推进 |
 | 记忆与自主性爆发期 | 2025-09 ～ 2026-01 | RAG 语法、流式渲染器、Agent 自主巡航、TagMemo、上下文折叠持续成型 |
