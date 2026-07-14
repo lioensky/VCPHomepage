@@ -22,9 +22,12 @@ category: changelog
 3. **软非回溯传播**：传播状态加入前驱信息，对“刚走过去又立即返回”的路径仅保留 15% 质量，并设置状态数量上限，防止高分支图状态爆炸。
 4. **有限时域累计**：各跳传播结果改为归一化几何加权，使近距离关联拥有更高权重，远距离联想逐步衰减。V8 河流引擎底层逻辑保持不变，仅进行归一化算法处理。
 5. **残差与资产一致性**：残差改为稳定的局部原始测量；传播矩阵、残差、模型签名和实际配置组成不可拆分的版本资产包，并采用原子发布，避免新旧数据混用。
-6. **严格双轨验证**：V8.3 与 V9.1 现在可以各自独立工作，用户可自行选择版本并分别预计算浪潮模型，便于开展对照测试与结果验证。
-7. **V8.3 正常迭代**：由于 V9.1 的部分新数学统一域算法展现出显著正收益，相关能力同步下放至 V8.3，因此 V8.3 用户也能获得明显提升。
-8. **一键单元测试上线**：LightMemo 现在支持对浪潮 V8、V9 与 KNN 进行一键单元测试，支持复杂自定义规则和批量导入查询锚点。最终评分报告由 LLM 生成，需要 LLM 并发、隔离且独立地遍历全部测试结果，因此可能产生大量 Token 费用，使用时请留意成本。
+6. **V9.1 单轨正式生产**：Beta 阶段的 V8.3 / V9.1 双轨验证已经完成，V9.1 现已全量覆盖 V8.3，成为唯一生产版本；显式请求已退休的旧版本时，系统会直接返回版本退休错误，不会静默伪装执行。
+7. **工程补丁与 Zero-shot 验证**：V9.1 的工程补丁下放实验表明 V8.3 的浪潮方向本身有效，而新数学在边界候选、枢纽污染、循环回流和长距离噪声控制方面仍有独立收益。原创概念与私有知识体系测试也显示，TagMemo 能沿内部共现、顺序和叙事路径恢复纯向量近邻难以发现的记忆。
+8. **一键对比测试上线**：LightMemo 现在支持 KNN、Rerank 与浪潮 V9.1 的一键对比测试，可批量导入查询锚点、应用复杂自定义规则，并比较共同召回、独占召回、排名变化与边界候选。最终报告可由独立 LLM 并发、隔离地逐项评审，因此可能产生大量 Token 费用，使用时请留意成本。
+9. **统一日记写入 API**：DailyNote 外部写入现在统一进入协调队列，多 Agent 写入按 FIFO 执行，并与查询恢复、删除任务、Rust 写租约、SQLite 和向量索引更新协同；移动或重命名会先处理旧路径再提交新路径，避免写入乱序、重复入库、WAL 竞争和训练期间读取半成品。
+
+总体而言，V9.1 并不是为了让传播走得更远，也不是对 V8 路线的推翻，而是为了解决热门关联垄断注意力、枢纽节点吸积质量、短周期循环回流、远距离噪声累积以及多 Agent 并发读写时的资产一致性问题。它将 V8 已经验证有效的河流传播、叙事方向、逆流与虫洞机制，收敛为一个更加守恒、稳定且可验证的正式生产系统，使 TagMemo 不只寻找“最像问题”的文本，也能更可靠地恢复一段记忆为何出现、如何形成以及接下来最值得联想到哪里。
 
 ### 2026-07-11 · VChat 多话题渲染、心流锁 V2 与长期认知系统升级
 
@@ -670,7 +673,7 @@ VCP 从构思阶段进入正式开发阶段。
 
 | 阶段 | 时间范围 | 关键进展 |
 | --- | --- | --- |
-| 正式版、OneRing、OpenHer 与知识图谱期 | 2026-04 ～ 2026-07 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页、源码地图 WikiBot、VCPRagManger 召回管线重构与 RAG 侧 10～100 倍加速、隐私防护小助手、Tool / OneRing / VCPMail / RAG 日记 / AA 通讯管线标准化、官网内嵌 VCP Neon Runtime Survivor 小游戏、后端服务器面板第三次全量重构、离线通知补发、YoutubeFetch 官方 API 重构、LightMemo 向量测绘、TagMemoEngine 预训练管理、日记本后缀权重语法、浪潮 V8 测地线置信度守卫、BM25 管线合并 DailyNoteRust API、自研 BM25QueryOptimizer 查询优化器、插件商店订阅体系重构、VCPUrlFetch V3、VCPChromeService 持久化浏览器服务、ChromeBridge 自然语言网页控制增强、VCPToolRecord 工具调用完整运行时数据库、调用记录查询器元插件、TDB 流式队列化向量引擎、日记插件集 Fuzzy 与安全检查优化、浪潮 / TDB 硬件 I/O 可视化、Sarprompt 模型自动注入、VChat 帧级交互合并与多话题前后台解耦渐进流渲染、心流锁 V2 多 Agent 独立并发与自治话题、OpenHer 情绪参数自动校平、OneRingMemo 近时连续认知、VCPTimeLine V2 长期时间线、浪潮 V9.1 注意力预算传播核、枢纽校正、软非回溯传播、有限时域累计、V8.3 / V9.1 双轨验证、LightMemo 一键单元测试 |
+| 正式版、OneRing、OpenHer 与知识图谱期 | 2026-04 ～ 2026-07 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页、源码地图 WikiBot、VCPRagManger 召回管线重构与 RAG 侧 10～100 倍加速、隐私防护小助手、Tool / OneRing / VCPMail / RAG 日记 / AA 通讯管线标准化、官网内嵌 VCP Neon Runtime Survivor 小游戏、后端服务器面板第三次全量重构、离线通知补发、YoutubeFetch 官方 API 重构、LightMemo 向量测绘、TagMemoEngine 预训练管理、日记本后缀权重语法、浪潮 V8 测地线置信度守卫、BM25 管线合并 DailyNoteRust API、自研 BM25QueryOptimizer 查询优化器、插件商店订阅体系重构、VCPUrlFetch V3、VCPChromeService 持久化浏览器服务、ChromeBridge 自然语言网页控制增强、VCPToolRecord 工具调用完整运行时数据库、调用记录查询器元插件、TDB 流式队列化向量引擎、日记插件集 Fuzzy 与安全检查优化、浪潮 / TDB 硬件 I/O 可视化、Sarprompt 模型自动注入、VChat 帧级交互合并与多话题前后台解耦渐进流渲染、心流锁 V2 多 Agent 独立并发与自治话题、OpenHer 情绪参数自动校平、OneRingMemo 近时连续认知、VCPTimeLine V2 长期时间线、浪潮 V9.1 注意力预算传播核、枢纽校正、软非回溯传播、有限时域累计、V9.1 单轨正式生产、Zero-shot 私有知识验证、KNN / Rerank / V9.1 一键对比测试、统一 DailyNote 写入 API |
 | 平台化扩展期 | 2026-03 ～ 2026-04 | VCPDesktop、桌面遥控、全局 API 虚拟化、PreText.js、7.5 版浪潮与官网上线 |
 | 系统化重构期 | 2026-02 ～ 2026-03 | 超栈追踪 V2、梦系统、SOM 桌面语义控制、多模态记忆、统一中央服务全面推进 |
 | 记忆与自主性爆发期 | 2025-09 ～ 2026-01 | RAG 语法、流式渲染器、Agent 自主巡航、TagMemo、上下文折叠持续成型 |
