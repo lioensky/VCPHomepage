@@ -1,6 +1,6 @@
 /* ================================================================
-   VCP Wave v8.2 · 语义流体力学可视化
-   Design: deep cosmic + river-flow aesthetic
+   VCP Wave V9.2 · 有界浪潮与查询诱导式曲线测地线
+   Design: deep cosmic + bounded field / ordered curve aesthetic
    ================================================================ */
 
 :root {
@@ -930,6 +930,16 @@ body {
     margin: 6px 0;
 }
 
+.curve-formula {
+    text-align: left;
+    border-color: rgba(77, 208, 225, 0.38);
+    background:
+        linear-gradient(135deg, rgba(77, 208, 225, 0.12), rgba(138, 92, 246, 0.08)),
+        repeating-linear-gradient(90deg, transparent 0 28px, rgba(255, 255, 255, 0.018) 28px 29px);
+    box-shadow: inset 3px 0 0 var(--river-cyan);
+    color: var(--river-cyan);
+}
+
 .formula-box strong {
     color: var(--river-pink);
     font-size: 18px;
@@ -1149,6 +1159,19 @@ body {
     box-shadow: 0 0 24px rgba(138, 92, 246, 0.25);
 }
 
+.pipe-step:nth-child(7),
+.pipe-step:nth-child(9) {
+    border-color: rgba(91, 141, 239, 0.42);
+    background: linear-gradient(135deg, rgba(91, 141, 239, 0.16), rgba(138, 92, 246, 0.08));
+}
+
+.pipe-step:nth-child(11),
+.pipe-step:nth-child(13),
+.pipe-step:nth-child(15) {
+    border-color: rgba(240, 98, 146, 0.34);
+    background: linear-gradient(135deg, rgba(138, 92, 246, 0.14), rgba(240, 98, 146, 0.07));
+}
+
 .pipe-step.pipe-final {
     background: linear-gradient(135deg,
         rgba(77, 208, 225, 0.2),
@@ -1305,6 +1328,23 @@ body {
 
     .formula-arrow {
         transform: rotate(90deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    .cosmic-bg::before,
+    .title-line.gradient,
+    .scroll-arrow,
+    .r-leap {
+        animation: none;
+    }
+
+    .global-river {
+        opacity: 0.18;
     }
 }
 
@@ -1519,6 +1559,18 @@ body {
 
     .chapter-hero {
         padding-top: 130px;
+    }
+
+    .canvas-legend {
+        max-width: calc(100% - 32px);
+        flex-wrap: wrap;
+        gap: 7px 12px;
+        font-size: 10px;
+    }
+
+    .curve-formula {
+        font-size: 11px;
+        overflow-wrap: anywhere;
     }
 
     .site-footer {
