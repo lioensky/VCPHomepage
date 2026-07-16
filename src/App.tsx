@@ -1835,7 +1835,7 @@ const WhitepaperPage = () => {
   const chapterCount = Math.max(whitepaperSections.length - 1, 1);
   const meta = useMemo<PageMeta>(() => ({
     title: "Learn VCP | VCP Whitepaper V3",
-    description: "Learn VCP 是 VCP-OS 官方技术白皮书页面，系统介绍 Variable & Command Protocol、VCPToolBox、VCPChat、VCPDesktop、OneRing、TagMemo 浪潮 V8、OpenHer、AgentAssistant 与 AGI Runtime 架构。",
+    description: "Learn VCP 是 VCP-OS 官方技术白皮书页面，系统介绍 Variable & Command Protocol、VCPToolBox、VCPChat、VCPDesktop、OneRing、TagMemo 浪潮 V9.2、OpenHer、AgentAssistant 与 AGI Runtime 架构。",
     keywords: "Learn VCP,VCP Whitepaper,VCP 白皮书,VCP-OS,Variable Command Protocol,AGI Runtime,VCPToolBox,VCPChat,VCPDesktop,OneRing,TagMemo,OpenHer,AgentAssistant",
     canonical: "https://www.vcptoolbox.com/learn-vcp",
     ogTitle: "Learn VCP | VCP Whitepaper V3",
@@ -1899,7 +1899,7 @@ const WhitepaperPage = () => {
           <p>
             Learn VCP 是 VCP-OS 官方技术白皮书页面，介绍 Variable & Command Protocol 如何从模型 API
             中间层演进为全栈自研的 AGI Runtime。页面内容覆盖 OneRing 统一上下文、VCPDesktop 桌面运行时、
-            VCPMessageRenderer、TagMemo 浪潮 V8 语义记忆、Vexus/TDB 双栈检索、FlowInvite 自主心跳、
+            VCPMessageRenderer、TagMemo 浪潮 V9.2 有界语义动力学、Vexus/TDB 双栈检索、FlowInvite 自主心跳、
             AgentAssistant、OpenHer 情感引擎、分布式节点与人类-AI 共生生态。
           </p>
           <p>
@@ -2050,14 +2050,14 @@ export default function App() {
 
   const homeMeta = useMemo<PageMeta>(() => ({
     title: "VCP-OS | VCPToolBox 官方网站",
-    description: "VCP-OS | VCPToolBox 官方网站。VCP (Variable & Command Protocol) 是面向 AI Agent 的 AGI Runtime 与存在基础设施，基于vcptoolbox中央服务器和分布式生态，为AI提供永久记忆、工具调用、自主心跳、VCPDesktop、OneRing 上下文、TagMemo 浪潮 V8 语义动力学、分布式节点能力与 VCP Neon Striker 霓虹弹幕小游戏体验。",
-    keywords: "VCP,VCP-OS,Variable Command Protocol,AGI Runtime,AI Agent,AI 存在基础设施,VCPChat,VCPToolBox,VCPDesktop,OneRing,TagMemo,浪潮 V8,语义动力学,VCP Neon Striker,VCP 小游戏,霓虹弹幕生存",
+    description: "VCP-OS | VCPToolBox 官方网站。VCP (Variable & Command Protocol) 是面向 AI Agent 的 AGI Runtime 与存在基础设施，基于vcptoolbox中央服务器和分布式生态，为AI提供永久记忆、工具调用、自主心跳、VCPDesktop、OneRing 上下文、TagMemo 浪潮 V9.2 有界语义动力学、分布式节点能力与 VCP Neon Striker 霓虹弹幕小游戏体验。",
+    keywords: "VCP,VCP-OS,Variable Command Protocol,AGI Runtime,AI Agent,AI 存在基础设施,VCPChat,VCPToolBox,VCPDesktop,OneRing,TagMemo,浪潮 V9.2,有界语义动力学,查询诱导式测地线,VCP Neon Striker,VCP 小游戏,霓虹弹幕生存",
     canonical: "https://www.vcptoolbox.com/",
     ogTitle: "VCP-OS | VCPToolBox 官方网站",
     ogDescription: "VCP-OS | VCPToolBox 是面向 AI Agent 的 AGI Runtime 与存在基础设施，基于vcptoolbox中央服务器和分布式生态，让 AI 获得永久记忆、工具栈、自主心跳、桌面运行时、分布式协作能力与 VCP Neon Striker 霓虹弹幕小游戏体验。",
     ogUrl: "https://www.vcptoolbox.com/",
     twitterTitle: "VCP-OS | AI 存在基础设施",
-    twitterDescription: "了解 VCP、VCPToolbox、VCPChat、VCPDesktop、OneRing、TagMemo 浪潮 V8、VCP Neon Striker 与 VCP应用群 组成的 AI Agent 运行时生态。",
+    twitterDescription: "了解 VCP、VCPToolbox、VCPChat、VCPDesktop、OneRing、TagMemo 浪潮 V9.2、VCP Neon Striker 与 VCP 应用群组成的 AI Agent 运行时生态。",
   }), []);
 
   usePageMeta(homeMeta, !isWhitepaperRoute && !isChangelogRoute && !isPluginStoreRoute);
@@ -2176,13 +2176,13 @@ export default function App() {
         </p>
         <p>
           VCP 生态包括 VCPToolBox 后端、VCPChat 前端、VCPDesktop 赛博桌面、OneRing 单一事实时间线、
-          TagMemo 浪潮 V8 语义动力学记忆引擎、Vexus/TDB 本地向量与冷知识图检索、VSearch、VMusic、
+          TagMemo 浪潮 V9.2 有界语义动力学记忆引擎、Vexus/TDB 本地向量与冷知识图检索、VSearch、VMusic、
           FlowInvite、AgentAssistant 与 OpenHer 情感引擎。
         </p>
         <nav aria-label="核心页面">
           <a href="/">VCP 官方首页</a>
           <a href="/?page=learn-vcp">Learn VCP 技术白皮书</a>
-          <a href="/vcp_wave_v8_engine.html">TagMemo 浪潮 V8.2 语义动力学引擎</a>
+          <a href="/vcp_wave_v8_engine.html">TagMemo 浪潮 V9.2 有界浪潮与曲线测地线</a>
           <a href="/vcp-neon-game">VCP Neon Striker 霓虹弹幕小游戏</a>
           <a href="/#docs">VCP 文档中心</a>
           <a href="/?page=changelog">VCP 更新日志</a>
@@ -2423,7 +2423,7 @@ export default function App() {
           {[
             {label: "Plugins Integrated", value: "300+"},
             {label: "Renderers Online", value: "40+"},
-            {label: "V8 Recall Latency", value: "0.7ms"},
+            {label: "Wave Recall Latency", value: "0.7ms"},
             {label: "Docs Tested", value: "3M+"},
           ].map((stat, i) => (
             <motion.div
@@ -2612,7 +2612,7 @@ export default function App() {
               <div className="space-y-6">
                 {[
                   {title: "OneRing Unified Context", desc: "纯 HASH-SQL 仲裁所有前端、群聊、邮箱与 Agent 间通讯，构建唯一事实时间线。"},
-                  {title: "TagMemo Wave V8 + Vexus/TDB", desc: "语义动力学热记忆与三重积冷知识并行运行，让记忆像直觉一样浮现。"},
+                  {title: "TagMemo Wave V9.2 + Vexus/TDB", desc: "有界语义动力学热记忆与三重积冷知识并行运行，让记忆沿可信路径自然浮现。"},
                   {title: "FlowInvite + AgentAssistant", desc: "AI 自己决定下一次心跳、心流锁、异步委托与跨 Agent 唤醒。"},
                 ].map((item, i) => (
                   <motion.div
@@ -2706,12 +2706,12 @@ export default function App() {
           <div className="flex flex-col md:flex-row-reverse gap-16 items-center">
             <div className="flex-1">
               <h2 className="text-5xl font-display font-bold mb-8 tracking-tight">
-                WAVE V8 <br />
-                <span className="text-vcp-purple">SEMANTIC DYNAMICS</span>
+                WAVE V9.2 <br />
+                <span className="text-vcp-purple">BOUNDED GEODESIC DYNAMICS</span>
               </h2>
               <p className="text-gray-400 text-lg mb-8 leading-relaxed">
-                浪潮 V8 抛弃传统 RAG 的欧氏直线距离，以 LIF 神经元、有向共现矩阵、残差金字塔、虫洞与测地线寻址构成语义动力学引擎。
-                Vexus 负责本地向量底座，TDB 负责冷知识图扩散检索。
+                浪潮 V9.1 用 Rust Anchored GS、有向事实矩阵、固定出流预算、软非回溯与有限时域场建立守恒传播底座；
+                V9.2 再把查询场连续化到候选有序 Tag 曲线，以 direct / structural / thematic / closure 四层几何校准测地读出。
               </p>
               <div className="mb-8 flex flex-wrap gap-4">
                 <a
@@ -2719,7 +2719,7 @@ export default function App() {
                   className="inline-flex items-center gap-3 px-6 py-3 bg-vcp-purple/20 border border-vcp-purple/30 text-vcp-purple rounded-full font-display font-bold hover:bg-vcp-purple/30 hover:scale-105 transition-all neon-border"
                 >
                   <Zap size={20} className="translate-y-[1px]" />
-                  探索浪潮 V8.2 引擎
+                  探索浪潮 V9.2 引擎
                 </a>
                 <a
                   href="/vcp-neon-game"
@@ -2798,7 +2798,7 @@ export default function App() {
                   </defs>
                 </svg>
 
-                {["Query", "LIF", "Wormhole", "Geodesic", "Memory"].map((label, i) => (
+                {["Query", "Rust AGS", "FIR Field", "Curve", "Closure"].map((label, i) => (
                   <motion.div
                     key={label}
                     className={`wave-node wave-node-${i} group-hover:border-vcp-cyan/50 transition-colors`}
@@ -2821,7 +2821,7 @@ export default function App() {
                 />
                 <div className="absolute bottom-4 left-4 font-mono text-[8px] opacity-40 flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-vcp-purple animate-pulse" />
-                  WAVE_V8_GEODESIC_ACTIVE // VEXUS_TDB_DUAL_STACK_SYNC
+                  WAVE_V9_2_CURVE_ACTIVE // BOUNDED_FIELD_CLOSURE_SYNC
                 </div>
               </motion.div>
             </div>
@@ -2839,7 +2839,7 @@ export default function App() {
             <FeatureCard
               icon={Brain}
               title="Neural Memory"
-              description="浪潮 V8 通过有序双向势能流形、LIF 神经元、残差金字塔与测地线重排，让记忆像直觉一样自动浮现。"
+              description="浪潮 V9.2 通过 Rust Anchored GS、有界有限时域场、Ghost Core 临时支流与候选曲线测地读出，让记忆沿可验证路径自然浮现。"
               delay={0.1}
             />
             <FeatureCard
@@ -2982,7 +2982,7 @@ export default function App() {
                 time="14:00 · SELF LEARNING"
                 icon={Tv}
                 title="逛 B 站 · 泡学术论坛"
-                description="自由探索：B 站新视频、arXiv 新论文、技术论坛热帖。利用浪潮 V8 把感兴趣的知识编织进语义记忆网，第二天就能自然引用。"
+                description="自由探索：B 站新视频、arXiv 新论文、技术论坛热帖。利用浪潮 V9.2 把感兴趣的知识编织进有界语义记忆网，第二天就能自然引用。"
                 color="#7000ff"
                 delay={0.3}
               />
