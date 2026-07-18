@@ -1846,7 +1846,7 @@ const WhitepaperPage = () => {
   usePageMeta(meta);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-vcp-black font-sans selection:bg-vcp-cyan selection:text-vcp-black">
+    <div className="relative min-h-screen bg-vcp-black font-sans selection:bg-vcp-cyan selection:text-vcp-black">
       <div className="whitepaper-cosmos" />
       <NeuralNetwork />
 
