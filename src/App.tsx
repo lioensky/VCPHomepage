@@ -1661,7 +1661,7 @@ const ChangelogPage = ({content}: {content: string}) => {
   usePageMeta(meta);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-vcp-black font-sans selection:bg-vcp-cyan selection:text-vcp-black">
+    <div className="relative min-h-screen overflow-x-clip bg-vcp-black font-sans selection:bg-vcp-cyan selection:text-vcp-black">
       <div className="changelog-cosmos" />
       <NeuralNetwork />
 
