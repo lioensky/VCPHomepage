@@ -2050,7 +2050,7 @@ export default function App() {
   const parallaxY = useSpring(useTransform(mouseY, [0, typeof window !== "undefined" ? window.innerHeight : 1000], [-30, 30]), springConfig);
 
   const homeMeta = useMemo<PageMeta>(() => ({
-    title: "VCP-OS | RiverMemo V10 统一语义动力场",
+    title: "VCP-OS | VCPToolBox 官方网站",
     description: "VCP-OS 官方网站。RiverMemo V10 Topology V3 以统一语义动力场方程闭合连续场、相对拓扑、Ω 河网可观测性与直接事实锚点；完整继承 TagMemo V9 的 EPA、Residual Pyramid、朗飞结与有界 Spike 降噪传播底座，并由 Rust / Rayon / Vexus 提供生产级原生计算。",
     keywords: "VCP,VCP-OS,RiverMemo,RiverMemo V10,Topology V3,统一语义动力场,Omega泛函,Ω泛函,TagMemo V9,EPA,Residual Pyramid,朗飞结,Spike,Vexus,Rust,AI记忆,RAG",
     canonical: "https://www.vcptoolbox.com/",
