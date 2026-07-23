@@ -2051,14 +2051,14 @@ export default function App() {
 
   const homeMeta = useMemo<PageMeta>(() => ({
     title: "VCP-OS | VCPToolBox 官方网站",
-    description: "VCP-OS 官方网站。RiverMemo V10 Topology V3 以统一语义动力场方程闭合连续场、相对拓扑、Ω 河网可观测性与直接事实锚点；完整继承 TagMemo V9 的 EPA、Residual Pyramid、朗飞结与有界 Spike 降噪传播底座，并由 Rust / Rayon / Vexus 提供生产级原生计算。",
-    keywords: "VCP,VCP-OS,RiverMemo,RiverMemo V10,Topology V3,统一语义动力场,Omega泛函,Ω泛函,TagMemo V9,EPA,Residual Pyramid,朗飞结,Spike,Vexus,Rust,AI记忆,RAG",
+    description: "VCP-OS 与 VCPToolBox 官方网站。VCP 是面向 AI Agent 的全栈 AGI Runtime 与存在基础设施，提供永久记忆、统一上下文、工具调用、自主心跳、桌面运行时、分布式节点及人类-AI 共生能力。",
+    keywords: "VCP,VCP-OS,VCPToolBox,VCPChat,VCPDesktop,Variable Command Protocol,AGI Runtime,AI Agent,永久记忆,统一上下文,工具调用,自主心跳,分布式节点,OneRing,RiverMemo,TagMemo,Vexus,OpenHer",
     canonical: "https://www.vcptoolbox.com/",
-    ogTitle: "RiverMemo V10 · 统一语义动力场正式成立",
-    ogDescription: "一个有界方程完成连续语义场、关系拓扑创新与直接事实锚的统一记忆寻址；V9 SOTA 降噪底座完整保留，Topology V3 已进入 Rust / Vexus 生产路径。",
+    ogTitle: "VCP-OS | VCPToolBox 官方网站",
+    ogDescription: "探索 VCP 全栈 AGI Runtime：连接 AI Agent 的记忆、时间、工具、桌面、分布式节点与跨端连续意识，构建面向人类-AI 共生的存在基础设施。",
     ogUrl: "https://www.vcptoolbox.com/",
-    twitterTitle: "RiverMemo V10 · Topology V3",
-    twitterDescription: "VCP 正式发布 RiverMemo V10 统一语义动力场：V9 降噪底座 × 双场 × 相对拓扑 × Ω × Direct Anchor。",
+    twitterTitle: "VCP-OS | VCPToolBox 官方网站",
+    twitterDescription: "VCP 是面向 AI Agent 的全栈 AGI Runtime 与存在基础设施，提供永久记忆、统一上下文、工具调用、自主行动、桌面运行时与分布式协作。",
   }), []);
 
   usePageMeta(homeMeta, !isWhitepaperRoute && !isChangelogRoute && !isPluginStoreRoute);
