@@ -4718,3 +4718,140 @@ nav.fixed {
     display: none;
   }
 }
+
+
+/* ==========================================================
+   Homepage opening · VCP three-layer AGI Runtime positioning
+   ========================================================== */
+.vcp-hero-runtime-grid {
+  display: grid;
+  width: min(100%, 68rem);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0 auto 1rem;
+  border-top: 1px solid var(--site-line);
+  border-left: 1px solid var(--site-line);
+  text-align: left;
+}
+
+.vcp-hero-runtime-layer {
+  min-height: 8.5rem;
+  border-right: 1px solid var(--site-line);
+  border-bottom: 1px solid var(--site-line);
+  background: color-mix(in srgb, var(--site-surface) 86%, transparent);
+  padding: 1.1rem 1.2rem;
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.vcp-hero-runtime-layer:hover {
+  position: relative;
+  z-index: 1;
+  background: var(--site-surface);
+  transform: translateY(-3px);
+}
+
+.vcp-hero-runtime-layer span {
+  display: block;
+  margin-bottom: 0.85rem;
+  color: var(--site-accent);
+  font-family: var(--font-mono);
+  font-size: 0.57rem;
+  letter-spacing: 0.18em;
+}
+
+.vcp-hero-runtime-layer strong {
+  display: block;
+  color: var(--site-text);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+
+.vcp-hero-runtime-layer p {
+  margin-top: 0.45rem;
+  color: var(--site-muted);
+  font-size: 0.76rem;
+  line-height: 1.6;
+}
+
+.vcp-hero-milestone {
+  display: grid;
+  width: min(100%, 68rem);
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem 1.5rem;
+  margin: 0 auto;
+  border: 1px solid var(--site-line);
+  border-left: 4px solid var(--site-accent);
+  background: var(--site-surface-2);
+  padding: 0.9rem 1.1rem;
+  color: var(--site-text);
+  text-align: left;
+  text-decoration: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.vcp-hero-milestone:hover {
+  border-color: var(--site-accent);
+  box-shadow: 4px 4px 0 var(--site-surface-2);
+  transform: translate(-1px, -1px);
+  text-decoration: none;
+}
+
+.vcp-hero-milestone > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--site-accent);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.13em;
+  white-space: nowrap;
+}
+
+.vcp-hero-milestone strong {
+  color: var(--site-text);
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+}
+
+.vcp-hero-milestone small {
+  max-width: 18rem;
+  color: var(--site-muted);
+  font-size: 0.68rem;
+  line-height: 1.45;
+  text-align: right;
+}
+
+.rivermemo-game-action {
+  border-color: var(--site-accent-2);
+  background:
+    repeating-linear-gradient(
+      135deg,
+      transparent 0 7px,
+      color-mix(in srgb, var(--site-accent-2) 8%, transparent) 7px 8px
+    ),
+    var(--site-surface);
+}
+
+.rivermemo-game-action:hover {
+  border-color: var(--site-accent-2);
+  color: var(--site-accent-2);
+}
+
+@media (max-width: 920px) {
+  .vcp-hero-runtime-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .vcp-hero-runtime-layer {
+    min-height: auto;
+  }
+
+  .vcp-hero-milestone {
+    grid-template-columns: 1fr;
+  }
+
+  .vcp-hero-milestone small {
+    max-width: none;
+    text-align: left;
+  }
+}

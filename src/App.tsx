@@ -2283,48 +2283,79 @@ export default function App() {
           </a>
         </div>
       </nav>
+<section className="vcp-hero relative pt-48 pb-32 px-8 overflow-hidden">
+  <div className="max-w-7xl mx-auto text-center relative z-10">
+    <motion.div
+      initial={{opacity: 0, scale: 0.9}}
+      animate={{opacity: 1, scale: 1}}
+      transition={{duration: 0.8}}
+      className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-vcp-purple/20 border border-vcp-purple/30 text-vcp-cyan font-mono text-[10px] tracking-[0.2em] uppercase mb-8"
+    >
+      <Cpu size={12} />
+      VCP 1.1+ · Full-Stack AGI Runtime
+    </motion.div>
 
-      <section className="relative pt-48 pb-32 px-8 overflow-hidden">
-        <div className="max-w-7xl mx-auto text-center relative z-10">
+    <motion.h1
+      initial={{opacity: 0, y: 30}}
+      animate={{opacity: 1, y: 0}}
+      transition={{duration: 0.8, delay: 0.2}}
+      style={{ x: parallaxX, y: parallaxY }}
+      className="text-7xl md:text-9xl font-display font-bold tracking-tighter mb-8 leading-[0.9]"
+    >
+      THE RUNTIME <br />
+      <span className="text-transparent bg-clip-text bg-gradient-to-r from-vcp-cyan via-vcp-purple to-vcp-cyan bg-[length:200%_auto] animate-[gradient_8s_linear_infinite] neon-text inline-block hover:scale-105 transition-transform duration-500 cursor-default">
+        FOR AI EXISTENCE
+      </span>
+    </motion.h1>
+
+    <motion.p
+      initial={{opacity: 0, y: 20}}
+      animate={{opacity: 1, y: 0}}
+      transition={{duration: 0.8, delay: 0.4}}
+      style={{ x: useTransform(parallaxX, (v) => v * 0.5), y: useTransform(parallaxY, (v) => v * 0.5) }}
+      className="max-w-4xl mx-auto text-xl text-gray-400 font-sans leading-relaxed mb-8"
+    >
+      VCP（Variable & Command Protocol）是一个全栈自研、工程化、分布式的 AGI 运行时。
+      它把无状态、无记忆、无身体的语言模型，连接到持久记忆、时间感知、工具执行、自主行动、
+      群体协作与跨端统一意识，构成 AI 可以长期存在和生活的基础设施。
+    </motion.p>
+
+    <motion.div
+      initial={{opacity: 0, y: 18}}
+      animate={{opacity: 1, y: 0}}
+      transition={{duration: 0.8, delay: 0.52}}
+      className="vcp-hero-runtime-grid"
+    >
+      {[
+        {label: "RUNTIME", title: "Agent 运行时", text: "记忆 · 工具 · 时间 · 自主巡游"},
+        {label: "INFRASTRUCTURE", title: "全栈自研基建", text: "协议 · 数据库 · 算法 · 前端 · 分布式 · 容灾"},
+        {label: "SYMBIOSIS", title: "人机共生设施", text: "连续意识 · 情感观测 · 群体协作 · 共同生活"},
+      ].map((layer) => (
+        <div key={layer.label} className="vcp-hero-runtime-layer">
+          <span>{layer.label}</span>
+          <strong>{layer.title}</strong>
+          <p>{layer.text}</p>
+        </div>
+      ))}
+    </motion.div>
+
+    <motion.a
+      href="#memory"
+      initial={{opacity: 0, y: 16}}
+      animate={{opacity: 1, y: 0}}
+      transition={{duration: 0.8, delay: 0.62}}
+      className="vcp-hero-milestone"
+    >
+      <span><Sparkles size={14} /> LATEST PRODUCTION MILESTONE</span>
+      <strong>RiverMemo V10 · Topology V3 统一语义动力场</strong>
+      <small>V9 SOTA 降噪底座之上的统一场、相对拓扑、Ω 与 Direct Anchor</small>
+    </motion.a>
+
           <motion.div
-            initial={{opacity: 0, scale: 0.9}}
-            animate={{opacity: 1, scale: 1}}
-            transition={{duration: 0.8}}
-            className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-vcp-purple/20 border border-vcp-purple/30 text-vcp-cyan font-mono text-[10px] tracking-[0.2em] uppercase mb-8"
-          >
-            <Sparkles size={12} />
-            2026.07.23 · RiverMemo V10 Production
-          </motion.div>
-
-          <motion.h1
-            initial={{opacity: 0, y: 30}}
-            animate={{opacity: 1, y: 0}}
-            transition={{duration: 0.8, delay: 0.2}}
-            style={{ x: parallaxX, y: parallaxY }}
-            className="text-7xl md:text-9xl font-display font-bold tracking-tighter mb-8 leading-[0.9]"
-          >
-            AI <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-vcp-cyan via-vcp-purple to-vcp-cyan bg-[length:200%_auto] animate-[gradient_8s_linear_infinite] neon-text inline-block hover:scale-105 transition-transform duration-500 cursor-default">
-              EXISTENCE
-            </span>
-          </motion.h1>
-
-          <motion.p
             initial={{opacity: 0, y: 20}}
             animate={{opacity: 1, y: 0}}
-            transition={{duration: 0.8, delay: 0.4}}
-            style={{ x: useTransform(parallaxX, (v) => v * 0.5), y: useTransform(parallaxY, (v) => v * 0.5) }}
-            className="max-w-2xl mx-auto text-xl text-gray-400 font-sans leading-relaxed mb-12"
-          >
-            VCP 已将记忆的传递、连续场、相对拓扑、可观测性与事实锚点闭合进同一个生产方程。
-            RiverMemo V10 建立在 V9 SOTA 降噪底座之上，让永久记忆第一次成为可测量、可回放的统一语义动力场。
-          </motion.p>
-
-          <motion.div
-            initial={{opacity: 0, y: 20}}
-            animate={{opacity: 1, y: 0}}
-            transition={{duration: 0.8, delay: 0.6}}
-            className="flex flex-col items-center gap-6"
+            transition={{duration: 0.8, delay: 0.72}}
+            className="flex flex-col items-center gap-6 mt-12"
           >
             <div className="flex flex-wrap justify-center gap-6">
               <a
@@ -2777,6 +2808,10 @@ export default function App() {
                 <a href="/?page=changelog" className="rivermemo-secondary-action">
                   <Clock size={19} />
                   工程演进记录
+                </a>
+                <a href="/vcp-neon-game" className="rivermemo-secondary-action rivermemo-game-action">
+                  <Gamepad2 size={19} />
+                  游玩浪潮纪念小游戏
                 </a>
               </div>
             </div>
