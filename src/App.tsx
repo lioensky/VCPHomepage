@@ -2049,15 +2049,15 @@ export default function App() {
   const parallaxY = useSpring(useTransform(mouseY, [0, typeof window !== "undefined" ? window.innerHeight : 1000], [-30, 30]), springConfig);
 
   const homeMeta = useMemo<PageMeta>(() => ({
-    title: "VCP-OS | VCPToolBox 官方网站",
-    description: "VCP-OS | VCPToolBox 官方网站。VCP (Variable & Command Protocol) 是面向 AI Agent 的 AGI Runtime 与存在基础设施，基于vcptoolbox中央服务器和分布式生态，为AI提供永久记忆、工具调用、自主心跳、VCPDesktop、OneRing 上下文、TagMemo 浪潮 V9.2 有界语义动力学、分布式节点能力与 VCP Neon Striker 霓虹弹幕小游戏体验。",
-    keywords: "VCP,VCP-OS,Variable Command Protocol,AGI Runtime,AI Agent,AI 存在基础设施,VCPChat,VCPToolBox,VCPDesktop,OneRing,TagMemo,浪潮 V9.2,有界语义动力学,查询诱导式测地线,VCP Neon Striker,VCP 小游戏,霓虹弹幕生存",
+    title: "VCP-OS | RiverMemo V10 统一语义动力场",
+    description: "VCP-OS 官方网站。RiverMemo V10 Topology V3 以统一语义动力场方程闭合连续场、相对拓扑、Ω 河网可观测性与直接事实锚点；完整继承 TagMemo V9 的 EPA、Residual Pyramid、朗飞结与有界 Spike 降噪传播底座，并由 Rust / Rayon / Vexus 提供生产级原生计算。",
+    keywords: "VCP,VCP-OS,RiverMemo,RiverMemo V10,Topology V3,统一语义动力场,Omega泛函,Ω泛函,TagMemo V9,EPA,Residual Pyramid,朗飞结,Spike,Vexus,Rust,AI记忆,RAG",
     canonical: "https://www.vcptoolbox.com/",
-    ogTitle: "VCP-OS | VCPToolBox 官方网站",
-    ogDescription: "VCP-OS | VCPToolBox 是面向 AI Agent 的 AGI Runtime 与存在基础设施，基于vcptoolbox中央服务器和分布式生态，让 AI 获得永久记忆、工具栈、自主心跳、桌面运行时、分布式协作能力与 VCP Neon Striker 霓虹弹幕小游戏体验。",
+    ogTitle: "RiverMemo V10 · 统一语义动力场正式成立",
+    ogDescription: "一个有界方程完成连续语义场、关系拓扑创新与直接事实锚的统一记忆寻址；V9 SOTA 降噪底座完整保留，Topology V3 已进入 Rust / Vexus 生产路径。",
     ogUrl: "https://www.vcptoolbox.com/",
-    twitterTitle: "VCP-OS | AI 存在基础设施",
-    twitterDescription: "了解 VCP、VCPToolbox、VCPChat、VCPDesktop、OneRing、TagMemo 浪潮 V9.2、VCP Neon Striker 与 VCP 应用群组成的 AI Agent 运行时生态。",
+    twitterTitle: "RiverMemo V10 · Topology V3",
+    twitterDescription: "VCP 正式发布 RiverMemo V10 统一语义动力场：V9 降噪底座 × 双场 × 相对拓扑 × Ω × Direct Anchor。",
   }), []);
 
   usePageMeta(homeMeta, !isWhitepaperRoute && !isChangelogRoute && !isPluginStoreRoute);
@@ -2176,13 +2176,14 @@ export default function App() {
         </p>
         <p>
           VCP 生态包括 VCPToolBox 后端、VCPChat 前端、VCPDesktop 赛博桌面、OneRing 单一事实时间线、
-          TagMemo 浪潮 V9.2 有界语义动力学记忆引擎、Vexus/TDB 本地向量与冷知识图检索、VSearch、VMusic、
-          FlowInvite、AgentAssistant 与 OpenHer 情感引擎。
+          RiverMemo V10 Topology V3 统一语义动力场、TagMemo V9 EPA / 残差金字塔 / 朗飞结 / Spike 降噪底座、
+          Vexus/TDB 本地向量与冷知识图检索、VSearch、VMusic、FlowInvite、AgentAssistant 与 OpenHer 情感引擎。
         </p>
         <nav aria-label="核心页面">
           <a href="/">VCP 官方首页</a>
+          <a href="#memory">RiverMemo V10 Topology V3 统一语义动力场</a>
           <a href="/?page=learn-vcp">Learn VCP 技术白皮书</a>
-          <a href="/vcp_wave_v8_engine.html">TagMemo 浪潮 V9.2 有界浪潮与曲线测地线</a>
+          <a href="/vcp_wave_v8_engine.html">RiverMemo 的 TagMemo V9 降噪与传播底座</a>
           <a href="/vcp-neon-game">VCP Neon Striker 霓虹弹幕小游戏</a>
           <a href="/#docs">VCP 文档中心</a>
           <a href="/?page=changelog">VCP 更新日志</a>
@@ -2254,9 +2255,9 @@ export default function App() {
           <VcpLogo />
         </a>
         <div className="hidden md:flex items-center gap-8 font-mono text-xs tracking-widest uppercase">
+          <a href="#memory" className="hover:text-vcp-cyan transition-colors">River V10</a>
           <a href="#desktop" className="hover:text-vcp-cyan transition-colors">Desktop</a>
           <a href="#architecture" className="hover:text-vcp-cyan transition-colors">Architecture</a>
-          <a href="#memory" className="hover:text-vcp-cyan transition-colors">Memory</a>
           <a href="#lifecycle" className="hover:text-vcp-cyan transition-colors">A Day</a>
           <a href="#docs" className="hover:text-vcp-cyan transition-colors">Docs</a>
           <a href="/?page=changelog" className="hover:text-vcp-cyan transition-colors">Changelog</a>
@@ -2292,7 +2293,7 @@ export default function App() {
             className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-vcp-purple/20 border border-vcp-purple/30 text-vcp-cyan font-mono text-[10px] tracking-[0.2em] uppercase mb-8"
           >
             <Sparkles size={12} />
-            VCP 1.1 · V3 AGI Runtime
+            2026.07.23 · RiverMemo V10 Production
           </motion.div>
 
           <motion.h1
@@ -2315,8 +2316,8 @@ export default function App() {
             style={{ x: useTransform(parallaxX, (v) => v * 0.5), y: useTransform(parallaxY, (v) => v * 0.5) }}
             className="max-w-2xl mx-auto text-xl text-gray-400 font-sans leading-relaxed mb-12"
           >
-            VCP (Variable & Command Protocol) 已从中间层服务器进化为全栈自研的 AGI 运行时。
-            记忆、应用群、自主性、工具栈、思维累进与分布式网络共同构成 AI 的存在基础设施。
+            VCP 已将记忆的传递、连续场、相对拓扑、可观测性与事实锚点闭合进同一个生产方程。
+            RiverMemo V10 建立在 V9 SOTA 降噪底座之上，让永久记忆第一次成为可测量、可回放的统一语义动力场。
           </motion.p>
 
           <motion.div
@@ -2421,10 +2422,10 @@ export default function App() {
       <section className="site-section site-section-metrics py-20 border-y border-white/5 bg-vcp-dark/50">
         <div className="max-w-7xl mx-auto px-8 grid grid-cols-2 md:grid-cols-4 gap-12">
           {[
-            {label: "Plugins Integrated", value: "300+"},
-            {label: "Renderers Online", value: "40+"},
-            {label: "Wave Recall Latency", value: "0.7ms"},
-            {label: "Docs Tested", value: "3M+"},
+            {label: "Topology V3 vs V9", value: "+26%"},
+            {label: "Native River Compute", value: "2.5ms"},
+            {label: "Ablation Rounds", value: "41"},
+            {label: "Unified Native Core", value: "Rust"},
           ].map((stat, i) => (
             <motion.div
               key={i}
@@ -2612,7 +2613,7 @@ export default function App() {
               <div className="space-y-6">
                 {[
                   {title: "OneRing Unified Context", desc: "纯 HASH-SQL 仲裁所有前端、群聊、邮箱与 Agent 间通讯，构建唯一事实时间线。"},
-                  {title: "TagMemo Wave V9.2 + Vexus/TDB", desc: "有界语义动力学热记忆与三重积冷知识并行运行，让记忆沿可信路径自然浮现。"},
+                  {title: "RiverMemo V10 + Vexus", desc: "Topology V3 在 V9 降噪源场之上统一双场、相对拓扑、Ω 可观测性与直接锚点，热点计算全量下沉 Rust。"},
                   {title: "FlowInvite + AgentAssistant", desc: "AI 自己决定下一次心跳、心流锁、异步委托与跨 Agent 唤醒。"},
                 ].map((item, i) => (
                   <motion.div
@@ -2701,130 +2702,171 @@ export default function App() {
         </div>
       </section>
 
-      <section id="memory" className="site-section site-section-memory py-32 px-8 relative overflow-hidden">
+      <section id="memory" className="site-section site-section-memory rivermemo-release py-32 px-8 relative overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row-reverse gap-16 items-center">
-            <div className="flex-1">
-              <h2 className="text-5xl font-display font-bold mb-8 tracking-tight">
-                WAVE V9.2 <br />
-                <span className="text-vcp-purple">BOUNDED GEODESIC DYNAMICS</span>
+          <motion.div
+            initial={{opacity: 0, y: 20}}
+            whileInView={{opacity: 1, y: 0}}
+            viewport={{once: true}}
+            className="rivermemo-release-kicker"
+          >
+            <span>PRODUCTION MILESTONE · 2026-07-23</span>
+            <strong>rivermemo.topology-v3.1-rust</strong>
+          </motion.div>
+
+          <div className="rivermemo-release-head">
+            <div>
+              <h2 className="text-5xl md:text-7xl font-display font-bold tracking-tighter">
+                RIVERMEMO <span className="text-vcp-purple">V10</span>
               </h2>
-              <p className="text-gray-400 text-lg mb-8 leading-relaxed">
-                浪潮 V9.1 用 Rust Anchored GS、有向事实矩阵、固定出流预算、软非回溯与有限时域场建立守恒传播底座；
-                V9.2 再把查询场连续化到候选有序 Tag 曲线，以 direct / structural / thematic / closure 四层几何校准测地读出。
+              <p className="rivermemo-release-subtitle">统一语义动力场 · Topology V3 × Ω</p>
+            </div>
+            <div className="rivermemo-release-verdict">
+              <span>GOLDEN TEST</span>
+              <strong>+26%</strong>
+              <small>vs. V9 engine · 10 rounds</small>
+            </div>
+          </div>
+
+          <div className="rivermemo-layout">
+            <div className="rivermemo-copy">
+              <p className="rivermemo-lead">
+                传播、连续场、候选曲线、相对拓扑、河网置信与直接事实锚，不再由多套补丁分别裁决。
+                Topology V3 以一个有界泛函完成记忆寻址，并通过 Ω 只授予真正形成的河网以结构排序权限。
               </p>
-              <div className="mb-8 flex flex-wrap gap-4">
-                <a
-                  href="/vcp_wave_v8_engine.html"
-                  className="inline-flex items-center gap-3 px-6 py-3 bg-vcp-purple/20 border border-vcp-purple/30 text-vcp-purple rounded-full font-display font-bold hover:bg-vcp-purple/30 hover:scale-105 transition-all neon-border"
-                >
-                  <Zap size={20} className="translate-y-[1px]" />
-                  探索浪潮 V9.2 引擎
-                </a>
-                <a
-                  href="/vcp-neon-game"
-                  className="inline-flex items-center gap-3 px-6 py-3 bg-vcp-cyan/15 border border-vcp-cyan/35 text-vcp-cyan rounded-full font-display font-bold hover:bg-vcp-cyan/25 hover:scale-105 transition-all neon-border"
-                >
-                  <Gamepad2 size={20} className="translate-y-[1px]" />
-                  游玩 VCP Neon Striker
-                </a>
+
+              <div className="rivermemo-foundation-note">
+                <Shield size={22} />
+                <div>
+                  <strong>V10 没有替换 V9——它站在 V9 之上。</strong>
+                  <p>
+                    EPA 全上下文观测、Residual Pyramid 多层残差、朗飞结 Ghost Core 与有界 Spike 传播继续构成生产源场。
+                    这套底座的降噪能力仍是当前 SOTA；V10 的突破是把它的输出提升为可计算、可观测、可统一排序的信息河网。
+                  </p>
+                </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 glass-card border-vcp-cyan/20">
-                  <div className="text-vcp-cyan font-mono text-xl mb-1">0.7ms</div>
-                  <div className="text-[10px] uppercase opacity-50">20 Memories / 100K Tags</div>
-                </div>
-                <div className="p-4 glass-card border-vcp-purple/20">
-                  <div className="text-vcp-purple font-mono text-xl mb-1">373×</div>
-                  <div className="text-[10px] uppercase opacity-50">Geodesic Speedup</div>
-                </div>
+
+              <div className="rivermemo-channel-grid">
+                {[
+                  {index: "01", title: "双场语义基线", text: "V9 降噪源在同一守恒传输算子上生成局部场与迁移场。"},
+                  {index: "02", title: "Ω 授权拓扑创新", text: "只奖励超出同条件期望与不确定性上界的正结构创新。"},
+                  {index: "03", title: "Direct Anchor", text: "hop-0 事实接触独立于河网密度，保护短而准确的记忆。"},
+                  {index: "04", title: "Rust / Vexus Native", text: "候选、路径、拓扑、Ω、批统计与 Top-K 在原生事务内闭合。"},
+                ].map((item) => (
+                  <div key={item.index} className="rivermemo-channel">
+                    <span>{item.index}</span>
+                    <strong>{item.title}</strong>
+                    <p>{item.text}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="rivermemo-actions">
+                <button
+                  type="button"
+                  onClick={() => openDoc("rivermemo-topology-v3")}
+                  className="rivermemo-primary-action"
+                >
+                  <BookOpen size={19} />
+                  阅读 Topology V3 白皮书
+                </button>
+                <a href="/vcp_wave_v8_engine.html" className="rivermemo-secondary-action">
+                  <Zap size={19} />
+                  查看 V9 降噪底座
+                </a>
+                <a href="/?page=changelog" className="rivermemo-secondary-action">
+                  <Clock size={19} />
+                  工程演进记录
+                </a>
               </div>
             </div>
-            <div className="flex-1 relative">
-              <motion.div
-                className="wave-v8-card relative w-full aspect-video glass-card overflow-hidden flex items-center justify-center group"
-                whileHover={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-vcp-cyan/5 to-vcp-purple/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="wave-channel wave-channel-a" />
-                <div className="wave-channel wave-channel-b" />
-                <div className="wave-channel wave-channel-c" />
-                
-                {/* Add some particle effects */}
-                {waveParticles.map((particle) => (
-                  <motion.div
-                    key={particle.id}
-                    className="absolute w-1 h-1 rounded-full bg-vcp-cyan"
-                    initial={{
-                      left: particle.startLeft,
-                      top: particle.startTop,
-                      opacity: particle.opacity[0],
-                      scale: particle.scale,
-                    }}
-                    animate={{
-                      left: [particle.startLeft, particle.endLeft],
-                      top: [particle.startTop, particle.endTop],
-                      opacity: particle.opacity,
-                    }}
-                    transition={{
-                      duration: particle.duration,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
-                  />
-                ))}
 
-                <div className="wave-mountain" />
-                
-                {/* Connection lines between nodes */}
-                <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-30">
-                  <motion.path
-                    d="M 15% 50% Q 30% 30% 50% 70% T 85% 50%"
-                    fill="none"
-                    stroke="url(#wave-grad)"
-                    strokeWidth="2"
-                    strokeDasharray="5 5"
-                    initial={{ pathLength: 0 }}
-                    animate={{ pathLength: 1 }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                  />
+            <motion.div
+              initial={{opacity: 0, x: 30}}
+              whileInView={{opacity: 1, x: 0}}
+              viewport={{once: true}}
+              transition={{duration: 0.8}}
+              className="rivermemo-equation-panel"
+            >
+              <div className="rivermemo-equation-meta">
+                <span>UNIFIED SCORE FUNCTIONAL</span>
+                <span>RESULT V1</span>
+              </div>
+              <div className="rivermemo-equation">
+                <span>S<sub>i</sub> = Π<sub>[0,1]</sub> [</span>
+                <strong>S<sub>i</sub><sup>field</sup></strong>
+                <span> + </span>
+                <strong className="equation-topology">Ω<sub>Q</sub><sup>γ</sup> B<sub>G</sub>(i)</strong>
+                <span> + </span>
+                <strong className="equation-anchor">B<sub>H</sub>(i)</strong>
+                <span> ]</span>
+              </div>
+              <div className="rivermemo-equation-legend">
+                <div><i className="legend-field" /><span>V9 双场语义基线</span></div>
+                <div><i className="legend-topology" /><span>Ω 门控的关系拓扑创新</span></div>
+                <div><i className="legend-anchor" /><span>密度正交的直接锚点创新</span></div>
+              </div>
+
+              <div className="rivermemo-river-map" aria-label="RiverMemo 查询河网动画">
+                <svg viewBox="0 0 640 300" role="img">
                   <defs>
-                    <linearGradient id="wave-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#00f2ff" />
-                      <stop offset="50%" stopColor="#7000ff" />
-                      <stop offset="100%" stopColor="#00f2ff" />
+                    <linearGradient id="river-v10-gradient" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor="var(--site-accent-2)" />
+                      <stop offset="100%" stopColor="var(--site-accent)" />
                     </linearGradient>
                   </defs>
+                  <motion.path
+                    d="M42 150 C122 42 190 238 272 132 S420 54 598 142"
+                    fill="none"
+                    stroke="url(#river-v10-gradient)"
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                    initial={{pathLength: 0}}
+                    whileInView={{pathLength: 1}}
+                    transition={{duration: 2.4, ease: "easeInOut"}}
+                  />
+                  <motion.path
+                    d="M154 133 C202 92 222 50 282 48 M278 134 C350 184 404 224 474 240 M398 92 C448 108 500 84 554 54"
+                    fill="none"
+                    stroke="url(#river-v10-gradient)"
+                    strokeWidth="2"
+                    strokeDasharray="7 8"
+                    initial={{pathLength: 0, opacity: 0}}
+                    whileInView={{pathLength: 1, opacity: 0.72}}
+                    transition={{duration: 2.8, delay: 0.5}}
+                  />
+                  {[
+                    [42, 150, "V9 SOURCE"],
+                    [154, 133, "LOCAL"],
+                    [278, 134, "Ω"],
+                    [398, 92, "TOPOLOGY"],
+                    [474, 240, "ANCHOR"],
+                    [598, 142, "MEMORY"],
+                  ].map(([cx, cy, label], index) => (
+                    <g key={String(label)}>
+                      <motion.circle
+                        cx={Number(cx)}
+                        cy={Number(cy)}
+                        r={index === 2 ? 13 : 8}
+                        fill="var(--site-surface)"
+                        stroke={index === 2 ? "var(--site-accent)" : "var(--site-accent-2)"}
+                        strokeWidth="3"
+                        animate={{r: index === 2 ? [13, 17, 13] : [8, 10, 8]}}
+                        transition={{duration: 2.2, repeat: Infinity, delay: index * 0.2}}
+                      />
+                      <text x={Number(cx)} y={Number(cy) + 27} textAnchor="middle">{label}</text>
+                    </g>
+                  ))}
                 </svg>
+              </div>
 
-                {["Query", "Rust AGS", "FIR Field", "Curve", "Closure"].map((label, i) => (
-                  <motion.div
-                    key={label}
-                    className={`wave-node wave-node-${i} group-hover:border-vcp-cyan/50 transition-colors`}
-                    animate={{scale: [1, 1.18, 1], opacity: [0.72, 1, 0.72]}}
-                    transition={{duration: 2.4, repeat: Infinity, delay: i * 0.35}}
-                    whileHover={{ scale: 1.3, zIndex: 10 }}
-                  >
-                    {label}
-                  </motion.div>
-                ))}
-                <motion.div
-                  className="wave-pulse"
-                  animate={{
-                    left: ["8%", "28%", "48%", "68%", "88%"],
-                    top: ["50%", "30%", "68%", "34%", "50%"],
-                    scale: [1, 1.25, 0.95, 1.2, 1],
-                    opacity: [0.45, 1, 0.85, 1, 0.45],
-                  }}
-                  transition={{duration: 4.8, repeat: Infinity, ease: "easeInOut"}}
-                />
-                <div className="absolute bottom-4 left-4 font-mono text-[8px] opacity-40 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-vcp-purple animate-pulse" />
-                  WAVE_V9_2_CURVE_ACTIVE // BOUNDED_FIELD_CLOSURE_SYNC
-                </div>
-              </motion.div>
-            </div>
+              <div className="rivermemo-native-stats">
+                <div><span>EXPERIMENT</span><strong>8,900ms</strong></div>
+                <div className="rivermemo-stat-arrow">→</div>
+                <div><span>PRODUCTION</span><strong>2.5ms</strong></div>
+                <div><span>ABLATION</span><strong>41 PASS</strong></div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -2838,8 +2880,8 @@ export default function App() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <FeatureCard
               icon={Brain}
-              title="Neural Memory"
-              description="浪潮 V9.2 通过 Rust Anchored GS、有界有限时域场、Ghost Core 临时支流与候选曲线测地读出，让记忆沿可验证路径自然浮现。"
+              title="RiverMemo V10"
+              description="Topology V3 在 V9 EPA、残差金字塔、朗飞结与 Spike 底座上，以双场、相对拓扑、Ω 与直接锚点统一完成生产级记忆寻址。"
               delay={0.1}
             />
             <FeatureCard
@@ -2982,7 +3024,7 @@ export default function App() {
                 time="14:00 · SELF LEARNING"
                 icon={Tv}
                 title="逛 B 站 · 泡学术论坛"
-                description="自由探索：B 站新视频、arXiv 新论文、技术论坛热帖。利用浪潮 V9.2 把感兴趣的知识编织进有界语义记忆网，第二天就能自然引用。"
+                description="自由探索：B 站新视频、arXiv 新论文、技术论坛热帖。利用 RiverMemo V10 把 V9 降噪后的信息源编织成可观测河网，第二天便能沿统一语义动力场自然引用。"
                 color="#7000ff"
                 delay={0.3}
               />

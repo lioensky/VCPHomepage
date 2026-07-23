@@ -4346,3 +4346,375 @@ nav.fixed {
     animation: none !important;
   }
 }
+
+
+/* ==========================================================
+   RiverMemo V10 · Topology V3 production release
+   ========================================================== */
+.rivermemo-release {
+  background:
+    linear-gradient(var(--site-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--site-grid) 1px, transparent 1px),
+    var(--site-bg);
+  background-size: 72px 72px;
+}
+
+.rivermemo-release-kicker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  border-top: 1px solid var(--site-line);
+  border-bottom: 1px solid var(--site-line);
+  padding: 0.8rem 0;
+  color: var(--site-muted);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+}
+
+.rivermemo-release-kicker span {
+  color: var(--site-accent);
+}
+
+.rivermemo-release-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: clamp(2rem, 5vw, 4rem);
+}
+
+.rivermemo-release-subtitle {
+  margin-top: 0.8rem;
+  color: var(--site-accent-2);
+  font-family: var(--font-mono);
+  font-size: clamp(0.75rem, 1.5vw, 1rem);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.rivermemo-release-verdict {
+  display: grid;
+  min-width: 13rem;
+  border: 1px solid var(--site-line);
+  background: var(--site-surface);
+  padding: 1rem 1.25rem;
+  box-shadow: 5px 5px 0 var(--site-surface-2);
+  text-align: right;
+}
+
+.rivermemo-release-verdict span,
+.rivermemo-release-verdict small {
+  color: var(--site-muted);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.rivermemo-release-verdict strong {
+  color: var(--site-accent);
+  font-family: var(--font-display);
+  font-size: 2.8rem;
+  line-height: 1;
+}
+
+.rivermemo-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(28rem, 1.08fr);
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: start;
+}
+
+.rivermemo-lead {
+  color: var(--site-text);
+  font-size: clamp(1.1rem, 1.8vw, 1.35rem);
+  font-weight: 500;
+  line-height: 1.75;
+}
+
+.rivermemo-foundation-note {
+  display: flex;
+  gap: 1rem;
+  margin: 2rem 0;
+  border-left: 4px solid var(--site-accent);
+  background: var(--site-surface-2);
+  padding: 1.25rem;
+  color: var(--site-accent);
+}
+
+.rivermemo-foundation-note svg {
+  flex: 0 0 auto;
+  margin-top: 0.2rem;
+}
+
+.rivermemo-foundation-note strong {
+  color: var(--site-text);
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+}
+
+.rivermemo-foundation-note p {
+  margin-top: 0.5rem;
+  color: var(--site-muted);
+  font-size: 0.9rem;
+  line-height: 1.75;
+}
+
+.rivermemo-channel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid var(--site-line);
+  border-left: 1px solid var(--site-line);
+}
+
+.rivermemo-channel {
+  min-height: 10rem;
+  border-right: 1px solid var(--site-line);
+  border-bottom: 1px solid var(--site-line);
+  background: color-mix(in srgb, var(--site-surface) 88%, transparent);
+  padding: 1.1rem;
+}
+
+.rivermemo-channel > span {
+  display: block;
+  margin-bottom: 1rem;
+  color: var(--site-accent);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+}
+
+.rivermemo-channel strong {
+  display: block;
+  color: var(--site-text);
+  font-family: var(--font-display);
+  font-size: 1rem;
+}
+
+.rivermemo-channel p {
+  margin-top: 0.55rem;
+  color: var(--site-muted);
+  font-size: 0.8rem;
+  line-height: 1.65;
+}
+
+.rivermemo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.rivermemo-primary-action,
+.rivermemo-secondary-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  min-height: 3rem;
+  border: 1px solid var(--site-line);
+  border-radius: 0.55rem;
+  padding: 0.75rem 1rem;
+  font-family: var(--font-display);
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.rivermemo-primary-action {
+  border-color: var(--site-accent);
+  background: var(--site-accent);
+  color: var(--site-accent-text);
+}
+
+.rivermemo-secondary-action {
+  background: var(--site-surface);
+  color: var(--site-text);
+}
+
+.rivermemo-primary-action:hover,
+.rivermemo-secondary-action:hover {
+  border-color: var(--site-accent);
+  box-shadow: 3px 3px 0 var(--site-surface-2);
+  transform: translate(-1px, -1px);
+  text-decoration: none;
+}
+
+.rivermemo-equation-panel {
+  position: sticky;
+  top: 7.5rem;
+  overflow: hidden;
+  border: 1px solid var(--site-line);
+  background:
+    linear-gradient(var(--site-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--site-grid) 1px, transparent 1px),
+    var(--site-surface);
+  background-size: 32px 32px;
+  box-shadow: 9px 9px 0 var(--site-surface-2);
+}
+
+.rivermemo-equation-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--site-line);
+  background: var(--site-surface-2);
+  padding: 0.75rem 1rem;
+  color: var(--site-muted);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.15em;
+}
+
+.rivermemo-equation {
+  padding: clamp(1.4rem, 3vw, 2.5rem) 1.25rem 1.25rem;
+  color: var(--site-text);
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 2.4vw, 2rem);
+  line-height: 1.55;
+  text-align: center;
+}
+
+.rivermemo-equation strong {
+  color: var(--site-accent-2);
+}
+
+.rivermemo-equation .equation-topology {
+  color: var(--site-accent);
+}
+
+.rivermemo-equation .equation-anchor {
+  color: var(--site-text);
+  text-decoration: underline;
+  text-decoration-color: var(--site-accent-2);
+  text-underline-offset: 0.3em;
+}
+
+.rivermemo-equation-legend {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0 1.25rem 1rem;
+  border-left: 1px solid var(--site-line);
+  padding-left: 0.8rem;
+}
+
+.rivermemo-equation-legend div {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--site-muted);
+  font-size: 0.72rem;
+}
+
+.rivermemo-equation-legend i {
+  width: 1.4rem;
+  height: 3px;
+  background: var(--site-accent-2);
+}
+
+.rivermemo-equation-legend .legend-topology {
+  background: var(--site-accent);
+}
+
+.rivermemo-equation-legend .legend-anchor {
+  background: var(--site-text);
+}
+
+.rivermemo-river-map {
+  margin: 0 1rem 1rem;
+  border: 1px solid var(--site-line);
+  background: color-mix(in srgb, var(--site-bg) 72%, transparent);
+}
+
+.rivermemo-river-map svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.rivermemo-river-map text {
+  fill: var(--site-muted);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+.rivermemo-native-stats {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr 1fr;
+  align-items: center;
+  border-top: 1px solid var(--site-line);
+  background: var(--site-surface-2);
+}
+
+.rivermemo-native-stats > div {
+  padding: 0.9rem;
+  text-align: center;
+}
+
+.rivermemo-native-stats span {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--site-muted);
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.12em;
+}
+
+.rivermemo-native-stats strong {
+  color: var(--site-text);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+
+.rivermemo-stat-arrow {
+  color: var(--site-accent);
+  font-family: var(--font-mono);
+}
+
+@media (max-width: 1050px) {
+  .rivermemo-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .rivermemo-equation-panel {
+    position: relative;
+    top: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .rivermemo-release-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .rivermemo-release-verdict {
+    text-align: left;
+  }
+
+  .rivermemo-channel-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rivermemo-actions > * {
+    width: 100%;
+  }
+
+  .rivermemo-equation-meta {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .rivermemo-native-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .rivermemo-stat-arrow {
+    display: none;
+  }
+}

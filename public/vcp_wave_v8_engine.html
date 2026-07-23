@@ -3,28 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VCP 浪潮 V9.2 · TagMemo 有界浪潮与曲线测地线</title>
-    <meta name="description" content="VCP TagMemo 浪潮 V9.2 官方演示：V9.1 有界传播核、软非回溯有限时域场、查询层朗飞结 Ghost Core Tag 预注入，以及查询诱导式候选曲线测地读出。" />
-    <meta name="keywords" content="VCP,TagMemo,浪潮 V9,V9.1,V9.2,有界传播,有限时域场,软非回溯,朗飞结,Ghost Core Tag,查询诱导式测地线,四层几何,RAG,AI 记忆引擎" />
+    <title>RiverMemo V10 的 V9 底座 · EPA、残差、朗飞结与 Spike</title>
+    <meta name="description" content="RiverMemo V10 官方底座演示：Topology V3 完整继承 TagMemo V9 的 EPA 全上下文观测、Residual Pyramid、Rust Anchored GS、朗飞结 Ghost Core 与有界 Spike 传播，并在其上统一双场、相对拓扑、Ω 与 Direct Anchor。" />
+    <meta name="keywords" content="VCP,RiverMemo,RiverMemo V10,Topology V3,TagMemo V9,EPA,Residual Pyramid,Rust Anchored GS,朗飞结,Ghost Core,Spike,Ω泛函,统一语义动力场,AI记忆" />
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
     <meta name="author" content="VCP Ecosystem" />
     <link rel="canonical" href="https://www.vcptoolbox.com/vcp_wave_v8_engine" />
     <link rel="icon" type="image/png" href="/assets/logo1.png" />
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content="VCP-OS" />
-    <meta property="og:title" content="VCP 浪潮 V9.2 · 有界浪潮与曲线测地线" />
-    <meta property="og:description" content="了解 TagMemo 如何把有界图传播形成的查询能量场，连续化为候选有序 Tag 曲线上的测地读出。" />
+    <meta property="og:title" content="RiverMemo V10 的 V9 SOTA 降噪底座" />
+    <meta property="og:description" content="V10 没有替换 V9：EPA、Residual Pyramid、朗飞结与有界 Spike 继续生成生产源场，Topology V3 在其上完成统一场闭合。" />
     <meta property="og:url" content="https://www.vcptoolbox.com/vcp_wave_v8_engine" />
     <meta property="og:image" content="https://www.vcptoolbox.com/assets/logo1.png" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="VCP 浪潮 V9.2" />
-    <meta name="twitter:description" content="从有界浪潮到查询诱导式曲线测地线：传播与读出正在趋向同一条语义路径。" />
+    <meta name="twitter:title" content="RiverMemo V10 × TagMemo V9 Foundation" />
+    <meta name="twitter:description" content="V9 负责 SOTA 全上下文降噪与有界传播；V10 Topology V3 负责双场、相对拓扑、Ω 与直接锚的统一闭合。" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "TechArticle",
-        "headline": "VCP 浪潮 V9.2 · TagMemo 有界浪潮与曲线测地线",
-        "description": "VCP TagMemo V9.1/V9.2 官方介绍，覆盖有序事实矩阵、固定出流预算、预算内虫洞、软非回溯 FIR 场、Ghost Core Tag 查询预注入、连续势场与候选有序曲线测地读出。",
+        "headline": "RiverMemo V10 的 TagMemo V9 SOTA 降噪与传播底座",
+        "description": "RiverMemo V10 官方基础架构介绍，覆盖 EPA、Residual Pyramid、Rust Anchored GS、朗飞结 Ghost Core、有界 Spike 传播，以及这些 V9 观测如何成为 Topology V3 双场、相对拓扑、Ω 与 Direct Anchor 的生产源场。",
         "url": "https://www.vcptoolbox.com/vcp_wave_v8_engine",
         "inLanguage": "zh-CN",
         "author": {
@@ -39,8 +39,10 @@
         "about": [
           "VCP",
           "TagMemo",
-          "浪潮 V9",
-          "有界语义动力学",
+          "RiverMemo V10",
+          "Topology V3",
+          "TagMemo V9",
+          "统一语义动力场",
           "AI 记忆引擎",
           "RAG"
         ],
@@ -54,16 +56,16 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <section class="seo-summary" aria-label="VCP 浪潮 V9.2 引擎摘要">
-        <h1>VCP TagMemo 浪潮 V9.2 有界语义动力学引擎</h1>
+    <section class="seo-summary" aria-label="RiverMemo V10 的 TagMemo V9 底座摘要">
+        <h1>RiverMemo V10 的 TagMemo V9 SOTA 降噪与传播底座</h1>
         <p>
-            V9.1 把长期累积的有序双向事实图压缩成守恒、有预算、有边界的传播核；
-            V9.2 则把查询有限时域能量场连续化到候选文件的有序 Tag 曲线上。
+            V10 Topology V3 并未替换 V9。EPA 全上下文观测、Residual Pyramid 多层残差、
+            Rust Anchored GS、朗飞结 Ghost Core 与有界 Spike 传播仍是 RiverMemo 的生产源场。
         </p>
         <p>
-            本页展示有序事实矩阵、钟形语义增益、Anchored GS、固定出流预算、预算内虫洞、
-            软非回溯 FIR 场、查询层朗飞结 Ghost Core Tag 预注入，以及 direct / structural /
-            thematic / closure 四层几何读出。浪潮与测地线不再是两个割裂比喻，而是同一路径的传播与观测。
+            本页完整展示这套不可替代的 V9 底座如何完成降噪、事实压缩、预算内传播、软非回溯与有限时域观测；
+            RiverMemo V10 随后将其输出提升为请求级河网、局部场与迁移场、候选曲线相对拓扑、Ω 可观测性和 Direct Anchor，
+            最终闭合进统一语义动力场方程。
         </p>
         <nav aria-label="浪潮引擎章节索引">
             <a href="#chapter-birth">河流诞生</a>
@@ -122,12 +124,12 @@
     <!-- ============ Chapter 0: HERO ============ -->
     <section class="chapter chapter-hero" data-chapter="0">
         <div class="hero-content">
-            <div class="hero-badge">VCP · TagMemo Wave V9.2</div>
+            <div class="hero-badge">RiverMemo V10 · V9 Foundation</div>
             <h1 class="hero-title">
-                <span class="title-line">浪潮</span>
-                <span class="title-line gradient">即测地线</span>
+                <span class="title-line">V9 塑造源场</span>
+                <span class="title-line gradient">V10 统一读出</span>
             </h1>
-            <p class="hero-subtitle">传播塑造查询场，候选曲线读取同一片场。</p>
+            <p class="hero-subtitle">EPA × Residual Pyramid × 朗飞结 × Spike：SOTA 降噪底座完整保留。</p>
             <div class="hero-formula">
                 <code>Σ<sub>j</sub>P<sub>ij</sub> ≤ m<sub>out</sub> ≤ 1</code>
                 <span class="formula-arrow">→</span>
@@ -435,10 +437,10 @@ residual ← residual − (residual · u)u
         </div>
     </section>
 
-    <!-- ============ Chapter 10: 完整引擎全景 ============ -->
+    <!-- ============ Chapter 10: 从 V9 底座进入 V10 统一场 ============ -->
     <section id="chapter-grand-view" class="chapter chapter-finale" data-chapter="10">
-        <div class="chapter-meta">CHAPTER 10 · UNIFIED VIEW</div>
-        <h2 class="chapter-title">VCP 浪潮 V9.2 · 传播与测地读出趋向统一</h2>
+        <div class="chapter-meta">CHAPTER 10 · V9 FOUNDATION → V10 TOPOLOGY V3</div>
+        <h2 class="chapter-title">V9 提供最强源场，V10 完成统一语义动力场</h2>
         <div class="finale-pipeline">
             <div class="pipe-step">
                 <div class="pipe-num">1</div>
@@ -472,34 +474,34 @@ residual ← residual − (residual · u)u
             <div class="pipe-arrow">→</div>
             <div class="pipe-step">
                 <div class="pipe-num">6</div>
-                <div class="pipe-name">场连续化</div>
-                <div class="pipe-desc">局部 Tag 向量核</div>
+                <div class="pipe-name">V10 双场</div>
+                <div class="pipe-desc">Local + Transfer</div>
             </div>
             <div class="pipe-arrow">→</div>
             <div class="pipe-step">
                 <div class="pipe-num">7</div>
-                <div class="pipe-name">候选曲线</div>
-                <div class="pipe-desc">有序 Tag 路径</div>
+                <div class="pipe-name">Topology V3</div>
+                <div class="pipe-desc">曲线 × 相对拓扑</div>
             </div>
             <div class="pipe-arrow">→</div>
             <div class="pipe-step pipe-final">
                 <div class="pipe-num">8</div>
-                <div class="pipe-name">四层闭合</div>
-                <div class="pipe-desc">D / S / T / C₄</div>
+                <div class="pipe-name">Ω 统一闭合</div>
+                <div class="pipe-desc">Field + Topology + Anchor</div>
             </div>
         </div>
         <canvas id="ch10Canvas" class="scene-canvas finale-canvas"></canvas>
         <div class="finale-quote">
-            <p>“V9.1 让浪潮守恒，V9.2 让候选路径读取同一片浪潮。”</p>
-            <p class="quote-en">The wave shapes the field; the geodesic is how memory reads it.</p>
+            <p>“V9 解决如何从整个上下文中得到可信的信息源；V10 解决如何用一个方程完成所有记忆寻址。”</p>
+            <p class="quote-en">V9 denoises the source. V10 unifies field, topology, observability and anchor.</p>
         </div>
         <footer class="finale-footer">
             <div class="philosophy">
-                <span>Engine = </span>
-                <strong>Bounded Wave × Ordered Curve × Four-Layer Closure</strong>
+                <span>RiverMemo V10 = </span>
+                <strong>V9 Denoised Field + Ω-Gated Topology + Direct Anchor</strong>
             </div>
             <div class="signature">
-                VCP TagMemo · Wave V9.2 · 有界浪潮与查询诱导式测地线
+                VCP RiverMemo · Topology V3.1 Rust · Unified Semantic Dynamics
             </div>
         </footer>
     </section>
