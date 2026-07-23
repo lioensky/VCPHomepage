@@ -6,6 +6,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import rehypeRaw from 'rehype-raw';
 import rehypeSlug from 'rehype-slug';
+import {normalizeMarkdownMath} from '../markdownMath';
 
 export type DocItem = {
   slug: string;
@@ -193,7 +194,7 @@ export function DocsViewer({documents, activeSlug, onSelect}: DocsViewerProps) {
             },
           }}
         >
-          {activeDoc.content}
+          {normalizeMarkdownMath(activeDoc.content)}
         </ReactMarkdown>
       </article>
     </div>

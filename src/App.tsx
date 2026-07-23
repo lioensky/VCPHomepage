@@ -44,6 +44,7 @@ import rehypeSlug from "rehype-slug";
 import {NeuralNetwork} from "./components/NeuralNetwork";
 import {DocsViewer} from "./components/DocsViewer";
 import {getAllDocs} from "./docs";
+import {normalizeMarkdownMath} from "./markdownMath";
 import whitepaperV3Content, {metadata as whitepaperV3Metadata} from "./docs/vcp-whitepaper-v3.md";
 
 type SiteTheme = "editorial" | "industrial";
@@ -1376,7 +1377,7 @@ const WikiCockpitModal = ({
           rehypePlugins={[rehypeRaw, rehypeKatex, rehypeSlug]}
           components={whitepaperMarkdownComponents}
         >
-          {message.content}
+          {normalizeMarkdownMath(message.content)}
         </ReactMarkdown>
       );
     }
@@ -1413,7 +1414,7 @@ const WikiCockpitModal = ({
           rehypePlugins={[rehypeRaw, rehypeKatex, rehypeSlug]}
           components={whitepaperMarkdownComponents}
         >
-          {part.content}
+          {normalizeMarkdownMath(part.content)}
         </ReactMarkdown>
       );
     });
@@ -1809,7 +1810,7 @@ const ChangelogPage = ({content}: {content: string}) => {
                       rehypePlugins={[rehypeRaw, rehypeKatex, rehypeSlug]}
                       components={whitepaperMarkdownComponents}
                     >
-                      {entry.content}
+                      {normalizeMarkdownMath(entry.content)}
                     </ReactMarkdown>
                   </div>
                 </motion.article>
@@ -2007,7 +2008,7 @@ const WhitepaperPage = () => {
                     rehypePlugins={[rehypeRaw, rehypeKatex, rehypeSlug]}
                     components={whitepaperMarkdownComponents}
                   >
-                    {section.content}
+                    {normalizeMarkdownMath(section.content)}
                   </ReactMarkdown>
                 </div>
               </motion.article>
