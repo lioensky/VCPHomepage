@@ -1,7 +1,7 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-07-23 的真实演进记录，最新覆盖 RiverMemo V10 Topology V3 统一语义动力场、Ω 泛函与 Rust / Vexus 原生生产链。
-updatedAt: 2026-07-23
+summary: 汇总 VCP 从 2023-12 到 2026-07-29 的真实演进记录，最新覆盖 DailyNoteAPI 数据治理重构、VchatDataServerAPI Rust 影子索引数据库与 RiverMemo 正交流形适配。
+updatedAt: 2026-07-29
 category: changelog
 ---
 
@@ -12,6 +12,21 @@ category: changelog
 ---
 
 ## 最新更新
+
+### 2026-07-29 · DailyNoteAPI 数据治理重构与 VchatDataServerAPI 上线
+
+本轮工作同时推进 VCPToolBox 后端日记数据链路与 VCPChat 前端数据库底层重构，进一步统一 RiverMemo、消息同步与话题检索所依赖的数据基础设施。
+
+VCPToolBox 后端重构 DailyNoteAPI 的 Tag 写入全链路，覆盖 Tag 校验、入库净化与持久化数据库管理，并全面适配 RiverMemo 的正交流形哲学。由此，日记写入不再只关注文本与索引是否成功落盘，而是从入口开始保证 Tag 的结构质量、语义纯度与持久化一致性，为后续 RiverMemo 检索和流形计算提供更可靠的数据底座。
+
+VCPChat 前端数据库底层同步完成重构：
+
+1. **保留 JSON 权威真相源**：旧有以 JSON 树级索引为真相的数据库继续保留，配套的 VchatDataManager 仍以 JSON 数据库作为权威基准，确保既有数据模型与管理链路保持兼容。
+2. **VchatDataServerAPI 上线**：新增基于 Rust 构建的通用影子索引数据库。该引擎不取代 JSON 真相源，而是在其上提供高性能索引与消费能力。
+3. **高级数据与检索能力内聚**：引擎内置高级同步、数据修正、VCP-BM25+ 匹配、高级权重语法检索、向量检查与 Rerank 等模块，将过去分散在不同业务中的数据库处理逻辑统一收口。
+4. **前端业务直接消费 Rust 引擎**：VChat 多端消息同步、DeepMemo 检索、Topic 检索，以及大部分话题插件群涉及的相关功能，现已转为直接消费 VchatDataServerAPI，不再各自重复处理底层数据库业务。
+
+性能方面，移动端同步的数据库 Push 速度提升数倍；在约 7000 个话题、固态硬盘的测试环境中，DeepMemo 检索耗时由原先约 **5～10 秒**下降至**亚毫秒级**。这次重构在保留 JSON 权威数据模型的同时，以 Rust 影子索引承担高频同步、修正与检索负载，为 VChat 后续多端扩展和大规模话题管理建立了更清晰的数据分层。
 
 ### 2026-07-23 · RiverMemo V10 Topology V3：统一语义动力场正式成立
 
