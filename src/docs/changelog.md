@@ -1,7 +1,7 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-07-29 的真实演进记录，最新覆盖 DailyNoteAPI 数据治理重构、VchatDataServerAPI Rust 影子索引数据库、VCPMediaRender 多媒体渲染插件与 Nova 纸墨工业统一主题。
-updatedAt: 2026-07-29
+summary: 汇总 VCP 从 2023-12 到 2026-08-01 的真实演进记录，最新覆盖 ArachneLoom 网页子应用系统、VCPLoomManager、Agent-Loom 全套 IPC，以及 LoomApp 的持久化、分发与自动化管理能力。
+updatedAt: 2026-08-01
 category: changelog
 ---
 
@@ -12,6 +12,31 @@ category: changelog
 ---
 
 ## 最新更新
+
+### 2026-08-01 · ArachneLoom 上线：将任意网页编织为 VChat 原生子应用
+
+VChat 全新网页应用容器系统 **ArachneLoom** 正式上线。它可以将任意网页接入 VChat，并封装为 VChat App Tray 中独立运行的 **LoomApp**。既有网站与在线服务无需重写为专用客户端，即可获得统一的应用入口、窗口形态、持久化会话与 Agent 原生控制能力，成为 VChat 应用生态中的子应用。
+
+新增核心模块 **VCPLoomManager**，统一负责 LoomApp 的创建、适配、运行、管理与分发：
+
+1. **请求环境模拟**：可为不同应用配置专属请求环境，例如模拟移动设备请求，直接载入网站的移动端页面与交互布局。
+2. **初始窗口控制**：每个 LoomApp 均可独立定义初始窗口分辨率，使应用启动时直接呈现预期尺寸和界面形态。
+3. **注入式应用适配**：支持向目标网页注入自定义 CSS 与 JavaScript，用于修正布局、统一视觉、增强功能，或针对 VChat 内嵌环境调整交互行为。
+4. **Cookie 与登录态持久化**：支持持久保存 Cookie、账号登录态与网页会话，使依赖认证的在线服务也能长期作为 VChat 内置子应用使用。
+5. **应用抽屉可见性管理**：所有 LoomApp 以及 VCPLoomManager 本身均可选择是否显示在 VChat 应用抽屉中，分别适配前台应用、后台服务与内部管理工具等场景。
+6. **生产应用打包与分发**：LoomApp 可导出为以 `.vloom` 为扩展名的 ZIP 应用包，用于社区交流、快速安装与生产级应用分发。
+
+本次更新同步上线完整的 **Agent-Loom IPC**。由 ChromeBridge V3 与 VCP-SOM 移植而来的页面发现和操作控制算法直接内嵌于 Loom IPC，不依赖外部浏览器控制链路。Agent 因而能够直接理解并操作 LoomApp 页面，同时接管应用从创建、编译和编辑，到启停、运行与资源读取的完整生命周期。主要能力包括：
+
+- 通过 URL、初始窗口参数与 CSS / JavaScript 注入脚本直接创建 LoomApp。
+- 列出全部 LoomApp，并读取每个应用的配置与实时运行状态。
+- 打开或关闭指定应用，并直接操作任意 Loom ID 对应的页面。
+- 获取 LoomApp 的页面源码与页面资源，用于分析、调试、修改和二次编译。
+- 编辑应用配置与注入脚本，持续迭代网页到 VChat 子应用的适配层。
+
+首批基础验证已覆盖多种网页形态与操作场景：以移动设备请求运行**手机淘宝网页版**；由 AI 生成独立的 **VCP 风格 Bing 首页**并通过注入机制替换原始主页；将 **VCP 服务器管理面板**作为 LoomApp 运行和控制；以及完成 **Bing 搜索**等常规网页交互测试。这些测试验证了 ArachneLoom 对移动端布局、复杂管理页面、界面重构注入及基础搜索操作的兼容能力。
+
+所有 LoomApp 资源同时接入 **VCPFileAPI** 与**超栈追踪管理协议**，应用包、页面资源、注入脚本及运行时产物均可进入 VCP 既有的分布式文件访问与资源追踪体系。ArachneLoom 至此打通“网页接入—应用适配—会话持久化—Agent 原生控制—资源追踪—打包分发”的完整链路，使开放网络中的服务能够被快速编织为可管理、可编辑、可复用、可共享的 VChat 原生应用。
 
 ### 2026-07-29 · DailyNoteAPI 与 VChat 数据库重构、VCPMediaRender 上线及 Nova 纸墨工业主题统一
 
@@ -822,7 +847,7 @@ VCP 从构思阶段进入正式开发阶段。
 
 | 阶段 | 时间范围 | 关键进展 |
 | --- | --- | --- |
-| 正式版、OneRing、OpenHer 与知识图谱期 | 2026-04 ～ 2026-07 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页、源码地图 WikiBot、VCPRagManger 召回管线重构与 RAG 侧 10～100 倍加速、隐私防护小助手、Tool / OneRing / VCPMail / RAG 日记 / AA 通讯管线标准化、官网内嵌 VCP Neon Runtime Survivor 小游戏、后端服务器面板第三次全量重构、离线通知补发、YoutubeFetch 官方 API 重构、LightMemo 向量测绘、TagMemoEngine 预训练管理、日记本后缀权重语法、浪潮 V8 测地线置信度守卫、BM25 管线合并 DailyNoteRust API、自研 BM25QueryOptimizer 查询优化器、插件商店订阅体系重构、VCPUrlFetch V3、VCPChromeService 持久化浏览器服务、ChromeBridge 自然语言网页控制增强、VCPToolRecord 工具调用完整运行时数据库、调用记录查询器元插件、TDB 流式队列化向量引擎、日记插件集 Fuzzy 与安全检查优化、浪潮 / TDB 硬件 I/O 可视化、Sarprompt 模型自动注入、VChat 帧级交互合并与多话题前后台解耦渐进流渲染、心流锁 V2 多 Agent 独立并发与自治话题、OpenHer 情绪参数自动校平、OneRingMemo 近时连续认知、VCPTimeLine V2 长期时间线、浪潮 V9.1 注意力预算传播核、枢纽校正、软非回溯传播、有限时域累计、V9.1 单轨正式生产、Zero-shot 私有知识验证、KNN / Rerank / V9.1 一键对比测试、统一 DailyNote 写入 API、浪潮 V9.2 四层测地线、分层证据守卫与可解释测地增益、LightMemo 三路对照模式、VChat 宽窄侧栏热切换、气泡 / 统一 / 刊物三布局模式、新磨砂透明渲染引擎、代码块纯增量 O(n) 级字符高亮 |
+| 正式版、OneRing、OpenHer、知识图谱与 Loom 应用生态期 | 2026-04 ～ 2026-08 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页、源码地图 WikiBot、VCPRagManger 召回管线重构与 RAG 侧 10～100 倍加速、隐私防护小助手、Tool / OneRing / VCPMail / RAG 日记 / AA 通讯管线标准化、官网内嵌 VCP Neon Runtime Survivor 小游戏、后端服务器面板第三次全量重构、离线通知补发、YoutubeFetch 官方 API 重构、LightMemo 向量测绘、TagMemoEngine 预训练管理、日记本后缀权重语法、浪潮 V8 测地线置信度守卫、BM25 管线合并 DailyNoteRust API、自研 BM25QueryOptimizer 查询优化器、插件商店订阅体系重构、VCPUrlFetch V3、VCPChromeService 持久化浏览器服务、ChromeBridge 自然语言网页控制增强、VCPToolRecord 工具调用完整运行时数据库、调用记录查询器元插件、TDB 流式队列化向量引擎、日记插件集 Fuzzy 与安全检查优化、浪潮 / TDB 硬件 I/O 可视化、Sarprompt 模型自动注入、VChat 帧级交互合并与多话题前后台解耦渐进流渲染、心流锁 V2 多 Agent 独立并发与自治话题、OpenHer 情绪参数自动校平、OneRingMemo 近时连续认知、VCPTimeLine V2 长期时间线、浪潮 V9.1 注意力预算传播核、枢纽校正、软非回溯传播、有限时域累计、V9.1 单轨正式生产、Zero-shot 私有知识验证、KNN / Rerank / V9.1 一键对比测试、统一 DailyNote 写入 API、浪潮 V9.2 四层测地线、分层证据守卫与可解释测地增益、LightMemo 三路对照模式、VChat 宽窄侧栏热切换、气泡 / 统一 / 刊物三布局模式、新磨砂透明渲染引擎、代码块纯增量 O(n) 级字符高亮、ArachneLoom 网页子应用系统、VCPLoomManager、Agent-Loom IPC、Cookie 与登录态持久化、`.vloom` 应用打包分发 |
 | 平台化扩展期 | 2026-03 ～ 2026-04 | VCPDesktop、桌面遥控、全局 API 虚拟化、PreText.js、7.5 版浪潮与官网上线 |
 | 系统化重构期 | 2026-02 ～ 2026-03 | 超栈追踪 V2、梦系统、SOM 桌面语义控制、多模态记忆、统一中央服务全面推进 |
 | 记忆与自主性爆发期 | 2025-09 ～ 2026-01 | RAG 语法、流式渲染器、Agent 自主巡航、TagMemo、上下文折叠持续成型 |
