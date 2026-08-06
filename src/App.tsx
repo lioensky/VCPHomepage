@@ -2430,8 +2430,8 @@ export default function App() {
         </svg>
       </motion.div>
 
-      <nav className="fixed top-0 left-0 w-full z-50 px-8 py-6 flex justify-between items-center bg-vcp-black/50 backdrop-blur-md border-b border-white/5">
-        <a href="/" className="site-brand-link">
+      <nav className="fixed top-0 left-0 z-50 grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center px-8 py-6 bg-vcp-black/50 backdrop-blur-md border-b border-white/5">
+        <a href="/" className="site-brand-link justify-self-start">
           <VcpLogo />
         </a>
         <div className="hidden md:flex items-center gap-8 font-mono text-xs tracking-widest uppercase">
@@ -2441,7 +2441,7 @@ export default function App() {
           <a href="/?page=changelog" className="hover:text-vcp-cyan transition-colors">Changelog</a>
           <a href="/?page=plugin-store" className="hover:text-vcp-cyan transition-colors">Plugin Store</a>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 justify-self-end">
           <ThemeToggle />
           <a
             href="https://github.com/lioensky/VCPChat"
