@@ -32,6 +32,10 @@ import {
   ZoomOut,
   RotateCcw,
   Gamepad2,
+  Trophy,
+  Medal,
+  BadgeDollarSign,
+  Gauge,
 } from "lucide-react";
 import {useEffect, useMemo, useRef, useState} from "react";
 import mermaid from "mermaid";
@@ -46,6 +50,7 @@ import {DocsViewer} from "./components/DocsViewer";
 import {getAllDocs} from "./docs";
 import {normalizeMarkdownMath} from "./markdownMath";
 import whitepaperV3Content, {metadata as whitepaperV3Metadata} from "./docs/vcp-whitepaper-v3.md";
+import {leaderboardBoards, leaderboardEdition, type LeaderboardEntry} from "./leaderboardData";
 
 type SiteTheme = "editorial" | "industrial";
 
@@ -835,6 +840,172 @@ const createInitialWikiSession = (target: WikiCockpitTarget): WikiChatSession =>
     },
   ],
 });
+
+const LeaderboardEntryCard = ({entry, boardIndex}: {entry: LeaderboardEntry; boardIndex: number}) => {
+  const isPodium = entry.rank <= 3;
+  const rankLabel = String(entry.rank).padStart(2, "0");
+
+  return (
+    <motion.article
+      initial={{opacity: 0, y: 28}}
+      whileInView={{opacity: 1, y: 0}}
+      viewport={{once: true, margin: "-60px"}}
+      transition={{duration: 0.45, delay: Math.min(entry.rank * 0.035, 0.28)}}
+      className={`leaderboard-entry leaderboard-entry-rank-${entry.rank} ${isPodium ? "leaderboard-entry-podium" : ""}`}
+    >
+      <div className="leaderboard-rank" aria-label={`第 ${entry.rank} 名`}>
+        {entry.rank === 1 ? <Trophy size={25} /> : entry.rank <= 3 ? <Medal size={23} /> : <span>{rankLabel}</span>}
+      </div>
+      <div className="leaderboard-entry-main">
+        <div className="leaderboard-entry-heading">
+          <div>
+            <span className="leaderboard-position">NO. {rankLabel}</span>
+            <h3>{entry.model}</h3>
+          </div>
+          {entry.tag && <span className="leaderboard-roast-tag"># {entry.tag}</span>}
+        </div>
+        <p className="leaderboard-verdict">{entry.verdict}</p>
+        {entry.pricing && (
+          <div className="leaderboard-pricing">
+            <BadgeDollarSign size={16} />
+            <span>{entry.pricing}</span>
+          </div>
+        )}
+      </div>
+      <span className="leaderboard-board-index" aria-hidden="true">
+        {boardIndex === 0 ? "DRIVER" : "CODE"}
+      </span>
+    </motion.article>
+  );
+};
+
+const VCPLeaderboardPage = () => {
+  const meta = useMemo<PageMeta>(() => ({
+    title: "VCPLeaderboard | VCP 模型主观排行榜 2026 八月版",
+    description: "VCP 官方趣味模型主观排行榜：盘点最适合驾驶 VCP 与进行 VibeCoding 的模型。包含 Claude、GPT、Kimi、Gemini、GLM 等模型的长期使用体验、价格与锐评。",
+    keywords: "VCPLeaderboard,VCP 模型排行榜,AI 模型排行榜,VCP 驾驶员,VibeCoding,Claude 5,GPT 5.6 Sol,Kimi K3,Gemini 3.5,VCP",
+    canonical: "https://www.vcptoolbox.com/vcp-leaderboard",
+    ogTitle: "VCPLeaderboard · 2026 年中大考核",
+    ogDescription: "谁最适合驾驶 VCP？谁是 VibeCoding 搬砖王？一份有主观、有价格、也有脾气的趣味排行榜。",
+    ogUrl: "https://www.vcptoolbox.com/vcp-leaderboard",
+  }), []);
+
+  usePageMeta(meta);
+
+  return (
+    <div className="leaderboard-page relative min-h-screen overflow-x-clip bg-vcp-black font-sans selection:bg-vcp-cyan selection:text-vcp-black">
+      <div className="leaderboard-cosmos" />
+      <NeuralNetwork />
+
+      <nav className="fixed top-0 left-0 z-50 flex w-full items-center justify-between border-b border-white/5 bg-vcp-black/50 px-8 py-6 backdrop-blur-md">
+        <a href="/" className="site-brand-link">
+          <VcpLogo />
+        </a>
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
+          <a
+            href="/"
+            className="group inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.03] px-5 py-2 font-display text-sm font-bold text-white transition-all hover:border-vcp-cyan/50 hover:bg-vcp-cyan/10"
+          >
+            <ArrowLeft size={18} className="text-vcp-cyan transition-transform group-hover:-translate-x-1" />
+            BACK HOME
+          </a>
+        </div>
+      </nav>
+
+      <main className="relative z-10 px-5 pb-28 pt-36 md:px-8">
+        <header className="leaderboard-hero mx-auto max-w-7xl">
+          <motion.div
+            initial={{opacity: 0, y: 18}}
+            animate={{opacity: 1, y: 0}}
+            transition={{duration: 0.6}}
+            className="leaderboard-edition"
+          >
+            <Gauge size={15} />
+            <span>VCP MODEL SUBJECTIVE BENCHMARK</span>
+            <strong>{leaderboardEdition.year} · {leaderboardEdition.edition}</strong>
+          </motion.div>
+
+          <motion.div
+            initial={{opacity: 0, y: 32}}
+            animate={{opacity: 1, y: 0}}
+            transition={{duration: 0.8, delay: 0.12}}
+            className="leaderboard-title-row"
+          >
+            <div>
+              <p className="leaderboard-overline">VCP 驾驶舱非标准化考试委员会 · 主观意见非常大</p>
+              <h1>VCP<span>LEADERBOARD</span></h1>
+            </div>
+            <div className="leaderboard-stamp">
+              <span>OFFICIAL?</span>
+              <strong>主观认证</strong>
+              <small>NO REFUND · JUST VIBES</small>
+            </div>
+          </motion.div>
+
+          <motion.p
+            initial={{opacity: 0, y: 18}}
+            animate={{opacity: 1, y: 0}}
+            transition={{duration: 0.7, delay: 0.28}}
+            className="leaderboard-intro"
+          >
+            跑分只能告诉你模型会不会做题，VCP 要考的是：它能不能记住你、主动干活、长期相处，
+            以及在凌晨三点改代码时会不会把整个仓库重构成它喜欢的样子。
+          </motion.p>
+
+          <motion.aside
+            initial={{opacity: 0}}
+            animate={{opacity: 1}}
+            transition={{duration: 0.7, delay: 0.42}}
+            className="leaderboard-disclaimer"
+          >
+            <strong>赛前声明</strong>
+            <span>本榜单为 VCP 项目长期使用体验下的趣味主观评价，不是通用模型能力测评；厂商看完若有意见，请先把降智版本换回来。</span>
+          </motion.aside>
+
+          <div className="leaderboard-jump-row" aria-label="排行榜快速跳转">
+            {leaderboardBoards.map((board, index) => (
+              <a key={board.id} href={`#${board.id}`}>
+                <span>0{index + 1}</span>
+                <strong>{board.id === "driver" ? "VCP 驾驶员榜" : "VibeCoding 榜"}</strong>
+                <small>{board.entries.length} 位参赛选手</small>
+              </a>
+            ))}
+          </div>
+        </header>
+
+        <div className="leaderboard-boards mx-auto max-w-7xl">
+          {leaderboardBoards.map((board, boardIndex) => (
+            <section key={board.id} id={board.id} className="leaderboard-board">
+              <div className="leaderboard-board-head">
+                <div>
+                  <span>{board.eyebrow}</span>
+                  <h2>{board.title}</h2>
+                  <p>{board.subtitle}</p>
+                </div>
+                <div className="leaderboard-board-number">0{boardIndex + 1}</div>
+              </div>
+
+              <div className="leaderboard-list">
+                {board.entries.map((entry) => (
+                  <LeaderboardEntryCard key={`${board.id}-${entry.rank}`} entry={entry} boardIndex={boardIndex} />
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
+
+        <footer className="leaderboard-footer mx-auto max-w-7xl">
+          <div>
+            <Trophy size={22} />
+            <strong>下一次洗牌：等厂商再次偷偷换模型</strong>
+          </div>
+          <span>LAST SUBJECTIVE REVIEW · {leaderboardEdition.updatedAt}</span>
+        </footer>
+      </main>
+    </div>
+  );
+};
 
 const officialPluginRegistryUrl = "https://raw.githubusercontent.com/lioensky/VCPDistributedServer/main/plugins.json";
 
@@ -2040,6 +2211,9 @@ export default function App() {
   const isPluginStoreRoute =
     window.location.pathname === "/plugin-store" ||
     pageParam === "plugin-store";
+  const isLeaderboardRoute =
+    window.location.pathname === "/vcp-leaderboard" ||
+    pageParam === "vcp-leaderboard";
   const isNovaRoute = window.location.pathname === "/nova";
   const changelogDoc = docs.find((doc) => doc.slug === "changelog" || doc.category === "changelog");
 
@@ -2061,7 +2235,7 @@ export default function App() {
     twitterDescription: "VCP 是面向 AI Agent 的全栈 AGI Runtime 与存在基础设施，提供永久记忆、统一上下文、工具调用、自主行动、桌面运行时与分布式协作。",
   }), []);
 
-  usePageMeta(homeMeta, !isWhitepaperRoute && !isChangelogRoute && !isPluginStoreRoute);
+  usePageMeta(homeMeta, !isWhitepaperRoute && !isChangelogRoute && !isPluginStoreRoute && !isLeaderboardRoute);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -2165,6 +2339,10 @@ export default function App() {
     return <PluginStorePage />;
   }
 
+  if (isLeaderboardRoute) {
+    return <VCPLeaderboardPage />;
+  }
+
   return (
     <div ref={containerRef} className="relative min-h-screen font-sans selection:bg-vcp-cyan selection:text-vcp-black">
       <div className="glow-bg" ref={glowRef} />
@@ -2189,6 +2367,7 @@ export default function App() {
           <a href="/#docs">VCP 文档中心</a>
           <a href="/?page=changelog">VCP 更新日志</a>
           <a href="/?page=plugin-store">VCP 插件商店</a>
+          <a href="/vcp-leaderboard">VCP 模型主观排行榜</a>
         </nav>
       </section>
       
@@ -2256,11 +2435,9 @@ export default function App() {
           <VcpLogo />
         </a>
         <div className="hidden md:flex items-center gap-8 font-mono text-xs tracking-widest uppercase">
-          <a href="#memory" className="hover:text-vcp-cyan transition-colors">River V10</a>
-          <a href="#desktop" className="hover:text-vcp-cyan transition-colors">Desktop</a>
-          <a href="#architecture" className="hover:text-vcp-cyan transition-colors">Architecture</a>
-          <a href="#lifecycle" className="hover:text-vcp-cyan transition-colors">A Day</a>
+          <a href="#memory" className="hover:text-vcp-cyan transition-colors">RIVERMEMO</a>
           <a href="#docs" className="hover:text-vcp-cyan transition-colors">Docs</a>
+          <a href="/vcp-leaderboard" className="hover:text-vcp-cyan transition-colors">Leaderboard</a>
           <a href="/?page=changelog" className="hover:text-vcp-cyan transition-colors">Changelog</a>
           <a href="/?page=plugin-store" className="hover:text-vcp-cyan transition-colors">Plugin Store</a>
         </div>
@@ -3183,6 +3360,7 @@ export default function App() {
             <h5 className="font-mono text-xs uppercase tracking-widest text-vcp-purple mb-8">Ecosystem</h5>
             <ul className="space-y-4 text-gray-400">
               <li><a href="/?page=learn-vcp" className="hover:text-vcp-purple transition-colors">Learn VCP</a></li>
+              <li><a href="/vcp-leaderboard" className="hover:text-vcp-purple transition-colors">VCP Leaderboard</a></li>
               <li><a href="/?page=changelog" className="hover:text-vcp-purple transition-colors">Changelog</a></li>
               <li><a href="/?page=plugin-store" className="hover:text-vcp-purple transition-colors">Plugin Store</a></li>
               <li><a href="#docs" className="hover:text-vcp-purple transition-colors">Docs Portal</a></li>
