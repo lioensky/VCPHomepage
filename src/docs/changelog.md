@@ -1,7 +1,7 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-08-14 的真实演进记录，最新覆盖共笔文坊网络资源安全代理与沙箱执行、网络字体导出兼容，以及浪潮 V10 资产毫秒级内存初始化链路。
-updatedAt: 2026-08-14
+summary: 汇总 VCP 从 2023-12 到 2026-08-15 的真实演进记录，最新覆盖 AgentAssistant 心流锁内核统一、VNote 标签与模板系统，以及共笔文坊渲染态编辑、文档管理和局部刷新能力突破。
+updatedAt: 2026-08-15
 category: changelog
 ---
 
@@ -12,6 +12,36 @@ category: changelog
 ---
 
 ## 最新更新
+
+### 2026-08-15 · 共笔文坊渲染态编辑突破、文档中心与 VNote 知识管理升级
+
+本次更新统一了 AgentAssistant 的心流锁底层实现，增强 VNote 的标签、模板与分享能力，并让共笔文坊在渲染态编辑与源码精确映射上取得关键突破。
+
+#### AgentAssistant 心流锁内核统一
+
+后端 AgentAssistant 现统一使用 VCP 心流锁 Core，与前端共享同一套核心实现。心流状态、任务推进与锁生命周期不再由前后端分别维护，有助于减少行为差异与重复逻辑，也为后续跨端功能扩展和长期维护建立更清晰的一致性边界。
+
+#### VNote 标签、模板与树状关系视图
+
+VNote 新增标签和模板系统，支持以树状关系视图组织笔记。用户可以通过层级结构梳理主题、标签与内容之间的关联，并将常用笔记结构沉淀为模板，从而更高效地创建、复用和管理知识内容。
+
+笔记现可直接分享到共笔文坊文档，使个人记录能够快速进入正式文档的编辑、排版与协作流程，减少在笔记与成品之间手动复制、重新整理的成本。
+
+#### 渲染态编辑与源码空白映射取得核心突破
+
+共笔文坊引擎实现了 Markdown 与 HTML 多类渲染结果到原始源码的幂等映射，可处理符合语义的换行、连续换行、任意空白字符、任意缩进及连续空白组合。用户在最终渲染结果中编辑内容时，系统能够将操作准确还原到对应源码，并尽可能完整保留原有换行、空格与缩进结构。
+
+这项能力解决了所见即所得编辑中长期存在的空白折叠与源码漂移问题：浏览器渲染后的视觉文本不再需要通过破坏性序列化写回，渲染态操作与源码态操作可以围绕同一份真实文本保持稳定、可重复的双向对应。
+
+#### 文坊文档系统与引用资产管理
+
+新增文坊文档系统，用于集中管理全部文档、用户笔记及作品引用资产。字体、图形与样式包等资源可在统一入口中整理和调用，并与 VNote 分享链路衔接，形成从知识记录、素材积累到文档创作与发布的连续工作流。
+
+#### 更局部、更轻量的渲染刷新
+
+共笔文坊进一步优化多类渲染行为，尽可能避免不必要的页面刷新，并将确需执行的更新限制在最小局部范围。由此可减少编辑、资源变更和界面操作引发的全页重绘与重复计算，显著降低复杂文档的渲染压力和交互负担。
+
+> **从笔记、模板和引用资产的组织，到渲染结果与真实源码的精确对应，共笔文坊正在形成一条更完整、更稳定的人机协作文档链路。**
 
 ### 2026-08-14 · 共笔文坊网络资源安全封装与浪潮 V10 毫秒级冷启动
 
@@ -1149,7 +1179,7 @@ VCP 从构思阶段进入正式开发阶段。
 
 | 阶段 | 时间范围 | 关键进展 |
 | --- | --- | --- |
-| 正式版、OneRing、OpenHer、知识图谱、Loom 与原生内容创作生态期 | 2026-04 ～ 2026-08 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页、源码地图 WikiBot、VCPRagManger 召回管线重构与 RAG 侧 10～100 倍加速、隐私防护小助手、Tool / OneRing / VCPMail / RAG 日记 / AA 通讯管线标准化、官网内嵌 VCP Neon Runtime Survivor 小游戏、后端服务器面板第三次全量重构、离线通知补发、YoutubeFetch 官方 API 重构、LightMemo 向量测绘、TagMemoEngine 预训练管理、日记本后缀权重语法、浪潮 V8 测地线置信度守卫、BM25 管线合并 DailyNoteRust API、自研 BM25QueryOptimizer 查询优化器、插件商店订阅体系重构、VCPUrlFetch V3、VCPChromeService 持久化浏览器服务、ChromeBridge 自然语言网页控制增强、VCPToolRecord 工具调用完整运行时数据库、调用记录查询器元插件、TDB 流式队列化向量引擎、日记插件集 Fuzzy 与安全检查优化、浪潮 / TDB 硬件 I/O 可视化、Sarprompt 模型自动注入、VChat 帧级交互合并与多话题前后台解耦渐进流渲染、心流锁 V2 多 Agent 独立并发与自治话题、OpenHer 情绪参数自动校平、OneRingMemo 近时连续认知、VCPTimeLine V2 长期时间线、浪潮 V9.1 注意力预算传播核、枢纽校正、软非回溯传播、有限时域累计、V9.1 单轨正式生产、Zero-shot 私有知识验证、KNN / Rerank / V9.1 一键对比测试、统一 DailyNote 写入 API、浪潮 V9.2 四层测地线、分层证据守卫与可解释测地增益、LightMemo 三路对照模式、VChat 宽窄侧栏热切换、气泡 / 统一 / 刊物三布局模式、新磨砂透明渲染引擎、代码块纯增量 O(n) 级字符高亮、ArachneLoom 网页子应用系统、VCPLoomManager、Agent-Loom IPC、Cookie 与登录态持久化、`.vloom` 应用打包分发、全平台统一构建与 CI、VCPScriptorium、VDoc 与 VPPT 原生格式、DOCX 分页式 HTML 导出、PPTX 导播器与翻页动画、原生样式中心、自研字体排版及内嵌动画生态 |
+| 正式版、OneRing、OpenHer、知识图谱、Loom 与原生内容创作生态期 | 2026-04 ～ 2026-08 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页、源码地图 WikiBot、VCPRagManger 召回管线重构与 RAG 侧 10～100 倍加速、隐私防护小助手、Tool / OneRing / VCPMail / RAG 日记 / AA 通讯管线标准化、官网内嵌 VCP Neon Runtime Survivor 小游戏、后端服务器面板第三次全量重构、离线通知补发、YoutubeFetch 官方 API 重构、LightMemo 向量测绘、TagMemoEngine 预训练管理、日记本后缀权重语法、浪潮 V8 测地线置信度守卫、BM25 管线合并 DailyNoteRust API、自研 BM25QueryOptimizer 查询优化器、插件商店订阅体系重构、VCPUrlFetch V3、VCPChromeService 持久化浏览器服务、ChromeBridge 自然语言网页控制增强、VCPToolRecord 工具调用完整运行时数据库、调用记录查询器元插件、TDB 流式队列化向量引擎、日记插件集 Fuzzy 与安全检查优化、浪潮 / TDB 硬件 I/O 可视化、Sarprompt 模型自动注入、VChat 帧级交互合并与多话题前后台解耦渐进流渲染、心流锁 V2 多 Agent 独立并发与自治话题、OpenHer 情绪参数自动校平、OneRingMemo 近时连续认知、VCPTimeLine V2 长期时间线、浪潮 V9.1 注意力预算传播核、枢纽校正、软非回溯传播、有限时域累计、V9.1 单轨正式生产、Zero-shot 私有知识验证、KNN / Rerank / V9.1 一键对比测试、统一 DailyNote 写入 API、浪潮 V9.2 四层测地线、分层证据守卫与可解释测地增益、LightMemo 三路对照模式、VChat 宽窄侧栏热切换、气泡 / 统一 / 刊物三布局模式、新磨砂透明渲染引擎、代码块纯增量 O(n) 级字符高亮、ArachneLoom 网页子应用系统、VCPLoomManager、Agent-Loom IPC、Cookie 与登录态持久化、`.vloom` 应用打包分发、全平台统一构建与 CI、VCPScriptorium、VDoc 与 VPPT 原生格式、DOCX 分页式 HTML 导出、PPTX 导播器与翻页动画、原生样式中心、自研字体排版及内嵌动画生态、AgentAssistant 心流锁 Core 前后端统一、VNote 标签与模板树状管理、笔记直达文档、共笔文坊渲染态与源码空白幂等映射、文档及引用资产中心、最小化局部刷新 |
 | 平台化扩展期 | 2026-03 ～ 2026-04 | VCPDesktop、桌面遥控、全局 API 虚拟化、PreText.js、7.5 版浪潮与官网上线 |
 | 系统化重构期 | 2026-02 ～ 2026-03 | 超栈追踪 V2、梦系统、SOM 桌面语义控制、多模态记忆、统一中央服务全面推进 |
 | 记忆与自主性爆发期 | 2025-09 ～ 2026-01 | RAG 语法、流式渲染器、Agent 自主巡航、TagMemo、上下文折叠持续成型 |
