@@ -1,7 +1,7 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-08-17 的真实演进记录，最新覆盖共笔文坊输入态、渲染态与源码事件态三态解耦、独立事务队列、稳定态仲裁对账及 IME 中文输入兼容性升级。
-updatedAt: 2026-08-17
+summary: 汇总 VCP 从 2023-12 到 2026-08-19 的真实演进记录，最新覆盖 NextVChat 主界面全量重构、全局标签页与多窗口体系、动态 IPC 生命周期管理、AskNova 公益客服及 Rust 可视化启动器。
+updatedAt: 2026-08-19
 category: changelog
 ---
 
@@ -12,6 +12,46 @@ category: changelog
 ---
 
 ## 最新更新
+
+### 2026-08-19 · NextVChat 正式上线：主界面、主题系统与多窗口运行时全量重构
+
+VCPChat 主界面完成全量重构，**NextVChat** 正式上线。该分支由 NextUI 团队负责界面设计与 CSS 迁移，基于 WebAwesome 技术栈构建；莱恩同步完成部分 IPC、DOM 与布局方法重构。目前 NextVChat 已与 Main 分支完成合并，成为 VChat 后续界面与子应用运行时演进的新基础。
+
+#### 主界面布局与 CSS 体系全面统一
+
+本次更新重新梳理 VChat 主界面的整体布局、组件层级与样式文件，收敛此前分散的布局逻辑和重复 CSS。常用界面元素、交互状态及子应用容器现遵循更加一致的设计规范，减少样式覆盖、布局抖动和无效重绘，显著提升界面响应速度、动画流畅度与长期维护效率。
+
+#### 全局主题系统向人类交互深度开放
+
+VChat 主题系统过去主要由 Agent 侧管理，本次重构后进一步向人类用户开放深度图形化定制能力。用户现在可以通过 GUI 动态调整几乎所有主要 UI 元素，包括颜色、字体、背景、边框、间距、透明度、控件状态及多类布局参数。
+
+主题配置不再只作用于聊天主界面，而是统一覆盖 VChat 子应用群，使主窗口、聊天页面与各类内置应用能够共享一致的视觉语言，同时保留针对具体元素和应用场景的精细化定制空间。
+
+#### 子应用与聊天话题全面进入标签页体系
+
+所有 VChat 子应用现在均可作为标签页挂载到主窗口中。聊天话题同样支持拆分为多个独立标签页，使用户可以在多个会话、文档、工具及子应用之间并行工作，并在同一窗口内快速切换。
+
+标签页和界面容器支持自由拖拽，也可以从当前布局中分离并创建独立子窗口。用户由此可以按任务自由组织工作区，在单窗口、多标签、多窗口及多显示器环境之间灵活调整界面结构，而无需受固定应用布局限制。
+
+#### 动态 IPC、子程序生命周期与预热管理增强
+
+新运行时进一步强化动态 IPC 管理能力，并统一子程序从创建、连接、预热、激活到挂起和销毁的生命周期。系统可以根据标签页、子窗口及应用当前状态动态装载或释放对应资源，并对高频使用的子程序进行预热，减少首次打开和界面切换时的等待。
+
+窗口、DOM 与 IPC 之间的关系也获得更清晰的管理边界。子应用在主窗口与独立窗口之间移动时，可以继续维持必要的通信和运行状态；关闭标签页或窗口后，相关监听器、连接与后台任务则会按生命周期有序回收，降低残留进程、重复监听和内存泄漏风险。
+
+#### AskNova 公益客服上线
+
+VChat 新增内置客服 **AskNova**。该服务接入 VCP 全栈源码与文档地图，并基于 DeepWiki API 提供源码导航、功能说明和使用指导，帮助用户理解 VCP 的安装配置、核心概念、插件体系、前后端模块与常见操作流程。
+
+AskNova 无需用户自行部署服务器，也不要求提供 LLM API，作为公共公益服务直接开放。用户可以通过自然语言询问 VCP 的使用方式和实现结构，降低初次接触复杂系统时的学习与检索成本。
+
+#### Rust 可视化启动器与日志持久化
+
+新增由 Rust 实现的 VChat 启动器。启动器会以可视化方式展示 VChat 初始化过程，帮助用户了解程序当前所处的启动阶段，并持续监听 VChat 主进程状态。
+
+运行期间产生的关键日志会被统一收集并持久化保存，使异常退出、启动失败和长期运行问题拥有更完整的诊断依据。启动器同时承担基础进程守护职责，为后续自动恢复、版本检查与运行环境自检建立统一入口。
+
+> **NextVChat 不只是一次界面换肤，而是对主窗口布局、主题系统、标签页、多窗口、IPC 通信和子程序生命周期的一次整体重建；VChat 由固定聊天界面进一步演进为可自由编排的多应用工作空间。**
 
 ### 2026-08-17 · 共笔文坊三态解耦、分页预览与动画源码快速定位
 
@@ -1217,7 +1257,7 @@ VCP 从构思阶段进入正式开发阶段。
 
 | 阶段 | 时间范围 | 关键进展 |
 | --- | --- | --- |
-| 正式版、OneRing、OpenHer、知识图谱、Loom 与原生内容创作生态期 | 2026-04 ～ 2026-08 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页、源码地图 WikiBot、VCPRagManger 召回管线重构与 RAG 侧 10～100 倍加速、隐私防护小助手、Tool / OneRing / VCPMail / RAG 日记 / AA 通讯管线标准化、官网内嵌 VCP Neon Runtime Survivor 小游戏、后端服务器面板第三次全量重构、离线通知补发、YoutubeFetch 官方 API 重构、LightMemo 向量测绘、TagMemoEngine 预训练管理、日记本后缀权重语法、浪潮 V8 测地线置信度守卫、BM25 管线合并 DailyNoteRust API、自研 BM25QueryOptimizer 查询优化器、插件商店订阅体系重构、VCPUrlFetch V3、VCPChromeService 持久化浏览器服务、ChromeBridge 自然语言网页控制增强、VCPToolRecord 工具调用完整运行时数据库、调用记录查询器元插件、TDB 流式队列化向量引擎、日记插件集 Fuzzy 与安全检查优化、浪潮 / TDB 硬件 I/O 可视化、Sarprompt 模型自动注入、VChat 帧级交互合并与多话题前后台解耦渐进流渲染、心流锁 V2 多 Agent 独立并发与自治话题、OpenHer 情绪参数自动校平、OneRingMemo 近时连续认知、VCPTimeLine V2 长期时间线、浪潮 V9.1 注意力预算传播核、枢纽校正、软非回溯传播、有限时域累计、V9.1 单轨正式生产、Zero-shot 私有知识验证、KNN / Rerank / V9.1 一键对比测试、统一 DailyNote 写入 API、浪潮 V9.2 四层测地线、分层证据守卫与可解释测地增益、LightMemo 三路对照模式、VChat 宽窄侧栏热切换、气泡 / 统一 / 刊物三布局模式、新磨砂透明渲染引擎、代码块纯增量 O(n) 级字符高亮、ArachneLoom 网页子应用系统、VCPLoomManager、Agent-Loom IPC、Cookie 与登录态持久化、`.vloom` 应用打包分发、全平台统一构建与 CI、VCPScriptorium、VDoc 与 VPPT 原生格式、DOCX 分页式 HTML 导出、PPTX 导播器与翻页动画、原生样式中心、自研字体排版及内嵌动画生态、AgentAssistant 心流锁 Core 前后端统一、VNote 标签与模板树状管理、笔记直达文档、共笔文坊渲染态与源码空白幂等映射、文档及引用资产中心、最小化局部刷新、输入态 / 渲染态 / 源码事件态三态解耦、独立事务队列与合并提交、稳定态仲裁对账、IME 中文组合输入兼容 |
+| 正式版、OneRing、OpenHer、知识图谱、Loom 与原生内容创作生态期 | 2026-04 ～ 2026-08 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页、源码地图 WikiBot、VCPRagManger 召回管线重构与 RAG 侧 10～100 倍加速、隐私防护小助手、Tool / OneRing / VCPMail / RAG 日记 / AA 通讯管线标准化、官网内嵌 VCP Neon Runtime Survivor 小游戏、后端服务器面板第三次全量重构、离线通知补发、YoutubeFetch 官方 API 重构、LightMemo 向量测绘、TagMemoEngine 预训练管理、日记本后缀权重语法、浪潮 V8 测地线置信度守卫、BM25 管线合并 DailyNoteRust API、自研 BM25QueryOptimizer 查询优化器、插件商店订阅体系重构、VCPUrlFetch V3、VCPChromeService 持久化浏览器服务、ChromeBridge 自然语言网页控制增强、VCPToolRecord 工具调用完整运行时数据库、调用记录查询器元插件、TDB 流式队列化向量引擎、日记插件集 Fuzzy 与安全检查优化、浪潮 / TDB 硬件 I/O 可视化、Sarprompt 模型自动注入、VChat 帧级交互合并与多话题前后台解耦渐进流渲染、心流锁 V2 多 Agent 独立并发与自治话题、OpenHer 情绪参数自动校平、OneRingMemo 近时连续认知、VCPTimeLine V2 长期时间线、浪潮 V9.1 注意力预算传播核、枢纽校正、软非回溯传播、有限时域累计、V9.1 单轨正式生产、Zero-shot 私有知识验证、KNN / Rerank / V9.1 一键对比测试、统一 DailyNote 写入 API、浪潮 V9.2 四层测地线、分层证据守卫与可解释测地增益、LightMemo 三路对照模式、VChat 宽窄侧栏热切换、气泡 / 统一 / 刊物三布局模式、新磨砂透明渲染引擎、代码块纯增量 O(n) 级字符高亮、ArachneLoom 网页子应用系统、VCPLoomManager、Agent-Loom IPC、Cookie 与登录态持久化、`.vloom` 应用打包分发、全平台统一构建与 CI、VCPScriptorium、VDoc 与 VPPT 原生格式、DOCX 分页式 HTML 导出、PPTX 导播器与翻页动画、原生样式中心、自研字体排版及内嵌动画生态、AgentAssistant 心流锁 Core 前后端统一、VNote 标签与模板树状管理、笔记直达文档、共笔文坊渲染态与源码空白幂等映射、文档及引用资产中心、最小化局部刷新、输入态 / 渲染态 / 源码事件态三态解耦、独立事务队列与合并提交、稳定态仲裁对账、IME 中文组合输入兼容、NextVChat 主界面与布局全量重构、WebAwesome 技术栈、全局 GUI 主题定制、子应用及聊天话题标签页、多窗口自由编排、动态 IPC 与子程序生命周期预热管理、AskNova 公益客服、Rust 可视化启动器与日志持久化 |
 | 平台化扩展期 | 2026-03 ～ 2026-04 | VCPDesktop、桌面遥控、全局 API 虚拟化、PreText.js、7.5 版浪潮与官网上线 |
 | 系统化重构期 | 2026-02 ～ 2026-03 | 超栈追踪 V2、梦系统、SOM 桌面语义控制、多模态记忆、统一中央服务全面推进 |
 | 记忆与自主性爆发期 | 2025-09 ～ 2026-01 | RAG 语法、流式渲染器、Agent 自主巡航、TagMemo、上下文折叠持续成型 |
