@@ -1,7 +1,7 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-08-23 的真实演进记录，最新覆盖 VChat Chat Kernel、VCPAgentChatCore、VCPMessageRenderer V4、RubatoF64 音频采样器、VChatInstaller 与 DailyNote 中央服务重构。
-updatedAt: 2026-08-23
+summary: 汇总 VCP 从 2023-12 到 2026-08-26 的真实演进记录，最新覆盖 VCPMessageRenderer V4 极端内容防御、CursorGen 跨平台指针主题生成、TagMemo Checkpoint 自检、OneRing Hash 遍历、恶劣网络流式渲染与 CodeMirror Diff 工具审计。
+updatedAt: 2026-08-26
 category: changelog
 ---
 
@@ -12,6 +12,54 @@ category: changelog
 ---
 
 ## 最新更新
+
+### 2026-08-26 · VCPMessageRenderer V4 极端内容防御与 CursorGen 跨平台指针主题生成
+
+本次更新继续围绕复杂生成内容的安全渲染与 Agent 系统级创作能力扩展展开。前端进一步强化 VCPMessageRenderer V4 在极端、非规范 HTML 输入下的边界识别与竞态适应能力；后端则为 HtmlMediaRendererGen 新增 CursorGen，使 Agent 可以直接生成并安装跨平台鼠标指针主题。
+
+#### V4 渲染引擎增强极端压测适应性
+
+VCPMessageRenderer V4 完成新一轮极端内容压力测试与防御加固，重点修复恶意、错误或高度混淆的 HTML 结构可能引发的作用域误判、嵌套破坏与竞态问题。
+
+1. **无关 Div 字段干扰防御**：当有效 `div` 区块内部混入大量错误、无关或故意制造歧义的 `div` 字段时，渲染器仍能识别真实结构边界，避免局部内容扰乱消息整体布局和流式状态。
+2. **HTML 注释内容隔离增强**：注释中的脚本片段、伪标签与恶意可执行内容不会被误识别为真实页面结构或进入执行链路。
+3. **破坏性占位符防御**：增强对注释、标签及嵌套结构中异常占位符的识别与隔离，降低未闭合标记、伪造边界和嵌套污染对渲染树的影响。
+4. **极端输入竞态治理**：针对上述异常结构同时出现在流式增量、终稿切换和富内容处理阶段的情况，进一步收紧解析代次与渲染边界，减少旧任务和错误中间态干扰最终画面。
+
+#### CursorGen 打通鼠标指针主题生成与安装
+
+后端 HtmlMediaRendererGen 新增 **CursorGen** 能力。Agent 现在可以根据自然语言需求一次性生成 Windows 与 macOS 可用的鼠标指针主题包，并支持自动化安装。
+
+这项能力将指针图形设计、不同交互状态适配、平台格式封装与系统安装串联为完整工作流。用户无需手动绘制、转换文件或逐项配置系统指针，即可让 Agent 为电脑创作并替换整套鼠标指针主题，进一步扩展 VCP 从界面内容生成到操作系统个性化资产生产的能力边界。
+
+> **V4 渲染器继续把非规范内容约束在可靠边界内；CursorGen 则让 Agent 从生成网页与多媒体素材，进一步走向可直接安装的系统级视觉资产。**
+
+### 2026-08-24 · TagMemo Checkpoint 自检、OneRing 长上下文遍历与前端可靠性升级
+
+本次更新同步增强记忆资产重建、统一上下文一致性检测、恶劣网络流式渲染、消息样式隔离及工具变更审计能力，重点提升复杂生产环境中的数学可靠性、长上下文性能与人工审核效率。
+
+#### TagMemo 资产重建 Checkpoint 自检加固
+
+后端进一步加固 TagMemo 资产重建 Checkpoint 算法的自检能力，完善资产变化过程中的增量与减量计算校验。系统会更严格地核对变更前后状态、Checkpoint 代次及增减量关系，降低高频写入、删除或重建过程中因计数漂移造成资产不一致的概率。
+
+新的自检与计算路径在提高数学可靠性的同时，减少了不必要的重复训练和全量重算，使模型训练与资产恢复过程更快、更稳定。
+
+#### OneRing Hash 遍历模式增强
+
+OneRing 的 Hash 遍历模式完成算法优化，大幅提升超长上下文中的一致性检测速度。面对跨客户端、跨会话及大量历史消息组成的上下文时，系统可以更高效地定位内容变化、顺序差异与状态偏移，减少重复遍历和无效比较，同时继续维持统一上下文事实层的可靠仲裁。
+
+#### 流式渲染与消息样式隔离强化
+
+1. **恶劣网络适应性增强**：进一步优化流式分包乱序、延迟、抖动、短时断联与恢复场景下的渲染推进，减少文本停顿、重复显示、局部回退及终稿切换异常。
+2. **极端样式污染自动重定向**：增强 Message 气泡在极端 CSS 与结构污染测试下的自动化重定向能力。当异常样式可能越过当前消息边界时，渲染器会将相关内容重新约束到正确气泡及隔离作用域，避免影响其它消息或聊天主界面。
+
+#### 工具变更审核新增 CodeMirror Diff 审计模态窗
+
+通知管线现在会识别涉及文件或代码变动的工具请求。此类请求进入审核界面时，将自动提供基于 **CodeMirror Diff** 的审计模态窗，以结构化差异视图展示新增、删除与修改内容。
+
+用户无需离开工具审核流程或手动打开目标文件，即可直接检查 Agent 准备执行的代码与文件变更，再决定允许或拒绝请求。该能力使工具权限审核从“确认将执行什么操作”进一步升级为“确认具体将改变什么内容”，提高源码操作的透明度与可审计性。
+
+> **从记忆资产的数学自检、长上下文的一致性遍历，到恶劣网络渲染和代码变更审计，本次更新继续补强 VCP 在高负载、异常输入与高权限操作下的可靠性边界。**
 
 ### 2026-08-23 · VCPMessageRenderer V4：流式竞态治理、语义级 Div 岛识别与多应用对接
 
@@ -1326,7 +1374,7 @@ VCP 从构思阶段进入正式开发阶段。
 
 | 阶段 | 时间范围 | 关键进展 |
 | --- | --- | --- |
-| 正式版、OneRing、OpenHer、知识图谱、Loom 与原生内容创作生态期 | 2026-04 ～ 2026-08 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3 / V4、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页、源码地图 WikiBot、VCPRagManger 召回管线重构与 RAG 侧 10～100 倍加速、隐私防护小助手、Tool / OneRing / VCPMail / RAG 日记 / AA 通讯管线标准化、官网内嵌 VCP Neon Runtime Survivor 小游戏、后端服务器面板第三次全量重构、离线通知补发、YoutubeFetch 官方 API 重构、LightMemo 向量测绘、TagMemoEngine 预训练管理、日记本后缀权重语法、浪潮 V8 测地线置信度守卫、BM25 管线合并 DailyNoteRust API、自研 BM25QueryOptimizer 查询优化器、插件商店订阅体系重构、VCPUrlFetch V3、VCPChromeService 持久化浏览器服务、ChromeBridge 自然语言网页控制增强、VCPToolRecord 工具调用完整运行时数据库、调用记录查询器元插件、TDB 流式队列化向量引擎、日记插件集 Fuzzy 与安全检查优化、浪潮 / TDB 硬件 I/O 可视化、Sarprompt 模型自动注入、VChat 帧级交互合并与多话题前后台解耦渐进流渲染、心流锁 V2 多 Agent 独立并发与自治话题、OpenHer 情绪参数自动校平、OneRingMemo 近时连续认知、VCPTimeLine V2 长期时间线、浪潮 V9.1 注意力预算传播核、枢纽校正、软非回溯传播、有限时域累计、V9.1 单轨正式生产、Zero-shot 私有知识验证、KNN / Rerank / V9.1 一键对比测试、统一 DailyNote 写入 API、浪潮 V9.2 四层测地线、分层证据守卫与可解释测地增益、LightMemo 三路对照模式、VChat 宽窄侧栏热切换、气泡 / 统一 / 刊物三布局模式、新磨砂透明渲染引擎、代码块纯增量 O(n) 级字符高亮、ArachneLoom 网页子应用系统、VCPLoomManager、Agent-Loom IPC、Cookie 与登录态持久化、`.vloom` 应用打包分发、全平台统一构建与 CI、VCPScriptorium、VDoc 与 VPPT 原生格式、DOCX 分页式 HTML 导出、PPTX 导播器与翻页动画、原生样式中心、自研字体排版及内嵌动画生态、AgentAssistant 心流锁 Core 前后端统一、VNote 标签与模板树状管理、笔记直达文档、共笔文坊渲染态与源码空白幂等映射、文档及引用资产中心、最小化局部刷新、输入态 / 渲染态 / 源码事件态三态解耦、独立事务队列与合并提交、稳定态仲裁对账、IME 中文组合输入兼容、NextVChat 主界面与布局全量重构、WebAwesome 技术栈、全局 GUI 主题定制、子应用及聊天话题标签页、多窗口自由编排、动态 IPC 与子程序生命周期预热管理、AskNova 公益客服、Rust 可视化启动器与日志持久化、VCPAgentChatCore 公共 Post 核心、VChat Chat Kernel、多 Surface 独立流式运行时、RubatoF64 纯 Rust 音频采样、VChatInstaller、DailyNote 中央服务委托、VCPMessageRenderer V4 流式竞态治理与语义级 Div 岛识别、V阅读 / V论坛 / V笔记 / V文坊统一渲染内核对接 |
+| 正式版、OneRing、OpenHer、知识图谱、Loom 与原生内容创作生态期 | 2026-04 ～ 2026-08 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3 / V4、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页、源码地图 WikiBot、VCPRagManger 召回管线重构与 RAG 侧 10～100 倍加速、隐私防护小助手、Tool / OneRing / VCPMail / RAG 日记 / AA 通讯管线标准化、官网内嵌 VCP Neon Runtime Survivor 小游戏、后端服务器面板第三次全量重构、离线通知补发、YoutubeFetch 官方 API 重构、LightMemo 向量测绘、TagMemoEngine 预训练管理、日记本后缀权重语法、浪潮 V8 测地线置信度守卫、BM25 管线合并 DailyNoteRust API、自研 BM25QueryOptimizer 查询优化器、插件商店订阅体系重构、VCPUrlFetch V3、VCPChromeService 持久化浏览器服务、ChromeBridge 自然语言网页控制增强、VCPToolRecord 工具调用完整运行时数据库、调用记录查询器元插件、TDB 流式队列化向量引擎、日记插件集 Fuzzy 与安全检查优化、浪潮 / TDB 硬件 I/O 可视化、Sarprompt 模型自动注入、VChat 帧级交互合并与多话题前后台解耦渐进流渲染、心流锁 V2 多 Agent 独立并发与自治话题、OpenHer 情绪参数自动校平、OneRingMemo 近时连续认知、VCPTimeLine V2 长期时间线、浪潮 V9.1 注意力预算传播核、枢纽校正、软非回溯传播、有限时域累计、V9.1 单轨正式生产、Zero-shot 私有知识验证、KNN / Rerank / V9.1 一键对比测试、统一 DailyNote 写入 API、浪潮 V9.2 四层测地线、分层证据守卫与可解释测地增益、LightMemo 三路对照模式、VChat 宽窄侧栏热切换、气泡 / 统一 / 刊物三布局模式、新磨砂透明渲染引擎、代码块纯增量 O(n) 级字符高亮、ArachneLoom 网页子应用系统、VCPLoomManager、Agent-Loom IPC、Cookie 与登录态持久化、`.vloom` 应用打包分发、全平台统一构建与 CI、VCPScriptorium、VDoc 与 VPPT 原生格式、DOCX 分页式 HTML 导出、PPTX 导播器与翻页动画、原生样式中心、自研字体排版及内嵌动画生态、AgentAssistant 心流锁 Core 前后端统一、VNote 标签与模板树状管理、笔记直达文档、共笔文坊渲染态与源码空白幂等映射、文档及引用资产中心、最小化局部刷新、输入态 / 渲染态 / 源码事件态三态解耦、独立事务队列与合并提交、稳定态仲裁对账、IME 中文组合输入兼容、NextVChat 主界面与布局全量重构、WebAwesome 技术栈、全局 GUI 主题定制、子应用及聊天话题标签页、多窗口自由编排、动态 IPC 与子程序生命周期预热管理、AskNova 公益客服、Rust 可视化启动器与日志持久化、VCPAgentChatCore 公共 Post 核心、VChat Chat Kernel、多 Surface 独立流式运行时、RubatoF64 纯 Rust 音频采样、VChatInstaller、DailyNote 中央服务委托、VCPMessageRenderer V4 流式竞态治理与语义级 Div 岛识别、V阅读 / V论坛 / V笔记 / V文坊统一渲染内核对接、TagMemo 资产重建 Checkpoint 增减量自检、OneRing Hash 长上下文遍历、恶劣网络流式渲染、Message 气泡样式污染重定向、CodeMirror Diff 工具变更审计、V4 极端 HTML 内容防御、CursorGen 跨平台鼠标指针主题生成与自动安装 |
 | 平台化扩展期 | 2026-03 ～ 2026-04 | VCPDesktop、桌面遥控、全局 API 虚拟化、PreText.js、7.5 版浪潮与官网上线 |
 | 系统化重构期 | 2026-02 ～ 2026-03 | 超栈追踪 V2、梦系统、SOM 桌面语义控制、多模态记忆、统一中央服务全面推进 |
 | 记忆与自主性爆发期 | 2025-09 ～ 2026-01 | RAG 语法、流式渲染器、Agent 自主巡航、TagMemo、上下文折叠持续成型 |
