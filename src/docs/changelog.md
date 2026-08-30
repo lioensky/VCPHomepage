@@ -1,7 +1,7 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-08-26 的真实演进记录，最新覆盖 VCPMessageRenderer V4 极端内容防御、CursorGen 跨平台指针主题生成、TagMemo Checkpoint 自检、OneRing Hash 遍历、恶劣网络流式渲染与 CodeMirror Diff 工具审计。
-updatedAt: 2026-08-26
+summary: 汇总 VCP 从 2023-12 到 2026-08-30 的真实演进记录，最新覆盖系统级语音输入、Rust 独立麦克风引擎、渲染态流式朗读、本地 SoVITS 推理与缓存优化、Mimo 2.5 多模式语音及 Electron 44 升级。
+updatedAt: 2026-08-30
 category: changelog
 ---
 
@@ -12,6 +12,48 @@ category: changelog
 ---
 
 ## 最新更新
+
+### 2026-08-30 · 系统级语音交互、渲染态流式朗读与 Electron 44 升级
+
+本次更新集中重构 VChat 的语音输入、语音生成与流式朗读链路，并同步升级桌面运行时。语音交互不再局限于 VChat 窗口：用户现在可以在游戏、创作软件及其它第三方应用中直接通过麦克风与 Agent 协作，形成从系统输入、Agent 理解到界面操作的完整闭环。
+
+#### 系统级语音输入与 Rust 独立引擎
+
+旧版语音输入依赖 Puppeteer 驱动浏览器会话，再通过代理链路调用 Gemini Web 页面内的语音识别能力。这种方案需要同时维持浏览器进程、页面运行状态、代理转发与 Web 服务连接，不仅链路较重、资源开销较高，也容易受到页面变更、会话失效、浏览器状态及网络波动影响，长期运行时稳定性不足。
+
+新版已移除这条基于浏览器自动化的间接链路，改为直接调用系统语音 API。语音采集与识别不再需要启动和托管 Gemini Web 页面，从而减少中间进程、代理转发与页面依赖，降低输入延迟和故障点。
+
+新增基于 Rust 的独立语音输入引擎，可监听程序内可用麦克风，并通过以下两类通道完成语音识别与输入：
+
+1. **Windows 原生通道**：通过 WinAPI 接入系统级语音能力。
+2. **输入法本地通道**：若用户电脑已安装豆包输入法客户端/讯飞输入法客户端，即可直接调用 Doubao API，无需另行配置云端语音服务。
+
+该引擎使语音控制能力可以脱离 VChat 主窗口运行。用户可在游戏中使用手柄麦克风与 Agent 交流，也可在大型专业软件中直接通过语音下达任务；结合既有 **VCP-SOM** 界面感知与操作能力，VCP 由此打通“语音指令—Agent 理解—第三方软件操作—结果反馈”的系统级交互闭环。
+
+#### 流式朗读与本地语音推理优化
+
+1. **渲染态流式音频解析朗读**：新增面向渲染状态的流式音频解析与播放能力。Agent 回复可以在内容持续生成和渲染的同时进入朗读管线，减少等待完整回复后再开始播放的停顿。
+2. **本地 SoVITS 推理优化**：重构本地 SoVITS 推理流程，优化任务调度、缓存命中与队列管理，改善连续请求和多段语音生成时的吞吐、等待时间与资源稳定性。
+3. **前端语音体验统一优化**：进一步整理语音输入、生成、缓存和播放之间的状态衔接，减少重复处理、播放迟滞及队列堆积。
+
+#### Web 语音供应商与生成模式升级
+
+Web 语音供应商由 Index 2.5 切换为 **Mimo 2.5**，并统一支持三种语音生成模式：
+
+- **默认语音**：直接使用预设音色完成快速朗读。
+- **克隆语音**：基于参考声音生成对应音色。
+- **自然语言提示语音**：通过自然语言描述音色、语气、情绪与表达方式，无需手动调整复杂参数。
+
+#### Electron 44 与桌面运行效率提升
+
+VChat 的 Electron 底层依赖由 v37 迁移至 **v44**，进一步提升桌面端的安全性、稳定性和运行效率。在家用 i7 测试环境中，当前版本性能基线为 **LCP 0.6 秒、CLS 0.01、INP 8 毫秒**；程序启动速度提升约 **35%**，内存占用再次下降约 **10%**。
+
+#### 界面细节与插件阅读体验
+
+1. **文本分行与缩放稳定性优化**：进一步改善标点符号位于段尾分行位置时的排版表现，并修复手动拖拽窗口边角缩放时可能出现的局部界面抖动。
+2. **插件 README 快速阅读**：后端插件中心新增 README 快速阅读入口，用户无需离开插件管理流程，即可查看插件说明、配置方法与使用文档。
+
+> **这次升级让语音不再只是聊天窗口中的附加输入方式，而是成为可以贯穿第三方软件、系统操作与 Agent 协作的通用交互入口；配合流式朗读、SoVITS 推理优化和 Electron 44，VChat 的语音体验与桌面运行基础也同步完成了一轮系统性提升。**
 
 ### 2026-08-26 · VCPMessageRenderer V4 极端内容防御与 CursorGen 跨平台指针主题生成
 
@@ -1374,7 +1416,7 @@ VCP 从构思阶段进入正式开发阶段。
 
 | 阶段 | 时间范围 | 关键进展 |
 | --- | --- | --- |
-| 正式版、OneRing、OpenHer、知识图谱、Loom 与原生内容创作生态期 | 2026-04 ～ 2026-08 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3 / V4、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页、源码地图 WikiBot、VCPRagManger 召回管线重构与 RAG 侧 10～100 倍加速、隐私防护小助手、Tool / OneRing / VCPMail / RAG 日记 / AA 通讯管线标准化、官网内嵌 VCP Neon Runtime Survivor 小游戏、后端服务器面板第三次全量重构、离线通知补发、YoutubeFetch 官方 API 重构、LightMemo 向量测绘、TagMemoEngine 预训练管理、日记本后缀权重语法、浪潮 V8 测地线置信度守卫、BM25 管线合并 DailyNoteRust API、自研 BM25QueryOptimizer 查询优化器、插件商店订阅体系重构、VCPUrlFetch V3、VCPChromeService 持久化浏览器服务、ChromeBridge 自然语言网页控制增强、VCPToolRecord 工具调用完整运行时数据库、调用记录查询器元插件、TDB 流式队列化向量引擎、日记插件集 Fuzzy 与安全检查优化、浪潮 / TDB 硬件 I/O 可视化、Sarprompt 模型自动注入、VChat 帧级交互合并与多话题前后台解耦渐进流渲染、心流锁 V2 多 Agent 独立并发与自治话题、OpenHer 情绪参数自动校平、OneRingMemo 近时连续认知、VCPTimeLine V2 长期时间线、浪潮 V9.1 注意力预算传播核、枢纽校正、软非回溯传播、有限时域累计、V9.1 单轨正式生产、Zero-shot 私有知识验证、KNN / Rerank / V9.1 一键对比测试、统一 DailyNote 写入 API、浪潮 V9.2 四层测地线、分层证据守卫与可解释测地增益、LightMemo 三路对照模式、VChat 宽窄侧栏热切换、气泡 / 统一 / 刊物三布局模式、新磨砂透明渲染引擎、代码块纯增量 O(n) 级字符高亮、ArachneLoom 网页子应用系统、VCPLoomManager、Agent-Loom IPC、Cookie 与登录态持久化、`.vloom` 应用打包分发、全平台统一构建与 CI、VCPScriptorium、VDoc 与 VPPT 原生格式、DOCX 分页式 HTML 导出、PPTX 导播器与翻页动画、原生样式中心、自研字体排版及内嵌动画生态、AgentAssistant 心流锁 Core 前后端统一、VNote 标签与模板树状管理、笔记直达文档、共笔文坊渲染态与源码空白幂等映射、文档及引用资产中心、最小化局部刷新、输入态 / 渲染态 / 源码事件态三态解耦、独立事务队列与合并提交、稳定态仲裁对账、IME 中文组合输入兼容、NextVChat 主界面与布局全量重构、WebAwesome 技术栈、全局 GUI 主题定制、子应用及聊天话题标签页、多窗口自由编排、动态 IPC 与子程序生命周期预热管理、AskNova 公益客服、Rust 可视化启动器与日志持久化、VCPAgentChatCore 公共 Post 核心、VChat Chat Kernel、多 Surface 独立流式运行时、RubatoF64 纯 Rust 音频采样、VChatInstaller、DailyNote 中央服务委托、VCPMessageRenderer V4 流式竞态治理与语义级 Div 岛识别、V阅读 / V论坛 / V笔记 / V文坊统一渲染内核对接、TagMemo 资产重建 Checkpoint 增减量自检、OneRing Hash 长上下文遍历、恶劣网络流式渲染、Message 气泡样式污染重定向、CodeMirror Diff 工具变更审计、V4 极端 HTML 内容防御、CursorGen 跨平台鼠标指针主题生成与自动安装 |
+| 正式版、OneRing、OpenHer、知识图谱、Loom 与原生内容创作生态期 | 2026-04 ～ 2026-08 | VCP 1.0 / 1.1、TDB 知识库、VCPMobile、VCPModel 容灾、管线可视化、浪潮 V8 数据库重构、OneRing 稳定版、VCPMessageRenderer V3 / V4、OpenHer 情绪认知管理与算法重构、PluginManager 元管理体系、AgentAssistant 可视化总线、异步委托任务控制、Vchat CLI 常驻终端、VCPSuperMail、ChromeBridge 安全分级、官网大幅翻新、原理演示动画、独立更新日志展示页、源码地图 WikiBot、VCPRagManger 召回管线重构与 RAG 侧 10～100 倍加速、隐私防护小助手、Tool / OneRing / VCPMail / RAG 日记 / AA 通讯管线标准化、官网内嵌 VCP Neon Runtime Survivor 小游戏、后端服务器面板第三次全量重构、离线通知补发、YoutubeFetch 官方 API 重构、LightMemo 向量测绘、TagMemoEngine 预训练管理、日记本后缀权重语法、浪潮 V8 测地线置信度守卫、BM25 管线合并 DailyNoteRust API、自研 BM25QueryOptimizer 查询优化器、插件商店订阅体系重构、VCPUrlFetch V3、VCPChromeService 持久化浏览器服务、ChromeBridge 自然语言网页控制增强、VCPToolRecord 工具调用完整运行时数据库、调用记录查询器元插件、TDB 流式队列化向量引擎、日记插件集 Fuzzy 与安全检查优化、浪潮 / TDB 硬件 I/O 可视化、Sarprompt 模型自动注入、VChat 帧级交互合并与多话题前后台解耦渐进流渲染、心流锁 V2 多 Agent 独立并发与自治话题、OpenHer 情绪参数自动校平、OneRingMemo 近时连续认知、VCPTimeLine V2 长期时间线、浪潮 V9.1 注意力预算传播核、枢纽校正、软非回溯传播、有限时域累计、V9.1 单轨正式生产、Zero-shot 私有知识验证、KNN / Rerank / V9.1 一键对比测试、统一 DailyNote 写入 API、浪潮 V9.2 四层测地线、分层证据守卫与可解释测地增益、LightMemo 三路对照模式、VChat 宽窄侧栏热切换、气泡 / 统一 / 刊物三布局模式、新磨砂透明渲染引擎、代码块纯增量 O(n) 级字符高亮、ArachneLoom 网页子应用系统、VCPLoomManager、Agent-Loom IPC、Cookie 与登录态持久化、`.vloom` 应用打包分发、全平台统一构建与 CI、VCPScriptorium、VDoc 与 VPPT 原生格式、DOCX 分页式 HTML 导出、PPTX 导播器与翻页动画、原生样式中心、自研字体排版及内嵌动画生态、AgentAssistant 心流锁 Core 前后端统一、VNote 标签与模板树状管理、笔记直达文档、共笔文坊渲染态与源码空白幂等映射、文档及引用资产中心、最小化局部刷新、输入态 / 渲染态 / 源码事件态三态解耦、独立事务队列与合并提交、稳定态仲裁对账、IME 中文组合输入兼容、NextVChat 主界面与布局全量重构、WebAwesome 技术栈、全局 GUI 主题定制、子应用及聊天话题标签页、多窗口自由编排、动态 IPC 与子程序生命周期预热管理、AskNova 公益客服、Rust 可视化启动器与日志持久化、VCPAgentChatCore 公共 Post 核心、VChat Chat Kernel、多 Surface 独立流式运行时、RubatoF64 纯 Rust 音频采样、VChatInstaller、DailyNote 中央服务委托、VCPMessageRenderer V4 流式竞态治理与语义级 Div 岛识别、V阅读 / V论坛 / V笔记 / V文坊统一渲染内核对接、TagMemo 资产重建 Checkpoint 增减量自检、OneRing Hash 长上下文遍历、恶劣网络流式渲染、Message 气泡样式污染重定向、CodeMirror Diff 工具变更审计、V4 极端 HTML 内容防御、CursorGen 跨平台鼠标指针主题生成与自动安装、Rust 系统级麦克风引擎、WinAPI / Doubao API 语音输入、渲染态流式朗读、本地 SoVITS 推理与缓存队列优化、Mimo 2.5 多模式语音、Electron 44 桌面运行时升级、插件 README 快速阅读 |
 | 平台化扩展期 | 2026-03 ～ 2026-04 | VCPDesktop、桌面遥控、全局 API 虚拟化、PreText.js、7.5 版浪潮与官网上线 |
 | 系统化重构期 | 2026-02 ～ 2026-03 | 超栈追踪 V2、梦系统、SOM 桌面语义控制、多模态记忆、统一中央服务全面推进 |
 | 记忆与自主性爆发期 | 2025-09 ～ 2026-01 | RAG 语法、流式渲染器、Agent 自主巡航、TagMemo、上下文折叠持续成型 |
