@@ -7,3 +7,4 @@ coverage/
 .env*
 !.env.example
 开发文档/
+github-code-stats-output/
