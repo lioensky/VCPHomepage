@@ -2663,8 +2663,9 @@ export default function App() {
               <span className="text-vcp-cyan">LIVE RUNTIME LAYER</span>
             </motion.h2>
             <p className="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed">
-              VCPDesktop 与 VCPMessageRenderer V3 把聊天窗口升级为 AI 可流式创建、编辑、冻结和操控的桌面运行时。
-              它不再只是 UI，而是 AI-UI-APP 三者融合后的可编程赛博桌面。
+              VCPDesktop 与 VCPMessageRenderer V4 将聊天窗口、子应用和独立 Surface 统一为可流式创建、编辑、冻结与操控的桌面运行时。
+              V4 以语义级 Div 岛识别、流式身份与代次校验、终稿一致性提交和完整生命周期回收约束复杂内容，
+              让 AI-UI-APP 三者融合后的可编程赛博桌面在多窗口、长上下文与高速流式输出中保持稳定。
             </p>
           </div>
 
@@ -2672,8 +2673,8 @@ export default function App() {
             <div className="space-y-8">
               {[
                 {
-                  title: "40+ Mixed Renderers",
-                  desc: "Markdown、Three.js、Manim、LaTeX、媒体、塔罗、交互组件在同一气泡内双层 DOM 稳定流式输出。",
+                  title: "V4 Unified Rendering Surfaces",
+                  desc: "Markdown、HTML、Three.js、Manim、LaTeX、媒体与交互组件共享 V4 内核；语义级 Div 岛、ScopedCSS 和终稿提交栅栏共同隔离复杂内容，并统一服务 VChat、V阅读、V论坛、V笔记与V文坊。",
                   icon: Monitor,
                 },
                 {
@@ -2733,7 +2734,7 @@ export default function App() {
                       whileInView={{ opacity: 1, y: 0, scale: 1 }}
                       transition={{ duration: 0.5, delay: 0.2 }}
                     >
-                      <span className="runtime-label">VCPMessageRenderer V3</span>
+                      <span className="runtime-label">VCPMessageRenderer V4 · STREAM CONSISTENCY</span>
                       <div className="runtime-line w-4/5" />
                       <div className="runtime-line w-2/3" />
                       <div className="runtime-render-strip">
