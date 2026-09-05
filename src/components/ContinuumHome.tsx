@@ -111,8 +111,21 @@ export function ContinuumHome({brand, themeControl, nova, onAskNova, documents}:
           <PondScene opened={opened}/>
           <div className="pond-opening-copy">
             <span className="pond-eyebrow">VCP CONTINUUM / 池月</span>
-            <h1 id="pond-title">{opened ? <>从可见的倒影，<br/>走向可触及的世界。</> : <>云遮住了天上的月。<br/>池中的月，还在。</>}</h1>
-            <p>{opened ? "VCP · 全栈 AGI 运行时与应用生态" : "目标或隐于云后，而工程，始于眼前可以触碰的微光。"}</p>
+            <h1
+              id="pond-title"
+              className="pond-copy-crossfade"
+              aria-label={opened ? "从可见的倒影，走向可触及的世界。" : "云遮住了天上的月。池中的月，还在。"}
+            >
+              <span className="pond-copy-before" aria-hidden="true">云遮住了天上的月。<br/>池中的月，还在。</span>
+              <span className="pond-copy-after" aria-hidden="true">从可见的倒影，<br/>走向可触及的世界。</span>
+            </h1>
+            <p
+              className="pond-copy-crossfade pond-copy-description"
+              aria-label={opened ? "VCP，全栈 AGI 运行时与应用生态" : "目标或隐于云后，而工程，始于眼前可以触碰的微光。"}
+            >
+              <span className="pond-copy-before" aria-hidden="true">目标或隐于云后，而工程，始于眼前可以触碰的微光。</span>
+              <span className="pond-copy-after" aria-hidden="true">VCP · 全栈 AGI 运行时与应用生态</span>
+            </p>
           </div>
           <button className="pond-moon-trigger" onClick={openPond} aria-label={opened ? "池月已展开" : "轻触池月，展开导航"} aria-expanded={opened}>
             <span className="moon-disc" aria-hidden="true"/><span className="moon-trigger-caption">{opened ? "池 月" : "轻触池月 · 展开 VCP"}</span>
