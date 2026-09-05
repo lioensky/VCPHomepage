@@ -96,13 +96,13 @@ export function DocsViewer({documents, activeSlug, onSelect}: DocsViewerProps) {
       <aside className="glass-card docs-sidebar p-4 md:p-6 xl:sticky xl:top-28">
         <div className="mb-6">
           <div className="font-mono text-[10px] tracking-[0.3em] uppercase text-vcp-cyan mb-3">
-            Auto Imported Docs
+            THE OPEN ARCHIVE
           </div>
           <h3 className="text-2xl font-display font-bold text-white">
-            文档分页
+            藏书目录
           </h3>
           <p className="text-sm text-gray-400 mt-3 leading-relaxed">
-            只需向 <code>src/docs</code> 目录添加 Markdown 文档，即可自动接入首页文档中心，并按最后编辑时间排序。
+            从入门指引到工程原理，循目录展开一卷。文档按最近更新时间排列，记录仍在继续。
           </p>
         </div>
 
@@ -113,6 +113,7 @@ export function DocsViewer({documents, activeSlug, onSelect}: DocsViewerProps) {
               <button
                 key={doc.slug}
                 type="button"
+                aria-current={isActive ? "page" : undefined}
                 onClick={() => onSelect(doc.slug)}
                 className={`w-full text-left rounded-2xl border px-4 py-4 transition-all ${
                   isActive

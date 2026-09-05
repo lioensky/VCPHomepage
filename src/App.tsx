@@ -47,6 +47,7 @@ import rehypeRaw from "rehype-raw";
 import rehypeSlug from "rehype-slug";
 import {NeuralNetwork} from "./components/NeuralNetwork";
 import {DocsViewer} from "./components/DocsViewer";
+import {ContinuumHome, PondBrand} from "./components/ContinuumHome";
 import {getAllDocs} from "./docs";
 import {normalizeMarkdownMath} from "./markdownMath";
 import whitepaperV3Content, {metadata as whitepaperV3Metadata} from "./docs/vcp-whitepaper-v3.md";
@@ -2192,6 +2193,31 @@ const WhitepaperPage = () => {
 };
 
 export default function App() {
+  const [activeWikiTarget, setActiveWikiTarget] = useState<WikiCockpitTarget | null>(null);
+  const documents = useMemo(() => getAllDocs(), []);
+  const page = new URLSearchParams(window.location.search).get("page");
+  const isLegacyRoute = ["/learn-vcp", "/changelog", "/plugin-store", "/vcp-leaderboard", "/nova"].includes(window.location.pathname)
+    || ["learn-vcp", "changelog", "plugin-store", "vcp-leaderboard"].includes(page ?? "");
+  const meta = useMemo<PageMeta>(() => ({
+    title: "VCP · 池月与云中卷 | Agent 运行时与应用生态",
+    description: "从池月展开 VCP：探索浪潮 V10 语义动力学、连续记忆、共享 IPC 应用群与人类和 Agent 的共同创作。阅读白皮书、安装指南与真实工程演进记录。",
+    keywords: "VCP,VCPToolBox,VCPChat,RiverMemo,Agent运行时,共享IPC,共笔文坊,连续记忆",
+    canonical: "https://www.vcptoolbox.com/",
+  }), []);
+  usePageMeta(meta, !isLegacyRoute);
+
+  if (isLegacyRoute) return <LegacyApp />;
+
+  return <ContinuumHome
+    brand={<PondBrand />}
+    themeControl={<ThemeToggle />}
+    documents={documents}
+    onAskNova={(id) => setActiveWikiTarget(wikiCockpitTargets.find(target => target.id === id) ?? wikiCockpitTargets[2])}
+    nova={activeWikiTarget ? <WikiCockpitModal target={activeWikiTarget} onClose={() => setActiveWikiTarget(null)} onSwitch={setActiveWikiTarget} /> : null}
+  />;
+}
+
+function LegacyApp() {
   const containerRef = useRef(null);
   const glowRef = useRef<HTMLDivElement>(null);
   const docsSectionRef = useRef<HTMLElement>(null);
