@@ -49,7 +49,7 @@ export function ContinuumHome({brand, themeControl, nova, onAskNova, documents}:
   });
   const [chapter, setChapter] = useState(0);
   const [time, setTime] = useState(0);
-  const [activeDoc, setActiveDoc] = useState(documents.find(doc => doc.slug === "getting-started")?.slug ?? documents[0]?.slug ?? "");
+  const [activeDoc, setActiveDoc] = useState(documents[0]?.slug ?? "");
   const docsRef = useRef<HTMLElement>(null);
   const bookRef = useRef<HTMLDivElement>(null);
   const monumentRef = useRef<HTMLElement>(null);
