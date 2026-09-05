@@ -438,3 +438,59 @@
 @media (prefers-reduced-motion: reduce) {
   .continuum .site-theme-toggle-track svg { transition: none; }
 }
+
+/* Fluid blur-dissolve crossfade for opening copy when lifting the pond moon */
+.pond-copy-crossfade {
+  display: grid;
+  grid-template-areas: "copy-stack";
+  align-items: center;
+  justify-items: center;
+}
+.pond-copy-before,
+.pond-copy-after {
+  grid-area: copy-stack;
+  width: 100%;
+  transition:
+    opacity 1.6s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 1.6s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 1.8s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, filter, transform;
+}
+/* Initial un-opened state: before copy is crisp, after copy is dissolved in mist */
+.pond-copy-before {
+  opacity: 1;
+  filter: blur(0px);
+  transform: translateY(0);
+}
+.pond-copy-after {
+  opacity: 0;
+  filter: blur(12px);
+  transform: translateY(16px);
+  pointer-events: none;
+}
+/* Opened state: before copy vaporizes and rises like water vapor, after copy crystallizes from water light */
+.is-open .pond-copy-before {
+  opacity: 0;
+  filter: blur(14px);
+  transform: translateY(-16px);
+  pointer-events: none;
+  transition-delay: 0s;
+}
+.is-open .pond-copy-after {
+  opacity: 1;
+  filter: blur(0px);
+  transform: translateY(0);
+  pointer-events: auto;
+  transition-delay: 0.6s;
+}
+.pond-copy-description .pond-copy-after {
+  transition-delay: 0.85s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pond-copy-before,
+  .pond-copy-after {
+    transition: opacity 0.3s ease !important;
+    filter: none !important;
+    transform: none !important;
+  }
+}
