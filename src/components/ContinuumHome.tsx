@@ -112,7 +112,7 @@ export function ContinuumHome({brand, themeControl, nova, onAskNova, documents}:
           <div className="pond-opening-copy">
             <span className="pond-eyebrow">VCP CONTINUUM / 池月</span>
             <h1 id="pond-title">{opened ? <>从可见的倒影，<br/>走向可触及的世界。</> : <>云遮住了天上的月。<br/>池中的月，还在。</>}</h1>
-            <p>{opened ? "VCP · 全栈 Agent 运行时与应用生态" : "目标或隐于云后，而工程，始于眼前可以触碰的微光。"}</p>
+            <p>{opened ? "VCP · 全栈 AGI 运行时与应用生态" : "目标或隐于云后，而工程，始于眼前可以触碰的微光。"}</p>
           </div>
           <button className="pond-moon-trigger" onClick={openPond} aria-label={opened ? "池月已展开" : "轻触池月，展开导航"} aria-expanded={opened}>
             <span className="moon-disc" aria-hidden="true"/><span className="moon-trigger-caption">{opened ? "池 月" : "轻触池月 · 展开 VCP"}</span>
