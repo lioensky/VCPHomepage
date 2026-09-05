@@ -183,7 +183,7 @@ export function ContinuumHome({brand, themeControl, nova, onAskNova, documents}:
           </svg>
           <div className="monument-intro"><span className="pond-eyebrow">卷 二 / A MILESTONE IN STONE</span><h2 id="monument-title">为走通的路，<br/>立一座碑。</h2><p>想起，不只是找到相似的文字。<br/>让信息如何传播，与记忆为何成立，<br/>在同一条数学链中相遇。</p><span className="monument-side-note">浪潮 V10 · 语义动力学工程里程碑</span></div>
           <article className="river-stele">
-            <div className="stele-crown" aria-hidden="true">Ω</div>
+            <div className="stele-crown" aria-hidden="true"><span style={{transform: "rotate(-45deg)", display: "block", lineHeight: 1}}>Ω</span></div>
             <header><span>公元二〇二六年 · 七月二十三日</span><h3>浪潮</h3><strong>RIVERMEMO V10</strong><p>TOPOLOGY V3 · 统一语义动力场</p></header>
             <div className="stele-inscription"><p>传播，生成几何。<br/>审计，赋予联想以根据。</p><div className="stele-equation" aria-label="得分为基础场得分加上欧米伽门控的拓扑创新与直接锚点创新，限制在零到一之间">S = Π<sub>[0,1]</sub> [ S<sup>field</sup> + Ω<sup>γ</sup>B<sub>G</sub> + B<sub>H</sub> ]</div><p className="stele-explanation">以 TagMemo V9 查询观测为底座。<br/>双尺度连续场、相对拓扑、Ω 可观测性与直接事实锚，<br/>共同闭合为有界、可审计的记忆寻址。</p></div>
             <dl className="stele-facts"><div><dt>连续消融</dt><dd>41 <small>轮</small></dd></div><div><dt>黄金测试 · 对比 V9</dt><dd>+26<small>%</small></dd></div><div><dt>当期原生热点计算</dt><dd>2.5<small>ms</small></dd></div></dl>
