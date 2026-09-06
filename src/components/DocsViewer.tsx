@@ -171,7 +171,7 @@ export function DocsViewer({documents, activeSlug, onSelect}: DocsViewerProps) {
                 return <MermaidBlock chart={content} />;
               }
 
-              const isInline = !className;
+              const isInline = !className && !String(children).includes('\n') && props.node?.position?.start.line === props.node?.position?.end.line;
               if (isInline) {
                 return (
                   <code className="inline-code" {...props}>
