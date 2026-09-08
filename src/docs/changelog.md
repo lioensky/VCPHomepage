@@ -1,6 +1,6 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-09-08 的真实演进记录，最新覆盖 VCPLoom 1.0、LoomSkill 自动化技能录制、VCPCLI 前端 TUI 交互增强、VCPBlender Agent 友好建模，以及 VCPWorkBuddy 多 CLI 异步编排。
+summary: 汇总 VCP 从 2023-12 到 2026-09-08 的真实演进记录，最新覆盖 VCPLoom 1.0、LoomSkill 自动化技能录制、VCPCLI 前端 TUI 交互、Retro 拟物 Canvas 动画图标，以及 TagMemo 局部增量图计算。
 updatedAt: 2026-09-08
 category: changelog
 ---
@@ -13,7 +13,7 @@ category: changelog
 
 ## 最新更新
 
-### 2026-09-08 · VCPLoom 1.0、LoomSkill 自动化技能、VCPCLI TUI 交互与前端收束
+### 2026-09-08 · VCPLoom 1.0、LoomSkill、VCPCLI TUI 交互与 Retro 动画图标
 
 本次更新推动 **VCPLoom 正式进入 1.0 版本**，围绕 ChromeBridge V3.5 与 VCPAgentWebCore 的新一代网页操作范式完成指令集和语法适配，并上线可录制、验证、复用的 **VCPLoomSkill** 技能体系。**VCPCLI** 同步引入 DOM 操作与键盘操作能力，使 Agent 可以更直接地与 SnowCLI、Codex、Claude Code 等 TUI 工具交互。VChat 前端还完成多项 UI 一致性与易用性交互收尾，进一步统一 Agent 与 Group 话题管理所依赖的底层交互管理器。
 
@@ -51,11 +51,27 @@ VCPCLI 新增面向终端界面的 **DOM 操作与键盘操作能力**。Agent �
 
 VCPCLI 与 VCPWorkBuddy 属于两种不同的实现路径：**VCPCLI 是前端交互方案**，面向用户可见的终端与 TUI，由 Agent 直接读取界面并模拟实际操作；**VCPWorkBuddy 是后端异步委托方案**，负责将任务交给外部 CLI 后台执行、追踪并回收结果。前者侧重实时界面控制与人机共览，后者侧重任务拆分、异步调度与统一验收，两者共同覆盖从前台操作到后台委托的 CLI 协作场景。
 
+#### 全套应用图标升级为 Retro 拟物 Canvas 动画
+
+VCP 应用群的全套图标完成替换，统一升级为 **Retro 复古拟物风格的 Canvas 动画图标**。新版不再将图标仅作为静态应用标识，而是通过 Canvas 绘制、材质层次与动态状态反馈，使不同应用在保持统一设计语言的同时拥有更鲜明的功能辨识度与交互质感。
+
+动画图标内置完整的状态与交互表现，覆盖**渐入、渐出、通知、彩蛋、交互、点击、悬停、播放、启动与暂停**等场景。图标能够跟随应用生命周期、运行状态及用户操作切换对应动画：启动与播放可呈现持续活动状态，暂停与退出拥有明确的收束反馈，通知能够主动吸引注意，悬停和点击则提供即时响应；部分图标还包含可探索的彩蛋动画。
+
+这套图标系统将应用入口、运行状态和微交互反馈整合为统一的动态视觉语言，使 VCP 应用群在 Retro 拟物风格下获得更完整的生命感，也让用户无需打开应用即可从图标动画中感知其通知、播放、暂停及启停状态。
+
+#### TagMemo 双向边校验改为纯局部增量图计算
+
+后端优化日记入库及内容变动时，TagMemo Tag 矩阵索引中的 **Tag 校验与双向边计算行为**。新版不再因局部日记变化而对无关图区域执行大范围重复检查，而是围绕本次新增、修改或移除的 Tag 及其直接关联边界进行纯局部计算。
+
+增量路径只构建本次变化实际产生的新节点与双向边，减量路径则精准撤销失效的共现关系、边权与关联状态，并在受影响的局部邻域内完成一致性复核。未发生变化的 Tag、边及矩阵区域保持原状，无需参与重新遍历或重算。
+
+通过将全局式校验收敛为局部增量与减量图事务，日记新增、编辑、移动和删除所触发的 TagMemo 索引维护计算量得到大幅降低，尤其改善大型日记库、高密度 Tag 矩阵及多 Agent 高频写入环境下的入库速度、变更响应与后台资源占用，同时继续维持双向边关系的正确性和矩阵一致性。
+
 #### 前端 UI 与话题管理交互统一
 
 VChat 完成多项前端 UI 一致性和易用性交互收尾工作，进一步统一界面层级、控件反馈、操作节奏及常用管理入口。Agent 话题与 Group 话题管理器原本分散的多个底层交互管理器也完成合并和规范化，使话题创建、切换、编辑、整理及状态同步采用更一致的行为模型。
 
-> **VCPLoom 1.0 与 VCPLoomSkill 将网页操作推进到可验证、可参数化、可重复调用的技能化阶段；VCPCLI 则以 DOM 与键盘操作打通 Agent 对终端 TUI 的前端直接控制，使网页应用与命令行界面都能进入更自然、更可靠的结构化交互链路。**
+> **VCPLoom 1.0 与 VCPLoomSkill 将网页操作推进到可验证、可参数化、可重复调用的技能化阶段；VCPCLI 打通 Agent 对终端 TUI 的前端直接控制；Retro 拟物 Canvas 图标为全套应用建立动态状态语言，而 TagMemo 纯局部图计算则进一步降低高频日记变更的后端维护成本。**
 
 ### 2026-09-06 · VCPBlender 与 VCPWorkBuddy 上线
 
@@ -1598,7 +1614,7 @@ VCP 从构思阶段进入正式开发阶段。
 
 | 阶段 | 时间范围 | 关键进展 |
 | --- | --- | --- |
-| VChat 2.0、Loom 技能化与 Agent 工具编排期 | 2026-09 | VChat 2.0 正式发布，Canvas、骰子与 CDS 系统完成重构；RiverMemo 与 RagDiary Search 全链路完成稠密化 Rust 深度融合；VChatSetting 以声明式 Schema、原子 Patch 和 VCPUI 设计系统完成内核解耦；VCPBlender 以完整 API 验证、自动化手册与渐进权限披露建立 Agent 友好建模链路；VCPWorkBuddy 打通 OpenClaw、Tencent CodeBuddy、Codex、Claude Code、SnowCLI 等 CLI 的后端异步委托与统一编排；VCPCLI 引入 DOM 与键盘操作，建立 Agent 面向 SnowCLI、Codex、Claude Code 等 TUI 的前端直接交互链路；VCPLoom 1.0 完成 ChromeBridge V3.5 与 VCPAgentWebCore 调度语法适配，并通过 VCPLoomSkill、三模式验证、字段占位符及 LoomSkill 管理器建立可录制、可验证、可复用的网页自动化技能体系。 |
+| VChat 2.0、Loom 技能化与 Agent 工具编排期 | 2026-09 | VChat 2.0 正式发布，Canvas、骰子与 CDS 系统完成重构；RiverMemo 与 RagDiary Search 全链路完成稠密化 Rust 深度融合，TagMemo 双向边校验升级为纯局部增量与减量图计算；VChatSetting 以声明式 Schema、原子 Patch 和 VCPUI 设计系统完成内核解耦，全套应用图标替换为覆盖渐入渐出、通知、彩蛋、点击、悬停、播放、启停等状态的 Retro 拟物 Canvas 动画图标；VCPBlender 建立 Agent 友好建模链路；VCPWorkBuddy 打通多种 CLI 的后端异步委托与统一编排；VCPCLI 引入 DOM 与键盘操作，建立 Agent 面向 SnowCLI、Codex、Claude Code 等 TUI 的前端直接交互链路；VCPLoom 1.0 完成 ChromeBridge V3.5 与 VCPAgentWebCore 调度语法适配，并通过 VCPLoomSkill 建立可录制、可验证、可复用的网页自动化技能体系。 |
 | | 系统基建与平台化收敛期 | 2026-04 | 官网与文档中心上线；VChat IPC、DOM、流式渲染队列及权限隔离持续重构；语音聊天、本地 / 网络推理与 STT 配置升级；浪潮 RAG V8.1、自研向量近似算法、上下文折叠 V2、日记联想语法和 VCP-SOM GPU 层识别落地；Agent 注册、任务、委托与通讯中枢完成整合；插件商店、动态工具环境、专业科研插件及细粒度工具审核体系逐步成型。 |
 | VCP 1.0 正式版与全端生态期 | 2026-05 | VCP 一期工程收尾并进入正式版；TDB 知识库、VCPMobile 1.0、VCPModel 动态路由与语义容灾上线；浪潮 V8.2-γ、AIMemo+、高级回复、管线可视化工作台、任务调度中心与前后端 Fuzzy 委托完善；插件 / Agent 商店及 Docker 后端镜像投入使用，VChat 日常聊天内存占用回落至 200MB 以下。 |
 | 统一上下文、通信与可观测性期 | 2026-06 | 浪潮 V8 数据库、TDB 内存一致性与 RAG 召回管线大规模重构；OneRing 从统一上下文实验系统演进为纯 HASH-SQL 稳定版；VCPMessageRenderer V3、墓碑冻结 V2、OpenHer、PluginManager、AgentAssistant 可视化总线、VCPSuperMail、Vchat CLI、VCPToolRecord 与 ChromeBridge 安全分级上线；官网、源码地图、服务器面板、离线通知和全局运行监控体系同步完善。 |
