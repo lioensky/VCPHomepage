@@ -1,6 +1,6 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-09-08 的真实演进记录，最新覆盖 VCPLoom 1.0、LoomSkill 自动化技能录制、VCPBlender Agent 友好建模，以及 VCPWorkBuddy 多 CLI 异步编排。
+summary: 汇总 VCP 从 2023-12 到 2026-09-08 的真实演进记录，最新覆盖 VCPLoom 1.0、LoomSkill 自动化技能录制、VCPCLI 前端 TUI 交互增强、VCPBlender Agent 友好建模，以及 VCPWorkBuddy 多 CLI 异步编排。
 updatedAt: 2026-09-08
 category: changelog
 ---
@@ -13,9 +13,9 @@ category: changelog
 
 ## 最新更新
 
-### 2026-09-08 · VCPLoom 1.0、LoomSkill 自动化技能体系与前端交互收束
+### 2026-09-08 · VCPLoom 1.0、LoomSkill 自动化技能、VCPCLI TUI 交互与前端收束
 
-本次更新推动 **VCPLoom 正式进入 1.0 版本**，围绕 ChromeBridge V3.5 与 VCPAgentWebCore 的新一代网页操作范式完成指令集和语法适配，并上线可录制、验证、复用的 **VCPLoomSkill** 技能体系。VChat 前端同步完成多项 UI 一致性与易用性交互收尾，进一步统一 Agent 与 Group 话题管理所依赖的底层交互管理器。
+本次更新推动 **VCPLoom 正式进入 1.0 版本**，围绕 ChromeBridge V3.5 与 VCPAgentWebCore 的新一代网页操作范式完成指令集和语法适配，并上线可录制、验证、复用的 **VCPLoomSkill** 技能体系。**VCPCLI** 同步引入 DOM 操作与键盘操作能力，使 Agent 可以更直接地与 SnowCLI、Codex、Claude Code 等 TUI 工具交互。VChat 前端还完成多项 UI 一致性与易用性交互收尾，进一步统一 Agent 与 Group 话题管理所依赖的底层交互管理器。
 
 #### VCPLoom 1.0 与 AgentWebCore 调度能力升级
 
@@ -43,11 +43,19 @@ LoomApp 管理器新增独立的 **LoomSkill 管理器**，用于集中查看、
 
 这条链路将 LoomApp 的应用管理、技能录制、源码编辑、编译验证与重复调用整合到同一套工具体系中，为个人自动化流程沉淀、Agent 技能共享及后续技能生态扩展建立统一入口。
 
+#### VCPCLI 引入 DOM 与键盘操作
+
+VCPCLI 新增面向终端界面的 **DOM 操作与键盘操作能力**。Agent 现在可以读取和定位 CLI 前端中的结构化界面对象，并直接执行文本输入、按键、快捷键、焦点切换、选项确认及其它键盘交互，更轻松地应对具有动态绘制、菜单选择、确认提示和多阶段输入流程的 TUI。
+
+该能力重点强化了 Agent 与 **SnowCLI、Codex、Claude Code** 等终端智能工具的实时交互。Agent 不再只能围绕进程输入输出进行粗粒度文本传递，而是可以直接理解当前 TUI 的可见状态，定位需要操作的区域，并通过键盘事件持续推进交互流程。
+
+VCPCLI 与 VCPWorkBuddy 属于两种不同的实现路径：**VCPCLI 是前端交互方案**，面向用户可见的终端与 TUI，由 Agent 直接读取界面并模拟实际操作；**VCPWorkBuddy 是后端异步委托方案**，负责将任务交给外部 CLI 后台执行、追踪并回收结果。前者侧重实时界面控制与人机共览，后者侧重任务拆分、异步调度与统一验收，两者共同覆盖从前台操作到后台委托的 CLI 协作场景。
+
 #### 前端 UI 与话题管理交互统一
 
 VChat 完成多项前端 UI 一致性和易用性交互收尾工作，进一步统一界面层级、控件反馈、操作节奏及常用管理入口。Agent 话题与 Group 话题管理器原本分散的多个底层交互管理器也完成合并和规范化，使话题创建、切换、编辑、整理及状态同步采用更一致的行为模型。
 
-> **VCPLoom 1.0 让 Agent 更可靠地控制 LoomApp，VCPLoomSkill 则进一步把一次成功的网页操作沉淀为可验证、可参数化、可重复调用的长期技能；网页自动化由临时编排正式迈向技能化复用。**
+> **VCPLoom 1.0 与 VCPLoomSkill 将网页操作推进到可验证、可参数化、可重复调用的技能化阶段；VCPCLI 则以 DOM 与键盘操作打通 Agent 对终端 TUI 的前端直接控制，使网页应用与命令行界面都能进入更自然、更可靠的结构化交互链路。**
 
 ### 2026-09-06 · VCPBlender 与 VCPWorkBuddy 上线
 
@@ -1590,7 +1598,7 @@ VCP 从构思阶段进入正式开发阶段。
 
 | 阶段 | 时间范围 | 关键进展 |
 | --- | --- | --- |
-| VChat 2.0、Loom 技能化与 Agent 工具编排期 | 2026-09 | VChat 2.0 正式发布，Canvas、骰子与 CDS 系统完成重构；RiverMemo 与 RagDiary Search 全链路完成稠密化 Rust 深度融合；VChatSetting 以声明式 Schema、原子 Patch 和 VCPUI 设计系统完成内核解耦；VCPBlender 以完整 API 验证、自动化手册与渐进权限披露建立 Agent 友好建模链路；VCPWorkBuddy 打通 OpenClaw、Tencent CodeBuddy、Codex、Claude Code、SnowCLI 等 CLI 的异步委托与统一编排；VCPLoom 1.0 完成 ChromeBridge V3.5 与 VCPAgentWebCore 调度语法适配，并通过 VCPLoomSkill、三模式验证、字段占位符及 LoomSkill 管理器建立可录制、可验证、可复用的网页自动化技能体系。 |
+| VChat 2.0、Loom 技能化与 Agent 工具编排期 | 2026-09 | VChat 2.0 正式发布，Canvas、骰子与 CDS 系统完成重构；RiverMemo 与 RagDiary Search 全链路完成稠密化 Rust 深度融合；VChatSetting 以声明式 Schema、原子 Patch 和 VCPUI 设计系统完成内核解耦；VCPBlender 以完整 API 验证、自动化手册与渐进权限披露建立 Agent 友好建模链路；VCPWorkBuddy 打通 OpenClaw、Tencent CodeBuddy、Codex、Claude Code、SnowCLI 等 CLI 的后端异步委托与统一编排；VCPCLI 引入 DOM 与键盘操作，建立 Agent 面向 SnowCLI、Codex、Claude Code 等 TUI 的前端直接交互链路；VCPLoom 1.0 完成 ChromeBridge V3.5 与 VCPAgentWebCore 调度语法适配，并通过 VCPLoomSkill、三模式验证、字段占位符及 LoomSkill 管理器建立可录制、可验证、可复用的网页自动化技能体系。 |
 | | 系统基建与平台化收敛期 | 2026-04 | 官网与文档中心上线；VChat IPC、DOM、流式渲染队列及权限隔离持续重构；语音聊天、本地 / 网络推理与 STT 配置升级；浪潮 RAG V8.1、自研向量近似算法、上下文折叠 V2、日记联想语法和 VCP-SOM GPU 层识别落地；Agent 注册、任务、委托与通讯中枢完成整合；插件商店、动态工具环境、专业科研插件及细粒度工具审核体系逐步成型。 |
 | VCP 1.0 正式版与全端生态期 | 2026-05 | VCP 一期工程收尾并进入正式版；TDB 知识库、VCPMobile 1.0、VCPModel 动态路由与语义容灾上线；浪潮 V8.2-γ、AIMemo+、高级回复、管线可视化工作台、任务调度中心与前后端 Fuzzy 委托完善；插件 / Agent 商店及 Docker 后端镜像投入使用，VChat 日常聊天内存占用回落至 200MB 以下。 |
 | 统一上下文、通信与可观测性期 | 2026-06 | 浪潮 V8 数据库、TDB 内存一致性与 RAG 召回管线大规模重构；OneRing 从统一上下文实验系统演进为纯 HASH-SQL 稳定版；VCPMessageRenderer V3、墓碑冻结 V2、OpenHer、PluginManager、AgentAssistant 可视化总线、VCPSuperMail、Vchat CLI、VCPToolRecord 与 ChromeBridge 安全分级上线；官网、源码地图、服务器面板、离线通知和全局运行监控体系同步完善。 |
