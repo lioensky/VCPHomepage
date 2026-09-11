@@ -671,7 +671,7 @@ const whitepaperMarkdownComponents = {
       return <MermaidBlock chart={content} />;
     }
 
-    const isInline = !className;
+    const isInline = !className && !String(children).includes('\n') && props.node?.position?.start.line === props.node?.position?.end.line;
     if (isInline) {
       return (
         <code className="inline-code" {...props}>
@@ -2283,10 +2283,12 @@ function LegacyApp() {
     }
   }, [activeDocSlug, docs]);
 
-  const {scrollYProgress} = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"],
-  });
+  const isHomeView = !isWhitepaperRoute && !isChangelogRoute && !isPluginStoreRoute && !isLeaderboardRoute && !isNovaRoute;
+  const {scrollYProgress} = useScroll(
+    isHomeView
+      ? { target: containerRef, offset: ["start start", "end end"] }
+      : {}
+  );
 
   const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
   const waveParticles = useMemo<WaveParticle[]>(() => {
