@@ -1,7 +1,7 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-09-10 的真实演进记录，最新覆盖 Agent 配置写权限中央化、VCPUI 样式债务清理、Revision Token 并发保护、VcpSound 通知音效，以及 VMusic 沉浸式舞台与导演模式。
-updatedAt: 2026-09-10
+summary: 汇总 VCP 从 2023-12 到 2026-09-12 的真实演进记录，最新覆盖 Associate 记忆基建移入 RiverMemo、Pixi V8 动画流式渲染与 GPU 独立墓碑冻结、VMusic 舞台调度激进优化，以及 Agent 配置权限收敛与沉浸式舞台。
+updatedAt: 2026-09-12
 category: changelog
 ---
 
@@ -12,6 +12,39 @@ category: changelog
 ---
 
 ## 最新更新
+
+### 2026-09-12 · Pixi V8 动画流式渲染、VMusic 调度激进优化与 RiverMemo 全泛函演进
+
+本次更新围绕记忆内核统一与高性能视觉渲染管线展开深层推进。后端正式启动记忆基础设施的一体化收敛，将迭代记忆 Associate 关键基建全面迁移至 RiverMemo 路径，为 TagMemo 系统的平稳退役与全泛函一体化记忆奠定基石；前端则迎来图形表现与渲染效能的集中突破：文坊、V阅读与流式渲染器 V4 正式接入 Pixi.js V8 引擎，并为 GPU 动画独立构筑专属的墓碑冻结管线；VMusic PIXI 调度器基于 Pretext 布局预计算与内存安全拷贝完成多项激进优化，配合 8 组演出特效组件的可组合性扩展，为后续 Agent 实时全自动生成高级 MV 铺平道路。
+
+#### Associate 记忆基建移入 RiverMemo 路径与全泛函演进前瞻
+
+后端展开长期记忆体系的新一轮架构收敛，将原本交织在旧数据链路中的迭代记忆 **Associate 基建层**全面迁入 RiverMemo 纯 Rust 计算路径。记忆联想不再依赖外部中转与多层图状态对账，而是直接并入 RiverMemo 的连续语义场与拓扑河网计算闭环。
+
+此次迁移是记忆体系重大重构的关键前哨：系统将借此逐步清理历史积累的 TagMemo 双向图维护逻辑与过渡接口，为后续彻底移除 TagMemo 系统、全面迈向**全泛函一体化记忆架构（Unified Functional Memory）**完成核心底座与数据流的统一化准备。
+
+#### VMusic PIXI 调度器性能突破：Pretext 布局预计算与内存安全拷贝
+
+针对沉浸式舞台在高密度文字排版、连续镜头平移与复杂粒子迸发下的瞬时负载，VMusic PIXI 调度器完成底层重构，引入多项激进优化方案：
+
+1. **基于 Pretext 的布局预计算**：引入文本与分词几何的预计算机制，在音频推进与动画切帧前预先解析排版拓扑和视口边界，消除实时播放过程中昂贵的 DOM/Canvas 实时排版开销。
+2. **内存安全拷贝与零冗余传输**：全面重构调度器内部的图元数据流，采用严格的内存安全拷贝策略与轻量化缓存复用机制，阻断高频并发任务中的临时对象堆积与内存争用，杜绝长时间连续放映下的性能衰减与内存抖动。
+
+经过此轮重构，VMusic 沉浸式舞台的渲染上限与帧率稳定性得到质的跃升，能够轻松支撑更高复杂度的动态图形与多轨道视觉演出。
+
+#### 舞台特效组件生态扩充与高自由度组合协议
+
+大幅扩充 8 组演出主题（包括凝彩 Tempera、商籁 Sonnet、镜台 Diorama、浮名 Fume、流光 Luminous、云阶 Partita、心象 Cadenza、星诞 Starborn）内置的可配置特效组件丰富度与参数表达空间。
+
+新版重点打破了以往特效组件之间的样式孤岛与图层冲突，全面升级了不同特效模块的跨主题相容性与动态装配协议。光斑粒子、网点后处理、色彩切片、几何标尺与空间景深等特效组件现在可以实现高度解耦的自由叠合与任意编排。这一突破不仅让舞台演出的可玩性大幅提升，更将各类视觉算子抽象为标准化参数，为后续由 Agent 在导演模式下实时分析音乐情绪并即时生成高级 MV 提供了强大的模块化底座。
+
+#### 文坊与 V阅读接入 Pixi V8 流式渲染与 GPU 专属墓碑冻结
+
+1. **流式渲染 V4 接入 Pixi.js V8 核心**：共笔文坊（Scriptorium）、V阅读与聊天主界面的流式渲染器 V4 完成与 Pixi.js V8 现代渲染引擎的深度对接。系统现已支持在流式分包持续输出的同时，以增量方式实时编译与逐帧渲染 Pixi V8 动画，使复杂可编程动效能够无缝融入长文本与富文档的流式生成过程。
+2. **GPU 动画独立墓碑冻结管线**：针对 WebGL / WebGPU 场景，系统脱离原有 DOM 暂存机制，独立构建了面向 GPU 上下文与图形管线的墓碑冻结系统。当 Pixi 动画滑出视口或处于非激活状态时，管线会自动冻结其渲染循环、着色器任务与显存纹理活动；重返可见区域时则毫秒级恢复现场，彻底根治复杂动态内容在超长会话中持续空转造成的显存泄漏与 GPU 异常负载。
+3. **存量重 Canvas 动画全面迁移**：对系统内既有的大量复杂、重度 Canvas 动画逻辑与动态组件执行统一打包、重构与管线迁移，将其全面升级至 Pixi V8 批处理渲染（Batch Rendering）与硬件加速流程中，大幅压低 CPU 占用并提升多动画共存时的流畅度。
+
+> **本次更新以后端记忆基建向全泛函架构收敛为切入点，同时在前端图形领域全面释放性能潜力：Pixi V8 流式接入与 GPU 墓碑冻结解决了复杂动态内容的平滑展现与长期驻留开销，而 VMusic 的激进调度优化与高相容特效生态，则标志着 VCP 的即时视听表现正式步入可由 Agent 实时编排的全新阶段。**
 
 ### 2026-09-10 · Agent 配置权限收敛、前端样式清债与 VMusic 沉浸式舞台
 
@@ -1688,7 +1721,7 @@ VCP 从构思阶段进入正式开发阶段。
 
 | 阶段 | 时间范围 | 关键进展 |
 | --- | --- | --- |
-| VChat 2.0、Loom 技能化与 Agent 工具编排期 | 2026-09 | VChat 2.0 正式发布，Canvas、骰子与 CDS 系统完成重构；RiverMemo 与 RagDiary Search 全链路完成稠密化 Rust 深度融合，TagMemo 双向边校验升级为纯局部增量与减量图计算；VChatSetting 以声明式 Schema、原子 Patch 和 VCPUI 设计系统完成内核解耦，全套应用图标替换为覆盖渐入渐出、通知、彩蛋、点击、悬停、播放、启停等状态的 Retro 拟物 Canvas 动画图标；VCPBlender 建立 Agent 友好建模链路；VCPWorkBuddy 打通多种 CLI 的后端异步委托与统一编排；VCPCLI 引入 DOM 与键盘操作，建立 Agent 面向 SnowCLI、Codex、Claude Code 等 TUI 的前端直接交互链路；VCPLoom 1.0 完成 ChromeBridge V3.5 与 VCPAgentWebCore 调度语法适配，并通过 VCPLoomSkill 建立可录制、可验证、可复用的网页自动化技能体系；Agent 配置写权限进一步收敛至三个中央委托入口，设置侧栏清理 16 个历史 CSS 并统一至 Design Tokens 单层样式系统，Revision Token 解决并发编辑与异步保存失步；VcpSound 建立通知类型音效基础，VMusic 则上线自研歌词解析播放框架、流光 / 云阶 / 心像 / 浮名四类沉浸式舞台及语义导演模式。 |
+| VChat 2.0、Loom 技能化与 Agent 工具编排期 | 2026-09 | VChat 2.0 正式发布，Canvas、骰子与 CDS 系统完成重构；RiverMemo 与 RagDiary Search 全链路完成稠密化 Rust 深度融合，TagMemo 双向边校验升级为纯局部增量与减量图计算；VChatSetting 以声明式 Schema、原子 Patch 和 VCPUI 设计系统完成内核解耦，全套应用图标替换为覆盖渐入渐出、通知、彩蛋、点击、悬停、播放、启停等状态的 Retro 拟物 Canvas 动画图标；VCPBlender 建立 Agent 友好建模链路；VCPWorkBuddy 打通多种 CLI 的后端异步委托与统一编排；VCPCLI 引入 DOM 与键盘操作，建立 Agent 面向 SnowCLI、Codex、Claude Code 等 TUI 的前端直接交互链路；VCPLoom 1.0 完成 ChromeBridge V3.5 与 VCPAgentWebCore 调度语法适配，并通过 VCPLoomSkill 建立可录制、可验证、可复用的网页自动化技能体系；Agent 配置写权限进一步收敛至三个中央委托入口，设置侧栏清理 16 个历史 CSS 并统一至 Design Tokens 单层样式系统，Revision Token 解决并发编辑与异步保存失步；VcpSound 建立通知类型音效基础，VMusic 上线自研歌词解析播放框架与沉浸式舞台；迭代记忆 Associate 基建全面并入 RiverMemo 路径，为 TagMemo 退出与全泛函一体化记忆奠基；文坊、V阅读与流式渲染器 V4 接入 Pixi.js V8 流式渲染并构建独立 GPU 墓碑冻结管线，大批 Canvas 动画完成 Pixi 迁移；VMusic PIXI 调度器实现 Pretext 布局预计算与内存安全拷贝激进优化，8 组特效组件扩充并解耦高组合协议，为 Agent 实时生成高级 MV 提供底座。 |
 | | 系统基建与平台化收敛期 | 2026-04 | 官网与文档中心上线；VChat IPC、DOM、流式渲染队列及权限隔离持续重构；语音聊天、本地 / 网络推理与 STT 配置升级；浪潮 RAG V8.1、自研向量近似算法、上下文折叠 V2、日记联想语法和 VCP-SOM GPU 层识别落地；Agent 注册、任务、委托与通讯中枢完成整合；插件商店、动态工具环境、专业科研插件及细粒度工具审核体系逐步成型。 |
 | VCP 1.0 正式版与全端生态期 | 2026-05 | VCP 一期工程收尾并进入正式版；TDB 知识库、VCPMobile 1.0、VCPModel 动态路由与语义容灾上线；浪潮 V8.2-γ、AIMemo+、高级回复、管线可视化工作台、任务调度中心与前后端 Fuzzy 委托完善；插件 / Agent 商店及 Docker 后端镜像投入使用，VChat 日常聊天内存占用回落至 200MB 以下。 |
 | 统一上下文、通信与可观测性期 | 2026-06 | 浪潮 V8 数据库、TDB 内存一致性与 RAG 召回管线大规模重构；OneRing 从统一上下文实验系统演进为纯 HASH-SQL 稳定版；VCPMessageRenderer V3、墓碑冻结 V2、OpenHer、PluginManager、AgentAssistant 可视化总线、VCPSuperMail、Vchat CLI、VCPToolRecord 与 ChromeBridge 安全分级上线；官网、源码地图、服务器面板、离线通知和全局运行监控体系同步完善。 |
