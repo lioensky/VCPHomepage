@@ -2199,7 +2199,7 @@ export default function App() {
   const isLegacyRoute = ["/learn-vcp", "/changelog", "/plugin-store", "/vcp-leaderboard", "/nova"].includes(window.location.pathname)
     || ["learn-vcp", "changelog", "plugin-store", "vcp-leaderboard"].includes(page ?? "");
   const meta = useMemo<PageMeta>(() => ({
-    title: "VCP · 池月与云中卷 | Agent 运行时与应用生态",
+    title: "VCP 官网 | AGI 运行时与应用生态",
     description: "从池月展开 VCP：探索浪潮 V10 语义动力学、连续记忆、共享 IPC 应用群与人类和 Agent 的共同创作。阅读白皮书、安装指南与真实工程演进记录。",
     keywords: "VCP,VCPToolBox,VCPChat,RiverMemo,Agent运行时,共享IPC,共笔文坊,连续记忆",
     canonical: "https://www.vcptoolbox.com/",
