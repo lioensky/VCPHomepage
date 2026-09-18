@@ -1,6 +1,6 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-09-18 的真实演进记录，最新覆盖全新子应用 V图表、Agent 驱动的多图表 JavaScript 创作、自动化虚拟依赖注入、多源数据接入与数据资产分离，以及基于 VCP Canvas 的版本管理、PR / Merge 协作和多图表桌面浮窗。
+summary: 汇总 VCP 从 2023-12 到 2026-09-18 的真实演进记录，最新覆盖全新子应用 V图表及其 Agent 原生多图表工程、数据资产与 VCP Canvas 协作体系，以及后端 JevRuntime 公共服务、扩散式低延迟概率决策和 VCPMemo / LightMemo 的 JEVRerank 接入。
 updatedAt: 2026-09-18
 category: changelog
 ---
@@ -13,9 +13,11 @@ category: changelog
 
 ## 最新更新
 
-### 2026-09-18 · 全新子应用「V图表」上线：Agent 原生数据可视化与协作式图表工程
+### 2026-09-18 · V图表与 JevRuntime 上线：Agent 原生图表工程与低延迟概率决策服务
 
-VChat 前端新增全新子应用 **V图表**，为 Agent 与用户提供面向数据分析、复杂表格和动态可视化的统一创作环境。新应用不再把图表视为聊天消息中一次性生成的 HTML / JavaScript 片段，而是将图表源码、数据资产、运行依赖、版本历史和多窗口展示组织为可持续维护的独立工程，使复杂可视化可以被反复更新、协作审阅、组合展示和长期复用。
+本次更新同时扩展 VCP 的前端数据创作能力与后端智能决策基础设施。前端新增全新子应用 **V图表**，为 Agent 与用户提供面向数据分析、复杂表格和动态可视化的统一创作环境；后端则接入新型 JEV 模型并建立公共服务 **JevRuntime**，为记忆重排及后续实时自动化场景提供低延迟概率决策能力。
+
+V图表不再把图表视为聊天消息中一次性生成的 HTML / JavaScript 片段，而是将图表源码、数据资产、运行依赖、版本历史和多窗口展示组织为可持续维护的独立工程，使复杂可视化可以被反复更新、协作审阅、组合展示和长期复用。
 
 #### Agent 驱动的 JavaScript 多图表创作
 
@@ -45,7 +47,23 @@ V图表建立统一的数据接入层，支持 `file://`、HTTP / HTTPS 等资�
 
 V图表支持将多个图表分别挂载为桌面浮窗。用户可以按任务需要自由组合、排列和同时观察不同数据视角，让趋势、明细、关系网络、实时指标与三维场景在桌面工作区中并行呈现。浮窗继续复用 VCP 的窗口与生命周期管理能力，可作为长期看板驻留，也可随分析任务按需打开、调整和关闭。
 
-> **V图表将一次性的“生成一张图”升级为可编程、可连接数据、可版本化且可协作的图表工程：Agent 负责创建和维护 JavaScript 可视化，独立 JSON 承担高频数据更新，VCP Canvas 管理 PR 与 Merge，多图表浮窗则把最终结果带入可自由编排的桌面工作区。**
+#### JevRuntime：扩散架构的低延迟概率决策公共服务
+
+后端新增公共服务 **JevRuntime**，正式接入本日发布的全新 **JEV 模型**。区别于以连续文本生成为主要输出形式的传统大语言模型，JEV 基于扩散架构工作，可依据文本输入直接生成一组概率决策结果，适用于候选排序、快速裁决、分类选择及其它需要结构化概率判断的通用任务。
+
+JEV 覆盖几乎所有通用领域，并以极低延迟完成批量决策。在当前服务测试中，模型输出 **255 组数字结果约需 300ms**，使后端能够在无需等待长文本生成的情况下，对大量候选项执行一次性概率评估。JevRuntime 将模型加载、请求提交、结果解析与上层服务调用统一封装为公共运行时，避免各业务模块分别维护 JEV 接入逻辑。
+
+#### VCPMemo 与 LightMemo 接入 JEVRerank
+
+**VCPMemo 日记本服务**现已新增 **JEVRerank**，可在记忆召回获得候选集合后，调用 JevRuntime 根据当前文本语境输出概率判断，并据此对候选记忆进行快速重排。该能力为既有向量检索、BM25、RiverMemo 等召回与排序路径补充了新的模型化裁决通道，使系统可以针对不同任务比较并组合多种重排策略。
+
+**LightMemo 及其记忆实验室**也已同步接入 JEVRerank。用户与开发者可以在实验环境中观察 JEV 对候选记忆的概率输出和排序变化，并将其与既有 KNN、Rerank、RiverMemo 等方法进行对照，为后续评估适用范围、校准融合权重与建立稳定生产策略提供实验基础。
+
+#### 浏览器自动化快速裁决模式前瞻
+
+后续计划在浏览器自动化链路中引入基于 JevRuntime 的 **JEV 快速裁决模式**。该模式拟用于页面候选目标筛选、动作路径选择、交互结果判断与下一步操作决策，使 Agent 在面对大量页面元素或多个可行动作时，可以先通过低延迟概率输出完成快速收敛，再进入精细操作与结果验证。此能力目前属于后续规划，尚未作为正式生产功能开放。
+
+> **V图表将一次性的“生成一张图”升级为可编程、可连接数据、可版本化且可协作的图表工程；JevRuntime 则把扩散式低延迟概率决策封装为后端公共能力，并率先通过 JEVRerank 进入 VCPMemo、LightMemo 与记忆实验室。前端数据表达与后端快速裁决由此在同一天获得新的原生底座。**
 
 ### 2026-09-17 · AgentWebCore 节点画布流操控、数据库死资产清理与全局磨砂统一渲染
 
@@ -1808,7 +1826,7 @@ VCP 从构思阶段进入正式开发阶段。
 
 | 阶段 | 时间范围 | 关键进展 |
 | --- | --- | --- |
-| VChat 2.0、Loom 技能化与 Agent 工具编排期 | 2026-09 | V图表作为全新前端子应用上线，支持 Agent 以 JavaScript 创建多图表工程，通过 Anime.js、Three.js、Pixi.js 与多类 SQL 能力的自动化虚拟依赖注入构建动态可视化；统一接入 `file://`、HTTP / HTTPS、数据库查询结果与常见数据格式，并以独立 JSON 数据资产实现“稳定图表逻辑、轻量更新数据”；完整版本管理接入 VCP Canvas PR / Merge 协作，多图表可分别挂载为桌面浮窗；VChat 2.0 正式发布，Canvas、骰子与 CDS 系统完成重构；RiverMemo 与 RagDiary Search 全链路完成稠密化 Rust 深度融合，TagMemo 双向边校验升级为纯局部增量与减量图计算；VChatSetting 以声明式 Schema、原子 Patch 和 VCPUI 设计系统完成内核解耦，全套应用图标替换为覆盖渐入渐出、通知、彩蛋、点击、悬停、播放、启停等状态的 Retro 拟物 Canvas 动画图标；VCPBlender 建立 Agent 友好建模链路；VCPWorkBuddy 打通多种 CLI 的后端异步委托与统一编排；VCPCLI 引入 DOM 与键盘操作，建立 Agent 面向 SnowCLI、Codex、Claude Code 等 TUI 的前端直接交互链路；VCPLoom 1.0 完成 ChromeBridge V3.5 与 VCPAgentWebCore 调度语法适配，并通过 VCPLoomSkill 建立可录制、可验证、可复用的网页自动化技能体系；Agent 配置写权限进一步收敛至三个中央委托入口，设置侧栏清理 16 个历史 CSS 并统一至 Design Tokens 单层样式系统，Revision Token 解决并发编辑与异步保存失步；VcpSound 建立通知类型音效基础，VMusic 上线自研歌词解析播放框架与沉浸式舞台；迭代记忆 Associate 基建全面并入 RiverMemo 路径，为 TagMemo 退出与全泛函一体化记忆奠基；文坊、V阅读与流式渲染器 V4 接入 Pixi.js V8 流式渲染并构建独立 GPU 墓碑冻结管线，大批 Canvas 动画完成 Pixi 迁移；VMusic PIXI 调度器实现 Pretext 布局预计算与内存安全拷贝激进优化，8 组特效组件扩充并解耦高组合协议，为 Agent 实时生成高级 MV 提供底座；VMusic 交互 UI 演进并引入动画智能避让保障高负载交互性能，底层图形引擎全面摒弃 Folia 体系并切换至 VCP 自研底层 Shader 合成管线，镜台模式实现歌曲叙事即时推演与自适应 3D 场景生成；后端修复数据库资产管理语义悬空并清理历史死资产，AgentWebCore 升级深度掌控 ComfyUI 与 Dify 等节点画布流，实现节点图参数、走线与资产调度的 Markdown 式轻松编排并全面适配 Loom 系统；前端统一全局磨砂渲染管线，通过单次全局 Blur 计算并按分区动态分配大幅提升复合界面渲染合成效率。 |
+| VChat 2.0、Loom 技能化与 Agent 工具编排期 | 2026-09 | 后端新增 JevRuntime 公共服务，接入基于扩散架构、面向通用领域的 JEV 概率决策模型，当前输出 255 组数字结果约需 300ms；VCPMemo 日记本服务、LightMemo 及其记忆实验室新增 JEVRerank，并规划将 JEV 快速裁决模式引入浏览器自动化；V图表作为全新前端子应用上线，支持 Agent 以 JavaScript 创建多图表工程，通过 Anime.js、Three.js、Pixi.js 与多类 SQL 能力的自动化虚拟依赖注入构建动态可视化；统一接入 `file://`、HTTP / HTTPS、数据库查询结果与常见数据格式，并以独立 JSON 数据资产实现“稳定图表逻辑、轻量更新数据”；完整版本管理接入 VCP Canvas PR / Merge 协作，多图表可分别挂载为桌面浮窗；VChat 2.0 正式发布，Canvas、骰子与 CDS 系统完成重构；RiverMemo 与 RagDiary Search 全链路完成稠密化 Rust 深度融合，TagMemo 双向边校验升级为纯局部增量与减量图计算；VChatSetting 以声明式 Schema、原子 Patch 和 VCPUI 设计系统完成内核解耦，全套应用图标替换为覆盖渐入渐出、通知、彩蛋、点击、悬停、播放、启停等状态的 Retro 拟物 Canvas 动画图标；VCPBlender 建立 Agent 友好建模链路；VCPWorkBuddy 打通多种 CLI 的后端异步委托与统一编排；VCPCLI 引入 DOM 与键盘操作，建立 Agent 面向 SnowCLI、Codex、Claude Code 等 TUI 的前端直接交互链路；VCPLoom 1.0 完成 ChromeBridge V3.5 与 VCPAgentWebCore 调度语法适配，并通过 VCPLoomSkill 建立可录制、可验证、可复用的网页自动化技能体系；Agent 配置写权限进一步收敛至三个中央委托入口，设置侧栏清理 16 个历史 CSS 并统一至 Design Tokens 单层样式系统，Revision Token 解决并发编辑与异步保存失步；VcpSound 建立通知类型音效基础，VMusic 上线自研歌词解析播放框架与沉浸式舞台；迭代记忆 Associate 基建全面并入 RiverMemo 路径，为 TagMemo 退出与全泛函一体化记忆奠基；文坊、V阅读与流式渲染器 V4 接入 Pixi.js V8 流式渲染并构建独立 GPU 墓碑冻结管线，大批 Canvas 动画完成 Pixi 迁移；VMusic PIXI 调度器实现 Pretext 布局预计算与内存安全拷贝激进优化，8 组特效组件扩充并解耦高组合协议，为 Agent 实时生成高级 MV 提供底座；VMusic 交互 UI 演进并引入动画智能避让保障高负载交互性能，底层图形引擎全面摒弃 Folia 体系并切换至 VCP 自研底层 Shader 合成管线，镜台模式实现歌曲叙事即时推演与自适应 3D 场景生成；后端修复数据库资产管理语义悬空并清理历史死资产，AgentWebCore 升级深度掌控 ComfyUI 与 Dify 等节点画布流，实现节点图参数、走线与资产调度的 Markdown 式轻松编排并全面适配 Loom 系统；前端统一全局磨砂渲染管线，通过单次全局 Blur 计算并按分区动态分配大幅提升复合界面渲染合成效率。 |
 | | 系统基建与平台化收敛期 | 2026-04 | 官网与文档中心上线；VChat IPC、DOM、流式渲染队列及权限隔离持续重构；语音聊天、本地 / 网络推理与 STT 配置升级；浪潮 RAG V8.1、自研向量近似算法、上下文折叠 V2、日记联想语法和 VCP-SOM GPU 层识别落地；Agent 注册、任务、委托与通讯中枢完成整合；插件商店、动态工具环境、专业科研插件及细粒度工具审核体系逐步成型。 |
 | VCP 1.0 正式版与全端生态期 | 2026-05 | VCP 一期工程收尾并进入正式版；TDB 知识库、VCPMobile 1.0、VCPModel 动态路由与语义容灾上线；浪潮 V8.2-γ、AIMemo+、高级回复、管线可视化工作台、任务调度中心与前后端 Fuzzy 委托完善；插件 / Agent 商店及 Docker 后端镜像投入使用，VChat 日常聊天内存占用回落至 200MB 以下。 |
 | 统一上下文、通信与可观测性期 | 2026-06 | 浪潮 V8 数据库、TDB 内存一致性与 RAG 召回管线大规模重构；OneRing 从统一上下文实验系统演进为纯 HASH-SQL 稳定版；VCPMessageRenderer V3、墓碑冻结 V2、OpenHer、PluginManager、AgentAssistant 可视化总线、VCPSuperMail、Vchat CLI、VCPToolRecord 与 ChromeBridge 安全分级上线；官网、源码地图、服务器面板、离线通知和全局运行监控体系同步完善。 |
