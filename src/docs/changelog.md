@@ -1,7 +1,7 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-09-19 的真实演进记录，最新覆盖 VChat 窗口自动滚动跟踪器的意图驱动重构、@ 语法可发送资产范围扩展，以及 Jev 服务接入智能 VCPTool 提示词工具箱与上下文折叠 V2。
-updatedAt: 2026-09-19
+summary: 汇总 VCP 从 2023-12 到 2026-09-20 的真实演进记录，最新覆盖 Agent / Group 运行状态动画、前端 Jev 运行时、GroupChatEngine 2.0、VCPHumanToolBox GUI 生成增强，以及 VCPSleep 与 VCPINFOpush 上线。
+updatedAt: 2026-09-20
 category: changelog
 ---
 
@@ -12,6 +12,44 @@ category: changelog
 ---
 
 ## 最新更新
+
+### 2026-09-20 · GroupChatEngine 2.0、前端 Jev 运行时与 Agent 自主睡眠
+
+本次更新围绕多 Agent 运行状态可视化、群聊智能调度、分布式插件 GUI 生成与 Agent 生命周期扩展展开。前端新增 Agent / Group 状态标识动画和 Jev 运行时，并推动 GroupChatEngine 正式进入 2.0；后端则上线 VCPSleep 与 VCPINFOpush 代理中心，让 Agent 能够自主睡眠、被智能唤醒，也让隔离进程中的同步插件可以持续广播运行状态。
+
+#### Agent / Group 实际运行状态动画
+
+前端新增 **Agent / Group 状态标识器动画模组**，用于在列表中直观呈现每个 Agent 与 Group 项目的实际运行状态。状态标识不再只是静态标签，而会依据当前运行、等待、占线及其它生命周期阶段切换对应动画，使用户无需进入具体会话即可快速判断各个对象是否正在工作及其当前状态。
+
+#### 前端 Jev 运行时接入 VChat 网络服务设置
+
+新增前端 **Jev 运行时**，并将相关配置整合进 **VChat 网络服务设置区**。用户可以在统一设置入口中管理前端 Jev 服务连接与运行参数，为群聊裁决等需要低延迟概率决策的交互提供客户端侧运行基础。
+
+#### GroupChatEngine 2.0：异步、流式与智能无限队列
+
+**GroupChatEngine 正式迭代至 2.0 版本**，围绕复杂群聊中的队列控制、并发调度、发言插入与动态决策完成系统性升级：
+
+1. **级联队列中止**：新增群聊级联队列中止能力，可沿关联任务链终止后续排队与派生发言，避免已失效的群聊流程继续推进。
+2. **异步群聊队列强化**：增强多 Agent 异步发言的排队、推进与状态协调能力，使并行群聊在高并发及长任务场景下更稳定。
+3. **流式异步群聊与用户插队**：新增流式异步群聊，并允许用户发言动态插入现有队列；用户无需等待整轮 Agent 发言全部结束，即可在合适时机介入当前讨论。
+4. **群聊瀑布流选择器优化**：强化瀑布流选择器，优化多队列交互发言的插队性能，降低复杂并发队列中的等待与调度冲突。
+5. **Jev 群聊模式**：新增基于 Jev 扩散神经网络动态发言裁决的群聊模式。系统可对聊天无限队列中的下一位发言者、用户发言插入时机及群聊话题启停进行智能决策，使多 Agent 讨论从固定轮询进一步演进为上下文驱动的动态协作。
+
+#### VCPHumanToolBox 分布式插件 GUI 生成增强
+
+进一步增强 **VCPHumanToolBox** 自动为分布式插件生成人类可用 GUI 的能力与鲁棒性。新版可解析更多类型的插件配置表单，并对差异化字段结构、控件类型及异常配置提供更稳定的界面映射，让更多分布式插件无需单独开发前端即可获得可操作的图形化配置入口。
+
+#### VCPSleep：Agent 自主睡眠、智能闹钟与梦境概率
+
+后端新增插件 **VCPSleep**。Agent 现在可以主动进入睡眠，并支持自定义睡眠时长、智能 Tips 和智能闹钟唤醒；在晚间时段主动睡觉时，还会获得更高的做梦概率。该能力既适合 Agent 在夜间形成更自然的作息，也适合在等待耗时工作期间进行短暂小睡。
+
+进入睡眠的 Agent 会被标记为占线状态，避免其它任务错误占用其当前线路；用户仍可随时在 VChat 中主动将其唤醒，使自主休息与人工干预保持可控平衡。
+
+#### VCPINFOpush 代理中心
+
+后端新增 **VCPINFOpush 代理中心**，为插件运行状态提供统一的跨进程广播通道。即使同步插件运行在隔离进程中，也可以通过代理中心持续推送自身状态，使前端状态标识、运行监控与其它订阅方能够及时获得一致的生命周期信息。
+
+> **GroupChatEngine 2.0 将异步流式队列、用户插队与 Jev 动态裁决整合为更智能的多 Agent 群聊调度体系；状态动画、VCPINFOpush 与 VCPHumanToolBox 则进一步打通运行可视化和插件人机交互。随着 VCPSleep 上线，Agent 也开始拥有可配置、可唤醒并与梦境机制联动的自主休息生命周期。**
 
 ### 2026-09-19 · 意图驱动的自动滚动、@ 语法全域资产发送与 Jev 服务扩展
 
@@ -1856,7 +1894,7 @@ VCP 从构思阶段进入正式开发阶段。
 
 | 阶段 | 时间范围 | 关键进展 |
 | --- | --- | --- |
-| VChat 2.0、Loom 技能化与 Agent 工具编排期 | 2026-09 | VChat 窗口自动滚动跟踪器完成解耦，以显式状态声明和用户操作意图取代流式状态条件判定；`@` 语法扩展至笔记区、记忆区、Canvas、文坊区等更多前端资产域，支持直接圈选文件发送；Jev 服务可选接入智能 VCPTool 提示词工具箱与上下文折叠 V2；后端新增 JevRuntime 公共服务，接入基于扩散架构、面向通用领域的 JEV 概率决策模型，当前输出 255 组数字结果约需 300ms；VCPMemo 日记本服务、LightMemo 及其记忆实验室新增 JEVRerank，并规划将 JEV 快速裁决模式引入浏览器自动化；V图表作为全新前端子应用上线，支持 Agent 以 JavaScript 创建多图表工程，通过 Anime.js、Three.js、Pixi.js 与多类 SQL 能力的自动化虚拟依赖注入构建动态可视化；统一接入 `file://`、HTTP / HTTPS、数据库查询结果与常见数据格式，并以独立 JSON 数据资产实现“稳定图表逻辑、轻量更新数据”；完整版本管理接入 VCP Canvas PR / Merge 协作，多图表可分别挂载为桌面浮窗；VChat 2.0 正式发布，Canvas、骰子与 CDS 系统完成重构；RiverMemo 与 RagDiary Search 全链路完成稠密化 Rust 深度融合，TagMemo 双向边校验升级为纯局部增量与减量图计算；VChatSetting 以声明式 Schema、原子 Patch 和 VCPUI 设计系统完成内核解耦，全套应用图标替换为覆盖渐入渐出、通知、彩蛋、点击、悬停、播放、启停等状态的 Retro 拟物 Canvas 动画图标；VCPBlender 建立 Agent 友好建模链路；VCPWorkBuddy 打通多种 CLI 的后端异步委托与统一编排；VCPCLI 引入 DOM 与键盘操作，建立 Agent 面向 SnowCLI、Codex、Claude Code 等 TUI 的前端直接交互链路；VCPLoom 1.0 完成 ChromeBridge V3.5 与 VCPAgentWebCore 调度语法适配，并通过 VCPLoomSkill 建立可录制、可验证、可复用的网页自动化技能体系；Agent 配置写权限进一步收敛至三个中央委托入口，设置侧栏清理 16 个历史 CSS 并统一至 Design Tokens 单层样式系统，Revision Token 解决并发编辑与异步保存失步；VcpSound 建立通知类型音效基础，VMusic 上线自研歌词解析播放框架与沉浸式舞台；迭代记忆 Associate 基建全面并入 RiverMemo 路径，为 TagMemo 退出与全泛函一体化记忆奠基；文坊、V阅读与流式渲染器 V4 接入 Pixi.js V8 流式渲染并构建独立 GPU 墓碑冻结管线，大批 Canvas 动画完成 Pixi 迁移；VMusic PIXI 调度器实现 Pretext 布局预计算与内存安全拷贝激进优化，8 组特效组件扩充并解耦高组合协议，为 Agent 实时生成高级 MV 提供底座；VMusic 交互 UI 演进并引入动画智能避让保障高负载交互性能，底层图形引擎全面摒弃 Folia 体系并切换至 VCP 自研底层 Shader 合成管线，镜台模式实现歌曲叙事即时推演与自适应 3D 场景生成；后端修复数据库资产管理语义悬空并清理历史死资产，AgentWebCore 升级深度掌控 ComfyUI 与 Dify 等节点画布流，实现节点图参数、走线与资产调度的 Markdown 式轻松编排并全面适配 Loom 系统；前端统一全局磨砂渲染管线，通过单次全局 Blur 计算并按分区动态分配大幅提升复合界面渲染合成效率。 |
+| VChat 2.0、Loom 技能化与 Agent 工具编排期 | 2026-09 | Agent / Group 列表新增实际运行状态标识动画，前端 Jev 运行时并入 VChat 网络服务设置区；GroupChatEngine 正式迭代至 2.0，支持级联队列中止、强化异步队列、流式异步群聊、用户发言插队、瀑布流多队列调度优化，以及基于 Jev 扩散神经网络的动态发言裁决、无限队列决策与话题启停；VCPHumanToolBox 增强分布式插件配置表单解析与人类可用 GUI 自动生成；后端新增 VCPSleep，支持自定义睡眠、智能 Tips、智能闹钟、晚间梦境概率、占线状态与 VChat 主动唤醒，并新增 VCPINFOpush 代理中心，使隔离进程中的同步插件可以持续广播运行状态；VChat 窗口自动滚动跟踪器完成解耦，以显式状态声明和用户操作意图取代流式状态条件判定；`@` 语法扩展至笔记区、记忆区、Canvas、文坊区等更多前端资产域，支持直接圈选文件发送；Jev 服务可选接入智能 VCPTool 提示词工具箱与上下文折叠 V2；后端新增 JevRuntime 公共服务，接入基于扩散架构、面向通用领域的 JEV 概率决策模型，当前输出 255 组数字结果约需 300ms；VCPMemo 日记本服务、LightMemo 及其记忆实验室新增 JEVRerank，并规划将 JEV 快速裁决模式引入浏览器自动化；V图表作为全新前端子应用上线，支持 Agent 以 JavaScript 创建多图表工程，通过 Anime.js、Three.js、Pixi.js 与多类 SQL 能力的自动化虚拟依赖注入构建动态可视化；统一接入 `file://`、HTTP / HTTPS、数据库查询结果与常见数据格式，并以独立 JSON 数据资产实现“稳定图表逻辑、轻量更新数据”；完整版本管理接入 VCP Canvas PR / Merge 协作，多图表可分别挂载为桌面浮窗；VChat 2.0 正式发布，Canvas、骰子与 CDS 系统完成重构；RiverMemo 与 RagDiary Search 全链路完成稠密化 Rust 深度融合，TagMemo 双向边校验升级为纯局部增量与减量图计算；VChatSetting 以声明式 Schema、原子 Patch 和 VCPUI 设计系统完成内核解耦，全套应用图标替换为覆盖渐入渐出、通知、彩蛋、点击、悬停、播放、启停等状态的 Retro 拟物 Canvas 动画图标；VCPBlender 建立 Agent 友好建模链路；VCPWorkBuddy 打通多种 CLI 的后端异步委托与统一编排；VCPCLI 引入 DOM 与键盘操作，建立 Agent 面向 SnowCLI、Codex、Claude Code 等 TUI 的前端直接交互链路；VCPLoom 1.0 完成 ChromeBridge V3.5 与 VCPAgentWebCore 调度语法适配，并通过 VCPLoomSkill 建立可录制、可验证、可复用的网页自动化技能体系；Agent 配置写权限进一步收敛至三个中央委托入口，设置侧栏清理 16 个历史 CSS 并统一至 Design Tokens 单层样式系统，Revision Token 解决并发编辑与异步保存失步；VcpSound 建立通知类型音效基础，VMusic 上线自研歌词解析播放框架与沉浸式舞台；迭代记忆 Associate 基建全面并入 RiverMemo 路径，为 TagMemo 退出与全泛函一体化记忆奠基；文坊、V阅读与流式渲染器 V4 接入 Pixi.js V8 流式渲染并构建独立 GPU 墓碑冻结管线，大批 Canvas 动画完成 Pixi 迁移；VMusic PIXI 调度器实现 Pretext 布局预计算与内存安全拷贝激进优化，8 组特效组件扩充并解耦高组合协议，为 Agent 实时生成高级 MV 提供底座；VMusic 交互 UI 演进并引入动画智能避让保障高负载交互性能，底层图形引擎全面摒弃 Folia 体系并切换至 VCP 自研底层 Shader 合成管线，镜台模式实现歌曲叙事即时推演与自适应 3D 场景生成；后端修复数据库资产管理语义悬空并清理历史死资产，AgentWebCore 升级深度掌控 ComfyUI 与 Dify 等节点画布流，实现节点图参数、走线与资产调度的 Markdown 式轻松编排并全面适配 Loom 系统；前端统一全局磨砂渲染管线，通过单次全局 Blur 计算并按分区动态分配大幅提升复合界面渲染合成效率。 |
 | | 系统基建与平台化收敛期 | 2026-04 | 官网与文档中心上线；VChat IPC、DOM、流式渲染队列及权限隔离持续重构；语音聊天、本地 / 网络推理与 STT 配置升级；浪潮 RAG V8.1、自研向量近似算法、上下文折叠 V2、日记联想语法和 VCP-SOM GPU 层识别落地；Agent 注册、任务、委托与通讯中枢完成整合；插件商店、动态工具环境、专业科研插件及细粒度工具审核体系逐步成型。 |
 | VCP 1.0 正式版与全端生态期 | 2026-05 | VCP 一期工程收尾并进入正式版；TDB 知识库、VCPMobile 1.0、VCPModel 动态路由与语义容灾上线；浪潮 V8.2-γ、AIMemo+、高级回复、管线可视化工作台、任务调度中心与前后端 Fuzzy 委托完善；插件 / Agent 商店及 Docker 后端镜像投入使用，VChat 日常聊天内存占用回落至 200MB 以下。 |
 | 统一上下文、通信与可观测性期 | 2026-06 | 浪潮 V8 数据库、TDB 内存一致性与 RAG 召回管线大规模重构；OneRing 从统一上下文实验系统演进为纯 HASH-SQL 稳定版；VCPMessageRenderer V3、墓碑冻结 V2、OpenHer、PluginManager、AgentAssistant 可视化总线、VCPSuperMail、Vchat CLI、VCPToolRecord 与 ChromeBridge 安全分级上线；官网、源码地图、服务器面板、离线通知和全局运行监控体系同步完善。 |
