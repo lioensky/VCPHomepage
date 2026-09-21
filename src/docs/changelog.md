@@ -26,7 +26,7 @@ category: changelog
 ```text
 <<<[TOOL_REQUEST]>>>
 maid:「始」Nova「末」
-JEV:「始」搜搜最近是不是真的特朗普要死了「末」
+JEV:「始」搜搜最近是不是美国土豆是不是打折「末」
 <<<[END_TOOL_REQUEST]>>>
 ```
 
