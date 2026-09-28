@@ -50,7 +50,7 @@ import {DocsViewer} from "./components/DocsViewer";
 import {ContinuumHome, PondBrand} from "./components/ContinuumHome";
 import {getAllDocs} from "./docs";
 import {normalizeMarkdownMath} from "./markdownMath";
-import whitepaperV3Content, {metadata as whitepaperV3Metadata} from "./docs/vcp-whitepaper-v3.md";
+import whitepaperV3Content, {metadata as whitepaperV3Metadata} from "./docs/vcp-whitepaper.md";
 import {leaderboardBoards, leaderboardEdition, type LeaderboardEntry} from "./leaderboardData";
 
 type SiteTheme = "editorial" | "industrial";
