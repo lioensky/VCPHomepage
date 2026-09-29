@@ -1,6 +1,6 @@
 ---
 title: VCP 全景技术白皮书 V5
-summary: 全面介绍 VCP 全栈运行时、Jev 决策与自然语言调用管网、Agent 工业级软件工程体系（MoonASTSearch 与 RustCodeSearch）、前端应用群、共享 IPC 管网、Loom 与共笔文坊协作系统的工作原理和系统交互，是理解迈向 VCP 2.0 正式版全景生态的重要读物。
+summary: 全面介绍 VCP 全栈运行时、Jev 决策与自然语言调用管网、Agent 工业级软件工程体系、前端应用群、共享 IPC 管网、Loom 与共笔文坊协作系统的工作原理和系统交互，是理解迈向 VCP 2.0 正式版全景生态的重要读物。
 updatedAt: 2026-09-30
 category: guide
 ---
