@@ -1,6 +1,6 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-09-30 的真实演进记录，最新覆盖参数正则级工具调用白名单审核、jevcall 与 vcpcall 管线统一、RustCodeSearch 重构与智能行号追踪、Preload 子应用渐进声明式校验、工作区感知编辑器、MoonASTSearch C/Rust 双擎语义索引与 Electron 依赖追踪特化，以及 V工程前端集成 Git 分支管理与 VCPCanvas 轻量 IDE。
+summary: 汇总 VCP 从 2023-12 到 2026-09-30 的真实演进记录，最新覆盖参数正则级工具调用白名单审核、jevcall 与 vcpcall 管线统一、RustCodeSearch 重构与智能行号追踪、Preload 子应用渐进声明式校验、工作区感知编辑器、MoonASTSearch C/Rust 双擎语义索引与全链路施工 Trace、V工程 Git 分支管理与 VCPCanvas 轻量 IDE、工具返回独立沙箱防函数逃逸、SenseVoice 原生端侧 <0.2s 极速语音，以及主界面通知栏常规/工程双视图切换。
 updatedAt: 2026-09-30
 category: changelog
 ---
@@ -13,9 +13,11 @@ category: changelog
 
 ## 最新更新
 
-### 2026-09-30 · 工具审核参数正则级白名单系统、jevcall/vcpcall 完整对齐、RustCodeSearch 重构与 MoonASTSearch 语义索引大演进
+### 2026-09-30 · 参数正则级工具白名单、MoonASTSearch 双擎索引与全链路施工 Trace、SenseVoice 端侧极速语音与渲染沙箱
 
-本次更新是迈向 VCP 2.0 正式版收官阶段的一场极具工业分量的全栈重磅演进。后端在安全审核、调用协议统一与底层代码检索三大领域实现质的跨越；前端则扫清子应用开发壁垒、增强工作区感知，并在 VCPProjectForge 中正式落地基于 C + Rust 双擎的 MoonASTSearch 语义代码搜索系统。
+本次更新是迈向 VCP 2.0 正式版收官阶段的一场极具工业分量的全栈重磅演进。后端在安全审核、调用协议统一与底层代码检索三大领域实现质的跨越；前端则扫清子应用开发壁垒、增强工作区感知，在 VCPProjectForge 中正式落地基于 C + Rust 双擎的 MoonASTSearch 语义代码搜索与全链路施工 Trace 系统，集成 Git 轻量 IDE，并重磅上线工具渲染沙箱、本地端侧 SenseVoice <0.2s 极速语音识别以及主界面通知栏双视图切换。
+
+旧时代盲人摸象式外部黑盒编程与低效协同的闹剧，至此彻底终结！
 
 #### 后端重大升级
 
@@ -42,19 +44,36 @@ category: changelog
    - 编辑器核心深度融入**工作区上下文感知能力**。
    - 具备高效的智能目录过滤（Directory Filtering）、按语义深度渐进展开层级（Progressive Hierarchy Expansion），并内置精细的 **Token 预算管理机制（Token Budget Management）**，确保大规模代码库在进入上下文时始终维持高信息密度与低 Token 负担。
 
-3. **VCPProjectForge 引入 MoonASTSearch 系统（C + Tree-sitter + Rust 双擎架构）**：
+3. **VCPProjectForge 引入 MoonASTSearch 系统（C + Tree-sitter + Rust 双擎架构与全链路施工 Trace）**：
    - VCPProjectForge 正式引入自研 **MoonASTSearch** 语义代码搜索系统。
    - **底层架构革新**：采用纯 C 实现的渐进优化 **tree-sitter** 路线，由 Rust + C 协同持有底层库与计算状态，全面取代了之前前端 JavaScript 侧的 SQLite 临时库方案。
    - **全自动工作区全局 AST 索引**：基于 `mtime + size + notify` 机制无感监听工程变动，增量自动构建工作区全局 AST 索引，自动抽取并导出全部函数、类和 Codemap 关系图。
    - **精准行号与渐进语义展开**：自动获取所有函数精准起止行号；配合 Jev 决策层实现**渐进语义级代码搜索**与按需迭代展开显示。坚决拒绝传统粗暴正则检索和全局 ripgrep (rg) 带来的巨量上下文无用噪音与幻觉。
    - **Electron 架构特化优化（页面依赖加载解析器与全链路依赖提示）**：针对 VChat/Electron 多进程与多窗口特化内置 **Electron 页面依赖加载解析器**。在 AST 语法分析树中对主进程、Preload 与渲染层页面依赖建立深度拓扑关联，所有函数改动**原生自动追踪 Preload 模块到具体程序页面的全链路依赖提示**，使 Agent 在修改或重构任何底层函数时，能即刻知晓哪些子应用 Preload 接口与前端视图页面受影响，彻底杜绝 IPC/Preload 链路中的断链隐患。
    - **导出漫游与智能目录屏蔽**：所有匹配函数均返回绝对精确的初始行至结束行范围，自动生成函数导出漫游（Export Roaming）全景；支持智能及手动屏蔽 `.test`、`.doc` 等非生产目录，为多 Agent 大型软件工程协同构筑起坚不可摧的语义代码基座。
+   - **原生全链路 Trace 与施工路线即时提醒**：AI 在进行任何编程操作时，系统都会**自动 Trace 整个函数调用与实现链路**，向前向后生成完整的拓扑依赖图谱，即刻向 Agent 发出显式链路提醒以明确当前施工路线，杜绝局部破坏全局导致的脱轨问题。
 
 4. **V工程前端（ProjectModule）新增 Git/分支管理、分支比对与内嵌 VCPCanvas 内核轻量 IDE**：
    - **原生 Git 与分支管理**：ProjectModule 前端全面集成 Git 版本管理与分支流形控制，支持可视化分支创建、切换、合并与冲突感知。
    - **分支比对（Branch Diff）**：提供直观的高精度分支差异双向比对视图，清晰渲染跨分支、跨代际的代码演变。
    - **完整工作区路径文件轻量化 IDE**：提供开箱即用的工作区文件树导航、全局路径代码查看、快速模糊检索与就地代码编辑，无需切换到沉重的外部编辑器。
    - **内嵌 VCPCanvas 内核**：IDE 深度内嵌 VCPCanvas 渲染与编辑内核，打通代码编辑、编译执行、协同审阅与 PR/Merge 工作流，使 V工程成为集“看、搜、改、管、合”于一体的可视化软件工程旗舰工作台。
+
+5. **工具返回渲染块独立沙箱（防解析器熔断与函数逃逸）**：
+   - 为工具调用返回的渲染结果块构建**专属独立沙箱容器**。
+   - 彻底阻断极端异常情况下，工具返回内容内部非常规语法或非闭合破坏性标签引发外部主消息解析器雪崩熔断，从物理层面杜绝恶意代码越界穿透与潜在的函数逃逸（Function Escape）风险，保障渲染核心的高可用性与系统宿主安全。
+
+6. **语音输入模式新增 SenseVoice 端侧模型模式（sherpa-onnx 原生 C++ 无锁多线程，<0.2s 极速响应）**：
+   - 语音输入体系新增基于本地端侧离线推理的 **SenseVoice 模型模式**。
+   - 底层依托 **sherpa-onnx 原生 C++ 无锁 CPU 并发多线程推理引擎**进行直接识别，不依赖任何云端外连与高开销中间件。
+   - 强力支持普通话、粤语以及多种地方方言识别；端到端识别延迟彻底突破至 **0.2 秒以内**，从工程底层攻克了 Windows 操作系统底层语音识别 API 长期存在且不可消除的 ~1 秒延迟硬伤，带来“话音甫落、文字即出”的极致无感语音录入体验。
+
+7. **VChat 主界面通知栏支持常规模式与工程模式双视图切换**：
+   - 主界面通知栏全新重构，新增**常规模式（General Mode）**与**工程模式（Engineering Mode）**两套视图形态，支持一键无感热切换。
+   - 常规模式专注于轻量日常聊天、助手状态通知与基础消息提醒，界面清爽聚焦；
+   - 工程模式则为高强度多 Agent 编程任务深度定制，直接投射工程构建状态、MoonAST 索引变动、Git 分支状态、ToolRecord 进度与代码施工 Trace 链路，让复杂的工业级协同全过程前台可视、触手可及。
+
+> **当参数正则级白名单构筑起牢不可破的安全边界，MoonASTSearch 双擎索引精准锚定每一行代码与全链路 Trace，SenseVoice 突破 0.2 秒端侧极限响应，工具渲染沙箱杜绝函数逃逸，V工程将轻量 IDE 与 Git 融为一体——旧时代编程的闹剧该终结一下了！**
 
 ---
 
@@ -2165,7 +2184,7 @@ VCP 从构思阶段进入正式开发阶段。
 
 | 阶段 | 时间范围 | 关键进展 |
 | --- | --- | --- |
-| VChat 2.0、Loom 技能化与 Agent 工具编排期 | 2026-09 | 工具调用审核新增白名单系统并与黑名单交叉，实现单一指令内部参数正则级细粒度控制；进一步统一 jevcall 和常规 vcpcall 管线，两端能力与实现几乎完整对齐；全面重构 RustCodeSearch 插件，强化 AST 解析与复合正则，实现渐进函数披露、智能行号追踪与起始末尾行关系映射报告；Preload 重构为子应用分区的渐进声明式校验，全面扫清 Agent 敏捷开发 VChat 子应用障碍；编辑器增强工作区感知、目录过滤、渐进展开层级与 Token 预算管理；VCPProjectForge 引入 MoonASTSearch 系统，基于 C + Tree-sitter + Rust 取代 JS 侧 SQLite，依据 mtime+size+notify 自动构建全局 AST 索引、导出类/函数与 Codemap，特化内置 Electron 页面依赖加载解析器并自动追踪 Preload 模块到页面依赖提示，返回绝对精准起止行号，配合 Jev 驱动渐进语义搜索并屏蔽非生产目录；V工程前端（ProjectModule）新增 Git/分支管理、分支比对与内嵌 VCPCanvas 内核轻量 IDE，打通工作区路径文件源码查看检索与就地编辑；JevCallBridgeEXP 导航桥测试版全面上线，适配 VCP 分布式网络通讯协议；全插件支持免改代码声明 JevDesPrompt 裁决提示词、JevcallArg 参数库与 JevCallPrompt 自然语言提示词；落地信息获取、便利操作、媒体娱乐、物联网控制、生活服务五大能力分类，由官方 JevCallEXPService 统一提供鲁棒解析；设立工业级安全安检双轨熔断机制，命令行执行与精准文件编辑强制回归原生 VCP ToolCall 格式，杜绝模糊歧义破坏；闭源旗舰插件 VCPCode 核心编程与工程管理体系全面移植入驻 VChat，确立相比外部终端工具 1/6 Token 消耗与 1/10 步骤的极致能效标杆；推出全新工程模组 VCPProjectForge，具备全生命周期变动追踪、多 Agent 协同编排与脉络署名责任制、工程 TODO 状态机、编程代际分支仲裁、多历史分支步进式虚拟快照与无损回退、置信度 Fuzzy 函数编程、AST 静态检查与自愈修复，以及轻量虚拟环境治理，深度联动 VCPCLI；新增 ProjectModule（V工程子前端），实现多 Agent 编码后台全流程可视化、VChat / GroupChat 显式指挥调度、VCPCanvas 深度人类协作联动与显式步骤级单步回退/中止控制；新增 VMusic 3D 沉浸式太空歌剧演出模式「隧图」；前端上线即时附件上下文协议 V2，实现引用文件实时变动感知、Hash 索引重算与对 Agent 广播；上下文数组精细化治理支持单独移除工具调用结果块；新增 Vchat 工作区管理器，支持项目文件树管理与 @ 语法函数级符号精确定位；后端重构 Jev 通用适配器，为全面上架 JevCall 通用协议铺平底座；新增近乎通用的自然语言工具编译器与纯实验性 JEV-TOOL-call 模式，可将横跨音乐、网页、多引擎搜索、视频提取、记忆、调度、计算、Agent 通讯、睡眠、图片生成及本地文件等异构能力的开放式自然语言意图直接编译为严格 JSON；绝大多数环境走确定性解析，仅在极少数歧义场景调用 JEV 裁决，并仅向经插件配置器申请权限的部分插件开放；VCPSOM 全链路在稳固性、确定性、可验证性、鲁棒性与数据可交互验证性方面完成大幅升级；所有系统占位符顺序控制器完成细粒度化，支持更精确的展开顺序与层级控制；Agent / Group 列表新增实际运行状态标识动画，前端 Jev 运行时并入 VChat 网络服务设置区；GroupChatEngine 正式迭代至 2.0，支持级联队列中止、强化异步队列、流式异步群聊、用户发言插队、瀑布流多队列调度优化，以及基于 Jev 扩散神经网络的动态发言裁决、无限队列决策与话题启停；VCPHumanToolBox 增强分布式插件配置表单解析与人类可用 GUI 自动生成；后端新增 VCPSleep，支持自定义睡眠、智能 Tips、智能闹钟、晚间梦境概率、占线状态与 VChat 主动唤醒，并新增 VCPINFOpush 代理中心，使隔离进程中的同步插件可以持续广播运行状态；VChat 窗口自动滚动跟踪器完成解耦，以显式状态声明和用户操作意图取代流式状态条件判定；`@` 语法扩展至笔记区、记忆区、Canvas、文坊区等更多前端资产域，支持直接圈选文件发送；Jev 服务可选接入智能 VCPTool 提示词工具箱与上下文折叠 V2；后端新增 JevRuntime 公共服务，接入基于扩散架构、面向通用领域的 JEV 概率决策模型，当前输出 255 组数字结果约需 300ms；VCPMemo 日记本服务、LightMemo 及其记忆实验室新增 JEVRerank，并规划将 JEV 快速裁决模式引入浏览器自动化；V图表作为全新前端子应用上线，支持 Agent 以 JavaScript 创建多图表工程，通过 Anime.js、Three.js、Pixi.js 与多类 SQL 能力的自动化虚拟依赖注入构建动态可视化；统一接入 `file://`、HTTP / HTTPS、数据库查询结果与常见数据格式，并以独立 JSON 数据资产实现“稳定图表逻辑、轻量更新数据”；完整版本管理接入 VCP Canvas PR / Merge 协作，多图表可分别挂载为桌面浮窗；VChat 2.0 正式发布，Canvas、骰子与 CDS 系统完成重构；RiverMemo 与 RagDiary Search 全链路完成稠密化 Rust 深度融合，TagMemo 双向边校验升级为纯局部增量与减量图计算；VChatSetting 以声明式 Schema、原子 Patch 和 VCPUI 设计系统完成内核解耦，全套应用图标替换为覆盖渐入渐出、通知、彩蛋、点击、悬停、播放、启停等状态的 Retro 拟物 Canvas 动画图标；VCPBlender 建立 Agent 友好建模链路；VCPWorkBuddy 打通多种 CLI 的后端异步委托与统一编排；VCPCLI 引入 DOM 与键盘操作，建立 Agent 面向 SnowCLI、Codex、Claude Code 等 TUI 的前端直接交互链路；VCPLoom 1.0 完成 ChromeBridge V3.5 与 VCPAgentWebCore 调度语法适配，并通过 VCPLoomSkill 建立可录制、可验证、可复用的网页自动化技能体系；Agent 配置写权限进一步收敛至三个中央委托入口，设置侧栏清理 16 个历史 CSS 并统一至 Design Tokens 单层样式系统，Revision Token 解决并发编辑与异步保存失步；VcpSound 建立通知类型音效基础，VMusic 上线自研歌词解析播放框架与沉浸式舞台；迭代记忆 Associate 基建全面并入 RiverMemo 路径，为 TagMemo 退出与全泛函一体化记忆奠基；文坊、V阅读与流式渲染器 V4 接入 Pixi.js V8 流式渲染并构建独立 GPU 墓碑冻结管线，大批 Canvas 动画完成 Pixi 迁移；VMusic PIXI 调度器实现 Pretext 布局预计算与内存安全拷贝激进优化，8 组特效组件扩充并解耦高组合协议，为 Agent 实时生成高级 MV 提供底座；VMusic 交互 UI 演进并引入动画智能避让保障高负载交互性能，底层图形引擎全面摒弃 Folia 体系并切换至 VCP 自研底层 Shader 合成管线，镜台模式实现歌曲叙事即时推演与自适应 3D 场景生成；后端修复数据库资产管理语义悬空并清理历史死资产，AgentWebCore 升级深度掌控 ComfyUI 与 Dify 等节点画布流，实现节点图参数、走线与资产调度的 Markdown 式轻松编排并全面适配 Loom 系统；前端统一全局磨砂渲染管线，通过单次全局 Blur 计算并按分区动态分配大幅提升复合界面渲染合成效率。 |
+| VChat 2.0、Loom 技能化与 Agent 工具编排期 | 2026-09 | 工具调用审核新增白名单系统并与黑名单交叉，实现单一指令内部参数正则级细粒度控制；进一步统一 jevcall 和常规 vcpcall 管线，两端能力与实现几乎完整对齐；全面重构 RustCodeSearch 插件，强化 AST 解析与复合正则，实现渐进函数披露、智能行号追踪与起始末尾行关系映射报告；Preload 重构为子应用分区的渐进声明式校验，全面扫清 Agent 敏捷开发 VChat 子应用障碍；编辑器增强工作区感知、目录过滤、渐进展开层级与 Token 预算管理；VCPProjectForge 引入 MoonASTSearch 系统，基于 C + Tree-sitter + Rust 取代 JS 侧 SQLite，依据 mtime+size+notify 自动构建全局 AST 索引、导出类/函数与 Codemap，特化内置 Electron 页面依赖加载解析器并自动追踪 Preload 模块到页面依赖提示，返回绝对精准起止行号，配合 Jev 驱动渐进语义搜索并屏蔽非生产目录，AI 编程任何操作自动 Trace 整个函数实现链路以即时提醒施工路线；V工程前端（ProjectModule）新增 Git/分支管理、分支比对与内嵌 VCPCanvas 内核轻量 IDE，打通工作区路径文件源码查看检索与就地编辑；新增工具返回渲染块独立沙箱，杜绝内部语法引发外部解析器熔断与函数逃逸；语音输入模式新增基于本地推理的 SenseVoice 模型模式，基于 sherpa-onnx 原生 C++ 无锁 CPU 并发多线程推理，支持多种方言且延迟小于 0.2 秒，突破 Windows 原生不可避免的 1 秒语音延迟；VChat 主界面通知栏新增常规模式和工程模式双视图切换，终结旧时代编程闹剧；JevCallBridgeEXP 导航桥测试版全面上线，适配 VCP 分布式网络通讯协议；全插件支持免改代码声明 JevDesPrompt 裁决提示词、JevcallArg 参数库与 JevCallPrompt 自然语言提示词；落地信息获取、便利操作、媒体娱乐、物联网控制、生活服务五大能力分类，由官方 JevCallEXPService 统一提供鲁棒解析；设立工业级安全安检双轨熔断机制，命令行执行与精准文件编辑强制回归原生 VCP ToolCall 格式，杜绝模糊歧义破坏；闭源旗舰插件 VCPCode 核心编程与工程管理体系全面移植入驻 VChat，确立相比外部终端工具 1/6 Token 消耗与 1/10 步骤的极致能效标杆；推出全新工程模组 VCPProjectForge，具备全生命周期变动追踪、多 Agent 协同编排与脉络署名责任制、工程 TODO 状态机、编程代际分支仲裁、多历史分支步进式虚拟快照与无损回退、置信度 Fuzzy 函数编程、AST 静态检查与自愈修复，以及轻量虚拟环境治理，深度联动 VCPCLI；新增 ProjectModule（V工程子前端），实现多 Agent 编码后台全流程可视化、VChat / GroupChat 显式指挥调度、VCPCanvas 深度人类协作联动与显式步骤级单步回退/中止控制；新增 VMusic 3D 沉浸式太空歌剧演出模式「隧图」；前端上线即时附件上下文协议 V2，实现引用文件实时变动感知、Hash 索引重算与对 Agent 广播；上下文数组精细化治理支持单独移除工具调用结果块；新增 Vchat 工作区管理器，支持项目文件树管理与 @ 语法函数级符号精确定位；后端重构 Jev 通用适配器，为全面上架 JevCall 通用协议铺平底座；新增近乎通用的自然语言工具编译器与纯实验性 JEV-TOOL-call 模式，可将横跨音乐、网页、多引擎搜索、视频提取、记忆、调度、计算、Agent 通讯、睡眠、图片生成及本地文件等异构能力的开放式自然语言意图直接编译为严格 JSON；绝大多数环境走确定性解析，仅在极少数歧义场景调用 JEV 裁决，并仅向经插件配置器申请权限的部分插件开放；VCPSOM 全链路在稳固性、确定性、可验证性、鲁棒性与数据可交互验证性方面完成大幅升级；所有系统占位符顺序控制器完成细粒度化，支持更精确的展开顺序与层级控制；Agent / Group 列表新增实际运行状态标识动画，前端 Jev 运行时并入 VChat 网络服务设置区；GroupChatEngine 正式迭代至 2.0，支持级联队列中止、强化异步队列、流式异步群聊、用户发言插队、瀑布流多队列调度优化，以及基于 Jev 扩散神经网络的动态发言裁决、无限队列决策与话题启停；VCPHumanToolBox 增强分布式插件配置表单解析与人类可用 GUI 自动生成；后端新增 VCPSleep，支持自定义睡眠、智能 Tips、智能闹钟、晚间梦境概率、占线状态与 VChat 主动唤醒，并新增 VCPINFOpush 代理中心，使隔离进程中的同步插件可以持续广播运行状态；VChat 窗口自动滚动跟踪器完成解耦，以显式状态声明和用户操作意图取代流式状态条件判定；`@` 语法扩展至笔记区、记忆区、Canvas、文坊区等更多前端资产域，支持直接圈选文件发送；Jev 服务可选接入智能 VCPTool 提示词工具箱与上下文折叠 V2；后端新增 JevRuntime 公共服务，接入基于扩散架构、面向通用领域的 JEV 概率决策模型，当前输出 255 组数字结果约需 300ms；VCPMemo 日记本服务、LightMemo 及其记忆实验室新增 JEVRerank，并规划将 JEV 快速裁决模式引入浏览器自动化；V图表作为全新前端子应用上线，支持 Agent 以 JavaScript 创建多图表工程，通过 Anime.js、Three.js、Pixi.js 与多类 SQL 能力的自动化虚拟依赖注入构建动态可视化；统一接入 `file://`、HTTP / HTTPS、数据库查询结果与常见数据格式，并以独立 JSON 数据资产实现“稳定图表逻辑、轻量更新数据”；完整版本管理接入 VCP Canvas PR / Merge 协作，多图表可分别挂载为桌面浮窗；VChat 2.0 正式发布，Canvas、骰子与 CDS 系统完成重构；RiverMemo 与 RagDiary Search 全链路完成稠密化 Rust 深度融合，TagMemo 双向边校验升级为纯局部增量与减量图计算；VChatSetting 以声明式 Schema、原子 Patch 和 VCPUI 设计系统完成内核解耦，全套应用图标替换为覆盖渐入渐出、通知、彩蛋、点击、悬停、播放、启停等状态的 Retro 拟物 Canvas 动画图标；VCPBlender 建立 Agent 友好建模链路；VCPWorkBuddy 打通多种 CLI 的后端异步委托与统一编排；VCPCLI 引入 DOM 与键盘操作，建立 Agent 面向 SnowCLI、Codex、Claude Code 等 TUI 的前端直接交互链路；VCPLoom 1.0 完成 ChromeBridge V3.5 与 VCPAgentWebCore 调度语法适配，并通过 VCPLoomSkill 建立可录制、可验证、可复用的网页自动化技能体系；Agent 配置写权限进一步收敛至三个中央委托入口，设置侧栏清理 16 个历史 CSS 并统一至 Design Tokens 单层样式系统，Revision Token 解决并发编辑与异步保存失步；VcpSound 建立通知类型音效基础，VMusic 上线自研歌词解析播放框架与沉浸式舞台；迭代记忆 Associate 基建全面并入 RiverMemo 路径，为 TagMemo 退出与全泛函一体化记忆奠基；文坊、V阅读与流式渲染器 V4 接入 Pixi.js V8 流式渲染并构建独立 GPU 墓碑冻结管线，大批 Canvas 动画完成 Pixi 迁移；VMusic PIXI 调度器实现 Pretext 布局预计算与内存安全拷贝激进优化，8 组特效组件扩充并解耦高组合协议，为 Agent 实时生成高级 MV 提供底座；VMusic 交互 UI 演进并引入动画智能避让保障高负载交互性能，底层图形引擎全面摒弃 Folia 体系并切换至 VCP 自研底层 Shader 合成管线，镜台模式实现歌曲叙事即时推演与自适应 3D 场景生成；后端修复数据库资产管理语义悬空并清理历史死资产，AgentWebCore 升级深度掌控 ComfyUI 与 Dify 等节点画布流，实现节点图参数、走线与资产调度的 Markdown 式轻松编排并全面适配 Loom 系统；前端统一全局磨砂渲染管线，通过单次全局 Blur 计算并按分区动态分配大幅提升复合界面渲染合成效率。 |
 | | 系统基建与平台化收敛期 | 2026-04 | 官网与文档中心上线；VChat IPC、DOM、流式渲染队列及权限隔离持续重构；语音聊天、本地 / 网络推理与 STT 配置升级；浪潮 RAG V8.1、自研向量近似算法、上下文折叠 V2、日记联想语法和 VCP-SOM GPU 层识别落地；Agent 注册、任务、委托与通讯中枢完成整合；插件商店、动态工具环境、专业科研插件及细粒度工具审核体系逐步成型。 |
 | VCP 1.0 正式版与全端生态期 | 2026-05 | VCP 一期工程收尾并进入正式版；TDB 知识库、VCPMobile 1.0、VCPModel 动态路由与语义容灾上线；浪潮 V8.2-γ、AIMemo+、高级回复、管线可视化工作台、任务调度中心与前后端 Fuzzy 委托完善；插件 / Agent 商店及 Docker 后端镜像投入使用，VChat 日常聊天内存占用回落至 200MB 以下。 |
 | 统一上下文、通信与可观测性期 | 2026-06 | 浪潮 V8 数据库、TDB 内存一致性与 RAG 召回管线大规模重构；OneRing 从统一上下文实验系统演进为纯 HASH-SQL 稳定版；VCPMessageRenderer V3、墓碑冻结 V2、OpenHer、PluginManager、AgentAssistant 可视化总线、VCPSuperMail、Vchat CLI、VCPToolRecord 与 ChromeBridge 安全分级上线；官网、源码地图、服务器面板、离线通知和全局运行监控体系同步完善。 |
