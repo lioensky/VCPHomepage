@@ -1944,7 +1944,7 @@ VChat 全局子应用设计语言重构，引入液态玻璃风格与更轻量�
 
 ### 2026-03-23 · VCPDesktop 深度扩展
 
-进一步优化桌面 HTML 占用性能，增强 Widget 沙箱与权限体系，统一 [`VCPAppAPI`](VCP聚合文档.md)，让 AI 通过更少配置即可调用桌面程序、VChat 子应用与分布式能力。
+进一步优化桌面 HTML 占用性能，增强 Widget 沙箱与权限体系，统一 [`VCPAppAPI`]，让 AI 通过更少配置即可调用桌面程序、VChat 子应用与分布式能力。
 
 ### 2026-03-22 · VCPDesktop 大更新
 
@@ -1996,7 +1996,7 @@ VCP 后端开始自动感知上下文数组中的信息来源，按规则把通�
 
 ### 2026-03-10 · 异步协议升级到 V2
 
-异步工具调用的进度与结果除了占位符追踪，还会经由通知栏主动推送；[`VCPAgentAssistant`](VCP聚合文档.md) 也获得更丰富的多类型插件基建能力。
+异步工具调用的进度与结果除了占位符追踪，还会经由通知栏主动推送；`VCPAgentAssistant` 也获得更丰富的多类型插件基建能力。
 
 ### 2026-03-09 · 多模态日记与分布式预处理推进
 
@@ -2156,7 +2156,7 @@ VCP 开始具备跨节点工具调用与透明文件访问能力，并新增 61 
 
 ### 2025-05-13 · 六大插件协议与服务器管理器落地
 
-VCP 服务器与插件体系正式成型，建立 [`static`](VCP聚合文档.md)、[`messagePreprocessor`](VCP聚合文档.md)、[`synchronous`](VCP聚合文档.md)、[`asynchronous`](VCP聚合文档.md)、[`service`](VCP聚合文档.md)、[`hybridservice`](VCP聚合文档.md) 六大协议，新增 27 个插件。
+VCP 服务器与插件体系正式成型，建立 [`static`]、[`messagePreprocessor`]、[`synchronous`]、[`asynchronous`]、[`service`]、[`hybridservice`] 六大协议，新增 27 个插件。
 
 ### 2025-04-12 · VCP 计划正式启动
 

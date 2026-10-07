@@ -76,7 +76,7 @@ npm run build
 - [`src/docs/changelog-2026-04-05.md`](src/docs/changelog-2026-04-05.md)
 - [`src/docs/getting-started.md`](src/docs/getting-started.md)
 - [`src/docs/teaching-docs.md`](src/docs/teaching-docs.md)
-- [`VCP聚合文档.md`](VCP聚合文档.md)
+- [`src/docs/vcp-whitepaper.md`](src/docs/vcp-whitepaper.md)
 
 ---
 
