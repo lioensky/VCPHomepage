@@ -209,7 +209,7 @@ const riverScenarios = [
 ];
 
 const milestoneNodes = [
-  {date: "2025.03.15", tag: "ORIGIN", title: "「我要学编程！」", desc: "一切的起点。从零行代码开始，向死板无状态的 AI 工具时代发起挑战。"},
+  {date: "2025.03.15", tag: "ORIGIN", title: "「VCP施工图已就位！」", desc: "一切的起点。从零行代码开始，向死板无状态的 AI 工具时代发起挑战。"},
   {date: "2025.05.13", tag: "PROTOCOL", title: "VCP 六大插件协议确立", desc: "Static / Preprocessor / Sync / Async / Service / Hybrid 六大协议成型。"},
   {date: "2025.06.17", tag: "CLIENT", title: "VChat 官方客户端诞生", desc: "承载复杂富文本渲染、多模态交互与本地赛博桌面的核心容器上线。"},
   {date: "2026.03.21", tag: "DESKTOP", title: "VCPDesktop 赛博桌面落地", desc: "AI 通过流式语法直接向桌面推送 Widget 与交互应用，打破聊天框边界。"},
@@ -1621,7 +1621,7 @@ target_file:「始」src/db/indexRepository.js「末」
             <div style={{marginBottom: "2rem"}}>
               <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.85rem"}}>
                 <span style={{fontFamily: "JetBrains Mono", fontSize: "0.72rem", color: "#76BFAE"}}>
-                  MILESTONE SCROLL // 里程碑长卷：从「我要学编程」到 VCP 2.0 正式版
+                  MILESTONE SCROLL // 里程碑长卷：从「VCP施工图已就位」到 VCP 2.0 正式版
                 </span>
                 <a href="/?page=changelog" style={{fontFamily: "JetBrains Mono", fontSize: "0.72rem", color: "#F2A900", textDecoration: "none"}}>
                   展开完整 150+ 节点时间线 ↗
