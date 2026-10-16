@@ -1259,6 +1259,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                         fontWeight: 700,
                         fontSize: "0.78rem",
                         cursor: "pointer",
+                        transition: "all 0.2s ease",
                       }}
                     >
                       🟢 测试日常自然语言指令 (绿通)
@@ -1276,11 +1277,137 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                         fontWeight: 700,
                         fontSize: "0.78rem",
                         cursor: "pointer",
+                        transition: "all 0.2s ease",
                       }}
                     >
                       🔴 测试高危删改指令 (朱砂安检拦截)
                     </button>
                   </div>
+
+                  {/* JevCall 动态双轨分流器 SVG */}
+                  <svg
+                    key={`jev-svg-${jevMode}`}
+                    className="river-sandbox-svg"
+                    viewBox="0 0 600 120"
+                    role="img"
+                    aria-label="JevCall 双轨安检分流器动态示意图"
+                    style={{height: "128px", margin: "0 0 0.85rem"}}
+                  >
+                    <defs>
+                      <filter id="jev-glow" x="-30%" y="-30%" width="160%" height="160%">
+                        <feGaussianBlur stdDeviation="2.8" result="blur" />
+                        <feMerge>
+                          <feMergeNode in="blur" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+                      {/* 绿通上轨 */}
+                      <path id="jev-path-green" d="M 60 60 L 210 60 C 260 60, 290 32, 340 32 L 530 32" />
+                      {/* 危险拦截下轨：至安检门拦截并折射 */}
+                      <path id="jev-path-danger-hit" d="M 60 60 L 225 60" />
+                      <path id="jev-path-danger-divert" d="M 225 60 C 265 60, 285 88, 340 88 L 530 88" />
+                    </defs>
+
+                    {/* 背景测地网格 */}
+                    <g stroke="rgba(255, 255, 255, 0.05)" strokeWidth="1">
+                      <line x1="0" y1="32" x2="600" y2="32" />
+                      <line x1="0" y1="60" x2="600" y2="60" />
+                      <line x1="0" y1="88" x2="600" y2="88" />
+                      <line x1="225" y1="0" x2="225" y2="120" />
+                      <line x1="340" y1="0" x2="340" y2="120" />
+                    </g>
+
+                    {/* 上轨：日常绿通管道 */}
+                    <path
+                      d="M 60 60 L 210 60 C 260 60, 290 32, 340 32 L 530 32"
+                      fill="none"
+                      stroke={jevMode === "safe" ? "#4CE0B3" : "rgba(76, 224, 179, 0.2)"}
+                      strokeWidth={jevMode === "safe" ? "3" : "1.8"}
+                      strokeDasharray={jevMode === "safe" ? "8 5" : "4 4"}
+                      className={jevMode === "safe" ? "river-stream-flow" : ""}
+                    />
+
+                    {/* 下轨：高危隔离管道 */}
+                    <path
+                      d="M 225 60 C 265 60, 285 88, 340 88 L 530 88"
+                      fill="none"
+                      stroke={jevMode === "danger" ? "#FF5238" : "rgba(255, 82, 56, 0.22)"}
+                      strokeWidth={jevMode === "danger" ? "3" : "1.8"}
+                      strokeDasharray={jevMode === "danger" ? "8 5" : "4 4"}
+                      className={jevMode === "danger" ? "river-stream-flow" : ""}
+                    />
+
+                    {/* 绿通模式下的奔涌脉冲 */}
+                    {jevMode === "safe" && (
+                      <>
+                        <circle r="4.5" fill="#4CE0B3" filter="url(#jev-glow)">
+                          <animateMotion dur="1.35s" repeatCount="indefinite" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.2 1">
+                            <mpath href="#jev-path-green" />
+                          </animateMotion>
+                        </circle>
+                        <circle r="3.2" fill="#FFFFFF" filter="url(#jev-glow)">
+                          <animateMotion dur="1.35s" begin="-0.65s" repeatCount="indefinite" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.2 1">
+                            <mpath href="#jev-path-green" />
+                          </animateMotion>
+                        </circle>
+                      </>
+                    )}
+
+                    {/* 高危拦截模式下的脉冲撞击与折射 */}
+                    {jevMode === "danger" && (
+                      <>
+                        {/* 前段撞击脉冲 */}
+                        <circle r="4.5" fill="#FF5238" filter="url(#jev-glow)">
+                          <animateMotion dur="0.9s" repeatCount="indefinite" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.2 1">
+                            <mpath href="#jev-path-danger-hit" />
+                          </animateMotion>
+                        </circle>
+                        {/* 后段隔离脉冲 */}
+                        <circle r="4.2" fill="#F2A900" filter="url(#jev-glow)">
+                          <animateMotion dur="1.2s" begin="-0.4s" repeatCount="indefinite" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.2 1">
+                            <mpath href="#jev-path-danger-divert" />
+                          </animateMotion>
+                        </circle>
+                      </>
+                    )}
+
+                    {/* 左端：USER INTENT 意图输入源 */}
+                    <circle cx="60" cy="60" r="12" fill={jevMode === "safe" ? "#21675C" : "#B94832"} stroke="#fff" strokeWidth="1.5" />
+                    <circle cx="60" cy="60" r="4" fill="#fff" />
+                    <text x="60" y="86" textAnchor="middle" fill="#C4CACD" fontSize="8.5" fontFamily="JetBrains Mono">
+                      PROMPT IN
+                    </text>
+
+                    {/* 中央：SECURITY GATEWAY 安检闸门 */}
+                    <g transform="translate(225, 60)">
+                      <rect x="-14" y="-18" width="28" height="36" rx="5" fill="#0B0F11" stroke={jevMode === "safe" ? "#4CE0B3" : "#FF5238"} strokeWidth="2" />
+                      <text x="0" y="4" textAnchor="middle" fill={jevMode === "safe" ? "#4CE0B3" : "#FF5238"} fontSize="11" fontWeight="bold">
+                        {jevMode === "safe" ? "✓" : "!"}
+                      </text>
+                      {jevMode === "danger" && (
+                        <circle r="22" fill="none" stroke="#FF5238" strokeWidth="1.5" className="river-node-ripple" />
+                      )}
+                    </g>
+                    <text x="225" y="94" textAnchor="middle" fill="#C4CACD" fontSize="8" fontFamily="JetBrains Mono">
+                      REGEX & AST GUARD
+                    </text>
+
+                    {/* 右上：JevCallEXPService 绿通终点 */}
+                    <g transform="translate(530, 32)">
+                      <circle cx="0" cy="0" r="9" fill={jevMode === "safe" ? "#4CE0B3" : "rgba(76,224,179,0.3)"} />
+                      <text x="-16" y="4" textAnchor="end" fill={jevMode === "safe" ? "#4CE0B3" : "#76BFAE"} fontSize="9.5" fontFamily="JetBrains Mono" fontWeight={jevMode === "safe" ? "bold" : "normal"}>
+                        JevCall 280ms 绿通直达
+                      </text>
+                    </g>
+
+                    {/* 右下：Native Protocol 强制隔离终点 */}
+                    <g transform="translate(530, 88)">
+                      <circle cx="0" cy="0" r="9" fill={jevMode === "danger" ? "#FF5238" : "rgba(255,82,56,0.3)"} />
+                      <text x="-16" y="4" textAnchor="end" fill={jevMode === "danger" ? "#FF9E8A" : "#B94832"} fontSize="9.5" fontFamily="JetBrains Mono" fontWeight={jevMode === "danger" ? "bold" : "normal"}>
+                        Native VCP 强制验签
+                      </text>
+                    </g>
+                  </svg>
 
                   {jevMode === "safe" ? (
                     <div className="jev-track-box">
