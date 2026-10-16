@@ -616,7 +616,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                   </div>
                   <div className="vcp2-stat-box">
                     <strong>40<em>x</em></strong>
-                    <span>MoonAST 纯几何检索提速</span>
+                    <span>MoonAST 编程链路检索提速</span>
                   </div>
                 </div>
               </aside>
