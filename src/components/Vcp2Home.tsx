@@ -599,8 +599,8 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                     <span>真实工程 Commits 锤炼</span>
                   </div>
                   <div className="vcp2-stat-box">
-                    <strong>358<em>万+</em></strong>
-                    <span>全栈自研代码总行数</span>
+                    <strong>24<em>+</em></strong>
+                    <span>全栈自研前端应用生态</span>
                   </div>
                   <div className="vcp2-stat-box">
                     <strong>2<em>ms</em></strong>
