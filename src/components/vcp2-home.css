@@ -1904,8 +1904,107 @@
   height: 220px;
   border-radius: 8px;
   border: 1px solid rgba(27, 33, 31, 0.15);
-  background: #151A1C;
+  background: radial-gradient(circle at 39% 50%, rgba(33, 103, 92, 0.22), #151A1C 72%);
   margin: 1rem 0;
+  overflow: hidden;
+}
+
+.river-stream-flow {
+  animation: river-dash-flow 1.8s linear infinite;
+}
+
+.river-stream-flow-0 {
+  animation-duration: 1.95s;
+}
+
+.river-stream-flow-1 {
+  animation-duration: 1.45s;
+}
+
+.river-stream-flow-2 {
+  animation-duration: 2.2s;
+}
+
+.river-omega-orbit {
+  transform-origin: 235px 105px;
+  animation: river-orbit-spin 14s linear infinite;
+}
+
+.river-omega-orbit-rev {
+  transform-origin: 235px 105px;
+  animation: river-orbit-spin-rev 20s linear infinite;
+}
+
+.river-omega-breath {
+  transform-origin: 235px 105px;
+  animation: river-omega-pulse 3.2s ease-in-out infinite;
+}
+
+.river-node-ripple {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: river-ripple-out 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+.river-node-ripple-delay-0 {
+  animation-delay: 0.2s;
+}
+
+.river-node-ripple-delay-1 {
+  animation-delay: 0.9s;
+}
+
+.river-node-ripple-delay-2 {
+  animation-delay: 1.6s;
+}
+
+@keyframes river-dash-flow {
+  from {
+    stroke-dashoffset: 32;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes river-orbit-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes river-orbit-spin-rev {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes river-omega-pulse {
+  0%, 100% {
+    opacity: 0.65;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes river-ripple-out {
+  0% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(2.15);
+    opacity: 0;
+  }
 }
 
 .omega-formula-plate {

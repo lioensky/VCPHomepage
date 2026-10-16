@@ -447,6 +447,8 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
 
   // Theater 05: RiverMemo Scenario & Jev Dual-Track
   const [riverScenarioIdx, setRiverScenarioIdx] = useState(0);
+  const [activeRiverBranch, setActiveRiverBranch] = useState<number | null>(null);
+  const [riverPulseKey, setRiverPulseKey] = useState(0);
   const [jevMode, setJevMode] = useState<"safe" | "danger">("danger");
   const currentRiver = riverScenarios[riverScenarioIdx];
 
@@ -962,7 +964,11 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                       <button
                         key={sc.id}
                         type="button"
-                        onClick={() => setRiverScenarioIdx(idx)}
+                        onClick={() => {
+                          setRiverScenarioIdx(idx);
+                          setActiveRiverBranch(null);
+                          setRiverPulseKey((k) => k + 1);
+                        }}
                         style={{
                           padding: "0.4rem 0.75rem",
                           borderRadius: "6px",
@@ -972,6 +978,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                           fontSize: "0.75rem",
                           fontWeight: 600,
                           cursor: "pointer",
+                          transition: "all 0.2s ease",
                         }}
                       >
                         {sc.trigger}
@@ -980,82 +987,236 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                   </div>
 
                   {/* Interactive River SVG Graph */}
-                  <svg className="river-sandbox-svg" viewBox="0 0 600 210" role="img" aria-label="RiverMemo 拓扑河网脉冲演示">
+                  <svg
+                    key={`river-svg-${riverScenarioIdx}-${riverPulseKey}`}
+                    className="river-sandbox-svg"
+                    viewBox="0 0 600 210"
+                    role="img"
+                    aria-label="RiverMemo 拓扑河网脉冲演示"
+                  >
                     <defs>
                       <linearGradient id="vcp2-river-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#76BFAE" />
-                        <stop offset="50%" stopColor="#F2A900" />
-                        <stop offset="100%" stopColor="#76BFAE" />
+                        <stop offset="0%" stopColor="#F2A900" />
+                        <stop offset="42%" stopColor="#76BFAE" />
+                        <stop offset="100%" stopColor="#4CE0B3" />
                       </linearGradient>
+                      <radialGradient id="vcp2-omega-glow" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stopColor="rgba(118, 191, 174, 0.42)" />
+                        <stop offset="65%" stopColor="rgba(33, 103, 92, 0.14)" />
+                        <stop offset="100%" stopColor="rgba(21, 26, 28, 0)" />
+                      </radialGradient>
+                      <filter id="vcp2-pulse-glow" x="-40%" y="-40%" width="180%" height="180%">
+                        <feGaussianBlur stdDeviation="3.2" result="blur" />
+                        <feMerge>
+                          <feMergeNode in="blur" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+                      {/* 三条从 EPA SOURCE 经 Ω 门流向目标记忆节点的完整拓扑河道 */}
+                      <path id="vcp2-river-path-0" d="M 60 105 C 125 105, 175 105, 235 105 C 305 105, 355 52, 510 45" />
+                      <path id="vcp2-river-path-1" d="M 60 105 C 125 105, 175 105, 235 105 C 315 105, 385 105, 510 105" />
+                      <path id="vcp2-river-path-2" d="M 60 105 C 125 105, 175 105, 235 105 C 305 105, 355 158, 510 165" />
                     </defs>
-                    <path
-                      d="M 60 105 C 170 40, 240 40, 340 65 L 510 45"
+
+                    {/* 背景测地线坐标微网格 */}
+                    <g stroke="rgba(118, 191, 174, 0.07)" strokeWidth="1">
+                      <line x1="0" y1="52" x2="600" y2="52" />
+                      <line x1="0" y1="105" x2="600" y2="105" />
+                      <line x1="0" y1="158" x2="600" y2="158" />
+                      <line x1="145" y1="0" x2="145" y2="210" />
+                      <line x1="235" y1="0" x2="235" y2="210" />
+                      <line x1="375" y1="0" x2="375" y2="210" />
+                    </g>
+
+                    {/* Ω 泛函引力透镜背景光晕与旋转测地环 */}
+                    <circle cx="235" cy="105" r="56" fill="url(#vcp2-omega-glow)" className="river-omega-breath" />
+                    <circle
+                      cx="235"
+                      cy="105"
+                      r="34"
                       fill="none"
-                      stroke="url(#vcp2-river-grad)"
-                      strokeWidth="2.5"
-                      strokeDasharray="6 4"
+                      stroke="rgba(118, 191, 174, 0.32)"
+                      strokeWidth="1.2"
+                      strokeDasharray="5 5"
+                      className="river-omega-orbit"
                     />
-                    <path
-                      d="M 60 105 C 180 105, 250 105, 340 105 L 510 105"
+                    <circle
+                      cx="235"
+                      cy="105"
+                      r="44"
                       fill="none"
-                      stroke="#76BFAE"
-                      strokeWidth="3"
-                    />
-                    <path
-                      d="M 60 105 C 170 170, 240 170, 340 145 L 510 165"
-                      fill="none"
-                      stroke="url(#vcp2-river-grad)"
-                      strokeWidth="2.5"
-                      strokeDasharray="6 4"
+                      stroke="rgba(242, 169, 0, 0.22)"
+                      strokeWidth="1"
+                      strokeDasharray="3 7"
+                      className="river-omega-orbit-rev"
                     />
 
-                    {/* Source Node */}
-                    <circle cx="60" cy="105" r="14" fill="#F2A900" />
-                    <text x="60" y="138" textAnchor="middle" fill="#F2F0E9" fontSize="10" fontFamily="JetBrains Mono">
-                      EPA SOURCE
-                    </text>
+                    {/* 底层河床光轨 */}
+                    {[0, 1, 2].map((bIdx) => {
+                      const isDimmed = activeRiverBranch !== null && activeRiverBranch !== bIdx;
+                      const isFocused = activeRiverBranch === bIdx;
+                      return (
+                        <g key={`stream-${bIdx}`} style={{opacity: isDimmed ? 0.28 : 1, transition: "opacity 0.25s ease"}}>
+                          <use
+                            href={`#vcp2-river-path-${bIdx}`}
+                            fill="none"
+                            stroke="rgba(118, 191, 174, 0.16)"
+                            strokeWidth={isFocused ? "6" : "4"}
+                          />
+                          <use
+                            href={`#vcp2-river-path-${bIdx}`}
+                            fill="none"
+                            stroke={bIdx === 1 || isFocused ? "#76BFAE" : "url(#vcp2-river-grad)"}
+                            strokeWidth={isFocused ? "3.4" : bIdx === 1 ? "3" : "2.4"}
+                            strokeDasharray={bIdx === 1 && !isFocused ? "10 6" : "7 5"}
+                            className={`river-stream-flow river-stream-flow-${bIdx}`}
+                          />
+                        </g>
+                      );
+                    })}
 
-                    {/* Omega Gate Node */}
-                    <circle cx="235" cy="105" r="18" fill="#21675C" stroke="#76BFAE" strokeWidth="2.5" />
-                    <text x="235" y="110" textAnchor="middle" fill="#F2F0E9" fontSize="13" fontWeight="bold">
-                      Ω={currentRiver.omega}
-                    </text>
+                    {/* 沿三条有向河道实时奔涌的记忆脉冲粒子 (SVG SMIL animateMotion) */}
+                    {[
+                      {id: 0, dur: "2.4s", delay: "0s", color: "#F2A900", r: 4.5},
+                      {id: 0, dur: "2.4s", delay: "-1.2s", color: "#76BFAE", r: 3.5},
+                      {id: 1, dur: "2.0s", delay: "-0.3s", color: "#4CE0B3", r: 5},
+                      {id: 1, dur: "2.0s", delay: "-1.3s", color: "#F2A900", r: 3.8},
+                      {id: 2, dur: "2.7s", delay: "-0.6s", color: "#76BFAE", r: 4.5},
+                      {id: 2, dur: "2.7s", delay: "-1.95s", color: "#F2A900", r: 3.5},
+                    ].map((p, pIdx) => {
+                      const isDimmed = activeRiverBranch !== null && activeRiverBranch !== p.id;
+                      return (
+                        <circle
+                          key={`pulse-${pIdx}`}
+                          r={p.r}
+                          fill={p.color}
+                          filter="url(#vcp2-pulse-glow)"
+                          style={{opacity: isDimmed ? 0.18 : 0.95}}
+                        >
+                          <animateMotion
+                            dur={p.dur}
+                            begin={p.delay}
+                            repeatCount="indefinite"
+                             calcMode="spline"
+                            keyTimes="0;1"
+                            keySplines="0.4 0 0.2 1"
+                          >
+                            <mpath href={`#vcp2-river-path-${p.id}`} />
+                          </animateMotion>
+                        </circle>
+                      );
+                    })}
 
-                    {/* Target Memory Nodes */}
-                    {[45, 105, 165].map((cy, idx) => (
-                      <g key={cy}>
-                        <circle cx="510" cy={cy} r="10" fill="#76BFAE" />
-                        <text x="492" y={cy - 14} textAnchor="end" fill="#F2F0E9" fontSize="10" fontFamily="JetBrains Mono">
-                          {currentRiver.nodes[idx].title} ({currentRiver.nodes[idx].score})
-                        </text>
-                      </g>
-                    ))}
+                    {/* Source Node (EPA 源点 + 脉冲波纹) */}
+                    <g
+                      style={{cursor: "pointer"}}
+                      onClick={() => {
+                        setActiveRiverBranch(null);
+                        setRiverPulseKey((k) => k + 1);
+                      }}
+                    >
+                      <circle cx="60" cy="105" r="14" fill="none" stroke="#F2A900" strokeWidth="1.8" className="river-node-ripple" />
+                      <circle cx="60" cy="105" r="14" fill="#F2A900" filter="url(#vcp2-pulse-glow)" />
+                      <circle cx="60" cy="105" r="5" fill="#FFF8E7" />
+                      <text x="60" y="138" textAnchor="middle" fill="#F2F0E9" fontSize="10" fontFamily="JetBrains Mono" fontWeight="700">
+                        EPA SOURCE
+                      </text>
+                    </g>
+
+                    {/* Omega Gate Node (中央 Ω 泛函门) */}
+                    <g
+                      style={{cursor: "pointer"}}
+                      onClick={() => {
+                        setActiveRiverBranch(null);
+                        setRiverPulseKey((k) => k + 1);
+                      }}
+                    >
+                      <circle cx="235" cy="105" r="21" fill="#151A1C" stroke="#F2A900" strokeWidth="1.2" opacity="0.7" />
+                      <circle cx="235" cy="105" r="18" fill="#21675C" stroke="#76BFAE" strokeWidth="2.5" />
+                      <text x="235" y="109" textAnchor="middle" fill="#F2F0E9" fontSize="11.5" fontFamily="JetBrains Mono" fontWeight="bold">
+                        Ω={currentRiver.omega}
+                      </text>
+                      <text x="235" y="142" textAnchor="middle" fill="#76BFAE" fontSize="9" fontFamily="JetBrains Mono">
+                        DUAL-FIELD GATE
+                      </text>
+                    </g>
+
+                    {/* Target Memory Nodes (右侧三大直觉浮现节点) */}
+                    {[45, 105, 165].map((cy, idx) => {
+                      const isSelected = activeRiverBranch === idx;
+                      return (
+                        <g
+                          key={cy}
+                          style={{cursor: "pointer"}}
+                          onClick={() => setActiveRiverBranch(activeRiverBranch === idx ? null : idx)}
+                        >
+                          <circle
+                            cx="510"
+                            cy={cy}
+                            r="11"
+                            fill="none"
+                            stroke={isSelected ? "#F2A900" : "#76BFAE"}
+                            strokeWidth="1.6"
+                            className={`river-node-ripple river-node-ripple-delay-${idx}`}
+                          />
+                          <circle
+                            cx="510"
+                            cy={cy}
+                            r={isSelected ? "12" : "10"}
+                            fill={isSelected ? "#F2A900" : "#76BFAE"}
+                            stroke="#151A1C"
+                            strokeWidth="2"
+                          />
+                          <circle cx="510" cy={cy} r="3.5" fill="#151A1C" />
+                          <text
+                            x="490"
+                            y={cy - 13}
+                            textAnchor="end"
+                            fill={isSelected ? "#F2A900" : "#F2F0E9"}
+                            fontSize="10.5"
+                            fontWeight={isSelected ? "700" : "500"}
+                            fontFamily="JetBrains Mono"
+                          >
+                            {currentRiver.nodes[idx].title} ({currentRiver.nodes[idx].score})
+                          </text>
+                        </g>
+                      );
+                    })}
                   </svg>
 
                   <div style={{display: "grid", gap: "0.45rem", marginBottom: "1rem"}}>
-                    {currentRiver.nodes.map((node) => (
-                      <div
-                        key={node.title}
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          padding: "0.5rem 0.75rem",
-                          borderRadius: "6px",
-                          background: "rgba(33,103,92,0.08)",
-                          border: "1px solid rgba(33,103,92,0.2)",
-                          fontSize: "0.78rem",
-                        }}
-                      >
-                        <div>
-                          <strong>{node.title}</strong>
-                          <span style={{marginLeft: "0.5rem", fontSize: "0.68rem", color: "#5A635F", fontFamily: "JetBrains Mono"}}>
-                            [{node.tag}]
-                          </span>
+                    {currentRiver.nodes.map((node, idx) => {
+                      const isSelected = activeRiverBranch === idx;
+                      return (
+                        <div
+                          key={node.title}
+                          onClick={() => setActiveRiverBranch(isSelected ? null : idx)}
+                          onMouseEnter={() => setActiveRiverBranch(idx)}
+                          onMouseLeave={() => setActiveRiverBranch(null)}
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            padding: "0.5rem 0.75rem",
+                            borderRadius: "6px",
+                            background: isSelected ? "rgba(33,103,92,0.18)" : "rgba(33,103,92,0.08)",
+                            border: isSelected ? "1px solid #21675C" : "1px solid rgba(33,103,92,0.2)",
+                            fontSize: "0.78rem",
+                            cursor: "pointer",
+                            transform: isSelected ? "translateX(4px)" : "none",
+                            transition: "all 0.2s ease",
+                          }}
+                        >
+                          <div>
+                            <strong>{node.title}</strong>
+                            <span style={{marginLeft: "0.5rem", fontSize: "0.68rem", color: "#5A635F", fontFamily: "JetBrains Mono"}}>
+                              [{node.tag}]
+                            </span>
+                          </div>
+                          <strong style={{fontFamily: "JetBrains Mono", color: "#21675C"}}>S={node.score}</strong>
                         </div>
-                        <strong style={{fontFamily: "JetBrains Mono", color: "#21675C"}}>S={node.score}</strong>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 
