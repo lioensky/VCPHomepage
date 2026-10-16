@@ -1001,9 +1001,9 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                         <stop offset="100%" stopColor="#4CE0B3" />
                       </linearGradient>
                       <radialGradient id="vcp2-omega-glow" cx="50%" cy="50%" r="50%">
-                        <stop offset="0%" stopColor="rgba(118, 191, 174, 0.42)" />
-                        <stop offset="65%" stopColor="rgba(33, 103, 92, 0.14)" />
-                        <stop offset="100%" stopColor="rgba(21, 26, 28, 0)" />
+                        <stop offset="0%" stopColor="#21675C" stopOpacity="0.32" />
+                        <stop offset="55%" stopColor="#21675C" stopOpacity="0.12" />
+                        <stop offset="100%" stopColor="#0E1315" stopOpacity="0" />
                       </radialGradient>
                       <filter id="vcp2-pulse-glow" x="-40%" y="-40%" width="180%" height="180%">
                         <feGaussianBlur stdDeviation="3.2" result="blur" />
@@ -1029,24 +1029,26 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                     </g>
 
                     {/* Ω 泛函引力透镜背景光晕与旋转测地环 */}
-                    <circle cx="235" cy="105" r="56" fill="url(#vcp2-omega-glow)" className="river-omega-breath" />
+                    <circle cx="235" cy="105" r="48" fill="url(#vcp2-omega-glow)" className="river-omega-breath" />
                     <circle
                       cx="235"
                       cy="105"
-                      r="34"
+                      r="31"
                       fill="none"
-                      stroke="rgba(118, 191, 174, 0.32)"
-                      strokeWidth="1.2"
+                      stroke="#76BFAE"
+                      strokeOpacity="0.55"
+                      strokeWidth="1.4"
                       strokeDasharray="5 5"
                       className="river-omega-orbit"
                     />
                     <circle
                       cx="235"
                       cy="105"
-                      r="44"
+                      r="41"
                       fill="none"
-                      stroke="rgba(242, 169, 0, 0.22)"
-                      strokeWidth="1"
+                      stroke="#F2A900"
+                      strokeOpacity="0.42"
+                      strokeWidth="1.2"
                       strokeDasharray="3 7"
                       className="river-omega-orbit-rev"
                     />
@@ -1060,7 +1062,8 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                           <use
                             href={`#vcp2-river-path-${bIdx}`}
                             fill="none"
-                            stroke="rgba(118, 191, 174, 0.16)"
+                            stroke="#21675C"
+                            strokeOpacity="0.45"
                             strokeWidth={isFocused ? "6" : "4"}
                           />
                           <use
@@ -1136,7 +1139,8 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                       <text x="235" y="109" textAnchor="middle" fill="#F2F0E9" fontSize="11.5" fontFamily="JetBrains Mono" fontWeight="bold">
                         Ω={currentRiver.omega}
                       </text>
-                      <text x="235" y="142" textAnchor="middle" fill="#76BFAE" fontSize="9" fontFamily="JetBrains Mono">
+                      <rect x="184" y="132" width="102" height="15" rx="4" fill="#0B0F11" fillOpacity="0.85" stroke="#21675C" strokeWidth="0.8" />
+                      <text x="235" y="143" textAnchor="middle" fill="#F2A900" fontSize="9.5" fontFamily="JetBrains Mono" fontWeight="700">
                         DUAL-FIELD GATE
                       </text>
                     </g>
