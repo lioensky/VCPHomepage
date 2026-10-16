@@ -1556,3 +1556,137 @@
     grid-template-columns: 90px minmax(0, 1fr) 50px;
   }
 }
+
+/* ==========================================================================
+   《河》· VCP 2.0 概念视听剧场 —— 首页弹层播放器 (NovaRiverTheater)
+   ========================================================================== */
+.nova-river-entry {
+  border-color: rgba(56, 189, 248, 0.45) !important;
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.08), 0 0 22px rgba(56, 189, 248, 0.12);
+}
+.nova-river-entry:hover {
+  border-color: rgba(125, 211, 252, 0.85) !important;
+  box-shadow: 0 0 28px rgba(56, 189, 248, 0.28);
+}
+
+.nova-river-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(0.5rem, 3vw, 2.5rem);
+  animation: nova-river-fade-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.nova-river-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  cursor: zoom-out;
+  background: rgba(2, 5, 11, 0.86);
+  backdrop-filter: blur(14px);
+}
+.nova-river-shell {
+  position: relative;
+  width: min(100%, calc((100vh - 7rem) * 16 / 9), 1600px);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  animation: nova-river-rise 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.nova-river-shell-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: #8ed6fb;
+}
+.nova-river-shell-bar > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nova-river-live-dot {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 10px #38bdf8;
+}
+.nova-river-shell-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: none;
+}
+.nova-river-shell-actions a {
+  color: rgba(186, 224, 247, 0.75);
+  text-decoration: none;
+}
+.nova-river-shell-actions a:hover {
+  color: #fff;
+}
+.nova-river-close {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(86, 182, 230, 0.3);
+  background: rgba(14, 25, 44, 0.7);
+  color: #cdeafb;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+.nova-river-close:hover {
+  border-color: rgba(120, 210, 255, 0.7);
+  color: #fff;
+}
+.nova-river-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #02050b;
+  border: 1px solid rgba(86, 182, 230, 0.22);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6), 0 0 60px rgba(56, 189, 248, 0.12);
+}
+.nova-river-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+@media (max-width: 640px) {
+  .nova-river-shell-bar > span { display: none; }
+  .nova-river-shell-bar { justify-content: flex-end; }
+  .nova-river-frame { border-radius: 8px; }
+}
+
+@keyframes nova-river-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes nova-river-rise {
+  from { opacity: 0; transform: translateY(18px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nova-river-overlay,
+  .nova-river-shell { animation: none; }
+}

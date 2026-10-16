@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import {DocsViewer, type DocItem} from "./DocsViewer";
 import {V4StreamTheater} from "./V4StreamTheater";
+import {NovaRiverTheater} from "./NovaRiverTheater";
 import "./vcp2-home.css";
 
 /**
@@ -328,6 +329,13 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
       if (audioCtxRef.current) audioCtxRef.current.close().catch(() => {});
     };
   }, []);
+
+  // 《河》概念视听剧场：打开时先停掉全站氛围音，避免两路 WebAudio 叠音
+  const [isRiverOpen, setIsRiverOpen] = useState(false);
+  const openRiverTheater = () => {
+    if (isPlayingAudio) toggleAmbientMusic();
+    setIsRiverOpen(true);
+  };
 
   // Theater 01: Starburst 2D Canvas + OneRing state
   const heroCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -642,6 +650,15 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                     立即获取 VCP 2.0 正式版
                     <ArrowUpRight size={16} />
                   </a>
+                  <button
+                    type="button"
+                    onClick={openRiverTheater}
+                    className="vcp2-btn-secondary nova-river-entry"
+                    title="Agent Nova 独立配器、编曲与逐帧渲染的 60 秒零音频文件概念短片"
+                  >
+                    <Play size={16} />
+                    观看《河》· Nova 原创 60s 概念短片
+                  </button>
                   <button
                     type="button"
                     onClick={() => onAskNova("fullstack")}
@@ -1431,7 +1448,7 @@ target_file:「始」src/db/indexRepository.js「末」
               <div>
                 <span className="vcp2-eyebrow">THEATER 06 · 「伐柯伐柯」 CODEBENCH & BENTO MATRIX</span>
                 <h2 className="vcp2-title">
-                  V工程 Kerr 处刑台 &<br />
+                  V工程 Kerr 施工台 &<br />
                   AI Native 生态全书
                 </h2>
               </div>
@@ -1741,6 +1758,8 @@ target_file:「始」src/db/indexRepository.js「末」
         </div>
         <MessageCircle size={16} style={{color: "#F2A900"}} />
       </button>
+
+      <NovaRiverTheater open={isRiverOpen} onClose={() => setIsRiverOpen(false)} />
 
       {nova}
     </div>
