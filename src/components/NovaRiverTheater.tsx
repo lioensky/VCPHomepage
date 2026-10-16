@@ -14,6 +14,37 @@ import {X} from "lucide-react";
 export const NOVA_RIVER_SRC = "/nova-river.html?embed=1";
 const CLOSE_MESSAGE = "nova-river:close";
 
+type NovaRiverWindow = Window & {__novaRiverAudio?: AudioContext};
+
+/**
+ * 必须在用户点击的同步调用栈内执行：预先创建并解锁 AudioContext，
+ * 挂到 window 上供同源 iframe 复用，从而免去 iframe 内的「启航」二次点击。
+ */
+export function primeNovaRiverAudio() {
+  const w = window as NovaRiverWindow;
+  if (w.__novaRiverAudio && w.__novaRiverAudio.state !== "closed") {
+    w.__novaRiverAudio.resume().catch(() => {});
+    return;
+  }
+  try {
+    const Ctx = window.AudioContext
+      || (window as unknown as {webkitAudioContext: typeof AudioContext}).webkitAudioContext;
+    const ctx = new Ctx();
+    ctx.resume().catch(() => {});
+    w.__novaRiverAudio = ctx;
+  } catch {
+    // 不支持 WebAudio 时，iframe 会自行回退到「启航」按钮
+  }
+}
+
+/** 关闭弹层时释放：该上下文属于父页，iframe 卸载并不会让它停止发声 */
+function releaseNovaRiverAudio() {
+  const w = window as NovaRiverWindow;
+  const ctx = w.__novaRiverAudio;
+  delete w.__novaRiverAudio;
+  if (ctx && ctx.state !== "closed") ctx.close().catch(() => {});
+}
+
 type NovaRiverTheaterProps = {
   open: boolean;
   onClose: () => void;
@@ -47,6 +78,7 @@ export function NovaRiverTheater({open, onClose}: NovaRiverTheaterProps) {
       document.body.style.overflow = prevOverflow;
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("message", onMessage);
+      releaseNovaRiverAudio();
     };
   }, [open]);
 

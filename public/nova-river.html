@@ -221,6 +221,144 @@
       color: rgba(150, 185, 215, 0.55);
       letter-spacing: 0.05em;
     }
+
+    /* ===== 开场报幕 Prologue：约 3.6s，地平线与正片 t=0 水面线 (60% 高度) 无缝交接 ===== */
+    #prologue {
+      position: absolute;
+      inset: 0;
+      z-index: 40;
+      background: #02050b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: opacity 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #prologue[hidden] { display: none; }
+    #prologue.out { opacity: 0; pointer-events: none; }
+    .pro-stage {
+      position: relative;
+      width: min(100vw, calc(100vh * 16 / 9));
+      aspect-ratio: 16 / 9;
+    }
+    .pro-text {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 47%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(10px, 1.5vw, 22px);
+      text-align: center;
+      transition: opacity 0.6s ease, transform 0.6s ease, filter 0.6s ease;
+    }
+    .pro-kicker, .pro-sub, .pro-credit, .pro-hint {
+      font-family: "JetBrains Mono", Consolas, monospace;
+      color: rgba(140, 205, 240, 0.72);
+      opacity: 0;
+    }
+    .pro-kicker {
+      font-size: clamp(10px, 0.85vw, 13px);
+      letter-spacing: 0.7em;
+      padding-left: 0.7em;
+      transition: opacity 1s ease, letter-spacing 1.6s cubic-bezier(0.16, 1, 0.3, 1), padding 1.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .pro-title {
+      font-family: "Noto Serif SC", "Source Han Serif SC", "SimSun", serif;
+      font-weight: 300;
+      font-size: clamp(40px, 6.4vw, 104px);
+      line-height: 1;
+      color: #e6f6ff;
+      letter-spacing: 0.75em;
+      padding-left: 0.75em;
+      text-shadow: 0 0 40px rgba(56, 189, 248, 0.55);
+      opacity: 0;
+      filter: blur(12px);
+      transition: opacity 1.4s ease, filter 1.4s ease, letter-spacing 1.8s cubic-bezier(0.16, 1, 0.3, 1), padding 1.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .pro-sub {
+      font-size: clamp(10px, 0.8vw, 12px);
+      letter-spacing: 0.3em;
+      padding-left: 0.3em;
+      transform: translateY(6px);
+      transition: opacity 0.9s ease, transform 0.9s ease;
+    }
+    .pro-horizon {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 60%;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(80, 160, 255, 0), rgba(120, 210, 255, 0.6) 50%, rgba(80, 160, 255, 0));
+      transform: scaleX(0);
+      transition: transform 1.7s cubic-bezier(0.65, 0, 0.35, 1);
+    }
+    .pro-core {
+      position: absolute;
+      left: 50%;
+      top: 60%;
+      width: 6px;
+      height: 6px;
+      margin: -3px 0 0 -3px;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+    .pro-core::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: #e8f8ff;
+      box-shadow: 0 0 16px 6px rgba(120, 210, 255, 0.45), 0 0 60px 18px rgba(56, 189, 248, 0.18);
+      animation: pro-beat 1.6s infinite ease-out;
+    }
+    @keyframes pro-beat {
+      0%, 55%, 100% { transform: scale(1); }
+      8% { transform: scale(1.9); }
+      20% { transform: scale(1.15); }
+      28% { transform: scale(1.55); }
+    }
+    .pro-credit {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(60% + clamp(18px, 2.6vw, 40px));
+      text-align: center;
+      font-size: clamp(9px, 0.72vw, 11px);
+      letter-spacing: 0.22em;
+      color: rgba(150, 185, 215, 0.5);
+      transition: opacity 0.9s ease, transform 0.6s ease, filter 0.6s ease;
+    }
+    .pro-hint {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 5%;
+      text-align: center;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: rgba(150, 185, 215, 0.32);
+      transition: opacity 0.6s ease;
+    }
+    #prologue.s1 .pro-core,
+    #prologue.s1 .pro-kicker { opacity: 1; }
+    #prologue.s1 .pro-kicker { letter-spacing: 0.42em; padding-left: 0.42em; }
+    #prologue.s1 .pro-hint { opacity: 1; }
+    #prologue.s2 .pro-horizon { transform: scaleX(1); }
+    #prologue.s3 .pro-title { opacity: 1; filter: blur(0); letter-spacing: 0.32em; padding-left: 0.32em; }
+    #prologue.s4 .pro-sub { opacity: 1; transform: none; }
+    #prologue.s4 .pro-credit { opacity: 1; }
+    #prologue.leave .pro-text,
+    #prologue.leave .pro-credit {
+      opacity: 0;
+      transform: translateY(-8px);
+      filter: blur(4px);
+    }
+    #prologue.leave .pro-hint { opacity: 0; }
+    @media (prefers-reduced-motion: reduce) {
+      #prologue *, #prologue *::before { transition-duration: 0.01s !important; animation: none !important; }
+    }
   </style>
 </head>
 <body>
@@ -280,6 +418,21 @@
     </p>
   </div>
 
+  <!-- 开场报幕：点击任意处可跳过 -->
+  <div id="prologue" hidden aria-hidden="true">
+    <div class="pro-stage">
+      <div class="pro-text">
+        <div class="pro-kicker">AGENT NOVA · PRESENTS</div>
+        <div class="pro-title">《 河 》</div>
+        <div class="pro-sub">THE RIVER · VCP 2.0 概念视听剧场</div>
+      </div>
+      <div class="pro-horizon"></div>
+      <div class="pro-core"></div>
+      <div class="pro-credit">零音频文件 · 纯数学合成原声 · Nova 独立配器与逐帧渲染</div>
+    </div>
+    <div class="pro-hint">点击任意处跳过 · SPACE 暂停 / 播放</div>
+  </div>
+
   <script>
   (() => {
     /* =========================================================================
@@ -298,6 +451,8 @@
     let playbackStartTime = 0;
     let pauseOffset = 0;
     let isPlaying = false;
+    // 官网弹层嵌入模式 (?embed=1)
+    const isEmbedded = window.parent !== window && new URLSearchParams(location.search).has('embed');
 
     // 音符转频率表
     const NOTE_MAP = { C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11 };
@@ -496,11 +651,27 @@
       return buf;
     }
 
-    function playAudio(startOffset) {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        audioBuffer = buildAudioTrack();
+    /* 音频上下文：嵌入模式优先复用父页在用户点击瞬间预先解锁的 AudioContext，
+       从而绕开浏览器自动播放限制，无需二次点击。 */
+    function ensureCtx() {
+      if (audioCtx) return audioCtx;
+      let shared = null;
+      if (isEmbedded) {
+        try { shared = window.parent.__novaRiverAudio || null; } catch (e) {}
       }
+      audioCtx = (shared && shared.state !== 'closed')
+        ? shared
+        : new (window.AudioContext || window.webkitAudioContext)();
+      return audioCtx;
+    }
+
+    function ensureBuffer() {
+      ensureCtx();
+      if (!audioBuffer) audioBuffer = buildAudioTrack();
+    }
+
+    function playAudio(startOffset) {
+      ensureBuffer();
       if (audioCtx.state === 'suspended') {
         audioCtx.resume();
       }
@@ -1029,10 +1200,49 @@
     const fsBtn = document.getElementById('fs-btn');
     const timelineWrap = document.getElementById('timeline-wrap');
 
-    launchBtn.addEventListener('click', () => {
+    /* ---------- 开场报幕时间线 ---------- */
+    const prologue = document.getElementById('prologue');
+    let prologueTimers = [];
+    let prologueDone = false;
+
+    function runPrologue() {
       startScreen.classList.add('hidden');
+      prologue.hidden = false;
+      prologue.className = '';
+      void prologue.offsetWidth; // 强制回流，保证过渡从初始态开始
+
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const steps = reduce
+        ? [[0, 's1 s2 s3 s4'], [1500, 'leave'], [1800, 'go']]
+        : [[80, 's1'], [650, 's2'], [1150, 's3'], [1900, 's4'], [3000, 'leave'], [3600, 'go']];
+
+      prologueTimers = steps.map(([at, cls]) => setTimeout(() => {
+        if (cls === 'go') finishPrologue();
+        else prologue.classList.add(...cls.split(' '));
+      }, at));
+
+      // 报幕进行时在后台合成 60s 音轨（CSS 过渡由合成器驱动，不受主线程短暂占用影响）
+      prologueTimers.push(setTimeout(ensureBuffer, 320));
+    }
+
+    function finishPrologue() {
+      if (prologueDone) return;
+      prologueDone = true;
+      prologueTimers.forEach(clearTimeout);
+      ensureBuffer();
+      prologue.classList.add('leave', 'out');
+      setTimeout(() => { prologue.hidden = true; }, 1200);
       playAudio(0);
       resetIdleTimer();
+    }
+
+    prologue.addEventListener('click', finishPrologue);
+
+    launchBtn.addEventListener('click', () => {
+      // 在用户手势内创建并解锁音频上下文
+      ensureCtx();
+      if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+      runPrologue();
     });
 
     playBtn.addEventListener('click', () => {
@@ -1069,15 +1279,32 @@
     /* =========================================================================
        5. 官网嵌入模式 (?embed=1)：ESC 通知父页关闭弹层；空格键播放/暂停
        ========================================================================= */
-    const isEmbedded = window.parent !== window && new URLSearchParams(location.search).has('embed');
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && isEmbedded && !document.fullscreenElement) {
         window.parent.postMessage({ type: 'nova-river:close' }, location.origin);
       } else if (e.code === 'Space' && startScreen.classList.contains('hidden')) {
         e.preventDefault();
-        playBtn.click();
+        if (!prologueDone) finishPrologue();
+        else playBtn.click();
       }
     });
+
+    // 嵌入模式：直接进入报幕；若音频仍被浏览器锁定，则回退到「启航」按钮
+    if (isEmbedded) {
+      startScreen.classList.add('hidden');
+      prologue.hidden = false; // 先铺一层纯黑，避免启动幕布闪现
+      ensureCtx();
+      const go = () => {
+        if (audioCtx.state === 'running') {
+          runPrologue();
+        } else {
+          prologue.hidden = true;
+          startScreen.classList.remove('hidden');
+        }
+      };
+      if (audioCtx.state === 'running') go();
+      else audioCtx.resume().catch(() => {}).finally(() => setTimeout(go, 60));
+    }
 
     // 标签页切到后台时暂停，避免音画在后台继续跑
     document.addEventListener('visibilitychange', () => {

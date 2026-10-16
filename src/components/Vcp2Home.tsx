@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import {DocsViewer, type DocItem} from "./DocsViewer";
 import {V4StreamTheater} from "./V4StreamTheater";
-import {NovaRiverTheater} from "./NovaRiverTheater";
+import {NovaRiverTheater, primeNovaRiverAudio} from "./NovaRiverTheater";
 import "./vcp2-home.css";
 
 /**
@@ -330,10 +330,12 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
     };
   }, []);
 
-  // 《河》概念视听剧场：打开时先停掉全站氛围音，避免两路 WebAudio 叠音
+  // 《河》概念视听剧场：打开时先停掉全站氛围音，避免两路 WebAudio 叠音；
+  // 并在本次点击的同步调用栈内解锁音频，iframe 内即可免点击直接进入开场报幕。
   const [isRiverOpen, setIsRiverOpen] = useState(false);
   const openRiverTheater = () => {
     if (isPlayingAudio) toggleAmbientMusic();
+    primeNovaRiverAudio();
     setIsRiverOpen(true);
   };
 
