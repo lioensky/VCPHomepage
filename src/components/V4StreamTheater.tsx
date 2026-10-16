@@ -21,7 +21,7 @@ type StreamPart = {text: string; bold?: boolean};
 const introParts: StreamPart[] = [
   {text: "主人早安！今日工作区 "},
   {text: "MoonAST 纯几何索引", bold: true},
-  {text: " 已在 1.028 秒内构建完毕，内存稳停在 128MB。"},
+  {text: " 已在 0.228 秒内构建完毕，内存稳停在 48MB。"},
 ];
 const introLength = introParts.reduce((sum, part) => sum + Array.from(part.text).length, 0);
 const stickerToken = "[表情包:元气满满]";
