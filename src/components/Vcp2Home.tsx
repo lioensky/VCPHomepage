@@ -2,7 +2,6 @@ import {useEffect, useRef, useState, type ReactNode} from "react";
 import {
   ArrowUpRight,
   BookOpen,
-  CheckCircle2,
   Clock,
   Cpu,
   ExternalLink,
@@ -24,6 +23,7 @@ import {
 import {DocsViewer, type DocItem} from "./DocsViewer";
 import {V4StreamTheater} from "./V4StreamTheater";
 import {NovaRiverTheater, primeNovaRiverAudio} from "./NovaRiverTheater";
+import {ScriptoriumTheater} from "./ScriptoriumTheater";
 import "./vcp2-home.css";
 
 /**
@@ -114,12 +114,6 @@ const oneRingSources = [
     raw: "小克@Group [02:58:25]: 我已同步收到 Nova 的文坊 PR #409，正在执行分支比对。",
     normalized: "FACT#8944 · ORIGIN:GroupChat_Jev · ROLE:Peer(Xiaoke) · HASH:9a20..cc4 · SEQ:T+13s",
   },
-];
-
-const imeCandidates = [
-  {key: "1", word: "流淌", pinyin: "liu'tang", desc: "让智慧如河流流淌 (Rev #409)"},
-  {key: "2", word: "流体", pinyin: "liu'ti", desc: "流体语义动力场 (Rev #410)"},
-  {key: "3", word: "留存", pinyin: "liu'cun", desc: "跨端唯一事实留存 (Rev #411)"},
 ];
 
 const vmusicStages = [
@@ -438,20 +432,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
     };
   }, []);
 
-  // Theater 03: Scriptorium V3 3D Cube & IME state
-  const [selectedCandidateIdx, setSelectedCandidateIdx] = useState(0);
-  const [cubeTilt, setCubeTilt] = useState({rx: -12, ry: -26});
-  const [autoRotateCube, setAutoRotateCube] = useState(true);
-
-  useEffect(() => {
-    if (!autoRotateCube) return;
-    const timer = window.setInterval(() => {
-      setSelectedCandidateIdx((prev) => (prev + 1) % imeCandidates.length);
-    }, 3400);
-    return () => window.clearInterval(timer);
-  }, [autoRotateCube]);
-
-  const activeCandidate = imeCandidates[selectedCandidateIdx];
+  // Theater 03: Scriptorium V3 —— 状态与组字剧本已下沉到 <ScriptoriumTheater />
 
   // Theater 04: VMusic Waveform Canvas & Stage
   const waveCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -696,8 +677,8 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                     <span>全栈自研代码总行数</span>
                   </div>
                   <div className="vcp2-stat-box">
-                    <strong>75<em>%</em></strong>
-                    <span>后端热点纯 Rust + C 下沉</span>
+                    <strong>2<em>ms</em></strong>
+                    <span>RiverMemo 记忆寻址</span>
                   </div>
                   <div className="vcp2-stat-box">
                     <strong>300<em>+</em></strong>
@@ -811,169 +792,11 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
               </div>
               <p className="vcp2-subtitle">
                 全站最硬核的 AI Office 终极形态——<strong>“渲染态即编辑态，人类直接编辑 3D 视觉成品，AI 同步映射底层唯一源码”</strong>。
-                得益于输入态、渲染态与源码事件态的<strong>三态解耦与稳定态仲裁</strong>，哪怕在倾斜 35 度的 CSS 3D 立方体表面打字，光标与中文输入法候选框也会严丝合缝地跟着做 3D 透视旋转！
+                得益于输入态、渲染态与源码事件态的<strong>三态解耦与稳定态仲裁</strong>，哪怕在一块有厚度、随鼠标倾斜的 3D 书块表面逐键组字，光标与悬浮在纸面上方的输入法候选框也会严丝合缝地跟着做透视旋转——上屏后 100ms 内原子回写源码。
               </p>
             </div>
 
-            <div className="scriptorium-grid">
-              {/* Left 3D Cube Stage */}
-              <div className="scriptorium-3d-stage">
-                <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", fontFamily: "JetBrains Mono", fontSize: "0.7rem", color: "#21675C"}}>
-                  <span>LEFT STAGE // 渲染态 3D 视觉工作面 (CSS3 preserve-3d)</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAutoRotateCube(false);
-                      setCubeTilt((prev) => (prev.ry === -26 ? {rx: -18, ry: 24} : {rx: -12, ry: -26}));
-                    }}
-                    style={{
-                      padding: "0.28rem 0.65rem",
-                      borderRadius: "4px",
-                      border: "1px solid #21675C",
-                      background: "transparent",
-                      color: "#21675C",
-                      fontFamily: "JetBrains Mono",
-                      fontSize: "0.65rem",
-                      cursor: "pointer",
-                    }}
-                  >
-                    旋转 3D 透视角 ({cubeTilt.ry}°)
-                  </button>
-                </div>
-
-                <div className="cube-scene-viewport">
-                  <div
-                    className="scriptorium-cube"
-                    style={{
-                      transform: `rotateX(${cubeTilt.rx}deg) rotateY(${cubeTilt.ry}deg)`,
-                    }}
-                  >
-                    <div className="cube-face-front">
-                      <div style={{fontFamily: "JetBrains Mono", fontSize: "0.62rem", color: "#21675C", marginBottom: "0.45rem"}}>
-                        VDOCX // CHAPTER_04.MD · 3D ISLAND SURFACE
-                      </div>
-                      <h3 style={{margin: "0 0 0.65rem", fontSize: "1.25rem", color: "#1B211F", lineHeight: 1.4}}>
-                        让智慧如河流
-                        <span className="cube-editable-word">
-                          {activeCandidate.word}
-                          <i className="cube-caret" />
-                          {/* 3D Perspective-Locked IME Composition Box */}
-                          <span className="cube-ime-popup" role="listbox" aria-label="3D 透视中文输入法候选框">
-                            <span className="cube-ime-pinyin">
-                              <strong>拼音: {activeCandidate.pinyin}</strong>
-                              <span>IME 3D LOCK</span>
-                            </span>
-                            <span className="cube-ime-candidates">
-                              {imeCandidates.map((cand, idx) => (
-                                <span
-                                  key={cand.key}
-                                  role="option"
-                                  aria-selected={selectedCandidateIdx === idx}
-                                  className={selectedCandidateIdx === idx ? "active" : ""}
-                                  onClick={() => {
-                                    setAutoRotateCube(false);
-                                    setSelectedCandidateIdx(idx);
-                                  }}
-                                >
-                                  {cand.key}.{cand.word}
-                                </span>
-                              ))}
-                            </span>
-                          </span>
-                        </span>
-                      </h3>
-
-                      <p style={{fontSize: "0.8rem", color: "#5A635F", lineHeight: 1.65, margin: "2.8rem 0 0.75rem"}}>
-                        连续场方程：<code>S = Π[S^field + Ω^γ B_G + B_H]</code>
-                      </p>
-
-                      <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.4rem", fontSize: "0.68rem", fontFamily: "JetBrains Mono", borderTop: "1px solid rgba(27,33,31,0.12)", paddingTop: "0.55rem"}}>
-                        <span>空白折叠幂等还原: PASS</span>
-                        <span style={{color: "#B94832"}}>重排闪烁: 0.00</span>
-                      </div>
-                    </div>
-                    <div className="cube-face-side" aria-hidden="true" />
-                  </div>
-                </div>
-
-                <div style={{display: "flex", flexWrap: "wrap", gap: "0.5rem", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(27,33,31,0.12)", paddingTop: "0.85rem"}}>
-                  <span style={{fontSize: "0.78rem", color: "#5A635F"}}>
-                    👉 点击上方候选框中的 <strong>1.流淌 / 2.流体 / 3.留存</strong>，观察右侧源码区间毫秒级同步！
-                  </span>
-                  <div style={{display: "flex", gap: "0.4rem"}}>
-                    {imeCandidates.map((cand, idx) => (
-                      <button
-                        key={cand.key}
-                        type="button"
-                        onClick={() => {
-                          setAutoRotateCube(false);
-                          setSelectedCandidateIdx(idx);
-                        }}
-                        style={{
-                          padding: "0.35rem 0.7rem",
-                          borderRadius: "4px",
-                          border: selectedCandidateIdx === idx ? "1px solid #B94832" : "1px solid rgba(27,33,31,0.2)",
-                          background: selectedCandidateIdx === idx ? "#B94832" : "transparent",
-                          color: selectedCandidateIdx === idx ? "#fff" : "#1B211F",
-                          fontSize: "0.74rem",
-                          fontWeight: 600,
-                          cursor: "pointer",
-                        }}
-                      >
-                        上屏「{cand.word}」
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Source & PR Mapping Panel */}
-              <div className="scriptorium-source-panel">
-                <div>
-                  <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", fontFamily: "JetBrains Mono", fontSize: "0.68rem", color: "#76BFAE", marginBottom: "0.9rem"}}>
-                    <span>RIGHT STAGE // 唯一真源 Markdown-Hybrid 源码映射</span>
-                    <span>OFFSET [from: 128, to: 142]</span>
-                  </div>
-
-                  <pre className="source-code-box">
-{`---
-format: scriptorium-v2-zip (.vdocx)
-sha256: 8f94e2c1...a409b
----
-## 第四卷：统一语义动力场
-
-<div class="vcp-3d-cube" data-island-id="cube-01">
-  <h3>让智慧如河流`}<span className="source-range-highlight">{activeCandidate.word}</span>{`</h3>
-  <math>S_i = \\Pi_{[0,1]}[S_i^{field} + \\Omega_Q^\\gamma B_G(i) + B_H(i)]</math>
-</div>`}
-                  </pre>
-
-                  <div style={{marginTop: "1rem", padding: "0.9rem", borderRadius: "8px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(242,240,233,0.08)"}}>
-                    <div style={{fontFamily: "JetBrains Mono", fontSize: "0.66rem", color: "#F2A900", marginBottom: "0.35rem"}}>
-                      ATOMIC TRANSACTION LOG // 三态独立事务队列
-                    </div>
-                    <p style={{margin: 0, fontSize: "0.8rem", color: "#C4CACD", lineHeight: 1.65}}>
-                      变更内容：<code>{activeCandidate.desc}</code>。
-                      浏览器 DOM 绝不破坏性反序列化回写，所有缩进、连续换行与公式块均受原子边界保护。
-                    </p>
-                  </div>
-                </div>
-
-                <div style={{display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "1rem", marginTop: "1.25rem", paddingTop: "1rem", borderTop: "1px solid rgba(242,240,233,0.1)"}}>
-                  <div className="scriptorium-seal-stamp">
-                    <CheckCircle2 size={18} style={{color: "#B94832"}} />
-                    <div>
-                      <strong>Revision #40{9 + selectedCandidateIdx} Verified (SHA-256)</strong>
-                      <div style={{fontSize: "0.62rem", opacity: 0.8}}>Co-authored by Human & Maid:Nova · PR Merged</div>
-                    </div>
-                  </div>
-
-                  <span style={{fontFamily: "JetBrains Mono", fontSize: "0.68rem", color: "#76BFAE"}}>
-                    支持双击 .vdocx 浏览器直接分页阅读
-                  </span>
-                </div>
-              </div>
-            </div>
+            <ScriptoriumTheater />
           </div>
         </section>
 

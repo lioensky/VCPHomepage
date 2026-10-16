@@ -1016,68 +1016,274 @@
   border-top: 4px solid var(--nova-turquoise);
   border-radius: 12px;
   background:
-    radial-gradient(circle at 50% 42%, rgba(33, 103, 92, 0.12), transparent 65%),
+    radial-gradient(circle at 50% 46%, rgba(33, 103, 92, 0.12), transparent 65%),
     var(--nova-paper-surface);
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 490px;
+  min-height: 540px;
   box-shadow: 8px 8px 0 var(--nova-paper-2);
-  perspective: 1100px;
   overflow: hidden;
 }
 
+.scriptorium-stage-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.7rem;
+  color: var(--nova-turquoise);
+}
+
+.scriptorium-stage-ctls {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.scriptorium-ctl {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.28rem 0.65rem;
+  border-radius: 4px;
+  border: 1px solid var(--nova-turquoise);
+  background: transparent;
+  color: var(--nova-turquoise);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.65rem;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.scriptorium-ctl:hover {
+  background: rgba(33, 103, 92, 0.1);
+}
+
+/* ---------- 3D 场景：透视 + 地面网格 + 投影 ---------- */
 .cube-scene-viewport {
+  --px: 0;
+  --py: 0;
+  --lx: 30%;
+  --ly: 18%;
+  position: relative;
   flex: 1;
   display: grid;
   place-items: center;
-  padding: 2rem 1rem;
-  perspective: 1100px;
+  min-height: 390px;
+  padding: 2.5rem 1rem 3.25rem;
+  perspective: 1000px;
+  perspective-origin: 50% 32%;
 }
 
-.scriptorium-cube {
-  position: relative;
-  width: min(350px, 82vw);
-  min-height: 250px;
+.cube-floor {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 640px;
+  height: 640px;
+  margin: -320px 0 0 -320px;
+  transform: translateY(175px) rotateX(80deg);
+  background-image:
+    linear-gradient(rgba(33, 103, 92, 0.18) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(33, 103, 92, 0.18) 1px, transparent 1px);
+  background-size: 32px 32px;
+  -webkit-mask-image: radial-gradient(circle, #000 0 28%, transparent 62%);
+  mask-image: radial-gradient(circle, #000 0 28%, transparent 62%);
+  pointer-events: none;
+}
+
+.cube-ground-shadow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 340px;
+  height: 64px;
+  margin: 150px 0 0 -170px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(27, 33, 31, 0.34), transparent 70%);
+  filter: blur(6px);
+  pointer-events: none;
+  animation: cube-shadow 6s ease-in-out infinite;
+}
+
+/* 指针倾斜（transform）与悬浮（translate）分属两条独立属性，互不覆盖 */
+.cube-sway {
   transform-style: preserve-3d;
-  transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: rotateX(calc(var(--py) * -9deg)) rotateY(calc(var(--px) * 14deg));
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: cube-float 6s ease-in-out infinite;
+}
+
+/* 六面书块：--w × --h × --d 的真实长方体 */
+.cube-slab {
+  --w: min(360px, 74vw);
+  --h: 272px;
+  --d: 46px;
+  position: relative;
+  width: var(--w);
+  height: var(--h);
+  transform-style: preserve-3d;
+  transform: rotateX(var(--rx, -14deg)) rotateY(var(--ry, -28deg));
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: cube-yaw 9s ease-in-out infinite;
+}
+
+.cube-face {
+  position: absolute;
+  border: 1.5px solid var(--nova-charcoal);
 }
 
 .cube-face-front {
-  position: relative;
-  border: 2px solid var(--nova-charcoal);
-  border-radius: 10px;
-  background: rgba(250, 248, 243, 0.96);
-  padding: 1.35rem;
-  box-shadow:
-    16px 18px 0 rgba(33, 103, 92, 0.18),
-    0 24px 48px rgba(27, 33, 31, 0.16);
-  transform: translateZ(24px);
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 1.35rem;
+  border-radius: 2px;
+  background: linear-gradient(160deg, #FFFDF8 0%, #F4F0E6 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7), inset 0 -18px 30px rgba(33, 103, 92, 0.05);
+  transform: translateZ(calc(var(--d) / 2));
   transform-style: preserve-3d;
 }
 
-.cube-face-side {
+/* 随指针移动的纸面高光 */
+.cube-face-front::after {
+  content: "";
   position: absolute;
-  top: 8px;
-  right: -26px;
-  bottom: -8px;
-  width: 26px;
-  background: var(--nova-paper-2);
-  border: 1px solid var(--nova-charcoal);
-  transform: rotateY(65deg) skewY(18deg);
-  transform-origin: left center;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at var(--lx) var(--ly), rgba(255, 255, 255, 0.5), transparent 46%);
+  transform: translateZ(0.5px);
 }
 
+.cube-face-back {
+  inset: 0;
+  background: #E3DDCF;
+  transform: rotateY(180deg) translateZ(calc(var(--d) / 2));
+}
+
+/* 右侧书口：一页页纸张叠出的厚度 */
+.cube-face-right {
+  top: 0;
+  left: calc(50% - var(--d) / 2);
+  width: var(--d);
+  height: 100%;
+  background:
+    linear-gradient(90deg, rgba(27, 33, 31, 0.04), rgba(27, 33, 31, 0.2)),
+    repeating-linear-gradient(90deg, #F6F2E8 0 2px, #D8D0BF 2px 3px);
+  transform: rotateY(90deg) translateZ(calc(var(--w) / 2));
+}
+
+/* 左侧书脊 */
+.cube-face-left {
+  top: 0;
+  left: calc(50% - var(--d) / 2);
+  width: var(--d);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(90deg, #17554C, var(--nova-turquoise) 45%, #17554C);
+  transform: rotateY(-90deg) translateZ(calc(var(--w) / 2));
+}
+
+.cube-face-left span {
+  writing-mode: vertical-rl;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.24em;
+  color: rgba(242, 239, 231, 0.88);
+}
+
+/* 顶部书口 */
+.cube-face-top {
+  left: 0;
+  top: calc(50% - var(--d) / 2);
+  width: 100%;
+  height: var(--d);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0)),
+    repeating-linear-gradient(0deg, #FCF9F2 0 2px, #E2DACA 2px 3px);
+  transform: rotateX(90deg) translateZ(calc(var(--h) / 2));
+}
+
+.cube-face-bottom {
+  left: 0;
+  top: calc(50% - var(--d) / 2);
+  width: 100%;
+  height: var(--d);
+  background: #C9C1AE;
+  transform: rotateX(-90deg) translateZ(calc(var(--h) / 2));
+}
+
+.cube-face-label {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.6rem;
+  color: var(--nova-turquoise);
+  margin-bottom: 0.45rem;
+}
+
+.cube-face-title {
+  margin: 0 0 0.65rem;
+  font-size: 1.3rem;
+  color: var(--nova-charcoal);
+  line-height: 1.45;
+  transform-style: preserve-3d;
+}
+
+.cube-face-formula {
+  font-size: 0.8rem;
+  color: var(--nova-charcoal-muted);
+  line-height: 1.65;
+  margin: 1.6rem 0 0.75rem;
+}
+
+.cube-face-foot {
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+  font-size: 0.66rem;
+  font-family: "JetBrains Mono", monospace;
+  border-top: 1px solid rgba(27, 33, 31, 0.12);
+  padding-top: 0.55rem;
+}
+
+/* ---------- 可编辑词：上屏墨迹 + 组字预编辑 ---------- */
 .cube-editable-word {
   display: inline-block;
   position: relative;
+  min-width: 1.2em;
   padding: 0 0.25rem;
   border-radius: 4px;
-  background: rgba(185, 72, 50, 0.14);
+  background: rgba(185, 72, 50, 0.12);
   color: var(--nova-cinnabar);
   font-weight: 700;
   border-bottom: 2px solid var(--nova-cinnabar);
+  transform-style: preserve-3d;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.cube-editable-word.is-composing {
+  background: rgba(242, 169, 0, 0.14);
+  border-bottom-color: var(--nova-amber);
+}
+
+.cube-surface {
+  display: inline-block;
+  animation: cube-ink-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.cube-preedit {
+  margin-left: 1px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.78em;
+  font-weight: 600;
+  color: #8A6400;
+  text-decoration: underline dotted;
+  text-underline-offset: 4px;
 }
 
 .cube-caret {
@@ -1090,28 +1296,76 @@
   animation: vcp2-blink 0.9s step-end infinite;
 }
 
-/* 3D Perspective-Locked IME Composition Box */
-.cube-ime-popup {
+.cube-editable-word.is-composing .cube-caret {
+  background: var(--nova-amber);
+  animation: none;
+}
+
+.cube-ink-burst {
   position: absolute;
-  left: 0;
-  top: calc(100% + 8px);
-  z-index: 20;
-  min-width: 255px;
-  padding: 0.45rem 0.65rem;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border-radius: 50%;
+  border: 2px solid var(--nova-cinnabar);
+  pointer-events: none;
+  animation: cube-ink-burst 0.7s ease-out forwards;
+}
+
+/* ---------- 3D 透视锁定的 IME 候选框：悬浮于纸面 Z+52px ---------- */
+.cube-ime-popup,
+.cube-ime-ghost {
+  position: absolute;
+  left: -0.25rem;
+  top: calc(100% + 10px);
+  width: 258px;
   border-radius: 6px;
+}
+
+.cube-ime-popup {
+  z-index: 20;
+  padding: 0.45rem 0.65rem;
   border: 1px solid var(--nova-charcoal);
   background: #1B211F;
   color: #F2F0E9;
   font-family: "JetBrains Mono", "Microsoft YaHei", sans-serif;
   font-size: 0.72rem;
-  box-shadow: 6px 8px 0 rgba(185, 72, 50, 0.35);
-  transform: translateZ(36px);
+  font-weight: 400;
+  line-height: 1.4;
   white-space: nowrap;
+  box-shadow: 0 18px 30px rgba(27, 33, 31, 0.3), 4px 5px 0 rgba(185, 72, 50, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateZ(14px) translateY(4px);
+  transition: opacity 0.18s ease, transform 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cube-ime-popup.is-open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateZ(52px);
+}
+
+/* 候选框在纸面上的投影足迹：倾斜时可直接读出悬浮高度 */
+.cube-ime-ghost {
+  height: 3.3rem;
+  border: 1px dashed rgba(185, 72, 50, 0.55);
+  background: rgba(27, 33, 31, 0.07);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.cube-ime-ghost.is-open {
+  opacity: 1;
 }
 
 .cube-ime-pinyin {
   display: flex;
   justify-content: space-between;
+  gap: 0.5rem;
   color: var(--nova-patina);
   border-bottom: 1px solid rgba(242, 240, 233, 0.15);
   padding-bottom: 0.25rem;
@@ -1128,12 +1382,115 @@
   padding: 0.12rem 0.35rem;
   border-radius: 3px;
   cursor: pointer;
+  transition: background 0.15s ease;
 }
 
 .cube-ime-candidates span.active {
   background: var(--nova-cinnabar);
   color: #fff;
   font-weight: 700;
+}
+
+/* ---------- 舞台底部：键帽 HUD + 上屏按钮 ---------- */
+.scriptorium-stage-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(27, 33, 31, 0.12);
+  padding-top: 0.85rem;
+}
+
+.scriptorium-keyhud {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.74rem;
+  color: var(--nova-charcoal-muted);
+}
+
+.scriptorium-keyhud small {
+  display: block;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  color: var(--nova-turquoise);
+}
+
+.cube-keycap {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2.1rem;
+  height: 2.1rem;
+  padding: 0 0.45rem;
+  border: 1px solid var(--nova-charcoal);
+  border-radius: 6px;
+  background: linear-gradient(180deg, #FFFDF8, #ECE6D8);
+  box-shadow: 0 3px 0 var(--nova-charcoal);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--nova-charcoal);
+  animation: cube-key-press 0.22s ease-out;
+}
+
+.scriptorium-commit-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.scriptorium-commit-btn {
+  padding: 0.35rem 0.7rem;
+  border-radius: 4px;
+  border: 1px solid rgba(27, 33, 31, 0.2);
+  background: transparent;
+  color: var(--nova-charcoal);
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.scriptorium-commit-btn:hover {
+  border-color: var(--nova-cinnabar);
+}
+
+.scriptorium-commit-btn.is-active {
+  border-color: var(--nova-cinnabar);
+  background: var(--nova-cinnabar);
+  color: #fff;
+}
+
+@keyframes cube-float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -9px; }
+}
+
+@keyframes cube-yaw {
+  0%, 100% { rotate: y -3deg; }
+  50% { rotate: y 3deg; }
+}
+
+@keyframes cube-shadow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.72; transform: scale(0.9); }
+}
+
+@keyframes cube-ink-in {
+  from { opacity: 0.15; filter: blur(3px); transform: translateY(-3px) scale(1.1); }
+  to { opacity: 1; filter: none; transform: none; }
+}
+
+@keyframes cube-ink-burst {
+  from { opacity: 0.9; transform: scale(1); }
+  to { opacity: 0; transform: scale(9); }
+}
+
+@keyframes cube-key-press {
+  0% { transform: translateY(3px); box-shadow: 0 0 0 var(--nova-charcoal); background: #F2D9A0; }
+  100% { transform: none; box-shadow: 0 3px 0 var(--nova-charcoal); }
 }
 
 /* Right Source & PR Mapping Panel */
@@ -1168,6 +1525,183 @@
   padding: 0.08rem 0.3rem;
   border-radius: 4px;
   box-shadow: 0 0 14px rgba(118, 191, 174, 0.35);
+}
+
+.source-range-highlight.is-synced {
+  animation: source-range-flash 0.7s ease-out;
+}
+
+.source-range-highlight.is-frozen {
+  background: rgba(242, 169, 0, 0.1);
+  border: 1px dashed var(--nova-amber);
+  color: #F7D58A;
+  box-shadow: none;
+}
+
+.source-freeze-tag {
+  color: var(--nova-amber);
+  font-size: 0.7rem;
+  animation: vcp2-blink 1.4s step-end infinite;
+}
+
+@keyframes source-range-flash {
+  0% { background: rgba(118, 191, 174, 0.72); box-shadow: 0 0 26px rgba(118, 191, 174, 0.85); }
+  100% { background: rgba(118, 191, 174, 0.26); box-shadow: 0 0 14px rgba(118, 191, 174, 0.35); }
+}
+
+.scriptorium-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.68rem;
+  color: var(--nova-patina);
+}
+
+/* 三态指示灯 */
+.scriptorium-lanes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.scriptorium-lane {
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(242, 240, 233, 0.14);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.6rem;
+  color: #7E878B;
+  transition: all 0.2s ease;
+}
+
+.scriptorium-lane.is-active[data-lane="input"] {
+  border-color: var(--nova-amber);
+  background: rgba(242, 169, 0, 0.12);
+  color: var(--nova-amber);
+  box-shadow: 0 0 12px rgba(242, 169, 0, 0.25);
+}
+
+.scriptorium-lane.is-active[data-lane="render"] {
+  border-color: var(--nova-cinnabar);
+  background: rgba(185, 72, 50, 0.2);
+  color: #FF9E8A;
+  box-shadow: 0 0 12px rgba(185, 72, 50, 0.3);
+}
+
+.scriptorium-lane.is-active[data-lane="source"] {
+  border-color: var(--nova-patina);
+  background: rgba(118, 191, 174, 0.14);
+  color: var(--nova-patina);
+  box-shadow: 0 0 12px rgba(118, 191, 174, 0.3);
+}
+
+.source-sync-badge {
+  margin-left: auto;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.6rem;
+  color: var(--nova-patina);
+  animation: source-sync-flash 0.6s ease-out;
+}
+
+@keyframes source-sync-flash {
+  from { color: #fff; text-shadow: 0 0 10px var(--nova-patina); }
+  to { color: var(--nova-patina); text-shadow: none; }
+}
+
+.scriptorium-txbox {
+  margin-top: 1rem;
+  padding: 0.9rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(242, 240, 233, 0.08);
+}
+
+.scriptorium-txbox-head {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.66rem;
+  color: var(--nova-amber);
+  margin-bottom: 0.45rem;
+}
+
+.scriptorium-txlog {
+  list-style: none;
+  margin: 0 0 0.65rem;
+  padding: 0;
+  display: grid;
+  align-content: start;
+  gap: 0.2rem;
+  min-height: calc(5 * 1.5em);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.64rem;
+}
+
+.scriptorium-txlog li {
+  display: grid;
+  grid-template-columns: 4.6rem 3.8rem minmax(0, 1fr);
+  gap: 0.4rem;
+  color: #C4CACD;
+  white-space: nowrap;
+  animation: v4-stream-enter 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.scriptorium-txlog li span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scriptorium-txlog time {
+  color: #6F787C;
+}
+
+.scriptorium-txlog b[data-lane="INPUT"] { color: var(--nova-amber); }
+.scriptorium-txlog b[data-lane="RENDER"] { color: #FF9E8A; }
+.scriptorium-txlog b[data-lane="SOURCE"] { color: var(--nova-patina); }
+
+.scriptorium-txbox p {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #C4CACD;
+  line-height: 1.6;
+}
+
+.scriptorium-panel-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(242, 240, 233, 0.1);
+}
+
+@media (max-width: 640px) {
+  .cube-slab {
+    --h: 300px;
+    --d: 36px;
+  }
+  .cube-face-title {
+    font-size: 1.12rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cube-sway,
+  .cube-slab,
+  .cube-ground-shadow,
+  .cube-surface,
+  .cube-keycap,
+  .source-range-highlight.is-synced,
+  .source-sync-badge,
+  .scriptorium-txlog li {
+    animation: none;
+  }
 }
 
 .scriptorium-seal-stamp {
