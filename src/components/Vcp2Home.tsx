@@ -24,6 +24,7 @@ import {DocsViewer, type DocItem} from "./DocsViewer";
 import {V4StreamTheater} from "./V4StreamTheater";
 import {NovaRiverTheater, primeNovaRiverAudio} from "./NovaRiverTheater";
 import {ScriptoriumTheater} from "./ScriptoriumTheater";
+import {useAmbientBgm} from "../audio/ambientBgm";
 import "./vcp2-home.css";
 
 /**
@@ -233,102 +234,25 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
     };
   }, []);
 
-  // WebAudio Synthesizer for VMusic Capsule & Theater 04
-  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
-  const [tubeDrive, setTubeDrive] = useState(38);
-  const [tapeWarmth, setTapeWarmth] = useState(62);
-  const [hrtfWidth, setHrtfWidth] = useState(85);
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const filterNodeRef = useRef<BiquadFilterNode | null>(null);
-  const gainNodeRef = useRef<GainNode | null>(null);
-  const chordTimerRef = useRef<number | null>(null);
-
-  const toggleAmbientMusic = () => {
-    if (isPlayingAudio) {
-      if (chordTimerRef.current) window.clearInterval(chordTimerRef.current);
-      chordTimerRef.current = null;
-      if (audioCtxRef.current) {
-        audioCtxRef.current.close().catch(() => {});
-        audioCtxRef.current = null;
-      }
-      setIsPlayingAudio(false);
-      return;
-    }
-
-    try {
-      const AudioCtx = window.AudioContext || (window as unknown as {webkitAudioContext: typeof AudioContext}).webkitAudioContext;
-      const ctx = new AudioCtx();
-      const filter = ctx.createBiquadFilter();
-      filter.type = "lowpass";
-      filter.frequency.value = 900 + (100 - tapeWarmth) * 24;
-
-      const masterGain = ctx.createGain();
-      masterGain.gain.value = 0.08;
-
-      filter.connect(masterGain);
-      masterGain.connect(ctx.destination);
-
-      audioCtxRef.current = ctx;
-      filterNodeRef.current = filter;
-      gainNodeRef.current = masterGain;
-
-      const chords = [
-        [220.0, 277.18, 329.63, 440.0], // A major 7
-        [196.0, 246.94, 293.66, 392.0], // G major 7
-        [174.61, 220.0, 261.63, 349.23], // F major 7
-        [164.81, 207.65, 246.94, 329.63], // E major
-      ];
-      let step = 0;
-
-      const playArpNote = () => {
-        if (!audioCtxRef.current || !filterNodeRef.current) return;
-        const now = audioCtxRef.current.currentTime;
-        const chord = chords[Math.floor(step / 4) % chords.length];
-        const freq = chord[step % chord.length];
-        step++;
-
-        const osc = audioCtxRef.current.createOscillator();
-        const noteGain = audioCtxRef.current.createGain();
-        osc.type = tubeDrive > 50 ? "triangle" : "sine";
-        osc.frequency.setValueAtTime(freq, now);
-
-        noteGain.gain.setValueAtTime(0.001, now);
-        noteGain.gain.exponentialRampToValueAtTime(0.18, now + 0.08);
-        noteGain.gain.exponentialRampToValueAtTime(0.0008, now + 1.45);
-
-        osc.connect(noteGain);
-        noteGain.connect(filterNodeRef.current);
-        osc.start(now);
-        osc.stop(now + 1.5);
-      };
-
-      playArpNote();
-      chordTimerRef.current = window.setInterval(playArpNote, 480);
-      setIsPlayingAudio(true);
-    } catch {
-      setIsPlayingAudio(false);
-    }
-  };
-
-  useEffect(() => {
-    if (filterNodeRef.current && audioCtxRef.current) {
-      const targetFreq = Math.max(320, 2600 - tapeWarmth * 18 + tubeDrive * 8);
-      filterNodeRef.current.frequency.setTargetAtTime(targetFreq, audioCtxRef.current.currentTime, 0.1);
-    }
-  }, [tubeDrive, tapeWarmth, hrtfWidth]);
-
-  useEffect(() => {
-    return () => {
-      if (chordTimerRef.current) window.clearInterval(chordTimerRef.current);
-      if (audioCtxRef.current) audioCtxRef.current.close().catch(() => {});
-    };
-  }, []);
+  // WebAudio Synthesizer for VMusic Capsule & Theater 04 (从独立音频模块驱动)
+  const {
+    isPlayingAudio,
+    toggleAmbientMusic,
+    stopAmbientMusic,
+    tubeDrive,
+    setTubeDrive,
+    tapeWarmth,
+    setTapeWarmth,
+    hrtfWidth,
+    setHrtfWidth,
+    config: bgmConfig,
+  } = useAmbientBgm();
 
   // 《河》概念视听剧场：打开时先停掉全站氛围音，避免两路 WebAudio 叠音；
   // 并在本次点击的同步调用栈内解锁音频，iframe 内即可免点击直接进入开场报幕。
   const [isRiverOpen, setIsRiverOpen] = useState(false);
   const openRiverTheater = () => {
-    if (isPlayingAudio) toggleAmbientMusic();
+    if (isPlayingAudio) stopAmbientMusic();
     primeNovaRiverAudio();
     setIsRiverOpen(true);
   };
@@ -567,14 +491,14 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
             type="button"
             className={`vmusic-capsule ${isPlayingAudio ? "is-playing" : ""}`}
             onClick={toggleAmbientMusic}
-            title="开启或关闭全站背景氛围音《让智慧如河流流淌》(WebAudio 实时谐波合成)"
+            title={`开启或关闭全站背景氛围音《${bgmConfig.title}》(WebAudio 实时谐波合成)`}
           >
             <span className="vmusic-bars" aria-hidden="true">
               <i /><i /><i /><i />
             </span>
             <span className="vmusic-capsule-meta">
-              <strong className="vcp2-ellipsis">让智慧如河流流淌</strong>
-              <small className="vcp2-ellipsis">{isPlayingAudio ? "RUBATO F64 · PLAYING" : "VMUSIC CAPSULE · CLICK"}</small>
+              <strong className="vcp2-ellipsis">{bgmConfig.title}</strong>
+              <small className="vcp2-ellipsis">{isPlayingAudio ? bgmConfig.badgePlaying : bgmConfig.badgeStopped}</small>
             </span>
             {isPlayingAudio ? <Volume2 size={15} /> : <VolumeX size={15} />}
           </button>
