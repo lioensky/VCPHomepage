@@ -88,7 +88,7 @@ type Vcp2HomeProps = {
   documents: DocItem[];
 };
 
-const installUrl = "https://github.com/lioensky/VCPToolBox/releases/tag/VCP%E5%AE%89%E8%A3%85%E5%8C%85";
+const installUrl = "https://github.com/lioensky/VCPToolBox/releases/tag/v1.4.0";
 
 const oneRingSources = [
   {
