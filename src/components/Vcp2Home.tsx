@@ -1569,7 +1569,7 @@ target_file:「始」src/db/indexRepository.js「末」
                     03 // MOONAST 纯几何逻辑门全库扫描
                   </div>
                   <div style={{fontSize: "2rem", fontWeight: 700, fontFamily: "Space Grotesk", color: "#76BFAE", lineHeight: 1.1}}>
-                    1.028s <span style={{fontSize: "0.95rem", color: "#F2A900"}}>/ 128MB RAM</span>
+                    0.228s <span style={{fontSize: "0.95rem", color: "#F2A900"}}>/ 48MB RAM</span>
                   </div>
                   <p style={{margin: "0.5rem 0 0", fontSize: "0.76rem", color: "#C4CACD", lineHeight: 1.55}}>
                     脱离 Tree-sitter 语系壁垒，原生追踪 Electron Preload 到前端页面的全链路依赖，速度提升 40 倍。
