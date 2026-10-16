@@ -97,7 +97,7 @@ export function ContinuumHome({brand, themeControl, nova, onAskNova, documents}:
       <header className="pond-header">
         <a href="/" aria-label="VCP 首页">{brand}</a>
         <nav aria-label="主要导航">
-          <a href="#cloud-scroll">云中卷</a><a href="#memory">浪潮碑</a><a href="#docs">文档</a>
+          <a href="/">返回 VCP 2.0 新官网</a><a href="#cloud-scroll">云中卷</a><a href="#memory">浪潮碑</a><a href="#docs">文档</a>
           <a href="/?page=changelog">更新日志</a>
         </nav>
         <div className="pond-header-actions">{themeControl}<a className="pond-install" href={installUrl} target="_blank" rel="noreferrer">安装与开始 <ArrowUpRight size={14}/></a></div>

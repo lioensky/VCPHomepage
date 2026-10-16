@@ -1,0 +1,1558 @@
+/* ==========================================================================
+   VCP 2.0 OFFICIAL WEBSITE · NOVA PAPER & INK INDUSTRIAL CONCEPT THEATER
+   Design Language: Dark Performance (#171A1D) × Warm Paper Engineering (#F2EFE7)
+   ========================================================================== */
+
+.vcp2-root {
+  --nova-graphite: #171A1D;
+  --nova-graphite-2: #1E2226;
+  --nova-graphite-3: #262C31;
+  --nova-bone: #F2F0E9;
+  --nova-bone-muted: #9FA6AA;
+  --nova-patina: #76BFAE;
+  --nova-amber: #F2A900;
+  --nova-paper: #F2EFE7;
+  --nova-paper-2: #EAE5D9;
+  --nova-paper-surface: #FAF8F3;
+  --nova-charcoal: #1B211F;
+  --nova-charcoal-muted: #5A635F;
+  --nova-cinnabar: #B94832;
+  --nova-turquoise: #21675C;
+
+  background-color: var(--nova-graphite);
+  color: var(--nova-bone);
+  font-family: "Inter", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  overflow-x: clip;
+  position: relative;
+}
+
+.vcp2-root *,
+.vcp2-root *::before,
+.vcp2-root *::after {
+  box-sizing: border-box;
+}
+
+/* Global Theme Polarity Override Support */
+:root[data-theme="editorial"] .vcp2-root {
+  --vcp2-nav-bg: rgba(242, 239, 231, 0.84);
+  --vcp2-nav-border: rgba(27, 33, 31, 0.14);
+  --vcp2-nav-text: #1B211F;
+}
+
+:root[data-theme="industrial"] .vcp2-root,
+.vcp2-root {
+  --vcp2-nav-bg: rgba(23, 26, 29, 0.78);
+  --vcp2-nav-border: rgba(242, 240, 233, 0.12);
+  --vcp2-nav-text: #F2F0E9;
+}
+
+/* ==========================================================================
+   1. TOP LIQUID GLASS NAVIGATION & VMUSIC CAPSULE
+   ========================================================================== */
+.vcp2-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem clamp(1rem, 3.5vw, 3rem);
+  background: rgba(23, 26, 29, 0.76);
+  backdrop-filter: blur(16px) saturate(1.25);
+  -webkit-backdrop-filter: blur(16px) saturate(1.25);
+  border-bottom: 1px solid rgba(242, 240, 233, 0.1);
+  box-shadow: inset 0 -1px 0 rgba(118, 191, 174, 0.15), 0 12px 32px rgba(0, 0, 0, 0.28);
+}
+
+.vcp2-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  /* 允许品牌区在窄屏下收缩，而不是把右侧按钮挤出视口 */
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.vcp2-brand-group > .site-brand-link {
+  flex-shrink: 0;
+}
+
+/* 通用单行省略：需配合 min-width: 0 的 flex 父级 */
+.vcp2-ellipsis {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.vcp2-text-short {
+  display: none;
+}
+
+.vcp2-release-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0.24rem 0.6rem;
+  border-radius: 4px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  overflow: hidden;
+  background: rgba(118, 191, 174, 0.12);
+  border: 1px solid rgba(118, 191, 174, 0.38);
+  color: var(--nova-patina);
+}
+
+.vcp2-release-badge .vcp2-release-dot {
+  flex-shrink: 0;
+}
+
+.vcp2-release-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--nova-amber);
+  box-shadow: 0 0 8px var(--nova-amber);
+  animation: vcp2-pulse 1.8s infinite;
+}
+
+.vcp2-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 0 1 auto;
+  min-width: 0;
+  padding: 0.25rem;
+  border-radius: 999px;
+  border: 1px solid rgba(242, 240, 233, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  /* 中等宽度下导航可横向滑动，而不是挤压两侧 */
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.vcp2-nav-links::-webkit-scrollbar {
+  display: none;
+}
+
+.vcp2-nav-links a {
+  padding: 0.42rem 0.85rem;
+  border-radius: 999px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.7rem;
+  color: var(--nova-bone-muted);
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.vcp2-nav-links a:hover {
+  color: var(--nova-bone);
+  background: rgba(118, 191, 174, 0.14);
+}
+
+.vcp2-nav-links a span {
+  color: var(--nova-patina);
+  margin-right: 0.3rem;
+  font-size: 0.62rem;
+}
+
+.vcp2-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.vcp2-topbar-right > * {
+  flex-shrink: 0;
+}
+
+/* VMusic Top Capsule */
+.vcp2-topbar-right > .vmusic-capsule {
+  flex-shrink: 1;
+}
+
+.vmusic-capsule {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+  max-width: 15rem;
+  height: 2.45rem;
+  padding: 0 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(118, 191, 174, 0.36);
+  background: linear-gradient(135deg, rgba(30, 34, 38, 0.92), rgba(33, 103, 92, 0.24));
+  color: var(--nova-bone);
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+}
+
+.vmusic-capsule:hover {
+  border-color: var(--nova-patina);
+  transform: translateY(-1px);
+  box-shadow: 0 0 22px rgba(118, 191, 174, 0.22);
+}
+
+.vmusic-capsule.is-playing {
+  border-color: var(--nova-amber);
+  background: linear-gradient(135deg, rgba(30, 34, 38, 0.95), rgba(242, 169, 0, 0.18));
+}
+
+.vmusic-capsule > svg {
+  flex-shrink: 0;
+}
+
+.vmusic-bars {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+
+.vmusic-bars i {
+  display: block;
+  width: 2.5px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--nova-patina);
+  transition: height 0.15s ease;
+}
+
+.vmusic-capsule.is-playing .vmusic-bars i {
+  background: var(--nova-amber);
+  animation: vmusic-bar-dance 0.75s ease-in-out infinite alternate;
+}
+
+.vmusic-capsule.is-playing .vmusic-bars i:nth-child(2) { animation-delay: 0.15s; }
+.vmusic-capsule.is-playing .vmusic-bars i:nth-child(3) { animation-delay: 0.3s; }
+.vmusic-capsule.is-playing .vmusic-bars i:nth-child(4) { animation-delay: 0.45s; }
+
+@keyframes vmusic-bar-dance {
+  0% { height: 3px; }
+  100% { height: 12px; }
+}
+
+.vmusic-capsule-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  text-align: left;
+  line-height: 1.15;
+}
+
+.vmusic-capsule-meta strong {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--nova-bone);
+}
+
+.vmusic-capsule-meta small {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.56rem;
+  color: var(--nova-patina);
+}
+
+.vcp2-pond-archive-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 2.45rem;
+  padding: 0 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(242, 240, 233, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+  color: #D8DEC8;
+  font-family: "Noto Serif SC", "Songti SC", SimSun, serif;
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.vcp2-pond-archive-btn:hover {
+  border-color: #D8DEC8;
+  background: rgba(216, 222, 200, 0.12);
+}
+
+.vcp2-pond-archive-btn {
+  white-space: nowrap;
+}
+
+/* ---------- 顶栏分级缩短 ---------- */
+/* 1. 导航出现时空间最紧：徽章先换短文案 */
+@media (max-width: 1480px) {
+  .vcp2-release-badge .vcp2-text-full { display: none; }
+  .vcp2-release-badge .vcp2-text-short { display: block; }
+}
+
+/* 2. 导航隐藏后空间恢复，徽章重新显示完整文案（不够时省略号兜底） */
+@media (max-width: 1080px) {
+  .vcp2-release-badge .vcp2-text-full { display: block; }
+  .vcp2-release-badge .vcp2-text-short { display: none; }
+}
+
+/* 3. 继续变窄：徽章短文案，池月按钮只留图标 */
+@media (max-width: 860px) {
+  .vcp2-release-badge .vcp2-text-full { display: none; }
+  .vcp2-release-badge .vcp2-text-short { display: block; }
+  .vcp2-pond-label { display: none; }
+  .vcp2-pond-archive-btn { padding: 0 0.7rem; }
+}
+
+/* 4. 手机窄屏：只保留徽章圆点，胶囊只留音符柱与图标 */
+@media (max-width: 520px) {
+  .vcp2-release-badge { padding: 0.3rem; }
+  .vcp2-release-badge .vcp2-text-short { display: none; }
+  .vcp2-topbar { gap: 0.5rem; }
+  .vcp2-topbar-right { gap: 0.4rem; }
+}
+
+/* ==========================================================================
+   2. HUD INDUSTRIAL GRID & SECTION SCAFFOLDING
+   ========================================================================== */
+.vcp2-section {
+  position: relative;
+  border-bottom: 1px solid rgba(118, 191, 174, 0.14);
+  padding: clamp(4.5rem, 8vw, 7.5rem) clamp(1.25rem, 4vw, 3.5rem);
+  scroll-margin-top: 4rem;
+}
+
+.vcp2-section-dark {
+  background-color: var(--nova-graphite);
+  color: var(--nova-bone);
+  background-image:
+    linear-gradient(rgba(118, 191, 174, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(118, 191, 174, 0.045) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+.vcp2-section-paper {
+  background-color: var(--nova-paper);
+  color: var(--nova-charcoal);
+  border-bottom: 1px solid rgba(27, 33, 31, 0.14);
+  background-image:
+    linear-gradient(rgba(33, 103, 92, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(33, 103, 92, 0.06) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+.vcp2-container {
+  max-width: 1380px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+.vcp2-hud-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 0.9rem;
+  margin-bottom: 2.25rem;
+  border-bottom: 1px solid currentColor;
+  opacity: 0.78;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.vcp2-section-dark .vcp2-hud-bar {
+  border-bottom-color: rgba(118, 191, 174, 0.22);
+  color: var(--nova-patina);
+}
+
+.vcp2-section-paper .vcp2-hud-bar {
+  border-bottom-color: rgba(27, 33, 31, 0.18);
+  color: var(--nova-turquoise);
+}
+
+.vcp2-hud-cross {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.vcp2-hud-cross::before {
+  content: "+";
+  font-weight: 700;
+  color: var(--nova-amber);
+}
+
+.vcp2-section-paper .vcp2-hud-cross::before {
+  color: var(--nova-cinnabar);
+}
+
+.vcp2-theater-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  gap: 2rem;
+  align-items: end;
+  margin-bottom: 3rem;
+}
+
+.vcp2-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 0.85rem;
+  color: var(--nova-patina);
+}
+
+.vcp2-section-paper .vcp2-eyebrow {
+  color: var(--nova-cinnabar);
+}
+
+.vcp2-title {
+  font-family: "Space Grotesk", "Inter", sans-serif;
+  font-size: clamp(2.1rem, 4.2vw, 3.6rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  margin: 0;
+}
+
+.vcp2-subtitle {
+  font-size: 1rem;
+  line-height: 1.8;
+  margin: 0;
+  opacity: 0.84;
+}
+
+/* ==========================================================================
+   3. THEATER 01: HERO SINGULARITY & STARBURST + ONERING
+   ========================================================================== */
+.vcp2-hero {
+  min-height: 100svh;
+  padding-top: 6.2rem;
+  padding-bottom: 3.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+.vcp2-starburst-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.vcp2-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+  gap: 2.5rem;
+  align-items: center;
+  margin: 1.5rem 0 2.5rem;
+}
+
+.vcp2-hero-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(118, 191, 174, 0.35);
+  background: rgba(23, 26, 29, 0.75);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  color: var(--nova-patina);
+  margin-bottom: 1.4rem;
+}
+
+.vcp2-hero-kicker strong {
+  color: var(--nova-amber);
+}
+
+.vcp2-hero-headline {
+  font-family: "Space Grotesk", "Inter", sans-serif;
+  font-size: clamp(2.5rem, 5.2vw, 4.75rem);
+  font-weight: 700;
+  line-height: 1.06;
+  letter-spacing: -0.035em;
+  margin: 0 0 1.4rem;
+  color: var(--nova-bone);
+}
+
+.vcp2-hero-headline .highlight-patina {
+  color: var(--nova-patina);
+  text-shadow: 0 0 28px rgba(118, 191, 174, 0.28);
+}
+
+.vcp2-hero-headline .highlight-amber {
+  color: var(--nova-amber);
+  border-bottom: 2px solid rgba(242, 169, 0, 0.55);
+}
+
+.vcp2-hero-lead {
+  font-size: clamp(1rem, 1.35vw, 1.18rem);
+  line-height: 1.85;
+  color: #C4CACD;
+  max-width: 48rem;
+  margin-bottom: 2rem;
+}
+
+.vcp2-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  align-items: center;
+}
+
+.vcp2-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.9rem 1.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--nova-amber);
+  background: var(--nova-amber);
+  color: var(--nova-graphite);
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 4px 4px 0 rgba(242, 169, 0, 0.25);
+}
+
+.vcp2-btn-primary:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 rgba(242, 169, 0, 0.38);
+}
+
+.vcp2-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.9rem 1.35rem;
+  border-radius: 8px;
+  border: 1px solid rgba(118, 191, 174, 0.4);
+  background: rgba(30, 34, 38, 0.85);
+  color: var(--nova-bone);
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 600;
+  font-size: 0.88rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.vcp2-btn-secondary:hover {
+  border-color: var(--nova-patina);
+  background: rgba(118, 191, 174, 0.14);
+  transform: translateY(-2px);
+}
+
+/* Right Hero Telemetry Console */
+.vcp2-hero-telemetry {
+  border: 1px solid rgba(118, 191, 174, 0.3);
+  border-top: 3px solid var(--nova-patina);
+  border-radius: 12px;
+  /* 近乎不透明的底色无需 backdrop-filter，省去每帧对整块背景的模糊合成 */
+  background: rgba(23, 26, 29, 0.94);
+  padding: 1.35rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+}
+
+.vcp2-telemetry-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.85rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid rgba(242, 240, 233, 0.1);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.65rem;
+  color: var(--nova-patina);
+}
+
+.vcp2-telemetry-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.vcp2-stat-box {
+  padding: 0.85rem;
+  border-radius: 8px;
+  border: 1px solid rgba(242, 240, 233, 0.08);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.vcp2-stat-box strong {
+  display: block;
+  font-family: "Space Grotesk", monospace;
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: var(--nova-bone);
+  line-height: 1.1;
+}
+
+.vcp2-stat-box strong em {
+  font-style: normal;
+  color: var(--nova-amber);
+  font-size: 0.95rem;
+  margin-left: 2px;
+}
+
+.vcp2-stat-box span {
+  display: block;
+  margin-top: 0.35rem;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.64rem;
+  color: var(--nova-bone-muted);
+}
+
+/* OneRing Arbitrator Strip */
+.onering-strip {
+  margin-top: 1.5rem;
+  border: 1px solid rgba(242, 169, 0, 0.32);
+  border-radius: 12px;
+  background: linear-gradient(90deg, rgba(30, 34, 38, 0.92), rgba(23, 26, 29, 0.96), rgba(30, 34, 38, 0.92));
+  padding: 1rem 1.25rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.onering-strip-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.66rem;
+}
+
+.onering-strip-header strong {
+  color: var(--nova-amber);
+  letter-spacing: 0.14em;
+}
+
+.onering-pipeline {
+  display: grid;
+  grid-template-columns: 1fr auto 1.2fr;
+  gap: 1rem;
+  align-items: center;
+}
+
+.onering-sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.onering-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid rgba(118, 191, 174, 0.3);
+  background: rgba(118, 191, 174, 0.08);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.65rem;
+  color: var(--nova-bone);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.onering-chip:hover,
+.onering-chip.is-active {
+  border-color: var(--nova-amber);
+  background: rgba(242, 169, 0, 0.16);
+  color: var(--nova-amber);
+}
+
+.onering-gate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.95rem;
+  border-radius: 8px;
+  border: 1px solid var(--nova-amber);
+  background: rgba(242, 169, 0, 0.12);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.64rem;
+  color: var(--nova-amber);
+  box-shadow: 0 0 24px rgba(242, 169, 0, 0.2);
+  text-align: center;
+}
+
+.onering-timeline-out {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid rgba(118, 191, 174, 0.28);
+  background: rgba(0, 0, 0, 0.28);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.68rem;
+  color: var(--nova-patina);
+  overflow-x: auto;
+}
+
+/* ==========================================================================
+   4. THEATER 02: V4 STREAMING RENDERER MICRO-THEATER
+   ========================================================================== */
+.v4-stage-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.65fr);
+  gap: 2rem;
+  align-items: start;
+}
+
+.v4-chat-window {
+  border: 1px solid rgba(118, 191, 174, 0.32);
+  border-radius: 14px;
+  background: #131619;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.v4-window-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.8rem 1.15rem;
+  background: #1B1F24;
+  border-bottom: 1px solid rgba(242, 240, 233, 0.08);
+}
+
+.v4-window-dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.v4-window-dots i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: block;
+}
+
+.v4-hud-meters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.64rem;
+}
+
+.v4-meter-pill {
+  padding: 0.22rem 0.55rem;
+  border-radius: 4px;
+  background: rgba(118, 191, 174, 0.12);
+  border: 1px solid rgba(118, 191, 174, 0.35);
+  color: var(--nova-patina);
+}
+
+.v4-meter-pill.amber {
+  background: rgba(242, 169, 0, 0.12);
+  border-color: rgba(242, 169, 0, 0.4);
+  color: var(--nova-amber);
+}
+
+.v4-stream-body {
+  padding: 1.5rem;
+  min-height: 450px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.v4-msg-row {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 0.9rem;
+  align-items: start;
+}
+
+.v4-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  border: 1px solid var(--nova-patina);
+  background: radial-gradient(circle at 30% 30%, rgba(118, 191, 174, 0.35), rgba(23, 26, 29, 0.95));
+  display: grid;
+  place-items: center;
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  color: var(--nova-patina);
+  font-size: 0.85rem;
+}
+
+.v4-bubble {
+  border: 1px solid rgba(242, 240, 233, 0.1);
+  border-radius: 0 14px 14px 14px;
+  background: rgba(30, 34, 38, 0.85);
+  padding: 1.2rem;
+  color: var(--nova-bone);
+}
+
+/* PreText Sticker Lock Box */
+.v4-sticker-lock {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.65rem 0;
+  padding: 0.55rem 0.85rem;
+  border-radius: 10px;
+  border: 1px dashed rgba(118, 191, 174, 0.45);
+  background: rgba(118, 191, 174, 0.06);
+}
+
+.v4-sticker-lock img {
+  width: 68px;
+  height: 68px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+/* VCP Div Island */
+.vcp-island-card {
+  margin-top: 0.85rem;
+  border-radius: 12px;
+  border: 1px solid rgba(118, 191, 174, 0.48);
+  background: linear-gradient(135deg, rgba(33, 103, 92, 0.28), rgba(23, 26, 29, 0.92));
+  padding: 1rem 1.15rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.vcp-island-card.is-overclock {
+  border-color: var(--nova-amber);
+  background: linear-gradient(135deg, rgba(242, 169, 0, 0.22), rgba(23, 26, 29, 0.94));
+}
+
+.vcp-island-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.18rem 0.5rem;
+  border-radius: 4px;
+  border: 1px dashed var(--nova-patina);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.6rem;
+  color: var(--nova-patina);
+  margin-bottom: 0.6rem;
+}
+
+/* Streaming Bar Table */
+.v4-bench-table {
+  margin-top: 0.9rem;
+  border: 1px solid rgba(242, 240, 233, 0.1);
+  border-radius: 8px;
+  padding: 0.8rem;
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.v4-bench-row {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr) 64px;
+  gap: 0.65rem;
+  align-items: center;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.7rem;
+  margin-bottom: 0.45rem;
+}
+
+.v4-bench-row:last-child {
+  margin-bottom: 0;
+}
+
+.v4-bar-track {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.v4-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* 流式剧场内宽度由剧本时钟逐帧驱动，关闭过渡避免拖影 */
+.v4-stream-body .v4-bar-fill {
+  transition: none;
+}
+
+/* ---------- V4 Streaming Theater ---------- */
+.v4-stream-caret {
+  display: inline-block;
+  width: 0.5em;
+  height: 1.05em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--nova-patina);
+  animation: vcp2-blink 0.9s step-end infinite;
+}
+
+.v4-stream-raw {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.78rem;
+  color: var(--nova-amber);
+  padding: 0.2rem 0.45rem;
+  border-radius: 4px;
+  border: 1px dashed rgba(242, 169, 0, 0.45);
+  background: rgba(242, 169, 0, 0.08);
+}
+
+.v4-stream-enter {
+  animation: v4-stream-enter 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes v4-stream-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.v4-sticker-frame {
+  width: 68px;
+  height: 68px;
+  flex: 0 0 68px;
+  border-radius: 8px;
+  background:
+    repeating-linear-gradient(45deg, rgba(118, 191, 174, 0.08) 0 6px, transparent 6px 12px),
+    rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+.v4-sticker-frame img {
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.v4-sticker-frame.is-loaded img {
+  opacity: 1;
+}
+
+.v4-sticker-lock .v4-sticker-frame img {
+  background: transparent;
+}
+
+.vcp-island-card.is-streaming {
+  border-style: dashed;
+}
+
+.v4-meter-pill.is-live {
+  border-color: rgba(242, 169, 0, 0.5);
+  color: var(--nova-amber);
+}
+
+.v4-timeline-track {
+  position: relative;
+  height: 4px;
+  margin-bottom: 1rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.v4-timeline-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--nova-patina), var(--nova-amber));
+}
+
+.v4-timeline-track i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(242, 240, 233, 0.35);
+}
+
+/* ==========================================================================
+   5. THEATER 03: SCRIPTORIUM V3 3D CUBE PERSPECTIVE TYPING
+   ========================================================================== */
+.scriptorium-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 2.25rem;
+  align-items: stretch;
+}
+
+.scriptorium-3d-stage {
+  border: 1px solid rgba(27, 33, 31, 0.18);
+  border-top: 4px solid var(--nova-turquoise);
+  border-radius: 12px;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(33, 103, 92, 0.12), transparent 65%),
+    var(--nova-paper-surface);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 490px;
+  box-shadow: 8px 8px 0 var(--nova-paper-2);
+  perspective: 1100px;
+  overflow: hidden;
+}
+
+.cube-scene-viewport {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1rem;
+  perspective: 1100px;
+}
+
+.scriptorium-cube {
+  position: relative;
+  width: min(350px, 82vw);
+  min-height: 250px;
+  transform-style: preserve-3d;
+  transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cube-face-front {
+  position: relative;
+  border: 2px solid var(--nova-charcoal);
+  border-radius: 10px;
+  background: rgba(250, 248, 243, 0.96);
+  padding: 1.35rem;
+  box-shadow:
+    16px 18px 0 rgba(33, 103, 92, 0.18),
+    0 24px 48px rgba(27, 33, 31, 0.16);
+  transform: translateZ(24px);
+  transform-style: preserve-3d;
+}
+
+.cube-face-side {
+  position: absolute;
+  top: 8px;
+  right: -26px;
+  bottom: -8px;
+  width: 26px;
+  background: var(--nova-paper-2);
+  border: 1px solid var(--nova-charcoal);
+  transform: rotateY(65deg) skewY(18deg);
+  transform-origin: left center;
+}
+
+.cube-editable-word {
+  display: inline-block;
+  position: relative;
+  padding: 0 0.25rem;
+  border-radius: 4px;
+  background: rgba(185, 72, 50, 0.14);
+  color: var(--nova-cinnabar);
+  font-weight: 700;
+  border-bottom: 2px solid var(--nova-cinnabar);
+}
+
+.cube-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.15em;
+  background: var(--nova-cinnabar);
+  vertical-align: text-bottom;
+  margin-left: 2px;
+  animation: vcp2-blink 0.9s step-end infinite;
+}
+
+/* 3D Perspective-Locked IME Composition Box */
+.cube-ime-popup {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 8px);
+  z-index: 20;
+  min-width: 255px;
+  padding: 0.45rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid var(--nova-charcoal);
+  background: #1B211F;
+  color: #F2F0E9;
+  font-family: "JetBrains Mono", "Microsoft YaHei", sans-serif;
+  font-size: 0.72rem;
+  box-shadow: 6px 8px 0 rgba(185, 72, 50, 0.35);
+  transform: translateZ(36px);
+  white-space: nowrap;
+}
+
+.cube-ime-pinyin {
+  display: flex;
+  justify-content: space-between;
+  color: var(--nova-patina);
+  border-bottom: 1px solid rgba(242, 240, 233, 0.15);
+  padding-bottom: 0.25rem;
+  margin-bottom: 0.3rem;
+  font-size: 0.65rem;
+}
+
+.cube-ime-candidates {
+  display: flex;
+  gap: 0.55rem;
+}
+
+.cube-ime-candidates span {
+  padding: 0.12rem 0.35rem;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.cube-ime-candidates span.active {
+  background: var(--nova-cinnabar);
+  color: #fff;
+  font-weight: 700;
+}
+
+/* Right Source & PR Mapping Panel */
+.scriptorium-source-panel {
+  border: 1px solid rgba(27, 33, 31, 0.18);
+  border-top: 4px solid var(--nova-cinnabar);
+  border-radius: 12px;
+  background: #181D1C;
+  color: var(--nova-bone);
+  padding: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 8px 8px 0 var(--nova-paper-2);
+}
+
+.source-code-box {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.78rem;
+  line-height: 1.75;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(118, 191, 174, 0.24);
+  background: #111514;
+  overflow-x: auto;
+}
+
+.source-range-highlight {
+  background: rgba(118, 191, 174, 0.26);
+  border: 1px solid var(--nova-patina);
+  color: #fff;
+  padding: 0.08rem 0.3rem;
+  border-radius: 4px;
+  box-shadow: 0 0 14px rgba(118, 191, 174, 0.35);
+}
+
+.scriptorium-seal-stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem 1rem;
+  border: 2px solid var(--nova-cinnabar);
+  border-radius: 6px;
+  background: rgba(185, 72, 50, 0.12);
+  color: #FFD7CE;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.7rem;
+}
+
+/* ==========================================================================
+   6. THEATER 04: VMUSIC 205dB AUDIO LAB & 8 STAGES GALLERY
+   ========================================================================== */
+.vmusic-lab-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+  gap: 1.75rem;
+  margin-bottom: 2.25rem;
+}
+
+.vmusic-scope-card,
+.vmusic-knobs-card {
+  border: 1px solid rgba(118, 191, 174, 0.26);
+  border-radius: 12px;
+  background: var(--nova-graphite-2);
+  padding: 1.35rem;
+}
+
+.vmusic-wave-canvas {
+  width: 100%;
+  height: 185px;
+  display: block;
+  border-radius: 8px;
+  border: 1px solid rgba(242, 240, 233, 0.08);
+  background: #101316;
+  margin: 0.85rem 0;
+}
+
+/* Retro Skeuomorphic Knobs */
+.retro-knob-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.9rem;
+  margin-top: 1rem;
+}
+
+.retro-knob-item {
+  border: 1px solid rgba(242, 240, 233, 0.1);
+  border-radius: 10px;
+  background: linear-gradient(180deg, #252A30, #181B1F);
+  padding: 0.85rem 0.6rem;
+  text-align: center;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 6px 14px rgba(0, 0, 0, 0.35);
+}
+
+.retro-dial {
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 0.55rem;
+  border-radius: 50%;
+  border: 2px solid rgba(118, 191, 174, 0.45);
+  background: radial-gradient(circle at 35% 30%, #384047, #15181B);
+  position: relative;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.retro-dial-indicator {
+  position: absolute;
+  left: 50%;
+  top: 6px;
+  width: 3px;
+  height: 16px;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: var(--nova-amber);
+  transform-origin: 50% 21px;
+  box-shadow: 0 0 6px var(--nova-amber);
+}
+
+/* Stage Switcher */
+.vmusic-stage-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-bottom: 1.1rem;
+}
+
+.vmusic-stage-tab {
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(242, 240, 233, 0.14);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--nova-bone-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.vmusic-stage-tab:hover,
+.vmusic-stage-tab.is-active {
+  border-color: var(--nova-patina);
+  background: rgba(118, 191, 174, 0.16);
+  color: var(--nova-bone);
+}
+
+.vmusic-stage-viewport {
+  position: relative;
+  min-height: 310px;
+  border-radius: 14px;
+  border: 1px solid rgba(118, 191, 174, 0.34);
+  overflow: hidden;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  isolation: isolate;
+}
+
+.vmusic-stage-tempera {
+  background:
+    linear-gradient(125deg, #1F262E 0 42%, #B94832 42% 68%, #21675C 68% 100%);
+}
+
+.vmusic-stage-sonnet {
+  background:
+    repeating-linear-gradient(90deg, rgba(118, 191, 174, 0.08) 0 1px, transparent 1px 48px),
+    radial-gradient(circle at 80% 20%, rgba(242, 169, 0, 0.16), transparent 50%),
+    #14181B;
+}
+
+.vmusic-stage-diorama {
+  background:
+    radial-gradient(ellipse at 50% 80%, rgba(118, 191, 174, 0.25), transparent 60%),
+    linear-gradient(180deg, #0D1014, #1B262B);
+}
+
+.vmusic-stage-throughway {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(242, 169, 0, 0.22), rgba(33, 103, 92, 0.2) 38%, #0B0E11 75%);
+}
+
+.vmusic-stage-starborn {
+  background:
+    radial-gradient(circle at 25% 30%, rgba(185, 72, 50, 0.26), transparent 45%),
+    radial-gradient(circle at 75% 70%, rgba(118, 191, 174, 0.26), transparent 48%),
+    #12161A;
+}
+
+.vmusic-stage-starburst {
+  background:
+    radial-gradient(circle at 60% 35%, rgba(118, 191, 174, 0.28), transparent 45%),
+    #111518;
+}
+
+.vmusic-lyric-showcase {
+  font-family: "Noto Serif SC", "Space Grotesk", serif;
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--nova-bone);
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.65);
+  max-width: 44rem;
+}
+
+/* ==========================================================================
+   7. THEATER 05: RIVERMEMO V10 & JEVCALL DUAL-TRACKDIPTYCH
+   ========================================================================== */
+.diptych-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2rem;
+  align-items: stretch;
+}
+
+.diptych-card {
+  border: 1px solid rgba(27, 33, 31, 0.18);
+  border-top: 4px solid var(--nova-turquoise);
+  border-radius: 12px;
+  background: var(--nova-paper-surface);
+  padding: 1.5rem;
+  box-shadow: 8px 8px 0 var(--nova-paper-2);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.diptych-card.cinnabar-top {
+  border-top-color: var(--nova-cinnabar);
+}
+
+.river-sandbox-svg {
+  width: 100%;
+  height: 220px;
+  border-radius: 8px;
+  border: 1px solid rgba(27, 33, 31, 0.15);
+  background: #151A1C;
+  margin: 1rem 0;
+}
+
+.omega-formula-plate {
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(33, 103, 92, 0.3);
+  background: var(--nova-paper-2);
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 0.96rem;
+  text-align: center;
+  color: var(--nova-charcoal);
+}
+
+.jev-track-box {
+  border: 1px solid rgba(27, 33, 31, 0.16);
+  border-radius: 8px;
+  padding: 1rem;
+  background: #171A1D;
+  color: var(--nova-bone);
+  margin: 0.85rem 0;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.74rem;
+}
+
+.jev-alert-cinnabar {
+  margin-top: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 6px;
+  border: 1px solid var(--nova-cinnabar);
+  background: rgba(185, 72, 50, 0.18);
+  color: #FFD5CC;
+}
+
+/* ==========================================================================
+   8. THEATER 06: KERR CODEBENCH, BENTO ECOSYSTEM & FLOATING VPET
+   ========================================================================== */
+.kerr-bench-card {
+  border: 1px solid rgba(118, 191, 174, 0.3);
+  border-top: 3px solid var(--nova-amber);
+  border-radius: 12px;
+  background: var(--nova-graphite-2);
+  padding: 1.6rem;
+  margin-bottom: 2.5rem;
+}
+
+.kerr-compare-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.kerr-metric-panel {
+  border: 1px solid rgba(242, 240, 233, 0.1);
+  border-radius: 10px;
+  padding: 1.15rem;
+  background: rgba(0, 0, 0, 0.24);
+}
+
+/* Bento Matrix */
+.vcp2-bento-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.15rem;
+  margin-bottom: 2.5rem;
+}
+
+.vcp2-bento-card {
+  border: 1px solid rgba(242, 240, 233, 0.12);
+  border-radius: 12px;
+  background: var(--nova-graphite-2);
+  padding: 1.35rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.22s ease;
+}
+
+.vcp2-bento-card:hover {
+  border-color: var(--nova-patina);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.38);
+}
+
+.vcp2-bento-card.span-2 {
+  grid-column: span 2;
+}
+
+/* Milestone Horizontal Scroll */
+.vcp2-milestone-track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(250px, 1fr);
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 0.75rem;
+}
+
+.vcp2-milestone-node {
+  border: 1px solid rgba(118, 191, 174, 0.25);
+  border-left: 3px solid var(--nova-patina);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 1rem;
+}
+
+/* Floating Nova VPet Capsule */
+.nova-vpet-capsule {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 55;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid rgba(118, 191, 174, 0.45);
+  background: rgba(23, 26, 29, 0.96);
+  color: var(--nova-bone);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  transition: all 0.22s ease;
+}
+
+.nova-vpet-capsule:hover {
+  border-color: var(--nova-amber);
+  transform: translateY(-2px);
+}
+
+@keyframes vcp2-pulse {
+  0%, 100% { opacity: 0.45; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.25); }
+}
+
+@keyframes vcp2-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1080px) {
+  .vcp2-nav-links {
+    display: none;
+  }
+  .vcp2-theater-header,
+  .vcp2-hero-grid,
+  .v4-stage-grid,
+  .scriptorium-grid,
+  .vmusic-lab-grid,
+  .diptych-grid,
+  .kerr-compare-grid,
+  .vcp2-bento-grid {
+    grid-template-columns: 1fr;
+  }
+  .vcp2-bento-card.span-2 {
+    grid-column: span 1;
+  }
+  .onering-pipeline {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v4-stream-enter,
+  .v4-stream-caret {
+    animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .vcp2-topbar {
+    padding: 0.6rem 0.9rem;
+  }
+  .vmusic-capsule-meta {
+    display: none;
+  }
+  .vcp2-telemetry-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .v4-bench-row {
+    grid-template-columns: 90px minmax(0, 1fr) 50px;
+  }
+}

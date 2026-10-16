@@ -48,6 +48,7 @@ import rehypeSlug from "rehype-slug";
 import {NeuralNetwork} from "./components/NeuralNetwork";
 import {DocsViewer} from "./components/DocsViewer";
 import {ContinuumHome, PondBrand} from "./components/ContinuumHome";
+import {Vcp2Home} from "./components/Vcp2Home";
 import {getAllDocs} from "./docs";
 import {normalizeMarkdownMath} from "./markdownMath";
 import whitepaperV3Content, {metadata as whitepaperV3Metadata} from "./docs/vcp-whitepaper.md";
@@ -2196,25 +2197,39 @@ export default function App() {
   const [activeWikiTarget, setActiveWikiTarget] = useState<WikiCockpitTarget | null>(null);
   const documents = useMemo(() => getAllDocs(), []);
   const page = new URLSearchParams(window.location.search).get("page");
+  const isPondArchiveRoute = window.location.pathname === "/pond" || page === "pond";
   const isLegacyRoute = ["/learn-vcp", "/changelog", "/plugin-store", "/vcp-leaderboard", "/nova"].includes(window.location.pathname)
-    || ["learn-vcp", "changelog", "plugin-store", "vcp-leaderboard"].includes(page ?? "");
+    || ["learn-vcp", "changelog", "plugin-store", "vcp-leaderboard", "legacy"].includes(page ?? "");
   const meta = useMemo<PageMeta>(() => ({
-    title: "VCP-OS | VCPToolBox 官网",
-    description: "从池月展开 VCP：探索浪潮 V10 语义动力学、连续记忆、共享 IPC 应用群与人类和 Agent 的共同创作。阅读白皮书、安装指南与真实工程演进记录。",
-    keywords: "VCP,VCPToolBox,VCPChat,RiverMemo,Agent运行时,共享IPC,共笔文坊,连续记忆",
+    title: isPondArchiveRoute ? "VCP 池月 · 云中卷 | 中秋国庆限定主题纪念馆" : "VCP 2.0 官方网站 | Nova 纸墨工业 · 全栈自研 AGI 运行时",
+    description: "VCP 2.0 正式版官网（Nova 纸墨工业概念剧场）：让 AI 拥有连续的记忆、行动与共同生活的世界。探索 MoonAST 纯几何代码检索、RiverMemo V10 统一语义动力场、共笔文坊 V3 3D 透视编辑、VMusic 205dB 纯血视听与 JevCall 双轨安检中枢。",
+    keywords: "VCP 2.0,VCP-OS,VCPToolBox,VCPChat,MoonAST,RiverMemo V10,共笔文坊 Scriptorium V3,JevCall,VMusic 繁星如盛,OneRing,Kerr,Nova 纸墨工业",
     canonical: "https://www.vcptoolbox.com/",
-  }), []);
+  }), [isPondArchiveRoute]);
   usePageMeta(meta, !isLegacyRoute);
 
   if (isLegacyRoute) return <LegacyApp />;
 
-  return <ContinuumHome
-    brand={<PondBrand />}
-    themeControl={<ThemeToggle />}
-    documents={documents}
-    onAskNova={(id) => setActiveWikiTarget(wikiCockpitTargets.find(target => target.id === id) ?? wikiCockpitTargets[2])}
-    nova={activeWikiTarget ? <WikiCockpitModal target={activeWikiTarget} onClose={() => setActiveWikiTarget(null)} onSwitch={setActiveWikiTarget} /> : null}
-  />;
+  if (isPondArchiveRoute) {
+    return (
+      <ContinuumHome
+        brand={<PondBrand />}
+        themeControl={<ThemeToggle />}
+        documents={documents}
+        onAskNova={(id) => setActiveWikiTarget(wikiCockpitTargets.find((target) => target.id === id) ?? wikiCockpitTargets[2])}
+        nova={activeWikiTarget ? <WikiCockpitModal target={activeWikiTarget} onClose={() => setActiveWikiTarget(null)} onSwitch={setActiveWikiTarget} /> : null}
+      />
+    );
+  }
+
+  return (
+    <Vcp2Home
+      brand={<VcpLogo />}
+      documents={documents}
+      onAskNova={(id) => setActiveWikiTarget(wikiCockpitTargets.find((target) => target.id === id) ?? wikiCockpitTargets[2])}
+      nova={activeWikiTarget ? <WikiCockpitModal target={activeWikiTarget} onClose={() => setActiveWikiTarget(null)} onSwitch={setActiveWikiTarget} /> : null}
+    />
+  );
 }
 
 function LegacyApp() {
