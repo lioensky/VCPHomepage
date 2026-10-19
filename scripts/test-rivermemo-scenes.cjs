@@ -135,13 +135,54 @@ for (const k of [0, 1, 3, 64, 128, 193, 256, 512]) {
         assert(p.union.length <= 2 * k);
     }
     assert.equal(evaluateProjection(k, p.union).missing.length, 0);
-    assert(p.local.selected.every(n => p.local.domain.some(d => d.id === n.id)));
-    assert(p.transfer.selected.every(n => p.transfer.domain.some(d => d.id === n.id)));
+    for (const field of [p.local, p.transfer]) {
+        const selectedIds = new Set(field.selected.map(n => n.id));
+        assert.equal(selectedIds.size, field.selected.length);
+        assert.equal(field.selected[0].id, 1);
+        assert(!selectedIds.has(11), '高质量孤岛不能入选');
+        assert(!selectedIds.has(12), '零质量节点不能占位');
+        const prefix = new Set([1]);
+        for (const node of field.selected.slice(1)) {
+            assert(prefix.has(node.parent), '新增节点必须连接已选前缀');
+            assert(sandbox.window.RiverMemoV2.projectionEdges.some(e =>
+                e.a === node.parent && e.b === node.id && e.weight > 0));
+            prefix.add(node.id);
+            const visited = new Set([node.id]), queue = [node.id];
+            while (queue.length) {
+                const id = queue.shift();
+                for (const e of sandbox.window.RiverMemoV2.projectionEdges) {
+                    if (e.a === id && e.weight > 0 && selectedIds.has(e.b) && !visited.has(e.b)) {
+                        visited.add(e.b); queue.push(e.b);
+                    }
+                }
+            }
+            assert(visited.has(1), '教学支持集内存在返回核心的真实路径');
+        }
+    }
 }
 assert(evaluateProjection(0).union.length < 12);
 assert.notDeepEqual(Array.from(evaluateProjection(3).local.selected, n => n.id),
     Array.from(evaluateProjection(3).transfer.selected, n => n.id));
+const { growField } = sandbox.window.RiverMemoV2;
+assert.equal(evaluateProjection(1).local.reason, '预算用尽');
+assert.equal(evaluateProjection(256).local.reason, '质量达标');
+assert.equal(evaluateProjection(256).transfer.reason, '前沿耗尽');
+const directedEdges = [
+    { a: 1, b: 2, weight: 1 }, { a: 2, b: 3, weight: 1 },
+    { a: 1, b: 4, weight: 0 }, { a: 5, b: 1, weight: 1 },
+];
+const directed = growField([.1, .1, .4, .2, .2], .9, 0, [1], directedEdges);
+assert.deepEqual(Array.from(directed.selected, n => n.id), [1, 2, 3]);
+assert.equal(directed.reason, '前沿耗尽');
+const zeroBridge = growField([.1, 0, .9], .9, 0, [1], directedEdges);
+assert.deepEqual(Array.from(zeroBridge.selected, n => n.id), [1]);
+const ranked = growField([.1, .2, .5, .2], .9, 3, [1], [
+    { a: 1, b: 2, weight: .1 }, { a: 1, b: 4, weight: .9 },
+    { a: 2, b: 3, weight: .1 }, { a: 4, b: 3, weight: .1 },
+]);
+assert.deepEqual(Array.from(ranked.selected, n => n.id), [1, 2, 3], '先比较前沿场质量，不按边权或全局质量跳选');
 for (const k of [-1, 1.5, NaN, Infinity, '3']) assert.throws(() => evaluateProjection(k));
+assert(html.includes('page=docs&doc=rivermemo-topology-v3'));
 queryAll('[data-pool-action]').find(b => b.dataset.poolAction === 'fresh').click();
 queryAll('[data-pool-action]').find(b => b.dataset.poolAction === 'reuse').click();
 runners.forEach(runner => runner.tick(0.1));

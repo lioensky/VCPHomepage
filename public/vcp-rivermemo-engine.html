@@ -624,7 +624,7 @@
                 <div class="chapter-header">
                     <div>
                         <div class="chapter-meta">CHAPTER 06 · DISCRETE TRANSPORT TO CONTINUOUS FIELDS</div>
-                        <h2 class="chapter-title">双场登船处：水位全图计算，高维乘客按预算登船</h2>
+                        <h2 class="chapter-title">双场沿河铺路：先锁核心骨架，再让拓扑区域生长</h2>
                     </div>
                     <p class="chapter-intro">
                         场不是额外拼凑的经验评分层，而是<strong>同一守恒传输过程在不同观测尺度下的稳态 Resolvent 响应</strong>。
@@ -642,7 +642,8 @@
                             <div class="formula-plate dark-plate">
                                 u<sub>L</sub> = (1 − α<sub>L</sub>)S + α<sub>L</sub> T(u<sub>L</sub>), &nbsp;&nbsp; α<sub>L</sub> = 0.15<br/>
                                 u<sub>T</sub> = (1 − α<sub>T</sub>)S + α<sub>T</sub> T(u<sub>T</sub>), &nbsp;&nbsp; α<sub>T</sub> = 0.55<br/>
-                                D<sub>η</sub>(u) = TopMass<sub>η</sub>(u), &nbsp;&nbsp; η<sub>L</sub> = 0.80, &nbsp; η<sub>T</sub> = 0.90
+                                A<sub>0</sub> = 本次 Spike 活跃河网骨架， &nbsp; A<sub>next</sub> = A ∪ {前沿中本场质量最高的导通节点}<br/>
+                                停止：达到有效质量目标 / 用尽 K / 前沿耗尽
                             </div>
                             <p class="spec-note">
                                 <strong>局部场 <code>u<sub>L</sub></code>（α<sub>L</sub>=0.15）</strong>紧贴查询源附近，提供高确定性的近邻解释；
@@ -664,16 +665,16 @@
                         </div>
 
                         <p class="lead-quote">
-                            <strong>v2 两张独立船票</strong>：先求完整标量场与 Local 80% / Transfer 90% 质量域，各场再独立取前 K 个节点；读取去重并集（最多 2K），投影各用自己的名单。默认 K=256；K=0 只取消数量上限，不取消质量域。标量保留不由 K 决定，域外尾流不等于被全部删除，也不表示全查询变成常数时间。
+                            <strong>核心锚定的有向拓扑区域生长</strong>：本次 Spike 实际激发的河网先成为内圈骨架；Local 与 Transfer 各以自己的有效质量为目标，沿 CSR 真实正权重出边维护优先前沿，贪心纳入本场质量最高且与已选集合导通的邻接节点。达到质量目标、用尽 K 或前沿耗尽即停止；拒绝全局孤岛与零质量占位。每场上限 K，读取去重并集最多 2K，投影各用自己的支持集，绝不串场。默认 K=256；K=0 只取消数量上限，不取消质量目标与拓扑约束。全图标量求解不由 K 截断。
                         </p>
                     </div>
 
                     <div class="canvas-pane dark-canvas-pane">
                         <div class="canvas-hud-top">
-                            <span>实验 02 / 双场登船处 · 12 节点教学河网，独立名单、共用行李池</span>
+                            <span>实验 02 / 双场沿河铺路 · 实心为已选、虚圈为前沿、红点为拒绝项</span>
                             <span id="ch6Readout">Viewing: Dual Overlay · D_0.8(u_L) + D_0.9(u_T)</span>
                         </div>
-                        <canvas id="ch6Canvas" class="scene-canvas v2-lab-canvas" role="img" aria-label="双场独立预算选点与请求向量池复用动画"></canvas>
+                        <canvas id="ch6Canvas" class="scene-canvas v2-lab-canvas" role="img" aria-label="双场从 Spike 核心沿真实有向历史边独立生长，拒绝高质量孤岛及零质量节点，合并读取共享向量"></canvas>
                         <div class="v2-lab-caption" id="projectionStory" aria-live="polite"></div>
                         <div class="canvas-controls">
                             <div class="ctrl-group" role="group" aria-label="每场投影预算">
@@ -961,7 +962,7 @@
                     <div class="pipe-step" data-pipe-idx="3">
                         <div class="pipe-num">STAGE 04</div>
                         <div class="pipe-name">Resolvent 双场</div>
-                        <div class="pipe-desc">全图标量 → 两场独立 K → 并集差集读取</div>
+                        <div class="pipe-desc">核心骨架 → 双场区域生长 → 并集差集读取</div>
                     </div>
                     <div class="pipe-arrow">→</div>
                     <div class="pipe-step" data-pipe-idx="4">

@@ -1,7 +1,7 @@
 /* RiverMemo v2 教学模型：非原生引擎、非性能基准。 */
 (function (global) {
     'use strict';
-    const { COLORS: C, SceneRunner, drawIndustrialGrid, drawNodeBadge,
+    const { COLORS: C, SceneRunner, drawIndustrialGrid, drawNodeBadge, drawVectorArrow,
         drawPillTag, RiverPath, lerp } = global.RiverEngine;
     function text(id, value) {
         const el = document.getElementById(id);
@@ -48,31 +48,56 @@
             promoted: dynamic.filter(e => !staticTop.some(s => s.id === e.id)).length,
             evaluated: evaluated.length, budgetExhausted: available && evaluated.length < history.length };
     }
-    const localMass = [0.34, 0.24, 0.16, 0.10, 0.05, 0.03, 0.02, 0.02, 0.01, 0.01, 0.01, 0.01];
-    const transferMass = [0.14, 0.08, 0.07, 0.06, 0.20, 0.17, 0.11, 0.07, 0.04, 0.03, 0.02, 0.01];
-    function selectField(masses, eta, k) {
-        const sorted = masses.map((mass, id) => ({ id: id + 1, mass }))
-            .sort((a, b) => b.mass - a.mass || a.id - b.id);
-        const total = masses.reduce((a, b) => a + b, 0);
-        let sum = 0;
-        const domain = [];
-        for (const node of sorted) {
-            domain.push(node);
-            sum += node.mass;
-            if (sum >= total * eta - 1e-12) break;
+    const localMass = [0.25, 0.18, 0.12, 0.10, 0.07, 0.05, 0.04, 0.03, 0.02, 0.02, 0.12, 0];
+    const transferMass = [0.12, 0.06, 0.05, 0.05, 0.18, 0.16, 0.12, 0.08, 0.03, 0.03, 0.12, 0];
+    // 教学核心只有 1 个节点，使所有 K>=1 示例均能完整锁定骨架。
+    const projectionCore = [1];
+    const links = [[1,2], [1,5], [2,3], [2,4], [3,4], [4,6],
+        [5,6], [5,7], [6,7], [6,8], [7,8], [8,9], [9,10], [8,12]];
+    // 每个方向均为独立存在的真实教学边；不将单向边自动视作可逆。
+    const projectionEdges = links.flatMap(([a,b]) => [{ a,b,weight:0.1 }, { a:b,b:a,weight:0.08 }]);
+    function growField(masses, eta, k, core = projectionCore, edges = projectionEdges) {
+        const total = masses.reduce((a,b) => a + b, 0);
+        const selected = [], seen = new Set(), frontier = new Map();
+        const limit = k === 0 ? Infinity : k;
+        function expose(id) {
+            edges.filter(e => e.a === id && e.weight > 0).forEach(e => {
+                if (!seen.has(e.b) && masses[e.b - 1] > 0 && !frontier.has(e.b))
+                    frontier.set(e.b, id);
+            });
         }
-        const selected = k === 0 ? domain : domain.slice(0, k);
-        return { domain, selected, ratio: selected.reduce((a, n) => a + n.mass, 0) / total };
+        for (const id of core) {
+            if (selected.length >= limit) break;
+            if (masses[id - 1] > 0 && !seen.has(id)) {
+                selected.push({ id, mass: masses[id - 1], parent: null });
+                seen.add(id);
+            }
+        }
+        selected.forEach(n => expose(n.id));
+        let sum = selected.reduce((a,n) => a + n.mass, 0);
+        while (sum < eta * total - 1e-12 && selected.length < limit && frontier.size) {
+            const id = [...frontier.keys()].sort((a,b) => masses[b-1] - masses[a-1] || a-b)[0];
+            const parent = frontier.get(id);
+            frontier.delete(id);
+            seen.add(id);
+            selected.push({ id, mass: masses[id-1], parent });
+            sum += masses[id-1];
+            expose(id);
+        }
+        const reason = sum >= eta * total - 1e-12 ? '质量达标'
+            : selected.length >= limit ? '预算用尽' : '前沿耗尽';
+        return { selected, ratio: total ? sum / total : 0, reason,
+            frontier: [...frontier.keys()], target: eta };
     }
     function evaluateProjection(k, cached = []) {
         if (!Number.isInteger(k) || k < 0) throw new Error('预算必须为非负整数');
-        const local = selectField(localMass, 0.8, k);
-        const transfer = selectField(transferMass, 0.9, k);
+        const local = growField(localMass, 0.8, k);
+        const transfer = growField(transferMass, 0.9, k);
         const union = [...new Set([...local.selected, ...transfer.selected].map(n => n.id))].sort((a, b) => a - b);
         const missing = union.filter(id => !cached.includes(id));
         return { local, transfer, union, missing, batches: Math.ceil(missing.length / 128) };
     }
-    global.RiverMemoV2 = { evaluateWormholes, evaluateProjection };
+    global.RiverMemoV2 = { evaluateWormholes, evaluateProjection, growField, projectionEdges, projectionCore };
     const wormPresets = {
         rescue: { story: 'D、E 原本排在静态 Top-3 之外。深层残差点亮旧桥：先拿动态席位，再用 A 补齐，总名额仍是 3。' },
         weak: { energy: 0.10, story: '投缘不等于通电！共鸣候选仍存在，但电流 = 源能量 × 历史导电率 × 0.70，低于 0.01 就不能拿动态席位。静态路线仍独立检查。' },
@@ -156,38 +181,49 @@
             h /= scale;
             if (epoch === null) epoch = t;
             drawIndustrialGrid(ctx, w, h);
-            const step = Math.min(3, Math.floor(((t - epoch) % 12) / 3));
-            text('ch6Readout', `教学 K=${k === 0 ? '不限量' : k} · Local ${result.local.selected.length} / Transfer ${result.transfer.selected.length} · 去重 ${result.union.length} · 本次补读 ${lastLoad}`);
+            const age = (t - epoch) % 14;
+            text('ch6Readout', `区域生长 K=${k === 0 ? '不限量' : k} · L ${result.local.selected.length} / T ${result.transfer.selected.length} · 去重 ${result.union.length} · 本次补读 ${lastLoad}`);
             text('projectionStory', released
                 ? '所有消费者结束：句柄注销，教学载荷归零，常驻 CSR 仍在。新请求必须新建上下文，不复用旧请求结果。'
-                : `${['① 全图标量水位先算完', '② 两场在各自质量域内独立选前 K', '③ 两张名单合并去重，只补读差集', '④ 各场只投影自己的乘客，绝不串场'][step]}。Local 选点质量 ${(result.local.ratio * 100).toFixed(0)}%，Transfer ${(result.transfer.ratio * 100).toFixed(0)}%；本例向量均有效。K=0 仍只在质量域内选点。`);
-            drawPillTag(ctx, 18, 24, '标量水位保留 / 高维行李按需读', C.patina);
-            const idsL = new Set(result.local.selected.map(n => n.id));
-            const idsT = new Set(result.transfer.selected.map(n => n.id));
-            const domainL = new Set(result.local.domain.map(n => n.id));
-            const domainT = new Set(result.transfer.domain.map(n => n.id));
-            const left = 36, gap = (w - 72) / 12;
+                : `核心 1 先锁定，两场沿正权重出边各自扩张：Local ${(result.local.ratio*100).toFixed(0)}% / ${result.local.reason}；Transfer ${(result.transfer.ratio*100).toFixed(0)}% / ${result.transfer.reason}。孤岛 11 质量虽高也不能跳入，12 质量为零不占位；K=0 不取消连通约束。教学图每对箭头均有独立历史边，支持集内可沿边回到核心。`);
+            drawPillTag(ctx, 18, 22, '沿河铺路 / 核心 → 前沿 → 连通区域', C.patina);
+            const positions = [[.10,.5],[.26,.25],[.43,.14],[.43,.45],[.26,.78],[.57,.65],
+                [.43,.90],[.72,.65],[.85,.40],[.85,.82],[.73,.13],[.70,.94]];
             [0, 1].forEach(row => {
                 if (mode === 'local' && row === 1 || mode === 'transfer' && row === 0) return;
+                const field = row ? result.transfer : result.local;
                 const masses = row ? transferMass : localMass;
-                const domain = row ? domainT : domainL;
-                const chosen = row ? idsT : idsL;
-                const y = row ? h * 0.59 : h * 0.32;
                 const col = row ? C.amber : C.patina;
-                drawPillTag(ctx, 18, y - 52, row ? '迁移场 / 90% 质量域' : '局部场 / 80% 质量域', col);
-                masses.forEach((mass, i) => {
-                    const id = i + 1, x = left + gap * (i + 0.5);
-                    ctx.fillStyle = domain.has(id) ? col : C.dim;
-                    ctx.globalAlpha = chosen.has(id) ? 1 : 0.35;
-                    ctx.fillRect(x - gap * 0.27, y - mass * 95, gap * 0.54, mass * 95 + 3);
-                    ctx.globalAlpha = 1;
-                    drawNodeBadge(ctx, { x, y: y + 18 }, { color: col, radius: chosen.has(id) ? 6 : 3,
-                        dimmed: !chosen.has(id), label: `${id}`, offsetY: 21 });
-                    if (chosen.has(id) && !released && step >= 2) {
-                        const p = ((t - epoch) * 0.65 + i * 0.13) % 1;
-                        ctx.fillStyle = col;
-                        ctx.beginPath(); ctx.arc(x, lerp(y + 29, h - 58, p), 2, 0, Math.PI * 2); ctx.fill();
+                const top = 65 + row * (h - 165) / 2;
+                const height = (h - 200) / 2;
+                const points = positions.map(([x,y]) => ({ x: 20 + x*(w-50), y: top + y*height }));
+                const count = released ? 0 : Math.min(field.selected.length, 1 + Math.floor(age / .8));
+                const visible = field.selected.slice(0,count);
+                const chosen = new Set(visible.map(n => n.id));
+                const frontier = new Set(projectionEdges.filter(e => chosen.has(e.a) && !chosen.has(e.b)
+                    && masses[e.b-1] > 0 && e.weight > 0).map(e => e.b));
+                drawPillTag(ctx, 18, top - 14, `${row ? 'Transfer 90%' : 'Local 80%'} · ${field.reason}`, col);
+                projectionEdges.forEach(e => {
+                    const active = chosen.has(e.a) && chosen.has(e.b);
+                    drawVectorArrow(ctx, points[e.a-1], points[e.b-1],
+                        { color: col, alpha: active ? .65 : .12, width: active ? 1.8 : 1, arrowAt:.65, head:4 });
+                });
+                points.forEach((p,i) => {
+                    const id = i+1, isCore = id === 1;
+                    drawNodeBadge(ctx, p, { color: id >= 11 ? C.coral : col,
+                        radius: isCore ? 8 : chosen.has(id) ? 6 : 4,
+                        dimmed: !chosen.has(id) && !frontier.has(id),
+                        label: id === 11 ? '11 孤岛' : id === 12 ? '12 零质量' : isCore ? '1 核心' : `${id}`,
+                        offsetY:-10, sub: `${(masses[i]*100).toFixed(0)}%` });
+                    if (frontier.has(id)) {
+                        ctx.strokeStyle = col; ctx.setLineDash([2,3]);
+                        ctx.beginPath(); ctx.arc(p.x,p.y,11,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
                     }
+                });
+                visible.filter(n => n.parent !== null).forEach(n => {
+                    const a = points[n.parent-1], b = points[n.id-1], pulse = (age*.6) % 1;
+                    ctx.fillStyle = col; ctx.beginPath();
+                    ctx.arc(lerp(a.x,b.x,pulse),lerp(a.y,b.y,pulse),2.5,0,Math.PI*2); ctx.fill();
                 });
             });
             ctx.fillStyle = '#171C20';
