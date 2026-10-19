@@ -287,7 +287,8 @@
             this.options = options;
             this._raf = null;
             this._running = false;
-            this._t0 = 0;
+            this._elapsed = 0;
+            this._lastFrame = null;
             this._dims = null;
             this._resizeHandler = () => this._resize();
         }
@@ -304,12 +305,16 @@
             this._running = true;
             this._resize();
             window.addEventListener('resize', this._resizeHandler);
-            this._t0 = performance.now();
+            this._lastFrame = null;
 
             const loop = (now) => {
                 if (!this._running) return;
                 if (!document.hidden && this._dims) {
-                    const t = (now - this._t0) / 1000;
+                    if (this._lastFrame !== null) {
+                        this._elapsed += Math.max(0, Math.min((now - this._lastFrame) / 1000, 0.1));
+                    }
+                    this._lastFrame = now;
+                    const t = this._elapsed;
                     const { ctx, w, h } = this._dims;
                     ctx.clearRect(0, 0, w, h);
                     try {
@@ -317,6 +322,8 @@
                     } catch (e) {
                         console.error('[SceneRunner] draw error:', e);
                     }
+                } else {
+                    this._lastFrame = null;
                 }
                 this._raf = requestAnimationFrame(loop);
             };
@@ -327,6 +334,7 @@
             this._running = false;
             if (this._raf) cancelAnimationFrame(this._raf);
             this._raf = null;
+            this._lastFrame = null;
             window.removeEventListener('resize', this._resizeHandler);
         }
     }

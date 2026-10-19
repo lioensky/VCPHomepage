@@ -3,7 +3,7 @@
    - 章节注册 + IntersectionObserver 启停场景
    - anime.js 文本入场动画
    - 进度导航联动
-   - 交互按钮 (LIF 触发, 顺/逆流切换, 虫洞触发)
+   - AGS / EPA / Sense / 双场 / 拓扑 / Ω / 直接锚 / 终章交互
    - 数字递增动画
    ================================================================= */
 
@@ -73,21 +73,26 @@
         const sections = document.querySelectorAll('.chapter');
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(en => {
-                const id = parseInt(en.target.dataset.chapter, 10);
-                if (en.isIntersecting && en.intersectionRatio > 0.15) {
+                const section = en.target.closest('.chapter');
+                if (!section) return;
+                const id = parseInt(section.dataset.chapter, 10);
+                if (en.isIntersecting) {
                     startChapter(id);
                     setActiveDot(id);
-                    triggerEntryAnimation(en.target);
+                    triggerEntryAnimation(section);
                 } else if (!en.isIntersecting) {
                     stopChapter(id);
                 }
             });
         }, {
-            threshold: [0, 0.15, 0.5, 1],
+            threshold: 0,
             rootMargin: '0px',
         });
 
-        sections.forEach(s => observer.observe(s));
+        sections.forEach(section => {
+            const canvas = section.querySelector('.scene-canvas');
+            if (canvas) observer.observe(canvas);
+        });
     }
 
     // ---------- 进度导航 ----------
@@ -192,44 +197,65 @@
             }, '-=200');
     }
 
-    // ---------- Ch3: 顺流/逆流切换 ----------
-    function setupCh3FlowToggle() {
-        const buttons = document.querySelectorAll('.ctrl-btn[data-flow]');
-        buttons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const mode = btn.dataset.flow;
-                buttons.forEach(b => b.classList.toggle('active', b === btn));
-                const entry = chapters.find(c => c.id === 3);
-                if (entry && entry.instance && entry.instance.setMode) {
-                    entry.instance.setMode(mode);
-                }
+    // ---------- 当前页面全部章节控件：首次点击也可创建并启动场景 ----------
+    function setupSceneControls() {
+        function invoke(id, method, value) {
+            startChapter(id);
+            const scene = chapters.find(entry => entry.id === id)?.instance;
+            if (typeof scene?.[method] !== 'function') return;
+            return scene[method](value);
+        }
+
+        const groups = [
+            [1, 'ags-step', 'agsStep', 'setStep', Number],
+            [2, 'star-mode', 'starMode', 'setStarMode', String],
+            [3, 'flow', 'flow', 'setMode', String],
+            [4, 'epa-mode', 'epaMode', 'setEpaMode', String],
+            [5, 'sense-view', 'senseView', 'setViewMode', String],
+            [6, 'field-mode', 'fieldMode', 'setFieldMode', String],
+            [7, 'curve-idx', 'curveIdx', 'setCurveIdx', Number],
+            [8, 'morph-preset', 'morphPreset', 'setPreset', String],
+            [9, 'ch9-tab', 'ch9Tab', 'setTab', String],
+            [10, 'final-scene', 'finalScene', 'setScenario', String],
+        ];
+        groups.forEach(([id, attr, key, method, convert]) => {
+            const buttons = document.querySelectorAll(`[data-${attr}]`);
+            buttons.forEach(btn => {
+                btn.setAttribute('aria-pressed', String(btn.classList.contains('active')));
+                btn.addEventListener('click', () => {
+                    invoke(id, method, convert(btn.dataset[key]));
+                    buttons.forEach(button => {
+                        const active = button === btn;
+                        button.classList.toggle('active', active);
+                        button.setAttribute('aria-pressed', String(active));
+                    });
+                    if (id === 1) {
+                        const cycle = document.getElementById('ch1CycleBtn');
+                        if (cycle) {
+                            cycle.classList.remove('active');
+                            cycle.setAttribute('aria-pressed', 'false');
+                        }
+                    }
+                });
             });
         });
-    }
 
-    // ---------- Ch6: LIF 触发按钮 ----------
-    function setupCh6FireButton() {
-        const btn = document.getElementById('ch6FireBtn');
-        if (!btn) return;
-        btn.addEventListener('click', () => {
-            const entry = chapters.find(c => c.id === 6);
-            if (entry && entry.instance && entry.instance.trigger) {
-                entry.instance.trigger();
+        [
+            [1, 'ch1CycleBtn', 'toggleCycle'],
+            [2, 'ch2SweepBtn', 'triggerSweep'],
+            [5, 'ch5FireBtn', 'trigger'],
+        ].forEach(([id, buttonId, method]) => {
+            const btn = document.getElementById(buttonId);
+            if (!btn) return;
+            if (method === 'toggleCycle') btn.setAttribute('aria-pressed', 'false');
+            btn.addEventListener('click', () => {
+                const result = invoke(id, method);
+                if (method === 'toggleCycle') {
+                    btn.classList.toggle('active', result === true);
+                    btn.setAttribute('aria-pressed', String(result === true));
+                }
                 pulseFireButton(btn);
-            }
-        });
-    }
-
-    // ---------- Ch7: 虫洞触发按钮 ----------
-    function setupCh7FireButton() {
-        const btn = document.getElementById('ch7FireBtn');
-        if (!btn) return;
-        btn.addEventListener('click', () => {
-            const entry = chapters.find(c => c.id === 7);
-            if (entry && entry.instance && entry.instance.trigger) {
-                entry.instance.trigger();
-                pulseFireButton(btn);
-            }
+            });
         });
     }
 
@@ -273,9 +299,7 @@
         setupHeroAnimation();
         setupVisibilityObserver();
         setupNavClick();
-        setupCh3FlowToggle();
-        setupCh6FireButton();
-        setupCh7FireButton();
+        setupSceneControls();
         setupPipelineHover();
 
         // 默认启动第 0 章

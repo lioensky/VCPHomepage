@@ -181,7 +181,9 @@
                 stepK = (stepK + 1) % 4;
                 lastSwitch = t;
                 document.querySelectorAll('[data-ags-step]').forEach((btn) => {
-                    btn.classList.toggle('active', parseInt(btn.dataset.agsStep, 10) === stepK);
+                    const active = parseInt(btn.dataset.agsStep, 10) === stepK;
+                    btn.classList.toggle('active', active);
+                    btn.setAttribute('aria-pressed', String(active));
                 });
             }
 
@@ -343,6 +345,7 @@
             },
             toggleCycle: () => {
                 autoCycle = !autoCycle;
+                return autoCycle;
             },
         };
     }
@@ -352,8 +355,10 @@
     // =========================================================================
     function createScene_ch2(canvas) {
         let mode = 'star'; // 'star' (xi=0.8) | 'anchor' (xi=0.0)
-        let sweepPhase = 1.0;
-        let sweeping = false;
+        let sweepPhase = 0;
+        let sweeping = true;
+        let displayedXi = 0.8;
+        let previousTime = null;
 
         const coverageStar = [0.24, 0.41, 0.53, 0.62, 0.69, 0.74, 0.78, 0.81, 0.84, 0.86, 0.88, 0.895, 0.905, 0.912, 0.917, 0.921];
         const coverageAnchor = [0.16, 0.28, 0.37, 0.45, 0.51, 0.56, 0.60, 0.63, 0.66, 0.68, 0.70, 0.715, 0.728, 0.738, 0.746, 0.752];
@@ -361,8 +366,10 @@
 
         const runner = new SceneRunner(canvas, (ctx, w, h, t) => {
             drawIndustrialGrid(ctx, w, h, 44);
+            const dt = previousTime === null ? 0 : clamp(t - previousTime, 0, 0.1);
+            previousTime = t;
             if (sweeping) {
-                sweepPhase += 0.012;
+                sweepPhase += dt / 1.6;
                 if (sweepPhase >= 1) {
                     sweepPhase = 1;
                     sweeping = false;
@@ -370,6 +377,7 @@
             }
 
             const xi = mode === 'star' ? 0.8 : 0.0;
+            displayedXi = lerp(displayedXi, xi, 1 - Math.exp(-dt * 9));
             const covArr = mode === 'star' ? coverageStar : coverageAnchor;
             const kEff = mode === 'star' ? 14 : 16;
             setReadout(
@@ -422,7 +430,7 @@
             });
 
             // 合成星团主轴 s_t
-            const starAngle = lerp(rawAngle, -0.24, xi);
+            const starAngle = lerp(rawAngle, -0.24, displayedXi);
             const starPt = { x: cx + Math.cos(starAngle) * R, y: cy + Math.sin(starAngle) * R };
             drawVectorArrow(ctx, { x: cx, y: cy }, starPt, {
                 color: COLORS.amber,
@@ -430,7 +438,12 @@
                 width: 3.2,
                 glow: true,
             });
-            drawPillTag(ctx, starPt.x + 8, starPt.y, `s_t (ξ=${xi.toFixed(1)})`, COLORS.amber);
+            drawPillTag(ctx, starPt.x + 8, starPt.y, `s_t (ξ=${displayedXi.toFixed(2)})`, COLORS.amber);
+            const pulse = (t * 0.55) % 1;
+            ctx.fillStyle = COLORS.amber;
+            ctx.beginPath();
+            ctx.arc(lerp(cx, starPt.x, pulse), lerp(cy, starPt.y, pulse), 3, 0, Math.PI * 2);
+            ctx.fill();
 
             // 右半区：前缀嵌套覆盖率曲线 (k = 1..16)
             const gx0 = w * 0.52;
@@ -495,10 +508,12 @@
             start: () => runner.start(),
             stop: () => runner.stop(),
             setStarMode: (m) => {
-                mode = m;
+                mode = m === 'anchor' ? 'anchor' : 'star';
+                sweepPhase = 0;
+                sweeping = true;
             },
             triggerSweep: () => {
-                sweepPhase = 0.12;
+                sweepPhase = 0;
                 sweeping = true;
             },
         };
@@ -840,7 +855,7 @@
     // =========================================================================
     function createScene_ch5(canvas) {
         let viewMode = 'river'; // 'river' | 'all'
-        let firedAt = 0;
+        let firedAt = null;
 
         const nodes = [
             { id: 0, rx: 0.11, ry: 0.50, hop: 0, label: 'Core Seed z₁', color: COLORS.amber },
@@ -874,8 +889,9 @@
 
         const runner = new SceneRunner(canvas, (ctx, w, h, t) => {
             drawIndustrialGrid(ctx, w, h, 44);
-            if (t - firedAt > 6.5) firedAt = t;
+            if (firedAt === null || t < firedAt || t - firedAt > 6.5) firedAt = t;
             const age = t - firedAt;
+            setReadout('ch5Readout', `Hop ${Math.min(4, Math.floor(age / 0.75))}/4 · FIR γ=0.60 · Return Flow ×0.15 · ${viewMode === 'all' ? 'Static + R_q' : 'Request River R_q'}`);
 
             const pts = nodes.map((n) => ({ ...n, x: n.rx * w, y: n.ry * h }));
 
@@ -953,7 +969,7 @@
             start: () => runner.start(),
             stop: () => runner.stop(),
             trigger: () => {
-                firedAt = 0;
+                firedAt = null;
             },
             setViewMode: (m) => {
                 viewMode = m;
