@@ -83,7 +83,7 @@ sandbox.window.RiverEngine.SceneRunner = class {
     stop() { this.running = false; }
     tick(dt) { this.time += dt; this.draw(ctx, 900, 340, this.time); }
 };
-for (const path of ['public/scenes.js', 'public/rivermemo-v2.js', 'public/main.js']) vm.runInContext(fs.readFileSync(path, 'utf8'), sandbox);
+for (const path of ['public/scenes.js', 'public/rivermemo-v2.js', 'public/memo-basin-projection.js', 'public/main.js']) vm.runInContext(fs.readFileSync(path, 'utf8'), sandbox);
 const observer = observers[0];
 assert.equal(observer.targets.length, 11);
 for (const target of observer.targets) observer.callback([{ target, isIntersecting: true, intersectionRatio: 0.001 }]);
@@ -190,6 +190,53 @@ assert(elements.get('ch6Readout').textContent.includes('本次补读 0'));
 queryAll('[data-pool-action]').find(b => b.dataset.poolAction === 'release').click();
 runners.forEach(runner => runner.tick(0.1));
 assert(elements.get('projectionStory').textContent.includes('载荷归零'));
+
+const { simulateProjection, projectionFixture, buildBasins } = sandbox.window.RiverMemoV2;
+assert.equal(simulateProjection(1).conflict, true);
+assert.equal(simulateProjection(1).union.length, 0);
+for (const k of [0, 4, 8, 24, 64, 128, 193, 256, 512]) {
+    const result = simulateProjection(k);
+    if (k) assert(result.union.length <= k, '共享并集不能超过 K');
+    assert(result.core.every(id => result.union.includes(id)));
+    assert(!result.union.includes(29));
+    assert(!result.union.includes(30));
+    for (const field of result.fields) {
+        const prefix = new Set(result.core);
+        for (const node of field.selected.filter(n => !n.core)) {
+            assert(prefix.has(node.parent), '外圈必须有同场已选前驱');
+            assert(projectionFixture.edges.some(e => e.a === node.parent && e.b === node.id && e.weight > 0 && e.weight <= 1));
+            prefix.add(node.id);
+        }
+        assert.equal(field.selected.length, new Set(field.selected.map(n => n.id)).size);
+    }
+    assert(result.frontiers.every(f => f.guarantee <= 8));
+    assert(result.work.popped <= 8192 && result.work.discovered <= 8192 && result.work.edges <= 65536);
+    assert.equal(simulateProjection(k, { cached: result.union }).missing.length, 0);
+    assert.equal(JSON.stringify(result.events), JSON.stringify(simulateProjection(k).events), '回放必须确定');
+}
+const unlimited = simulateProjection(0);
+assert(unlimited.events.some(e => e.phase === 'gain'), '长外圈必须演示收益阶段');
+assert(unlimited.events.some(e => e.kind === 'accept' && !e.newlyGlobal && e.newlyField), '同 ID 需独立场接纳');
+assert(unlimited.overlap > 0, '演示实际跨流域触达');
+const lowBridge = unlimited.fields[0].selected;
+assert(lowBridge.findIndex(n => n.id === 5) < lowBridge.findIndex(n => n.id === 6));
+const limited = simulateProjection(0, { limits: { popped: 12, discovered: 24, edges: 14 } });
+assert(limited.truncated);
+assert(limited.fields.some(f => f.reason === '工作限额'));
+assert(limited.work.popped <= 12 && limited.work.discovered <= 24 && limited.work.edges <= 14);
+const missingVector = simulateProjection(0, { missingVectors: [5] });
+assert(missingVector.fields[0].selected.some(n => n.id === 5));
+assert(!missingVector.fields[0].valid.some(n => n.id === 5));
+assert(!missingVector.union.includes(29), '缺失向量不能用孤岛补位');
+const forest = buildBasins({ ...projectionFixture, roots: [1], observed: projectionFixture.observed });
+assert(forest.basins.some(b => b.inner.includes(3)), '未分配核心独立保留');
+const projection = runners.find(r => r.canvas === elements.get('ch6Canvas'));
+elements.get('projectionStep').click();
+projection.tick(.1);
+assert.equal(elements.get('projectionPlay').attributes['aria-pressed'], 'false');
+for (const [w, h] of [[390, 560], [650, 560], [1200, 560]]) {
+    projection.draw(ctx, w, h, 5);
+}
 
 const times = [];
 let queued;

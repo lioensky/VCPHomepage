@@ -230,7 +230,7 @@
                             </div>
                             <div class="t-metric">
                                 <strong>256<em>节点</em></strong>
-                                <span>K 为每场节点预算，默认 256</span>
+                                <span>K 为双场共享并集预算，含核心</span>
                             </div>
                             <div class="t-metric">
                                 <strong>4096</strong>
@@ -624,7 +624,7 @@
                 <div class="chapter-header">
                     <div>
                         <div class="chapter-meta">CHAPTER 06 · DISCRETE TRANSPORT TO CONTINUOUS FIELDS</div>
-                        <h2 class="chapter-title">双场沿河铺路：先锁核心骨架，再让拓扑区域生长</h2>
+                        <h2 class="chapter-title">流域探险队：内圈不用重造，两场共用一袋船票</h2>
                     </div>
                     <p class="chapter-intro">
                         场不是额外拼凑的经验评分层，而是<strong>同一守恒传输过程在不同观测尺度下的稳态 Resolvent 响应</strong>。
@@ -642,8 +642,9 @@
                             <div class="formula-plate dark-plate">
                                 u<sub>L</sub> = (1 − α<sub>L</sub>)S + α<sub>L</sub> T(u<sub>L</sub>), &nbsp;&nbsp; α<sub>L</sub> = 0.15<br/>
                                 u<sub>T</sub> = (1 − α<sub>T</sub>)S + α<sub>T</sub> T(u<sub>T</sub>), &nbsp;&nbsp; α<sub>T</sub> = 0.55<br/>
-                                A<sub>0</sub> = 本次 Spike 活跃河网骨架， &nbsp; A<sub>next</sub> = A ∪ {前沿中本场质量最高的导通节点}<br/>
-                                停止：达到有效质量目标 / 用尽 K / 前沿耗尽
+                                边代价 = −log(传输率)，从各流域内圈边界以零距离出发<br/>
+                                前 8 个外圈机会轮转；之后每批 ≤ 4：优先级 ∝ √流域能量 × 近期归一化收益 / (1 + 外圈数 / 8)<br/>
+                                |Local 支持集 ∪ Transfer 支持集| ≤ K，全部核心计入预算
                             </div>
                             <p class="spec-note">
                                 <strong>局部场 <code>u<sub>L</sub></code>（α<sub>L</sub>=0.15）</strong>紧贴查询源附近，提供高确定性的近邻解释；
@@ -665,23 +666,39 @@
                         </div>
 
                         <p class="lead-quote">
-                            <strong>核心锚定的有向拓扑区域生长</strong>：本次 Spike 实际激发的河网先成为内圈骨架；Local 与 Transfer 各以自己的有效质量为目标，沿 CSR 真实正权重出边维护优先前沿，贪心纳入本场质量最高且与已选集合导通的邻接节点。达到质量目标、用尽 K 或前沿耗尽即停止；拒绝全局孤岛与零质量占位。每场上限 K，读取去重并集最多 2K，投影各用自己的支持集，绝不串场。默认 K=256；K=0 只取消数量上限，不取消质量目标与拓扑约束。全图标量求解不由 K 截断。
+                            <strong>种子流域内圈复用＋共享预算动态扩展</strong>：复用 Spike 骨架、hop-0 根线索与代表来源，在正观测流且有真实 CSR 边的图上稳定构造多源 BFS 森林；未分配骨架独立保留，不重新聚类或读取向量找质心。每个“流域 × 场”沿 0 < 权重 ≤ 1 的真实出边维护最短路前沿，先轮转给最多 8 个外圈机会，再按收益分批调度。内圈不占保底机会，保底也不保证拿到 8 个新向量。K 约束双场去重并集，包含全部核心，核心超预算显式报冲突。交汇节点只扣一次票，两场资格和质量独立累计。低质量桥不能跳过，零质量与数值尾流不扩展；核心允许多分量。K=0 仍受质量目标与工作限额约束。
                         </p>
                     </div>
 
                     <div class="canvas-pane dark-canvas-pane">
                         <div class="canvas-hud-top">
-                            <span>实验 02 / 双场沿河铺路 · 实心为已选、虚圈为前沿、红点为拒绝项</span>
+                            <span>实验 02 / 流域探险队 · 30 节点教学图 · L/T 独立盖章 · 一袋共享票</span>
                             <span id="ch6Readout">Viewing: Dual Overlay · D_0.8(u_L) + D_0.9(u_T)</span>
                         </div>
-                        <canvas id="ch6Canvas" class="scene-canvas v2-lab-canvas" role="img" aria-label="双场从 Spike 核心沿真实有向历史边独立生长，拒绝高质量孤岛及零质量节点，合并读取共享向量"></canvas>
+                        <canvas id="ch6Canvas" class="scene-canvas v2-lab-canvas" style="height:560px" role="img" aria-label="多流域内圈复用、最短路探索、轮转保底及双场共享预算逐事件回放"></canvas>
                         <div class="v2-lab-caption" id="projectionStory" aria-live="polite"></div>
                         <div class="canvas-controls">
-                            <div class="ctrl-group" role="group" aria-label="每场投影预算">
-                                <button type="button" class="ctrl-btn" data-projection-k="1">K=1 · 小船</button>
-                                <button type="button" class="ctrl-btn active" data-projection-k="3">K=3 · 看清取舍</button>
-                                <button type="button" class="ctrl-btn" data-projection-k="256">K=256 · 生产默认</button>
-                                <button type="button" class="ctrl-btn" data-projection-k="0">K=0 · 仅取消限额</button>
+                            <div class="ctrl-group" role="group" aria-label="流域探索实验">
+                                <button type="button" class="ctrl-btn active" data-projection-preset="normal">弱主题也要探险</button>
+                                <button type="button" class="ctrl-btn" data-projection-preset="bridge">低谷桥不许跳</button>
+                                <button type="button" class="ctrl-btn" data-projection-preset="overlap">交汇只扣一次票</button>
+                                <button type="button" class="ctrl-btn" data-projection-preset="work">工作限额刹车</button>
+                                <button type="button" class="ctrl-btn" data-projection-preset="missing">行李缺失，不补孤岛</button>
+                            </div>
+                            <div class="ctrl-group">
+                                <button type="button" class="ctrl-btn-accent" id="projectionPlay">Ⅱ 暂停讲解</button>
+                                <button type="button" class="ctrl-btn-accent" id="projectionStep">→ 单步探索</button>
+                                <button type="button" class="ctrl-btn-accent" id="projectionReplay">↻ 重播</button>
+                            </div>
+                        </div>
+                        <div class="v2-lab-caption" id="projectionDiagnostics"></div>
+                        <div class="canvas-controls">
+                            <div class="ctrl-group" role="group" aria-label="双场共享并集预算">
+                                <button type="button" class="ctrl-btn" data-projection-k="1">K=1 · 核心装不下</button>
+                                <button type="button" class="ctrl-btn" data-projection-k="8">K=8 · 共享小票池</button>
+                                <button type="button" class="ctrl-btn active" data-projection-k="24">K=24 · 观察调度</button>
+                                <button type="button" class="ctrl-btn" data-projection-k="256">K=256 · 默认</button>
+                                <button type="button" class="ctrl-btn" data-projection-k="0">K=0 · 工作仍限额</button>
                             </div>
                             <div class="ctrl-group" role="group" aria-label="请求生命周期">
                                 <button type="button" class="ctrl-btn active" data-pool-action="fresh">新请求</button>
@@ -962,7 +979,7 @@
                     <div class="pipe-step" data-pipe-idx="3">
                         <div class="pipe-num">STAGE 04</div>
                         <div class="pipe-name">Resolvent 双场</div>
-                        <div class="pipe-desc">核心骨架 → 双场区域生长 → 并集差集读取</div>
+                        <div class="pipe-desc">种子流域内圈 → 共享 K 调度 → 差集读取</div>
                     </div>
                     <div class="pipe-arrow">→</div>
                     <div class="pipe-step" data-pipe-idx="4">
@@ -1057,6 +1074,7 @@
     <script src="river-engine.js"></script>
     <script src="scenes.js"></script>
     <script src="rivermemo-v2.js"></script>
+    <script src="memo-basin-projection.js"></script>
     <script src="main.js"></script>
 </body>
 </html>

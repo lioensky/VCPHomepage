@@ -216,6 +216,7 @@
             [6, 'field-mode', 'fieldMode', 'setFieldMode', String],
             [6, 'projection-k', 'projectionK', 'setProjectionK', Number],
             [6, 'pool-action', 'poolAction', 'setPoolAction', String],
+            [6, 'projection-preset', 'projectionPreset', 'setProjectionPreset', String],
             [7, 'curve-idx', 'curveIdx', 'setCurveIdx', Number],
             [8, 'morph-preset', 'morphPreset', 'setPreset', String],
             [9, 'ch9-tab', 'ch9Tab', 'setTab', String],
@@ -247,6 +248,9 @@
             [1, 'ch1CycleBtn', 'toggleCycle'],
             [2, 'ch2SweepBtn', 'triggerSweep'],
             [5, 'ch5FireBtn', 'trigger'],
+            [6, 'projectionPlay', 'projectionToggle'],
+            [6, 'projectionStep', 'projectionStep'],
+            [6, 'projectionReplay', 'projectionReplay'],
         ].forEach(([id, buttonId, method]) => {
             const btn = document.getElementById(buttonId);
             if (!btn) return;
