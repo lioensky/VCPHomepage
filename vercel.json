@@ -6,25 +6,86 @@
       "source": "/VCP聚合文档.md",
       "destination": "/learn-vcp",
       "permanent": true
+    },
+    {
+      "source": "/vcp_wave_v8_engine",
+      "destination": "/vcp-rivermemo-engine",
+      "permanent": true
+    },
+    {
+      "source": "/vcp_wave_v8_engine.html",
+      "destination": "/vcp-rivermemo-engine",
+      "permanent": true
     }
   ],
   "rewrites": [
-    { "source": "/sitemap.xml", "destination": "/sitemap.xml" },
-    { "source": "/robots.txt", "destination": "/robots.txt" },
-    { "source": "/assets/(.*)", "destination": "/assets/$1" },
-    { "source": "/learn-vcp", "destination": "/learn-vcp.html" },
-    { "source": "/learn-vcp.html", "destination": "/learn-vcp.html" },
-    { "source": "/changelog", "destination": "/changelog.html" },
-    { "source": "/changelog.html", "destination": "/changelog.html" },
-    { "source": "/nova", "destination": "/nova.html" },
-    { "source": "/nova.html", "destination": "/nova.html" },
-    { "source": "/vcp_wave_v8_engine", "destination": "/vcp_wave_v8_engine.html" },
-    { "source": "/vcp_wave_v8_engine.html", "destination": "/vcp_wave_v8_engine.html" },
-    { "source": "/vcp-neon-game", "destination": "/vcp-neon-game/index.html" },
-    { "source": "/vcp-neon-game/index.html", "destination": "/vcp-neon-game/index.html" },
-    { "source": "/vcp-neon-game/(.*)", "destination": "/vcp-neon-game/$1" },
-    { "source": "/vcp-leaderboard", "destination": "/vcp-leaderboard.html" },
-    { "source": "/vcp-leaderboard.html", "destination": "/vcp-leaderboard.html" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/sitemap.xml",
+      "destination": "/sitemap.xml"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "/robots.txt"
+    },
+    {
+      "source": "/assets/(.*)",
+      "destination": "/assets/$1"
+    },
+    {
+      "source": "/learn-vcp",
+      "destination": "/learn-vcp.html"
+    },
+    {
+      "source": "/learn-vcp.html",
+      "destination": "/learn-vcp.html"
+    },
+    {
+      "source": "/changelog",
+      "destination": "/changelog.html"
+    },
+    {
+      "source": "/changelog.html",
+      "destination": "/changelog.html"
+    },
+    {
+      "source": "/nova",
+      "destination": "/nova.html"
+    },
+    {
+      "source": "/nova.html",
+      "destination": "/nova.html"
+    },
+    {
+      "source": "/vcp-rivermemo-engine",
+      "destination": "/vcp-rivermemo-engine.html"
+    },
+    {
+      "source": "/vcp-rivermemo-engine.html",
+      "destination": "/vcp-rivermemo-engine.html"
+    },
+    {
+      "source": "/vcp-neon-game",
+      "destination": "/vcp-neon-game/index.html"
+    },
+    {
+      "source": "/vcp-neon-game/index.html",
+      "destination": "/vcp-neon-game/index.html"
+    },
+    {
+      "source": "/vcp-neon-game/(.*)",
+      "destination": "/vcp-neon-game/$1"
+    },
+    {
+      "source": "/vcp-leaderboard",
+      "destination": "/vcp-leaderboard.html"
+    },
+    {
+      "source": "/vcp-leaderboard.html",
+      "destination": "/vcp-leaderboard.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }

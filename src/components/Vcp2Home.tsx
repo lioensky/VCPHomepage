@@ -1668,8 +1668,8 @@ target_file:「始」src/db/indexRepository.js「末」
                     <Gamepad2 size={14} />
                     即点即玩霓虹肉鸽
                   </a>
-                  <a href="/vcp_wave_v8_engine.html" className="vcp2-btn-secondary" style={{padding: "0.4rem 0.75rem", fontSize: "0.72rem"}}>
-                    浪潮 3D 引擎演示
+                  <a href="/vcp-rivermemo-engine" className="vcp2-btn-secondary" style={{padding: "0.4rem 0.75rem", fontSize: "0.72rem"}}>
+                    RiverMemo Engine 交互演示
                   </a>
                 </div>
               </article>

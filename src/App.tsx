@@ -2405,7 +2405,7 @@ function LegacyApp() {
           <a href="/">VCP 官方首页</a>
           <a href="#memory">RiverMemo V10 Topology V3 统一语义动力场</a>
           <a href="/?page=learn-vcp">Learn VCP 技术白皮书</a>
-          <a href="/vcp_wave_v8_engine.html">RiverMemo 的 TagMemo V9 降噪与传播底座</a>
+          <a href="/vcp-rivermemo-engine">VCP RiverMemo Engine · 统一记忆引擎交互演示</a>
           <a href="/vcp-neon-game">VCP Neon Striker 霓虹弹幕小游戏</a>
           <a href="/#docs">VCP 文档中心</a>
           <a href="/?page=changelog">VCP 更新日志</a>
@@ -3023,7 +3023,7 @@ function LegacyApp() {
                   <BookOpen size={19} />
                   阅读 Topology V3 白皮书
                 </button>
-                <a href="/vcp_wave_v8_engine.html" className="rivermemo-secondary-action">
+                <a href="/vcp-rivermemo-engine" className="rivermemo-secondary-action">
                   <Zap size={19} />
                   查看 V9 降噪底座
                 </a>

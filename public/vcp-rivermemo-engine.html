@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="industrial">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VCP RiverMemo Engine · Topology V3.1 与 AGS 双尺度几何演示</title>
+    <meta name="description" content="VCP RiverMemo Engine 官方交互演示：基于 AGS 统一场双尺度几何（局部 Explain 残差/锚增益 + 全局星团 Span 主题面），完整展示 EPA 背景校准、Residual Pyramid、有界 Sense 河网、Resolvent 双场、候选有序曲线、相对拓扑、形态 Softmax、Ω 可观测泛函与 Direct Anchor 的闭合数学链。" />
+    <meta name="keywords" content="VCP,VCP RiverMemo Engine,RiverMemo,RiverMemo V10,Topology V3,rivermemo.topology-v3.1-rust,unified_geometry_ags_v2,AGS统一场,EPA背景校准,Residual Pyramid,Sense有界传播,Resolvent双场,相对拓扑,形态Softmax,Ω泛函,Direct Anchor,Nova纸墨工业" />
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+    <meta name="author" content="VCP Ecosystem" />
+    <link rel="canonical" href="https://www.vcptoolbox.com/vcp-rivermemo-engine" />
+    <link rel="icon" type="image/png" href="/assets/logo1.png" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="VCP.OS" />
+    <meta property="og:title" content="VCP RiverMemo Engine · Topology V3.1 × AGS 交互实验室" />
+    <meta property="og:description" content="告别重型 SVD 扫描与零散特判补丁。探索 AGS 双尺度统一几何、请求级有向河网、Resolvent 局部/迁移双场、Ω 泛函与直接锚如何在 <2.5ms Rust 原生事务内闭合。" />
+    <meta property="og:url" content="https://www.vcptoolbox.com/vcp-rivermemo-engine" />
+    <meta property="og:image" content="https://www.vcptoolbox.com/assets/logo1.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="VCP RiverMemo Engine · Topology V3.1 Rust Engine" />
+    <meta name="twitter:description" content="AGS 统一场背景图 × 有界 Sense 河网 × 双尺度连续场 × Ω 授权条件拓扑创新 × Direct Anchor。" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "VCP RiverMemo Engine：Topology V3.1 与 AGS 双尺度统一场交互演示",
+        "description": "完整呈现 RiverMemo Topology V3.1 (rivermemo.topology-v3.1-rust) 与 AGS 双尺度统一几何 (unified_geometry_ags_v2) 的数学结构与实时计算过程。",
+        "url": "https://www.vcptoolbox.com/vcp-rivermemo-engine",
+        "inLanguage": "zh-CN",
+        "author": {
+          "@type": "Organization",
+          "name": "VCP Ecosystem"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "VCP Ecosystem",
+          "url": "https://www.vcptoolbox.com/"
+        }
+      }
+    </script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="rmv3-body">
+    <section class="seo-summary" aria-label="VCP RiverMemo Engine 算法摘要">
+        <h1>VCP RiverMemo Engine · Topology V3.1 与 AGS 双尺度统一几何</h1>
+        <p>
+            当前生产构型已全面切换为 AGS 统一场背景图（unified_geometry_ags_v2）与 Rust 统一 Memo 管线（rivermemo.topology-v3.1-rust）。
+            同一套锚定贪心 Gram-Schmidt（AGS）算子在局部生成残差范数比与锚增益，在全局生成中心化星团主题面（ags-global-star-v2），彻底替代旧版重型 SVD 全局扫描、独立残差任务与持久化 Pairwise 表。
+        </p>
+        <p>
+            请求侧在 AGS 背景图上依次完成 EPA 覆盖率/随机背景校准、Residual Pyramid 正交剥离、Tag 门控、有界 Sense 脉冲扩散、Resolvent 局部/迁移双场求解，
+            并由 Topology V3 在 Rust/Rayon 内部完成候选有序曲线读出、相对拓扑对应、河网形态 Softmax、Ω 可观测泛函、Direct Anchor 异常激活与批级条件创新排序。
+        </p>
+    </section>
+
+    <!-- 全局背景暗流 Canvas -->
+    <canvas id="globalRiver" class="global-river" aria-hidden="true"></canvas>
+
+    <!-- 顶部 Nova 纸墨工业导航栏 -->
+    <header class="vcp2-topbar">
+        <div class="vcp2-brand-group">
+            <a href="/" class="site-brand-link" aria-label="VCP.OS 首页">
+                <span class="vcp-brand">
+                    <svg class="vcp-logo-mark" viewBox="0 0 48 48" role="img" aria-hidden="true">
+                        <path class="vcp-logo-frame" d="M7 4h29l5 5v30l-5 5H7l-4-4V8z" />
+                        <path class="vcp-logo-fold" d="M31 4v9h10" />
+                        <path class="vcp-logo-glyph" d="M12 15l9 21h6l9-21h-7l-5 13-5-13z" />
+                        <path class="vcp-logo-register" d="M10 10h14M10 40h20" />
+                    </svg>
+                    <span class="vcp-brand-wordmark">
+                        <strong>VCP</strong><span>.OS</span>
+                    </span>
+                </span>
+            </a>
+            <span class="vcp2-release-badge" title="rivermemo.topology-v3.1-rust · unified_geometry_ags_v2">
+                <i class="vcp2-release-dot"></i>
+                <span class="vcp2-text-full">VCP RIVERMEMO ENGINE · TOPOLOGY V3.1</span>
+                <span class="vcp2-text-short">RIVERMEMO V10</span>
+            </span>
+        </div>
+
+        <nav class="vcp2-nav-links" aria-label="算法剧场章节跳转">
+            <a href="#chapter-hero"><span>00</span>总览</a>
+            <a href="#chapter-birth"><span>01</span>局部AGS</a>
+            <a href="#chapter-confluence"><span>02</span>全局星团</a>
+            <a href="#chapter-direction"><span>03</span>次随机核</a>
+            <a href="#chapter-epa"><span>04</span>EPA×金字塔</a>
+            <a href="#chapter-lif"><span>05</span>Sense河网</a>
+            <a href="#chapter-dualfield"><span>06</span>双尺度场</a>
+            <a href="#chapter-geodesic"><span>07</span>曲线与拓扑</a>
+            <a href="#chapter-morphology"><span>08</span>形态×Ω</a>
+            <a href="#chapter-wormhole"><span>09</span>直接锚×条件创新</a>
+            <a href="#chapter-grand-view"><span>10</span>原生闭环</a>
+        </nav>
+
+        <div class="vcp2-topbar-right">
+            <a href="/?page=learn-vcp" class="vcp2-top-pill">
+                <span>WHITEPAPER</span>
+            </a>
+            <a href="/" class="vcp2-top-pill vcp2-top-pill-amber">
+                <span>← 返回 VCP 2.0 官网</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- 右侧垂直章节刻度导航 -->
+    <nav class="progress-nav" aria-label="章节进度导航">
+        <div class="progress-track"></div>
+        <ul class="chapter-dots">
+            <li data-chapter="0" class="dot active"><span>00 · 统一语义动力场</span></li>
+            <li data-chapter="1" class="dot"><span>01 · 局部 AGS 残差与锚增益</span></li>
+            <li data-chapter="2" class="dot"><span>02 · 全局星团 AGS 主题面</span></li>
+            <li data-chapter="3" class="dot"><span>03 · 共享次随机传输图</span></li>
+            <li data-chapter="4" class="dot"><span>04 · EPA 背景校准与金字塔</span></li>
+            <li data-chapter="5" class="dot"><span>05 · 有界 Sense 请求河网</span></li>
+            <li data-chapter="6" class="dot"><span>06 · Resolvent 局部/迁移双场</span></li>
+            <li data-chapter="7" class="dot"><span>07 · 候选有序曲线与相对拓扑</span></li>
+            <li data-chapter="8" class="dot"><span>08 · 河网形态 Softmax 与 Ω</span></li>
+            <li data-chapter="9" class="dot"><span>09 · Direct Anchor 与条件创新</span></li>
+            <li data-chapter="10" class="dot"><span>10 · Rust N-API 全链路闭环</span></li>
+        </ul>
+    </nav>
+
+    <main>
+        <!-- ====================================================================
+             CHAPTER 00: HERO · TOPOLOGY V3 & UNIFIED FUNCTIONAL (DARK ZONE)
+             ==================================================================== -->
+        <section id="chapter-hero" class="chapter chapter-hero vcp2-section-dark" data-chapter="0">
+            <canvas id="heroCanvas" class="scene-canvas hero-bg-canvas"></canvas>
+
+            <div class="rmv3-container hero-shell">
+                <div class="vcp2-hud-bar">
+                    <span class="vcp2-hud-cross">SEC-00 // RIVERMEMO_TOPOLOGY_V3.1_RUST</span>
+                    <span>GEOMETRY: UNIFIED_GEOMETRY_AGS_V2 (LOCAL EXPLAIN + GLOBAL STAR SPAN)</span>
+                    <span>SYS_CLOCK: <span id="hudClock">2026-10-19 // 00:00:00.000</span></span>
+                </div>
+
+                <div class="hero-grid">
+                    <div class="hero-main">
+                        <div class="hero-kicker">
+                            <span class="kicker-dot"></span>
+                            <span>VCP RIVERMEMO ENGINE · 2026.10</span>
+                            <strong>告别重型 SVD 与特判补丁 · 单一方程闭合记忆寻址</strong>
+                        </div>
+
+                        <h1 class="hero-title">
+                            <span class="title-line">AGS 铸造统一几何底座，</span>
+                            <span class="title-line"><em class="patina">Topology V3</em> 与 <em class="amber">Ω 泛函</em></span>
+                            <span class="title-line">一式闭合记忆寻址。</span>
+                        </h1>
+
+                        <p class="hero-subtitle">
+                            RiverMemo 是 VCP 长期记忆系统中以 <strong>AGS 双尺度统一场</strong> 作为降噪传播背景图的连续信息场检索引擎。
+                            它首次将<strong>上下文降噪观测、守恒脉冲传输、请求级有向河网、Resolvent 双尺度场、候选有序曲线、相对拓扑、形态 Softmax、Ω 可观测性与 Direct Anchor</strong> 收束进同一个可计算、可消融、可回放的原生数学闭环。
+                        </p>
+
+                        <!-- 总方程工业铭牌 -->
+                        <div class="equation-monolith" aria-label="拓扑 V3 总方程">
+                            <div class="eq-monolith-head">
+                                <span>UNIFIED SCORE FUNCTIONAL · RESULT SCHEMA V1</span>
+                                <span>RANGE: Π<sub>[0,1]</sub> NON-NEGATIVE CORRECTION</span>
+                            </div>
+                            <div class="eq-monolith-body">
+                                <span class="eq-lhs">S<sub>i</sub> = Π<sub>[0,1]</sub></span>
+                                <span class="eq-bracket">[</span>
+                                <span class="eq-term eq-term-field" data-eq-focus="field">
+                                    <strong>S<sub>i</sub><sup>field</sup></strong>
+                                    <small>双场语义与路径基线</small>
+                                </span>
+                                <span class="eq-plus">+</span>
+                                <span class="eq-term eq-term-topo" data-eq-focus="topo">
+                                    <strong>Ω<sub>Q</sub><sup>γ</sup> · Π<sub>[0,C<sub>r<sub>i</sub></sub>]</sub>( λ<sub>r<sub>i</sub></sub> C<sub>i</sub> [G<sub>i</sub> − E(G|Z<sub>i</sub>) − zσ(G|Z<sub>i</sub>)]<sub>+</sub> )</strong>
+                                    <small>Ω 授权的条件关系拓扑创新</small>
+                                </span>
+                                <span class="eq-plus">+</span>
+                                <span class="eq-term eq-term-anchor" data-eq-focus="anchor">
+                                    <strong>C<sub>A</sub> · SmoothStep( (A<sub>i</sub>R<sub>i</sub><sup>A</sup> − τ<sub>A</sub>) / (s<sub>A</sub> − τ<sub>A</sub>) )</strong>
+                                    <small>与河网密度正交的直接锚点创新</small>
+                                </span>
+                                <span class="eq-bracket">]</span>
+                            </div>
+                        </div>
+
+                        <div class="hero-actions">
+                            <a href="#chapter-birth" class="vcp2-btn-primary">
+                                <span>进入交互式算法拆解</span>
+                                <span>↓</span>
+                            </a>
+                            <a href="#chapter-grand-view" class="vcp2-btn-secondary">
+                                <span>直达全链路模拟器</span>
+                            </a>
+                            <a href="/?page=learn-vcp" class="vcp2-btn-secondary">
+                                <span>阅读 Topology V3 白皮书</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 右侧三层生命周期与遥测铭牌 -->
+                    <aside class="hero-telemetry" aria-label="三层架构边界与实测指标">
+                        <div class="telemetry-header">
+                            <span>THREE-LAYER OBJECT BOUNDARY</span>
+                            <span>RUST RAYON + SQLITE</span>
+                        </div>
+
+                        <div class="layer-stack">
+                            <div class="layer-card layer-shared">
+                                <div class="layer-tag">LAYER 01 · 共享背景资产 (训练/重建发布)</div>
+                                <strong>AGS 双尺度统一几何 & CSR 有向传输图</strong>
+                                <p>同一 <code>anchored_gs()</code> 算子产出局部残差/锚增益与全局星团主题面，同事务原子发布；严格满足 <code>Σ<sub>j</sub> P<sub>ij</sub> < 1</code>。</p>
+                            </div>
+                            <div class="layer-card layer-request">
+                                <div class="layer-tag">LAYER 02 · 请求级观测 (每次查询生成)</div>
+                                <strong>EPA 校准 + 残差金字塔 + Sense 有向河网 R<sub>q</sub></strong>
+                                <p>只记录本次查询真实走过的节点势 <code>E<sub>i</sub></code> 与边流 <code>F<sub>ij</sub></code>，经 <code>observationHandle</code> 在同代内存零拷贝复用。</p>
+                            </div>
+                            <div class="layer-card layer-readout">
+                                <div class="layer-tag">LAYER 03 · 请求级双场与 V3 读出</div>
+                                <strong>Resolvent 双场 (u<sub>L</sub>, u<sub>T</sub>) × 形态 Softmax × Ω × 锚</strong>
+                                <p>候选作为有序 Tag 曲线读取双场并检验相对拓扑；Ω 统一度量河网可观测性并门控结构排序权。</p>
+                            </div>
+                        </div>
+
+                        <div class="telemetry-metrics">
+                            <div class="t-metric">
+                                <strong>+26<em>%</em></strong>
+                                <span>黄金测试 vs V9</span>
+                            </div>
+                            <div class="t-metric">
+                                <strong>2.5<em>ms</em></strong>
+                                <span>Rust 原生热点耗时</span>
+                            </div>
+                            <div class="t-metric">
+                                <strong>41<em>轮</em></strong>
+                                <span>连续消融 All Pass</span>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </section>
+
+        <!-- ====================================================================
+             CHAPTER 01: LOCAL AGS EXPLAIN · 局部残差范数比与锚增益 (PAPER ZONE)
+             ==================================================================== -->
+        <section id="chapter-birth" class="chapter vcp2-section-paper" data-chapter="1">
+            <div class="rmv3-container">
+                <div class="vcp2-hud-bar">
+                    <span class="vcp2-hud-cross">SEC-01 // AGS_LOCAL_EXPLAIN_GEOMETRY</span>
+                    <span>RUST FN: memo_geometry::anchored_gs(AgsTarget::Explain)</span>
+                    <span>COMPLEXITY: GRAM-SPACE O(K·n²) · NO PAIRWISE TABLE</span>
+                </div>
+
+                <div class="chapter-header">
+                    <div>
+                        <div class="chapter-meta">CHAPTER 01 · UNIFIED GEOMETRY (LOCAL SCALE)</div>
+                        <h2 class="chapter-title">AGS 局部 Explain：用共现邻居正交剥离，测量内生残差与锚增益</h2>
+                    </div>
+                    <p class="chapter-intro">
+                        旧版独立残差任务已被 <strong>AGS（Anchored Greedy Gram-Schmidt）局部 Explain 模式</strong> 完全接管。
+                        对于每个目标 Tag 单位向量 <code>t</code>，Rust 从 SQLite 权威原始向量读取其共现邻居，结合内联钟形语义门控构造先验，在 Gram 空间内逐轮贪心选出“解释增益 × 正交新意 × 先验权重”最高的邻居作为正交基 <code>b<sub>k</sub></code>。
+                    </p>
+                </div>
+
+                <div class="chapter-body">
+                    <div class="text-pane">
+                        <div class="spec-card">
+                            <div class="spec-card-head">
+                                <span>MATHEMATICAL DEFINITION</span>
+                                <span>RESIDUAL NORM RATIO ≠ ENERGY RATIO</span>
+                            </div>
+                            <div class="formula-plate">
+                                r<sub>t</sub> = √( max(0, 1 − Σ<sub>k=1..K</sub> ⟨t, b<sub>k</sub>⟩²) )<br/>
+                                a<sub>t</sub> = Π<sub>[0.5, 2.0]</sub>( 0.75 + 1.25 · r<sub>t</sub><sup>γ</sup> )
+                            </div>
+                            <p class="spec-note">
+                                注意严格区分：<code>r<sub>t</sub></code> 是未解释<strong>残差范数比</strong>，而已解释能量比为 <code>1 − r<sub>t</sub>²</code>。
+                                邻居越无法替代表达该 Tag，其残差范数比 <code>r<sub>t</sub></code> 越高，映射出的锚增益 <code>a<sub>t</sub></code> 越强（最高 2.0），后续在传输图中更容易激活跨域虫洞。
+                            </p>
+                        </div>
+
+                        <ol class="step-list">
+                            <li>
+                                <strong>内联钟形语义门控</strong>：邻居候选先验为 <code>prior = ln(1 + w) · bell(sim)</code>，在 <code>sim ≈ 0.65</code> 概念邻接区达峰（1.30），抑制偶然噪声与同义词复读。
+                            </li>
+                            <li>
+                                <strong>Gram 空间贪心选基</strong>：每轮按 <code>score = |⟨r, u⟩| · ‖u<sub>⊥</sub>‖ · prior</code> 挑选最优邻居正交化，计算复杂度从 <code>O(K·n²·d)</code> 降至 <code>O(K·n²)</code>。
+                            </li>
+                            <li>
+                                <strong>权威真值隔离</strong>：向量计算仅以 SQLite <code>tags.vector</code> 为唯一真源，检索索引（ANN）绝不污染几何预计算。
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="canvas-pane">
+                        <div class="canvas-hud-top">
+                            <span>INTERACTIVE SANDBOX // 点击步进正交剥离锚点</span>
+                            <span id="ch1Readout">K = 3 Anchors · r_t = 0.58 · a_t = 1.48</span>
+                        </div>
+                        <canvas id="ch1Canvas" class="scene-canvas"></canvas>
+                        <div class="canvas-controls">
+                            <div class="ctrl-group" role="group" aria-label="选择 AGS 正交基数量">
+                                <button type="button" class="ctrl-btn" data-ags-step="0">K=0 (原始向量)</button>
+                                <button type="button" class="ctrl-btn" data-ags-step="1">K=1 (剥离主邻)</button>
+                                <button type="button" class="ctrl-btn" data-ags-step="2">K=2 (正交次邻)</button>
+                                <button type="button" class="ctrl-btn active" data-ags-step="3">K=3 (最终残差 r_t)</button>
+                            </div>
+                            <button type="button" class="ctrl-btn-accent" id="ch1CycleBtn">↻ 自动演示贪心选基</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ====================================================================
+             CHAPTER 02: GLOBAL AGS STAR SPAN · 全局星团主题面 (DARK ZONE)
+             ==================================================================== -->
+        <section id="chapter-confluence" class="chapter vcp2-section-dark" data-chapter="2">
+            <div class="rmv3-container">
+                <div class="vcp2-hud-bar">
+                    <span class="vcp2-hud-cross">SEC-02 // AGS_GLOBAL_STAR_SPAN_V2</span>
+                    <span>CACHE KEY: ags-global-star-v2 · PREFIX NESTED BASIS</span>
+                    <span>REPLACES: LEGACY HEAVY SVD GLOBAL SCAN</span>
+                </div>
+
+                <div class="chapter-header">
+                    <div>
+                        <div class="chapter-meta">CHAPTER 02 · UNIFIED GEOMETRY (GLOBAL SCALE)</div>
+                        <h2 class="chapter-title">AGS 全局星团 Span：告别重型 SVD，用真实 Tag 星团张成前缀嵌套主题面</h2>
+                    </div>
+                    <p class="chapter-intro">
+                        旧版本 EPA 依赖沉重的全局 SVD/特征分解扫描，且产生抽象无标签的隐轴。
+                        现在，<strong>同一套 AGS 算子切换至 <code>AgsTarget::Span</code> 模式</strong>，对高支持度候选 Tag 的<strong>中心化星团方向（Star Direction）</strong>执行贪心正交化，直接生成带真实 Tag 语义标签的正交主题面、全库均值 <code>μ</code> 与累积覆盖率曲线。
+                    </p>
+                </div>
+
+                <div class="chapter-body reverse">
+                    <div class="text-pane">
+                        <div class="spec-card dark-card">
+                            <div class="spec-card-head">
+                                <span>CENTERED STAR DIRECTION (ξ = 0.80)</span>
+                                <span>COUNT-SCALE INVARIANT</span>
+                            </div>
+                            <div class="formula-plate dark-plate">
+                                s<sub>t</sub> = normalize[ (1 − ξ)(t − μ) + ξ · Σ<sub>j∈N(t)</sub> w̄<sub>tj</sub>(t<sub>j</sub> − μ) ]<br/>
+                                K<sub>eff</sub> = min{ k ≥ K<sub>sem</sub> : 1 − cov(k) ≤ ε  ∨  Δcov(k) < δ }
+                            </div>
+                            <p class="spec-note">
+                                单个 Tag 往往带有局部用词偏置；而将目标 Tag 与其共现星团按 <code>ξ = 0.8</code> 中心化混合后，对称的邻居噪声互相抵消，提炼出稳健的星团主轴。
+                            </p>
+                        </div>
+
+                        <div class="stat-grid">
+                            <div class="stat">
+                                <div class="stat-num" data-target="8">8</div>
+                                <div class="stat-label">语义前缀 K<sub>sem</sub></div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-num" data-target="32">32</div>
+                                <div class="stat-label">最大基数 K<sub>max</sub></div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-num" data-target="80">80%</div>
+                                <div class="stat-label">星团混合比 ξ</div>
+                            </div>
+                        </div>
+
+                        <ul class="feature-list">
+                            <li><span class="dot-icon t-patina"></span><strong>前缀嵌套性（Prefix Nesting）</strong>：前 8 个基向量严格等于 32 维全基的前缀，无需随截断改变重算。</li>
+                            <li><span class="dot-icon t-amber"></span><strong>膝点自适应截断</strong>：按覆盖率阈值与增量膝点 <code>effective_k()</code> 自动截取有效主题面 <code>K<sub>eff</sub></code>。</li>
+                            <li><span class="dot-icon t-cinnabar"></span><strong>同事务原子发布</strong>：局部残差表与全局 <code>epa_basis_cache</code> 在同一 SQLite 写事务内提交，杜绝代际撕裂。</li>
+                        </ul>
+                    </div>
+
+                    <div class="canvas-pane dark-canvas-pane">
+                        <div class="canvas-hud-top">
+                            <span>STAR CLUSTER SPAN // 星团中心化与前缀覆盖率曲线</span>
+                            <span id="ch2Readout">Mode: Star Mixture (ξ=0.80) · K_eff = 14 · Cov = 91.2%</span>
+                        </div>
+                        <canvas id="ch2Canvas" class="scene-canvas"></canvas>
+                        <div class="canvas-controls">
+                            <div class="ctrl-group">
+                                <button type="button" class="ctrl-btn active" data-star-mode="star">星团混合方向 (ξ = 0.8)</button>
+                                <button type="button" class="ctrl-btn" data-star-mode="anchor">单 Tag 裸方向 (ξ = 0.0)</button>
+                            </div>
+                            <button type="button" class="ctrl-btn-accent" id="ch2SweepBtn">扫描前缀 K<sub>sem</sub> → K<sub>eff</sub></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ====================================================================
+             CHAPTER 03: SHARED SUB-STOCHASTIC TRANSPORT GRAPH (PAPER ZONE)
+             ==================================================================== -->
+        <section id="chapter-direction" class="chapter vcp2-section-paper" data-chapter="3">
+            <div class="rmv3-container">
+                <div class="vcp2-hud-bar">
+                    <span class="vcp2-hud-cross">SEC-03 // SHARED_TRANSPORT_ARTIFACT_CSR</span>
+                    <span>INVARIANT #3: ∀i, Σ_j P_ij ≤ m_out < 1.0</span>
+                    <span>CODEC: GZIP-JSON-V1 + SHA256 VERIFIED</span>
+                </div>
+
+                <div class="chapter-header">
+                    <div>
+                        <div class="chapter-meta">CHAPTER 03 · CONSERVATIVE TRANSPORT KERNEL</div>
+                        <h2 class="chapter-title">共享有向传输图：事实对数压缩、钟形门控、预算内虫洞与严格次随机行预算</h2>
+                    </div>
+                    <p class="chapter-intro">
+                        注意理论边界：<strong>AGS 正交基不是 Tag 间邻接矩阵</strong>。长期记忆的有向边依然来自日记文件内的有序 Tag 共现（前→后为顺流，后→前为逆流阻尼），构建时从 SQLite 原始向量现场计算余弦增益，并融入第一章的 AGS 局部锚增益 <code>a<sub>j</sub></code>，最终压入严格次随机的 CSR 稀疏传输核 <code>P</code>。
+                    </p>
+                </div>
+
+                <div class="chapter-body">
+                    <div class="text-pane">
+                        <div class="axis-table">
+                            <div class="axis-row">
+                                <span class="axis-tag axis-form">压缩</span>
+                                <span class="axis-name">事实对数压缩</span>
+                                <span class="axis-desc"><code>e<sub>ij</sub> = log(1 + λW<sub>ij</sub>)</code> 抑制高频共现垄断，并进行枢纽入度校正</span>
+                            </div>
+                            <div class="axis-row">
+                                <span class="axis-tag axis-color">方向</span>
+                                <span class="axis-name">顺逆流不对称</span>
+                                <span class="axis-desc">顺流 <code>×1.00</code>，逆流 <code>×0.42 · a<sub>j</sub></code> 且受反转守卫 <code>≤ 0.95 · forward</code> 约束</span>
+                            </div>
+                            <div class="axis-row">
+                                <span class="axis-tag axis-quality">预算</span>
+                                <span class="axis-name">严格次随机行</span>
+                                <span class="axis-desc">整行统一归一化至 <code>Σ<sub>j</sub> P<sub>ij</sub> ≤ m<sub>out</sub> < 1</code>，保证后续 Resolvent 场必然收敛</span>
+                            </div>
+                        </div>
+
+                        <div class="spec-card">
+                            <div class="spec-card-head">
+                                <span>BUDGETED WORMHOLE COMPETITION</span>
+                                <span>NO FREE ENERGY CREATION</span>
+                            </div>
+                            <p class="spec-note">
+                                当目标节点的 AGS 锚增益 <code>a<sub>j</sub></code> 与传导率乘积跨越张力阈值（<code>P<sub>ij</sub> · a<sub>j</sub> ≥ 1.0</code>），该边被标记为<strong>虫洞边（Wormhole）</strong>。
+                                虫洞在行归一化前参与份额竞争，并在传播时免除动量消耗、享受更高保留率（0.70 vs 0.25），但<strong>绝不能让源节点突破 <code>m<sub>out</sub> < 1</code> 的总出流预算凭空创造能量</strong>。
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="canvas-pane">
+                        <div class="canvas-hud-top">
+                            <span>CSR ROW BUDGET & BELL GATE // 切换观测顺逆流与虫洞份额</span>
+                            <span id="ch3Readout">Row Sum ΣP_ij = 0.85 < 1.00 (Strictly Sub-Stochastic)</span>
+                        </div>
+                        <canvas id="ch3Canvas" class="scene-canvas"></canvas>
+                        <div class="canvas-controls">
+                            <div class="ctrl-group">
+                                <button type="button" class="ctrl-btn active" data-flow="forward">顺流 + 普通边预算</button>
+                                <button type="button" class="ctrl-btn" data-flow="wormhole">高残差锚增益 → 虫洞夺取份额</button>
+                                <button type="button" class="ctrl-btn" data-flow="backward">逆流阻尼 (×0.42 守卫)</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ====================================================================
+             CHAPTER 04: EPA CALIBRATION & RESIDUAL PYRAMID (DARK ZONE)
+             ==================================================================== -->
+        <section id="chapter-epa" class="chapter vcp2-section-dark" data-chapter="4">
+            <div class="rmv3-container">
+                <div class="vcp2-hud-bar">
+                    <span class="vcp2-hud-cross">SEC-04 // EPA_BACKGROUND_CALIBRATION_AND_PYRAMID</span>
+                    <span>RUST FN: analyze_epa_with_mode("backgroundRelative") + analyze_pyramid()</span>
+                    <span>OUTPUT: GATED INITIAL SEEDS Z_0 = {(z_i, w_i)}</span>
+                </div>
+
+                <div class="chapter-header">
+                    <div>
+                        <div class="chapter-meta">CHAPTER 04 · CONTEXT OBSERVATION TO SOURCE SEEDS</div>
+                        <h2 class="chapter-title">从全上下文到种子源：EPA 背景相对校准 × 残差金字塔正交剥离</h2>
+                    </div>
+                    <p class="chapter-intro">
+                        当整段对话上下文向量 <code>q ∈ ℝ<sup>3072</sup></code> 进入 [`run_pipeline()`](参考文档/memo_pipeline.rs:1518)，系统不再做慢速全库扫描，而是直接读取第二章发布的 <strong>AGS 全局星团主题面</strong> 进行瞬间投影校准，并配合请求侧 <strong>3 层 Residual Pyramid</strong> 剥离出多层次语义种子 <code>Z<sub>0</sub></code>。
+                    </p>
+                </div>
+
+                <div class="chapter-body reverse">
+                    <div class="text-pane">
+                        <div class="spec-card dark-card">
+                            <div class="spec-card-head">
+                                <span>ISOTROPIC BACKGROUND CALIBRATION</span>
+                                <span>MODE: backgroundRelative</span>
+                            </div>
+                            <div class="formula-plate dark-plate">
+                                b<sub>iso</sub> = ( m / d + Σ<sub>k=1..m</sub> ⟨μ, b<sub>k</sub>⟩² ) / ( 1 + ‖μ‖² )<br/>
+                                g<sub>Q</sub> = Π<sub>[0,1]</sub>( (r<sub>Q</sub> − b<sub>iso</sub>) / (c<sub>m</sub> − b<sub>iso</sub>) ),  Depth = (1 − H<sub>Q</sub>) · g<sub>Q</sub>
+                            </div>
+                            <p class="spec-note">
+                                在 3072 维空间中，8 个前缀主题面的绝对能量占比 <code>r<sub>Q</sub></code> 天然偏小。RiverMemo 用全库前缀覆盖率 <code>c<sub>m</sub></code> 与同均值中心化各向同性随机背景 <code>b<sub>iso</sub></code> 做相对校准，准确识别查询是否真正落在知识库语义域内。
+                            </p>
+                        </div>
+
+                        <ol class="step-list dark-steps">
+                            <li>
+                                <strong>EPA 调制因子</strong>：只取语义前缀 <code>m = min(K<sub>sem</sub>, K<sub>eff</sub>)</code> 计算归一化熵 <code>H<sub>Q</sub></code>、逻辑深度与跨主题桥共振，尾轴仅用于诊断域外残差，绝不反向虚抬前缀解释率。
+                            </li>
+                            <li>
+                                <strong>3 层 Residual Pyramid</strong>：每层召回 Top-10 Tag 并在请求侧做 Gram-Schmidt 正交投影 <code>q<sub>res</sub> ← q<sub>res</sub> − Proj(q<sub>res</sub>)</code>，分析握手方向一致性（Handshake Coherence），继续向深层残差挖掘隐含意图。
+                            </li>
+                            <li>
+                                <strong>Tag 门控与 Ghost 隔离</strong>：综合层级衰减 <code>0.7<sup>L</sup></code>、Core 增益与跨语种惩罚生成 <code>Z<sub>0</sub></code>；朗飞结 Ghost Tag（<code>id < 0</code>）仅在传播后参与向量融合，绝不污染持久传输图。
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="canvas-pane dark-canvas-pane">
+                        <div class="canvas-hud-top">
+                            <span>EPA CALIBRATION & 3-LEVEL PYRAMID // 切换查询上下文状态</span>
+                            <span id="ch4Readout">In-Domain Gate g_Q = 0.88 · Logic Depth = 0.64 · 3 Pyramid Levels</span>
+                        </div>
+                        <canvas id="ch4Canvas" class="scene-canvas"></canvas>
+                        <div class="canvas-controls">
+                            <div class="ctrl-group">
+                                <button type="button" class="ctrl-btn active" data-epa-mode="focused">深层技术上下文 (高 g_Q)</button>
+                                <button type="button" class="ctrl-btn" data-epa-mode="cross">跨域复合意图 (多桥共振)</button>
+                                <button type="button" class="ctrl-btn" data-epa-mode="ood">域外噪声闲聊 (r_Q ≈ b_iso)</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ====================================================================
+             CHAPTER 05: BOUNDED SENSE WAVE & REQUEST RIVER (PAPER ZONE)
+             ==================================================================== -->
+        <section id="chapter-lif" class="chapter vcp2-section-paper" data-chapter="5">
+            <div class="rmv3-container">
+                <div class="vcp2-hud-bar">
+                    <span class="vcp2-hud-cross">SEC-05 // SENSE_TYPED_BOUNDED_FIR_WAVE</span>
+                    <span>RUST FN: memo_sensing::sense_typed() · MAX_HOPS = 4 · GAMMA = 0.60</span>
+                    <span>INVARIANT #4: RIVER EDGES MUST CARRY ACTUAL POSITIVE FLOW</span>
+                </div>
+
+                <div class="chapter-header">
+                    <div>
+                        <div class="chapter-meta">CHAPTER 05 · REQUEST-SCOPED DIRECTED RIVER NETWORK</div>
+                        <h2 class="chapter-title">有界 Sense 脉冲传播：前驱状态追踪、软非回溯与请求级有向河网 R<sub>q</sub></h2>
+                    </div>
+                    <p class="chapter-intro">
+                        种子 <code>Z<sub>0</sub></code> 注入共享传输图后，Rust [`sense_typed()`](参考文档/memo_sensing.rs:226) 以二阶状态 <code>x = (v<sub>prev</sub>, v, e, m, h)</code> 追踪最多 4 跳的有限脉冲扩散。
+                        这一步严禁把静态全库图复制为河网——<strong>只有本次查询真正承载过正流量的节点与有向边，才能进入请求级查询河网 <code>R<sub>q</sub> = (V<sub>q</sub>, E<sub>q</sub>, E, F)</code></strong>。
+                    </p>
+                </div>
+
+                <div class="chapter-body">
+                    <div class="text-pane">
+                        <div class="spec-card">
+                            <div class="spec-card-head">
+                                <span>FINITE IMPULSE RESPONSE (FIR) &amp; SOFT NON-BACKTRACKING</span>
+                                <span>H = 4 HOPS · ρ_return = 0.15</span>
+                            </div>
+                            <div class="formula-plate">
+                                f<sub>ij</sub><sup>(h)</sup> = e<sub>i</sub><sup>(h)</sup> · P<sub>ij</sub> · d<sub>ij</sub> · ρ<sub>ij</sub>, &nbsp;&nbsp; a<sub>h</sub> = γ<sup>h</sup> / Σ<sub>r=0..H</sub> γ<sup>r</sup><br/>
+                                E<sub>i</sub> = Σ<sub>h=0..H</sub> a<sub>h</sub> e<sub>i</sub><sup>(h)</sup>, &nbsp;&nbsp; F<sub>ij</sub> = Σ<sub>h</sub> f<sub>ij</sub><sup>(h)</sup>
+                            </div>
+                            <p class="spec-note">
+                                立即回流 <code>i → j → i</code>（即 <code>v<sub>prev</sub> == target</code>）受到 <code>ρ<sub>ij</sub> = 0.15</code> 的软非回溯抑制，被压制的质量记入诊断指标 <code>returnFlowSuppressedMass</code>；而跨节点环路仍被允许。
+                            </p>
+                        </div>
+
+                        <ol class="step-list">
+                            <li>
+                                <strong>同源双生输出</strong>：一次传播同时产出节点势 <code>E<sub>i</sub></code>（经质量归一化后成为双场源 <code>S</code>）与真实承载过信息的有向边流 <code>F<sub>ij</sub></code>。
+                            </li>
+                            <li>
+                                <strong>硬边界保护</strong>：<code>maxSafeHops = 4</code>、单节点邻居上限 <code>20</code>、活跃状态上限 <code>2000</code>、最小注入电流 <code>0.01</code>，杜绝图爆炸。
+                            </li>
+                            <li>
+                                <strong>冗余标签 20% 能量吸收</strong>：传播后融合时按余弦 <code>&gt; 0.88</code> 贪心去重，冗余 Tag 不直接丢弃，而是将 <code>20%</code> 权重转移给代表 Tag 并合并 <code>isCore</code> 标记。
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="canvas-pane">
+                        <div class="canvas-hud-top">
+                            <span>BOUNDED FIR WAVE // 观测 0→4 跳脉冲、虫洞跃迁与软非回溯抑制</span>
+                            <span id="ch5Readout">Hop 0..4 · FIR γ=0.60 · Return Flow ×0.15</span>
+                        </div>
+                        <canvas id="ch5Canvas" class="scene-canvas"></canvas>
+                        <div class="canvas-controls">
+                            <button type="button" class="ctrl-btn-accent" id="ch5FireBtn">≋ 重新注入 Z₀ 有限脉冲浪潮</button>
+                            <div class="ctrl-group">
+                                <button type="button" class="ctrl-btn active" data-sense-view="river">仅显示真实激活河网 R_q</button>
+                                <button type="button" class="ctrl-btn" data-sense-view="all">叠加未激活静态背景边</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ====================================================================
+             CHAPTER 06: RESOLVENT DUAL-SCALE CONTINUOUS FIELDS (DARK ZONE)
+             ==================================================================== -->
+        <section id="chapter-dualfield" class="chapter vcp2-section-dark" data-chapter="6">
+            <div class="rmv3-container">
+                <div class="vcp2-hud-bar">
+                    <span class="vcp2-hud-cross">SEC-06 // RESOLVENT_DUAL_SCALED_FIELDS</span>
+                    <span>RUST FN: memo_pipeline::solve_dual_fields() · α_L = 0.15 · α_T = 0.55</span>
+                    <span>EFFECTIVE SUPPORT DOMAIN: η_L = 0.80 · η_T = 0.90</span>
+                </div>
+
+                <div class="chapter-header">
+                    <div>
+                        <div class="chapter-meta">CHAPTER 06 · DISCRETE TRANSPORT TO CONTINUOUS FIELDS</div>
+                        <h2 class="chapter-title">双尺度连续场：同一传输算子 T 下的局部场 u<sub>L</sub> 与迁移场 u<sub>T</sub></h2>
+                    </div>
+                    <p class="chapter-intro">
+                        场不是额外拼凑的经验评分层，而是<strong>同一守恒传输过程在不同观测尺度下的稳态 Resolvent 响应</strong>。
+                        Rust <code>solve_dual_fields()</code> 以 Sense 归一化源场 <code>S</code> 与共享传输算子 <code>T</code>，在同一个迭代循环（最高 80 步，容差 <code>10<sup>−9</sup></code>）内同步求解两个尺度截面。
+                    </p>
+                </div>
+
+                <div class="chapter-body reverse">
+                    <div class="text-pane">
+                        <div class="spec-card dark-card">
+                            <div class="spec-card-head">
+                                <span>RESOLVENT FIELD EQUATIONS</span>
+                                <span>SPECTRAL RADIUS ρ(T) &lt; 1 GUARANTEED</span>
+                            </div>
+                            <div class="formula-plate dark-plate">
+                                u<sub>L</sub> = (1 − α<sub>L</sub>)S + α<sub>L</sub> T(u<sub>L</sub>), &nbsp;&nbsp; α<sub>L</sub> = 0.15<br/>
+                                u<sub>T</sub> = (1 − α<sub>T</sub>)S + α<sub>T</sub> T(u<sub>T</sub>), &nbsp;&nbsp; α<sub>T</sub> = 0.55<br/>
+                                D<sub>η</sub>(u) = TopMass<sub>η</sub>(u), &nbsp;&nbsp; η<sub>L</sub> = 0.80, &nbsp; η<sub>T</sub> = 0.90
+                            </div>
+                            <p class="spec-note">
+                                <strong>局部场 <code>u<sub>L</sub></code>（α<sub>L</sub>=0.15）</strong>紧贴查询源附近，提供高确定性的近邻解释；
+                                <strong>迁移场 <code>u<sub>T</sub></code>（α<sub>T</sub>=0.55）</strong>允许质量沿可靠关系延伸至远端桥接结构。
+                            </p>
+                        </div>
+
+                        <div class="comparison">
+                            <div class="comp-card comp-local">
+                                <div class="comp-label">LOCAL FIELD · u<sub>L</sub></div>
+                                <div class="comp-value">α<sub>L</sub> = 0.15 · η<sub>L</sub> = 80%</div>
+                                <p>紧束于源种子周边的核心语义域，过滤远端发散联想。</p>
+                            </div>
+                            <div class="comp-card comp-transfer">
+                                <div class="comp-label">TRANSFER FIELD · u<sub>T</sub></div>
+                                <div class="comp-value">α<sub>T</sub> = 0.55 · η<sub>T</sub> = 90%</div>
+                                <p>沿有向河网深入跨层结构，捕获长程逻辑承接与迁移路径。</p>
+                            </div>
+                        </div>
+
+                        <p class="lead-quote">
+                            <strong>不变量 #11（有效支持域截断）</strong>：场分布的长尾不具备同等解释权。系统按累计质量截取 <code>TopMass<sub>0.80</sub>(u<sub>L</sub>)</code> 与 <code>TopMass<sub>0.90</sub>(u<sub>T</sub>)</code>；未进入有效支持域的候选路径段质量强制归零（<code>Q<sub>i</sub> = 0</code>）。
+                        </p>
+                    </div>
+
+                    <div class="canvas-pane dark-canvas-pane">
+                        <div class="canvas-hud-top">
+                            <span>DUAL-SCALE RESOLVENT SOLVER // 对比局部场与迁移场支持域截面</span>
+                            <span id="ch6Readout">Viewing: Dual Overlay · D_0.8(u_L) + D_0.9(u_T)</span>
+                        </div>
+                        <canvas id="ch6Canvas" class="scene-canvas"></canvas>
+                        <div class="canvas-controls">
+                            <div class="ctrl-group">
+                                <button type="button" class="ctrl-btn active" data-field-mode="both">双场同屏对照</button>
+                                <button type="button" class="ctrl-btn" data-field-mode="local">仅局部场 u_L (α=0.15, η=80%)</button>
+                                <button type="button" class="ctrl-btn" data-field-mode="transfer">仅迁移场 u_T (α=0.55, η=90%)</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ====================================================================
+             CHAPTER 07: CANDIDATE ORDERED CURVE & RELATIVE TOPOLOGY (PAPER ZONE)
+             ==================================================================== -->
+        <section id="chapter-geodesic" class="chapter vcp2-section-paper" data-chapter="7">
+            <div class="rmv3-container">
+                <div class="vcp2-hud-bar">
+                    <span class="vcp2-hud-cross">SEC-07 // ORDERED_CURVE_AND_RELATIVE_TOPOLOGY</span>
+                    <span>RUST FN: evaluate_path() + evaluate_topology() (RAYON PARALLEL)</span>
+                    <span>PROVENANCE ANTI-SELF-LOOP: I_e = clamp(1 − own/total, 0.15, 1.0)</span>
+                </div>
+
+                <div class="chapter-header">
+                    <div>
+                        <div class="chapter-meta">CHAPTER 07 · CANDIDATE CURVE GEOMETRY &amp; RELATIVE TOPOLOGY</div>
+                        <h2 class="chapter-title">候选即有序曲线 Γ<sub>c</sub>：双场路径几何 × 相对拓扑复现</h2>
+                    </div>
+                    <p class="chapter-intro">
+                        在 Topology V3 中，每篇候选记忆所属文件的有序 Tag 链是一条参数化离散曲线 <code>Γ<sub>c</sub> = (t<sub>1</sub>, t<sub>2</sub>, …, t<sub>n</sub>)</code>。
+                        Rust 使用 Rayon 并行检验每条候选曲线：一方面在双场支持域内计算<strong>相邻段导通质量 <code>Q<sub>i</sub></code></strong>，另一方面将查询河网 <code>R<sub>q</sub></code> 的节点与有向边<strong>相对拓扑映射</strong>到候选曲线上。
+                    </p>
+                </div>
+
+                <div class="chapter-body">
+                    <div class="text-pane">
+                        <div class="spec-card">
+                            <div class="spec-card-head">
+                                <span>DUAL-FIELD PATH SEGMENT &amp; RELATIVE EDGE TOPOLOGY</span>
+                                <span>EXACT OR COSINE ≥ 0.48 ALIGNMENT</span>
+                            </div>
+                            <div class="formula-plate">
+                                Q<sub>i</sub> = U<sub>i</sub> · √max(D<sub>min</sub>, P<sub>i,i+1</sub>/(P<sub>i,i+1</sub>+P<sub>i+1,i</sub>)) · √C<sub>i</sub><br/>
+                                G<sub>e</sub> = √(A(r<sub>a</sub>,t<sub>a</sub>)A(r<sub>b</sub>,t<sub>b</sub>)) · exp(−|Δ̂<sub>q</sub> − Δ̂<sub>c</sub>|/0.35) · D<sub>dir</sub> · I<sub>e</sub>
+                            </div>
+                            <p class="spec-note">
+                                <strong>防自证因子 <code>I<sub>e</sub></code></strong>：通过读取传输边 provenance 中当前候选文件自身贡献占比 <code>own / total</code>，令 <code>I<sub>e</sub> = max(0.15, 1 − own/total)</code>，防止单篇孤立日记自己给自己刷出虚假高拓扑分。
+                            </p>
+                        </div>
+
+                        <ol class="step-list">
+                            <li>
+                                <strong>双场路径质量 <code>pathQuality</code></strong>：相邻段两端必须同在 <code>D<sub>0.8</sub>(u<sub>L</sub>)</code> 或 <code>D<sub>0.9</sub>(u<sub>T</sub>)</code> 内且存在传输边，再由覆盖率与 Tag→Chunk 正文闭合度 <code>tagClosure</code> 收束。
+                            </li>
+                            <li>
+                                <strong>节点与边对应</strong>：河网节点可通过精确 ID 或向量余弦 <code>≥ 0.48</code> 对齐候选 Tag（均需乘正文闭合度）；当边两端均对齐时，比较归一化查询跳距 <code>Δ̂<sub>q</sub></code> 与候选序位跨度 <code>Δ̂<sub>c</sub></code>、方向一致性（顺向 1.0 / 逆向 0.25）及独立来源比例 <code>I<sub>e</sub></code>。
+                            </li>
+                            <li>
+                                <strong>受限退化保护（不变量 #14）</strong>：若无完整边对应，仅允许受限节点图分退化读出（可靠度上限 <code>0.20</code>），绝不把不可观测的距离和方向当零值混入。
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="canvas-pane">
+                        <div class="canvas-hud-top">
+                            <span>CURVE READOUT &amp; RELATIVE TOPOLOGY // 点击切换三条真实候选曲线</span>
+                            <span id="ch7Readout">Candidate A (Structural Match) · Path=0.84 · EdgeTopo=0.79</span>
+                        </div>
+                        <canvas id="ch7Canvas" class="scene-canvas"></canvas>
+                        <div class="canvas-controls">
+                            <div class="ctrl-group">
+                                <button type="button" class="ctrl-btn active" data-curve-idx="0">候选 A · 完整复现河网边结构</button>
+                                <button type="button" class="ctrl-btn" data-curve-idx="1">候选 B · 节点命中但序位逆序/无边</button>
+                                <button type="button" class="ctrl-btn" data-curve-idx="2">候选 C · 落入长尾支持域外 (Q_i=0)</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ====================================================================
+             CHAPTER 08: QUERY MORPHOLOGY SOFTMAX & OMEGA FUNCTIONAL (DARK ZONE)
+             ==================================================================== -->
+        <section id="chapter-morphology" class="chapter vcp2-section-dark" data-chapter="8">
+            <div class="rmv3-container">
+                <div class="vcp2-hud-bar">
+                    <span class="vcp2-hud-cross">SEC-08 // MORPHOLOGY_SOFTMAX_AND_OMEGA_GATE</span>
+                    <span>RUST FN: compute_query_morphology() + compute_omega()</span>
+                    <span>INVARIANTS #5 &amp; #6: CANDIDATE-AGNOSTIC &amp; LANGUAGE-AGNOSTIC</span>
+                </div>
+
+                <div class="chapter-header">
+                    <div>
+                        <div class="chapter-meta">CHAPTER 08 · CONTINUOUS MORPHOLOGY &amp; OBSERVABILITY Ω</div>
+                        <h2 class="chapter-title">河网形态 Softmax 与 Ω 可观测泛函：不看自然语言字面，只看河网结构与成网置信度</h2>
+                    </div>
+                    <p class="chapter-intro">
+                        旧检索器常靠正则关键词猜测查询属于“概念型”还是“叙事型”，极易在跨语言或隐喻提问时突变。
+                        Topology V3 的 <code>compute_query_morphology()</code> 與 <code>compute_omega()</code> <strong>完全不读取查询文本，也不读取任何候选</strong>，仅从查询感应河网 <code>R<sub>q</sub></code> 的 10 项拓扑统计量连续计算三形态混合权重与全局门控 <code>Ω</code>。
+                    </p>
+                </div>
+
+                <div class="chapter-body reverse">
+                    <div class="text-pane">
+                        <div class="spec-card dark-card">
+                            <div class="spec-card-head">
+                                <span>CONTINUOUS MORPHOLOGY MIXTURE &amp; GEOMETRIC Ω</span>
+                                <span>PRIOR SHRINKAGE TOWARD (1/3, 1/3, 1/3)</span>
+                            </div>
+                            <div class="formula-plate dark-plate">
+                                p<sub>k</sub> = c<sub>M</sub> · Softmax(ℓ<sub>A</sub>, ℓ<sub>P</sub>, ℓ<sub>N</sub>)<sub>k</sub> + (1 − c<sub>M</sub>) · 1/3<br/>
+                                G<sub>i</sub> = p<sub>A</sub>(0.75G<sub>node</sub>+0.25G<sub>edge</sub>) + p<sub>P</sub>(0.25G<sub>node</sub>+0.75G<sub>edge</sub>) + p<sub>N</sub>(0.15G<sub>node</sub>+0.85G<sub>edge</sub>)<br/>
+                                Ω = clip<sub>[0,1]</sub>( ∛( max(Ω<sub>E</sub>,ε) · max(Ω<sub>N</sub>,ε) · max(Ω<sub>F</sub>,ε) ) · χ<sub>obs</sub> )
+                            </div>
+                            <p class="spec-note">
+                                <strong>Ω 门控原理</strong>：<code>Ω<sub>E</sub></code> 测边激活密度、<code>Ω<sub>N</sub></code> 测非种子涌现节点比、<code>Ω<sub>F</sub></code> 测边流 Shannon 熵。三者取几何平均——任何一维坍缩都会压低 <code>Ω</code>，收回结构创新的排序提权。
+                            </p>
+                        </div>
+
+                        <div class="regime-strips">
+                            <div class="regime-pill regime-collapsed">
+                                <span>Ω &lt; 0.12</span>
+                                <strong>COLLAPSED 坍缩态</strong>
+                                <small>河网未成形 · 冻结结构角色提权</small>
+                            </div>
+                            <div class="regime-pill regime-sparse">
+                                <span>0.12 ≤ Ω &lt; 0.45</span>
+                                <strong>SPARSE 稀疏态</strong>
+                                <small>局部支流成形 · 适度授予 Ω<sup>γ</sup> 权重</small>
+                            </div>
+                            <div class="regime-pill regime-dense">
+                                <span>Ω ≥ 0.45</span>
+                                <strong>DENSE 丰沛态</strong>
+                                <small>多边高熵涌现 · 全额开启关系拓扑通道</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="canvas-pane dark-canvas-pane">
+                        <div class="canvas-hud-top">
+                            <span>MORPHOLOGY BARYCENTRIC &amp; OMEGA GAUGE // 切换感应河网形态</span>
+                            <span id="ch8Readout">Dominant: Propositional (p_P=0.58) · Ω = 0.76 (DENSE)</span>
+                        </div>
+                        <canvas id="ch8Canvas" class="scene-canvas"></canvas>
+                        <div class="canvas-controls">
+                            <div class="ctrl-group">
+                                <button type="button" class="ctrl-btn" data-morph-preset="atomic">浅聚河网 (Atomic 主导)</button>
+                                <button type="button" class="ctrl-btn active" data-morph-preset="propositional">分叉桥接河网 (Propositional)</button>
+                                <button type="button" class="ctrl-btn" data-morph-preset="narrative">深链持续河网 (Narrative)</button>
+                                <button type="button" class="ctrl-btn" data-morph-preset="collapsed">单边退化河网 (Collapsed Ω)</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ====================================================================
+             CHAPTER 09: DIRECT ANCHOR & CONDITIONAL INNOVATION (PAPER ZONE)
+             ==================================================================== -->
+        <section id="chapter-wormhole" class="chapter vcp2-section-paper" data-chapter="9">
+            <div class="rmv3-container">
+                <div class="vcp2-hud-bar">
+                    <span class="vcp2-hud-cross">SEC-09 // DIRECT_ANCHOR_AND_CONDITIONAL_INNOVATION</span>
+                    <span>RUST FN: compute_anchors() + assign_v3_scores()</span>
+                    <span>ORTHOGONAL CHANNELS: TOPOLOGY BONUS ≤ 0.08 · ANCHOR BONUS ≤ 0.10</span>
+                </div>
+
+                <div class="chapter-header">
+                    <div>
+                        <div class="chapter-meta">CHAPTER 09 · ORTHOGONAL FACT ANCHOR &amp; PEER LCB INNOVATION</div>
+                        <h2 class="chapter-title">批级条件拓扑创新 × Direct Anchor：为什么只奖“超预期正创新”与“稀有直接锚”？</h2>
+                    </div>
+                    <p class="chapter-intro">
+                        如果一个候选的基础语义分 <code>S<sub>0</sub></code> 本来就很高，它的图分 <code>G<sub>i</sub></code> 自然也会偏高——直接把 <code>G<sub>i</sub></code> 加进总分会导致重复计分。
+                        因此，Topology V3 引入<strong>高斯核同类 Peer 条件期望 <code>E(G|Z<sub>i</sub>)</code> 与下置信界（LCB）</strong>，并设立一条<strong>与河网密度完全正交的 hop-0 Direct Anchor 通道</strong>。
+                    </p>
+                </div>
+
+                <div class="chapter-body">
+                    <div class="text-pane">
+                        <div class="spec-card">
+                            <div class="spec-card-head">
+                                <span>1. CONDITIONAL TOPOLOGY INNOVATION (LOWER CONFIDENCE BOUND)</span>
+                                <span>KERNEL PEER REGRESSION</span>
+                            </div>
+                            <div class="formula-plate">
+                                ΔG<sub>i</sub><sup>+</sup> = [ G<sub>i</sub> − E(G | Z<sub>i</sub>) − z · σ(G | Z<sub>i</sub>) ]<sub>+</sub>, &nbsp;&nbsp; Z<sub>i</sub> = (S<sub>0</sub>, Closure, Direct, Role)<br/>
+                                B<sub>G</sub>(i) = Ω<sub>Q</sub><sup>γ</sup> · Π<sub>[0, C<sub>role</sub>]</sub>( λ<sub>role</sub> · C<sub>i</sub> · ΔG<sub>i</sub><sup>+</sup> )
+                            </div>
+                            <p class="spec-note">
+                                系统在当前候选池中寻找基础分、闭合度、直接证据与角色相近的同类样本（Peers），计算条件均值与含有效样本数修正的标准差。<strong>只有超出同类期望加一倍不确定性上界的正创新才获得奖励</strong>，且受 <code>direct_frontier</code> 边界保护约束。
+                            </p>
+                        </div>
+
+                        <div class="spec-card">
+                            <div class="spec-card-head">
+                                <span>2. DIRECT ANCHOR CHANNEL (NOISY-OR + SMOOTHSTEP)</span>
+                                <span>INDEPENDENT OF Ω DENSITY</span>
+                            </div>
+                            <div class="formula-plate">
+                                a<sub>sc</sub> = m<sub>s</sub> · Spec(t) · Closure(t,c) · Rarity(s) · Match(s,t)<br/>
+                                H(c) = [ 1 − Π<sub>s</sub>(1 − a<sub>sc</sub>) ] · R<sub>A</sub>(c), &nbsp;&nbsp; B<sub>H</sub>(c) = C<sub>A</sub> · SmoothStep( (H(c) − θ<sub>H</sub>)/(s<sub>A</sub> − θ<sub>H</sub>) )
+                            </div>
+                            <p class="spec-note">
+                                哪怕一次查询河网极度稀疏（<code>Ω → 0</code>），只要候选精准命中了查询的 hop-0 稀有高特异度种子锚，并显著超越批内异常阈值 <code>θ<sub>H</sub> = max(0.05, μ<sub>H</sub> + 2σ<sub>H</sub>)</code>，依然能通过独立 SmoothStep 通道直接晋升为 <code>direct_answer</code>。
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="canvas-pane">
+                        <div class="canvas-hud-top">
+                            <span>PEER LCB REGRESSION &amp; ANCHOR SMOOTHSTEP // 双通道正交裁决沙盘</span>
+                            <span id="ch9Readout">Mode: Conditional LCB + Direct Anchor Frontier</span>
+                        </div>
+                        <canvas id="ch9Canvas" class="scene-canvas"></canvas>
+                        <div class="canvas-controls">
+                            <div class="ctrl-group">
+                                <button type="button" class="ctrl-btn active" data-ch9-tab="innovation">条件拓扑创新 LCB 散点带</button>
+                                <button type="button" class="ctrl-btn" data-ch9-tab="anchor">Noisy-OR 直接锚 SmoothStep 激活</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ====================================================================
+             CHAPTER 10: GRAND FINALE · END-TO-END RUST RUNTIME SIMULATOR (DARK ZONE)
+             ==================================================================== -->
+        <section id="chapter-grand-view" class="chapter chapter-finale vcp2-section-dark" data-chapter="10">
+            <div class="rmv3-container">
+                <div class="vcp2-hud-bar">
+                    <span class="vcp2-hud-cross">SEC-10 // UNIFIED_RUST_NAPI_EXECUTION_CHAIN</span>
+                    <span>HANDLE: memoq-{gen}-{seq}-{hash} · ZERO JS WORKER POOL</span>
+                    <span>SUPERSET: 7 RECALL CHANNELS → MAX 300 → TOP-K</span>
+                </div>
+
+                <div class="chapter-header">
+                    <div>
+                        <div class="chapter-meta">CHAPTER 10 · END-TO-END PRODUCTION ARCHITECTURE</div>
+                        <h2 class="chapter-title">全链路原生闭合：从 SQLite 权威向量、observationHandle 到 7 路候选超集统一排序</h2>
+                    </div>
+                    <p class="chapter-intro">
+                        生产环境已彻底淘汰旧版 Node <code>worker_threads</code> 池与跨 N-API JSON 往返传输。
+                        单次请求由 <code>run_pipeline()</code> 在 Rust `MemoRuntime` 中生成并缓存同代 `MemoQueryObservation`，返回轻量级句柄 <code>observationHandle</code>；随后 7 路召回超集（最高 300 候选）在 Rayon 线程池内一次性完成路径、拓扑、形态、Ω、锚点与条件创新重排。
+                    </p>
+                </div>
+
+                <!-- 8 步生产管线矩阵 -->
+                <div class="finale-pipeline" aria-label="Topology V3.1 生产执行管线">
+                    <div class="pipe-step" data-pipe-idx="0">
+                        <div class="pipe-num">STAGE 01</div>
+                        <div class="pipe-name">AGS 双尺度预计算</div>
+                        <div class="pipe-desc">局部残差/锚增益 + 全局星团主题面</div>
+                    </div>
+                    <div class="pipe-arrow">→</div>
+                    <div class="pipe-step" data-pipe-idx="1">
+                        <div class="pipe-num">STAGE 02</div>
+                        <div class="pipe-name">EPA × 残差金字塔</div>
+                        <div class="pipe-desc">背景相对校准 g_Q + 3层正交剥离</div>
+                    </div>
+                    <div class="pipe-arrow">→</div>
+                    <div class="pipe-step" data-pipe-idx="2">
+                        <div class="pipe-num">STAGE 03</div>
+                        <div class="pipe-name">有界 Sense 河网</div>
+                        <div class="pipe-desc">4跳 FIR + 软非回溯 → R_q(E, F)</div>
+                    </div>
+                    <div class="pipe-arrow">→</div>
+                    <div class="pipe-step" data-pipe-idx="3">
+                        <div class="pipe-num">STAGE 04</div>
+                        <div class="pipe-name">Resolvent 双场</div>
+                        <div class="pipe-desc">u_L(0.15) + u_T(0.55) + 句柄缓存</div>
+                    </div>
+                    <div class="pipe-arrow">→</div>
+                    <div class="pipe-step" data-pipe-idx="4">
+                        <div class="pipe-num">STAGE 05</div>
+                        <div class="pipe-name">7 路候选超集</div>
+                        <div class="pipe-desc">Q/Denoised/L/T/BM25/Time/Anchor</div>
+                    </div>
+                    <div class="pipe-arrow">→</div>
+                    <div class="pipe-step" data-pipe-idx="5">
+                        <div class="pipe-num">STAGE 06</div>
+                        <div class="pipe-name">曲线 × 相对拓扑</div>
+                        <div class="pipe-desc">双场导通 Q_i + 距离/方向/I_e</div>
+                    </div>
+                    <div class="pipe-arrow">→</div>
+                    <div class="pipe-step" data-pipe-idx="6">
+                        <div class="pipe-num">STAGE 07</div>
+                        <div class="pipe-name">形态 Softmax × Ω</div>
+                        <div class="pipe-desc">(p_A,p_P,p_N) 连续混图 + ∛Ω 门控</div>
+                    </div>
+                    <div class="pipe-arrow">→</div>
+                    <div class="pipe-step pipe-final" data-pipe-idx="7">
+                        <div class="pipe-num">STAGE 08</div>
+                        <div class="pipe-name">S_V3 统一闭合</div>
+                        <div class="pipe-desc">S_0 + Ω^γ B_G + B_H → Top-K</div>
+                    </div>
+                </div>
+
+                <!-- 交互式全链路模拟器面板 -->
+                <div class="finale-workbench">
+                    <div class="finale-canvas-wrap">
+                        <div class="canvas-hud-top">
+                            <span>FULL NATIVE PIPELINE TELEMETRY // 切换真实查询场景观测端到端分数分解</span>
+                            <span id="ch10Readout">Scenario: 跨模块架构追问 · Ω = 0.82 (DENSE) · Compute = 1.64ms</span>
+                        </div>
+                        <canvas id="ch10Canvas" class="scene-canvas finale-canvas"></canvas>
+                        <div class="canvas-controls">
+                            <div class="ctrl-group">
+                                <button type="button" class="ctrl-btn active" data-final-scene="arch">场景 A · 跨模块架构演进追问 (Narrative/Prop 丰沛河网)</button>
+                                <button type="button" class="ctrl-btn" data-final-scene="fact">场景 B · 精确配置常量/日期核查 (Hop-0 Direct Anchor 主导)</button>
+                                <button type="button" class="ctrl-btn" data-final-scene="concept">场景 C · 单一核心概念定义检索 (Atomic 浅聚河网)</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 实时 Top-3 候选拆解表 -->
+                    <div class="finale-score-table" id="finaleScoreTable" aria-live="polite">
+                        <!-- 由 JS 动态渲染当前场景下 Top-3 候选的 S_0 / Ω^γ B_G / B_H / Role 完整分解 -->
+                    </div>
+                </div>
+
+                <div class="finale-quote">
+                    <p>“传播产生河网，河网与同一传输算子产生连续场，候选曲线读取场并复现相对拓扑，形态 Softmax 连续混合图读出，Ω 测量河网是否真正形成，直接锚保护不依赖复杂河网的事实接触。”</p>
+                    <p class="quote-en">RiverMemo Topology V3.1 · Unified Semantic Dynamics in Pure Rust</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 站点页脚 -->
+    <footer class="vcp2-footer">
+        <div class="rmv3-container vcp2-footer-inner">
+            <div class="vcp2-footer-brand">
+                <a href="/" class="site-brand-link">
+                    <span class="vcp-brand">
+                        <svg class="vcp-logo-mark" viewBox="0 0 48 48" role="img" aria-hidden="true">
+                            <path class="vcp-logo-frame" d="M7 4h29l5 5v30l-5 5H7l-4-4V8z" />
+                            <path class="vcp-logo-fold" d="M31 4v9h10" />
+                            <path class="vcp-logo-glyph" d="M12 15l9 21h6l9-21h-7l-5 13-5-13z" />
+                            <path class="vcp-logo-register" d="M10 10h14M10 40h20" />
+                        </svg>
+                        <span class="vcp-brand-wordmark">
+                            <strong>VCP</strong><span>.OS</span>
+                        </span>
+                    </span>
+                </a>
+                <p>VCP 2.0 · Nova 纸墨工业 (Paper &amp; Ink Industrial) · RiverMemo Topology V3.1 原生连续信息场检索引擎</p>
+            </div>
+
+            <div class="vcp2-footer-links">
+                <a href="/">VCP 2.0 首页</a>
+                <a href="/?page=learn-vcp">Learn VCP 白皮书</a>
+                <a href="/?page=changelog">Changelog 时间线</a>
+                <a href="/?page=plugin-store">Plugin Store</a>
+                <a href="/vcp-leaderboard">Leaderboard</a>
+                <a href="https://github.com/lioensky/VCPToolBox" target="_blank" rel="noreferrer">GitHub ↗</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 脚本 -->
+    <script src="river-engine.js"></script>
+    <script src="scenes.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>

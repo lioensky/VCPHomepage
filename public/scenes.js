@@ -1,1803 +1,1702 @@
-/* =================================================================
+/* ==========================================================================
    scenes.js
-   每个章节的具体场景渲染逻辑
-   每个 createScene_X(canvas) 返回 { start(), stop(), trigger?(), setMode?() }
-   ================================================================= */
+   RiverMemo V10 · Topology V3.1 & AGS 统一场交互算法动画集
+   严格对齐 Rust 源码 (memo_geometry.rs / memo_pipeline.rs / memo_sensing.rs / rivermemo_topology_v3.rs)
+   ========================================================================== */
 
 (function (global) {
     'use strict';
 
     const RE = global.RiverEngine;
-    const { COLORS, hexToRgba, lerp, clamp, randRange,
-        RiverPath, RiverParticle, GlowDot, SpikeWave, WormholeFlare,
-        BackgroundDriftField, SceneRunner, drawSmoothPath, drawConnection } = RE;
+    const {
+        COLORS,
+        hexToRgba,
+        lerp,
+        clamp,
+        smoothstep,
+        drawIndustrialGrid,
+        drawVectorArrow,
+        drawNodeBadge,
+        drawPillTag,
+        RiverPath,
+        RiverParticle,
+        SceneRunner,
+    } = RE;
 
-    // ============================================================
-    // 全局背景：所有页面共享的"暗流" canvas
-    // ============================================================
-    function createGlobalRiver(canvas) {
-        let dims = null;
-        let drift = null;
-        let paths = [];
-        let particles = [];
-
-        function rebuild(w, h) {
-            paths = [];
-            particles = [];
-            // 几条贯穿屏幕的暗河
-            const palette = [COLORS.blue, COLORS.violet, COLORS.cyan];
-            const lanes = 4;
-            for (let i = 0; i < lanes; i++) {
-                const y0 = (h / (lanes + 1)) * (i + 1) + randRange(-30, 30);
-                const yMid1 = y0 + randRange(-80, 80);
-                const yMid2 = y0 + randRange(-80, 80);
-                const path = new RiverPath(
-                    { x: -50, y: y0 },
-                    { x: w * 0.33, y: yMid1 },
-                    { x: w * 0.67, y: yMid2 },
-                    { x: w + 50, y: y0 + randRange(-30, 30) },
-                    { color: palette[i % palette.length], opacity: 0.0, glow: false }
-                );
-                paths.push(path);
-                const count = 18;
-                for (let j = 0; j < count; j++) {
-                    particles.push(new RiverParticle(path, {
-                        startT: j / count,
-                        speed: randRange(0.0008, 0.002),
-                        size: randRange(0.8, 1.8),
-                        opacity: randRange(0.3, 0.6),
-                        tail: 12,
-                    }));
-                }
-            }
-            drift = new BackgroundDriftField(w, h, 60, COLORS.blue);
+    function setReadout(id, text) {
+        const el = document.getElementById(id);
+        if (el && el.textContent !== text) {
+            el.textContent = text;
         }
-
-        const runner = new SceneRunner(canvas, (ctx, w, h, t) => {
-            drift.update();
-            drift.draw(ctx);
-            for (const p of particles) {
-                p.update();
-                p.draw(ctx);
-            }
-        }, {
-            onResize: ({ w, h }) => rebuild(w, h),
-        });
-
-        return {
-            start: () => runner.start(),
-            stop: () => runner.stop(),
-        };
     }
 
-    // ============================================================
-    // Chapter 0 · Hero - 多支流交汇的开场河流
-    // ============================================================
+    // =========================================================================
+    // GLOBAL BACKGROUND: 2D Vector Starburst + Subtle Geodesic Currents
+    // =========================================================================
+    function createGlobalRiver(canvas) {
+        let stars = [];
+        const glyphs = ['Ω', 'AGS', 'V3.1', 'u_L', 'u_T', 'Γ_c', 'CSR', 'RUST', 'r_t', 'p_N'];
+
+        function build(w, h) {
+            stars = Array.from({ length: 44 }, (_, i) => ({
+                x: Math.random() * w,
+                y: Math.random() * h,
+                vx: (Math.random() - 0.5) * 0.42,
+                vy: (Math.random() - 0.5) * 0.32 - 0.08,
+                size: 1.1 + (i % 3) * 0.65,
+                alpha: 0.16 + Math.random() * 0.36,
+                isAmber: i % 6 === 0,
+                glyph: glyphs[i % glyphs.length],
+            }));
+        }
+
+        const runner = new SceneRunner(canvas, (ctx, w, h) => {
+            for (let i = 0; i < stars.length; i++) {
+                const s = stars[i];
+                s.x += s.vx;
+                s.y += s.vy;
+                if (s.x < 0) s.x = w;
+                if (s.x > w) s.x = 0;
+                if (s.y < 0) s.y = h;
+                if (s.y > h) s.y = 0;
+
+                const col = s.isAmber ? COLORS.amber : COLORS.patina;
+                ctx.strokeStyle = hexToRgba(col, s.alpha * 0.4);
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(s.x, s.y);
+                ctx.lineTo(s.x - s.vx * 16, s.y - s.vy * 16);
+                ctx.stroke();
+
+                ctx.fillStyle = hexToRgba(col, s.alpha);
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (i % 5 === 0) {
+                    ctx.font = '9px "JetBrains Mono", monospace';
+                    ctx.fillStyle = hexToRgba(COLORS.bone, s.alpha * 0.35);
+                    ctx.fillText(s.glyph, s.x + 5, s.y - 4);
+                }
+            }
+        }, { onResize: ({ w, h }) => build(w, h) });
+
+        return { start: () => runner.start(), stop: () => runner.stop() };
+    }
+
+    // =========================================================================
+    // CHAPTER 00 · HERO: 三通道闭合流场 (Field + Ω-Gated Topology + Direct Anchor)
+    // =========================================================================
     function createScene_hero(canvas) {
         let paths = [];
         let particles = [];
-        let dots = [];
-        let drift = null;
 
         function build(w, h) {
             paths = [];
             particles = [];
-            dots = [];
+            const src = { x: w * 0.08, y: h * 0.52 };
+            const gate = { x: w * 0.44, y: h * 0.48 };
+            const dst = { x: w * 0.88, y: h * 0.48 };
 
-            // 多条河汇聚到中央
-            const cx = w * 0.5;
-            const cy = h * 0.5;
-            const sources = [
-                { x: 0, y: h * 0.15 },
-                { x: w, y: h * 0.18 },
-                { x: 0, y: h * 0.85 },
-                { x: w, y: h * 0.82 },
-                { x: w * 0.2, y: -20 },
-                { x: w * 0.8, y: h + 20 },
+            const configs = [
+                { c1y: h * 0.22, c2y: h * 0.25, color: COLORS.patina },
+                { c1y: h * 0.50, c2y: h * 0.48, color: COLORS.amber },
+                { c1y: h * 0.78, c2y: h * 0.74, color: COLORS.cinnabar },
             ];
-            const palette = [COLORS.cyan, COLORS.blue, COLORS.violet, COLORS.pink, COLORS.gold, COLORS.cyan];
 
-            sources.forEach((src, i) => {
-                const path = new RiverPath(
+            configs.forEach((cfg) => {
+                const pA = new RiverPath(
                     src,
-                    { x: lerp(src.x, cx, 0.4) + randRange(-50, 50), y: lerp(src.y, cy, 0.4) + randRange(-40, 40) },
-                    { x: lerp(src.x, cx, 0.75) + randRange(-30, 30), y: lerp(src.y, cy, 0.75) + randRange(-30, 30) },
-                    { x: cx + randRange(-15, 15), y: cy + randRange(-15, 15) },
-                    { color: palette[i % palette.length], opacity: 0.35, width: 1.5, glow: true }
+                    { x: lerp(src.x, gate.x, 0.4), y: cfg.c1y },
+                    { x: lerp(src.x, gate.x, 0.75), y: gate.y },
+                    gate,
+                    { color: cfg.color, width: 1.6, opacity: 0.28 }
                 );
-                paths.push(path);
-
-                const count = 35;
-                for (let j = 0; j < count; j++) {
-                    particles.push(new RiverParticle(path, {
-                        startT: j / count,
-                        speed: randRange(0.002, 0.005),
-                        size: randRange(1.2, 2.6),
-                        opacity: randRange(0.6, 1),
-                        tail: 14,
-                    }));
+                const pB = new RiverPath(
+                    gate,
+                    { x: lerp(gate.x, dst.x, 0.35), y: cfg.c2y },
+                    { x: lerp(gate.x, dst.x, 0.75), y: dst.y },
+                    dst,
+                    { color: cfg.color, width: 1.6, opacity: 0.28 }
+                );
+                paths.push(pA, pB);
+                for (let k = 0; k < 12; k++) {
+                    particles.push(new RiverParticle(pA, { startT: k / 12, speed: 0.0028, color: cfg.color, size: 1.8 }));
+                    particles.push(new RiverParticle(pB, { startT: k / 12, speed: 0.0028, color: cfg.color, size: 1.8 }));
                 }
             });
-
-            // 中央枢纽节点
-            dots.push(new GlowDot(cx, cy, {
-                color: COLORS.cyan,
-                radius: 12,
-                label: 'TagMemo · v8.2',
-                pulseSpeed: 0.06,
-            }));
-
-            // 散布的远端 Tag
-            const farTags = [
-                { x: w * 0.15, y: h * 0.3, label: 'VCP', color: COLORS.violet },
-                { x: w * 0.85, y: h * 0.3, label: 'RAG', color: COLORS.blue },
-                { x: w * 0.18, y: h * 0.72, label: '语义', color: COLORS.cyan },
-                { x: w * 0.82, y: h * 0.7, label: '河道', color: COLORS.pink },
-                { x: w * 0.5, y: h * 0.12, label: '浪潮', color: COLORS.gold },
-                { x: w * 0.5, y: h * 0.88, label: '流形', color: COLORS.cyan },
-            ];
-            farTags.forEach(t => dots.push(new GlowDot(t.x, t.y, {
-                color: t.color, radius: 4, label: t.label,
-            })));
-
-            drift = new BackgroundDriftField(w, h, 50, COLORS.violet);
         }
 
         const runner = new SceneRunner(canvas, (ctx, w, h, t) => {
-            drift.update();
-            drift.draw(ctx);
-
-            // 河道
+            drawIndustrialGrid(ctx, w, h, 64);
             for (const p of paths) p.draw(ctx);
-            // 粒子
-            for (const p of particles) {
-                p.update();
-                p.draw(ctx);
-            }
-            // 节点
-            for (const d of dots) {
-                d.update();
-                d.draw(ctx);
-            }
-        }, {
-            onResize: ({ w, h }) => build(w, h),
-        });
-
-        return { start: () => runner.start(), stop: () => runner.stop() };
-    }
-
-    // ============================================================
-    // Chapter 1 · 河流的诞生 - 单篇日记里的 Tag 序列
-    // ============================================================
-    function createScene_ch1(canvas) {
-        let path = null;
-        let particles = [];
-        let tagDots = [];
-        const TAG_NAMES = ['VCP', '架构', 'RAG', '浪潮', '语义', '动力学', '流形'];
-        const PHI_MAX = 0.9, PHI_MIN = 0.5;
-
-        function build(w, h) {
-            // 一条蜿蜒的主河
-            path = new RiverPath(
-                { x: w * 0.05, y: h * 0.5 },
-                { x: w * 0.3, y: h * 0.25 },
-                { x: w * 0.7, y: h * 0.75 },
-                { x: w * 0.95, y: h * 0.5 },
-                { color: COLORS.cyan, opacity: 0.5, width: 2.5, glow: true }
-            );
-
-            particles = [];
-            const N = 40;
-            for (let i = 0; i < N; i++) {
-                particles.push(new RiverParticle(path, {
-                    startT: i / N,
-                    speed: randRange(0.003, 0.005),
-                    size: randRange(1.5, 3),
-                    opacity: randRange(0.7, 1),
-                    color: COLORS.cyan,
-                    tail: 12,
-                }));
+            for (const pt of particles) {
+                pt.update();
+                pt.draw(ctx);
             }
 
-            // 沿河放 Tag 节点 (势能由前到后递减)
-            tagDots = [];
-            const n = TAG_NAMES.length;
-            for (let i = 0; i < n; i++) {
-                const t = (i + 0.5) / n;
-                const pt = path.sample(t);
-                const phi = PHI_MAX - (PHI_MAX - PHI_MIN) * (i / Math.max(1, n - 1));
-                tagDots.push({
-                    x: pt.x,
-                    y: pt.y,
-                    label: TAG_NAMES[i],
-                    phi: phi,
-                    radius: 5 + phi * 6,
-                    color: i === 0 ? COLORS.gold : COLORS.cyan,
-                    pulse: Math.random() * Math.PI * 2,
-                });
-            }
-        }
-
-        const runner = new SceneRunner(canvas, (ctx, w, h, time) => {
-            // 河道
-            path.draw(ctx);
-
-            // 粒子
-            for (const p of particles) {
-                p.update();
-                p.draw(ctx);
-            }
-
-            // Tag 节点（带势能可视化）
-            for (let i = 0; i < tagDots.length; i++) {
-                const d = tagDots[i];
-                d.pulse += 0.04;
-                const pulse = 0.85 + Math.sin(d.pulse) * 0.15;
-
-                ctx.save();
-                ctx.shadowBlur = 14;
-                ctx.shadowColor = d.color;
-
-                // 势能光晕
-                const grad = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, d.radius * 2.4);
-                grad.addColorStop(0, hexToRgba(d.color, pulse * 0.85));
-                grad.addColorStop(0.6, hexToRgba(d.color, 0.3 * pulse));
-                grad.addColorStop(1, hexToRgba(d.color, 0));
-                ctx.fillStyle = grad;
-                ctx.beginPath();
-                ctx.arc(d.x, d.y, d.radius * 2.4, 0, Math.PI * 2);
-                ctx.fill();
-
-                // 内核
-                ctx.fillStyle = hexToRgba(d.color, 0.95);
-                ctx.beginPath();
-                ctx.arc(d.x, d.y, d.radius * 0.55, 0, Math.PI * 2);
-                ctx.fill();
-
-                // 标签 + Φ
-                ctx.shadowBlur = 0;
-                ctx.font = 'bold 13px "Inter", sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillStyle = hexToRgba(COLORS.white, 0.95);
-                ctx.fillText(d.label, d.x, d.y - d.radius - 10);
-
-                ctx.font = '10px "JetBrains Mono", monospace';
-                ctx.fillStyle = hexToRgba(d.color, 0.85);
-                ctx.fillText(`Φ=${d.phi.toFixed(2)}`, d.x, d.y + d.radius + 16);
-                ctx.restore();
-            }
-        }, {
-            onResize: ({ w, h }) => build(w, h),
-        });
-
-        return { start: () => runner.start(), stop: () => runner.stop() };
-    }
-
-    // ============================================================
-    // Chapter 2 · 河道网络 - 多支流汇成网络
-    // ============================================================
-    function createScene_ch2(canvas) {
-        let nodes = [];
-        let edges = []; // {a, b, weight}
-        let paths = []; // 一些主河流
-        let particles = [];
-        const NODE_LABELS = ['VCP', 'RAG', '浪潮', '语义', 'Tag', '河道', '动力学', '残差', 'LIF', '虫洞', '流形', '直觉'];
-
-        function build(w, h) {
-            nodes = [];
-            edges = [];
-            paths = [];
-            particles = [];
-
-            const padX = 60, padY = 60;
-            // 节点散布在画布上 - 准随机但避免重叠
-            const N = NODE_LABELS.length;
-            const grid = [];
-            for (let i = 0; i < N; i++) {
-                let attempts = 0, x, y, ok = false;
-                while (!ok && attempts < 30) {
-                    x = randRange(padX, w - padX);
-                    y = randRange(padY, h - padY);
-                    ok = grid.every(g => Math.hypot(g.x - x, g.y - y) > 70);
-                    attempts++;
-                }
-                grid.push({ x, y });
-                const isHub = i < 3;
-                nodes.push({
-                    x, y,
-                    label: NODE_LABELS[i],
-                    color: isHub ? COLORS.cyan : (i < 6 ? COLORS.blue : COLORS.violet),
-                    radius: isHub ? 8 : 5,
-                    pulse: Math.random() * Math.PI * 2,
-                    energy: 0,
-                });
-            }
-
-            // 边：每个节点连2~4个最近邻
-            for (let i = 0; i < N; i++) {
-                const dists = [];
-                for (let j = 0; j < N; j++) if (j !== i) {
-                    dists.push({ j, d: Math.hypot(nodes[i].x - nodes[j].x, nodes[i].y - nodes[j].y) });
-                }
-                dists.sort((a, b) => a.d - b.d);
-                const k = 2 + Math.floor(Math.random() * 3);
-                for (let m = 0; m < k && m < dists.length; m++) {
-                    const j = dists[m].j;
-                    if (i < j && !edges.find(e => e.a === i && e.b === j)) {
-                        edges.push({
-                            a: i, b: j,
-                            weight: randRange(0.3, 1),
-                            phase: Math.random() * Math.PI * 2,
-                        });
-                    }
-                }
-            }
-
-            // 沿主要边创建河流粒子
-            edges.forEach(e => {
-                if (Math.random() > 0.55) return; // 只在60%的边上跑粒子
-                const p1 = nodes[e.a], p2 = nodes[e.b];
-                const mx = (p1.x + p2.x) / 2;
-                const my = (p1.y + p2.y) / 2;
-                const dx = p2.x - p1.x, dy = p2.y - p1.y;
-                const len = Math.hypot(dx, dy) || 1;
-                const nx = -dy / len, ny = dx / len;
-                const curve = Math.min(60, len * 0.2) * (Math.random() < 0.5 ? 1 : -1);
-                const path = new RiverPath(
-                    p1, { x: mx + nx * curve * 0.5, y: my + ny * curve * 0.5 },
-                    { x: mx + nx * curve, y: my + ny * curve },
-                    p2,
-                    { color: e.weight > 0.7 ? COLORS.cyan : COLORS.blue, opacity: 0, glow: false }
-                );
-                paths.push(path);
-                const count = 4 + Math.floor(e.weight * 6);
-                for (let k = 0; k < count; k++) {
-                    particles.push(new RiverParticle(path, {
-                        startT: k / count,
-                        speed: randRange(0.003, 0.006),
-                        size: randRange(1, 2),
-                        opacity: randRange(0.5, 0.9),
-                        tail: 8,
-                    }));
-                }
-            });
-        }
-
-        const runner = new SceneRunner(canvas, (ctx, w, h, time) => {
-            // 边（拓扑骨架）
+            // 中央 Ω 引力环
+            const gx = w * 0.44;
+            const gy = h * 0.48;
             ctx.save();
-            for (const e of edges) {
-                e.phase += 0.03;
-                const a = nodes[e.a], b = nodes[e.b];
-                const alpha = 0.18 + e.weight * 0.3 + Math.sin(e.phase) * 0.08;
-                drawConnection(ctx, a, b, {
-                    color: hexToRgba(COLORS.blue, alpha),
-                    width: 0.6 + e.weight * 1.5,
-                    shadow: true,
-                    shadowColor: COLORS.blue,
-                    shadowBlur: 4,
-                });
-            }
-            ctx.restore();
-
-            // 粒子（支流水）
-            for (const p of particles) {
-                p.update();
-                p.draw(ctx);
-            }
-
-            // 节点
-            for (const n of nodes) {
-                n.pulse += 0.04;
-                const pulse = 0.85 + Math.sin(n.pulse) * 0.15;
-                ctx.save();
-                ctx.shadowBlur = 14;
-                ctx.shadowColor = n.color;
-                const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.radius * 2.3);
-                grad.addColorStop(0, hexToRgba(n.color, pulse));
-                grad.addColorStop(0.5, hexToRgba(n.color, 0.4 * pulse));
-                grad.addColorStop(1, hexToRgba(n.color, 0));
-                ctx.fillStyle = grad;
-                ctx.beginPath();
-                ctx.arc(n.x, n.y, n.radius * 2.3, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = hexToRgba(n.color, 0.95);
-                ctx.beginPath();
-                ctx.arc(n.x, n.y, n.radius * 0.55, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.shadowBlur = 0;
-                ctx.font = '11px "Inter", sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillStyle = hexToRgba(COLORS.white, 0.85);
-                ctx.fillText(n.label, n.x, n.y - n.radius - 7);
-                ctx.restore();
-            }
-        }, {
-            onResize: ({ w, h }) => build(w, h),
-        });
-
-        return { start: () => runner.start(), stop: () => runner.stop() };
-    }
-
-    // ============================================================
-    // Chapter 3 · 顺流 vs 逆流
-    // ============================================================
-    function createScene_ch3(canvas) {
-        let mode = 'forward'; // 'forward' | 'backward'
-        let path = null;
-        let dotA = null, dotB = null;
-        let forwardParticles = [];
-        let backwardParticles = [];
-        let dimensions = null;
-
-        function build(w, h) {
-            dimensions = { w, h };
-            path = new RiverPath(
-                { x: w * 0.1, y: h * 0.5 },
-                { x: w * 0.35, y: h * 0.2 },
-                { x: w * 0.65, y: h * 0.8 },
-                { x: w * 0.9, y: h * 0.5 },
-                { color: COLORS.blue, opacity: 0.4, width: 2.5, glow: true }
-            );
-
-            dotA = { x: w * 0.1, y: h * 0.5, label: 'A · 源头\nΦ = 0.9', color: COLORS.gold, radius: 10 };
-            dotB = { x: w * 0.9, y: h * 0.5, label: 'B · 末端\nΦ = 0.5', color: COLORS.cyan, radius: 8 };
-
-            forwardParticles = [];
-            for (let i = 0; i < 30; i++) {
-                forwardParticles.push(new RiverParticle(path, {
-                    startT: i / 30,
-                    speed: randRange(0.004, 0.007),
-                    size: randRange(1.8, 3),
-                    color: COLORS.cyan,
-                    direction: 1,
-                    tail: 14,
-                }));
-            }
-            backwardParticles = [];
-            for (let i = 0; i < 13; i++) { // 数量少 = 阻尼大
-                backwardParticles.push(new RiverParticle(path, {
-                    startT: i / 13,
-                    speed: randRange(0.0012, 0.0028), // 慢 = 0.42 阻尼
-                    size: randRange(1.2, 2.2),
-                    color: COLORS.pink,
-                    direction: -1,
-                    opacity: randRange(0.4, 0.7),
-                    tail: 8,
-                }));
-            }
-        }
-
-        const runner = new SceneRunner(canvas, (ctx, w, h, time) => {
-            path.draw(ctx);
-
-            // 公式标签
-            ctx.save();
-            ctx.font = '11px "JetBrains Mono", monospace';
-            ctx.fillStyle = hexToRgba(COLORS.cyan, 0.9);
-            ctx.textAlign = 'left';
-            ctx.fillText('forwardGain  = 1.00', 18, 24);
-            ctx.fillStyle = hexToRgba(COLORS.pink, 0.9);
-            ctx.fillText('reverseGain  = 0.42', 18, 42);
-            ctx.fillStyle = hexToRgba(COLORS.violet, 0.9);
-            ctx.fillText('guard ≤ × 0.95', 18, 60);
-            ctx.restore();
-
-            // 渲染对应方向的粒子
-            if (mode === 'forward') {
-                for (const p of forwardParticles) {
-                    p.update();
-                    p.draw(ctx);
-                }
-            } else {
-                for (const p of backwardParticles) {
-                    p.update();
-                    p.draw(ctx);
-                }
-            }
-
-            // 端点
-            [dotA, dotB].forEach(d => {
-                ctx.save();
-                ctx.shadowBlur = 18;
-                ctx.shadowColor = d.color;
-                const grad = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, d.radius * 2.5);
-                grad.addColorStop(0, hexToRgba(d.color, 1));
-                grad.addColorStop(0.5, hexToRgba(d.color, 0.4));
-                grad.addColorStop(1, hexToRgba(d.color, 0));
-                ctx.fillStyle = grad;
-                ctx.beginPath();
-                ctx.arc(d.x, d.y, d.radius * 2.5, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = hexToRgba(d.color, 0.95);
-                ctx.beginPath();
-                ctx.arc(d.x, d.y, d.radius * 0.55, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.shadowBlur = 0;
-                ctx.fillStyle = hexToRgba(COLORS.white, 0.95);
-                ctx.font = 'bold 12px "Inter", sans-serif';
-                ctx.textAlign = 'center';
-                const lines = d.label.split('\n');
-                lines.forEach((line, i) => {
-                    ctx.font = i === 0 ? 'bold 13px "Inter", sans-serif' : '10px "JetBrains Mono", monospace';
-                    ctx.fillStyle = i === 0 ? hexToRgba(COLORS.white, 0.95) : hexToRgba(d.color, 0.85);
-                    ctx.fillText(line, d.x, d.y - d.radius - 18 + i * 14);
-                });
-                ctx.restore();
-            });
-        }, {
-            onResize: ({ w, h }) => build(w, h),
-        });
-
-        return {
-            start: () => runner.start(),
-            stop: () => runner.stop(),
-            setMode: (m) => { mode = m; },
-        };
-    }
-
-    // ============================================================
-    // Chapter 4 · 钟形阻尼器
-    // ============================================================
-    function createScene_ch4(canvas) {
-        let dims = null;
-        // 钟形函数
-        function bell(sim) {
-            if (sim < 0.15) return 0.4 + sim * 1.0;
-            return 0.5 + 0.8 * Math.exp(-((sim - 0.65) ** 2) / (2 * 0.25 * 0.25));
-        }
-
-        let cursor = { sim: 0 };
-        let direction = 1;
-
-        function build(w, h) { dims = { w, h }; }
-
-        const runner = new SceneRunner(canvas, (ctx, w, h, time) => {
-            // 自动巡游 sim: 0 → 1 → 0
-            cursor.sim += 0.0035 * direction;
-            if (cursor.sim >= 1) { cursor.sim = 1; direction = -1; }
-            if (cursor.sim <= 0) { cursor.sim = 0; direction = 1; }
-
-            const padX = 60, padY = 60;
-            const x0 = padX, x1 = w - padX;
-            const y0 = padY, y1 = h - padY;
-
-            // 坐标系
-            ctx.save();
-            ctx.strokeStyle = hexToRgba(COLORS.muted, 0.3);
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(x0, y1); ctx.lineTo(x1, y1); // x轴
-            ctx.moveTo(x0, y0); ctx.lineTo(x0, y1); // y轴
-            ctx.stroke();
-
-            // 网格
-            ctx.strokeStyle = hexToRgba(COLORS.muted, 0.12);
-            ctx.setLineDash([2, 4]);
-            for (let i = 1; i < 10; i++) {
-                const x = lerp(x0, x1, i / 10);
-                ctx.beginPath();
-                ctx.moveTo(x, y0); ctx.lineTo(x, y1);
-                ctx.stroke();
-            }
-            for (let i = 1; i < 6; i++) {
-                const y = lerp(y0, y1, i / 6);
-                ctx.beginPath();
-                ctx.moveTo(x0, y); ctx.lineTo(x1, y);
-                ctx.stroke();
-            }
-            ctx.setLineDash([]);
-            ctx.restore();
-
-            // 标轴
-            ctx.save();
-            ctx.fillStyle = hexToRgba(COLORS.muted, 0.7);
-            ctx.font = '11px "JetBrains Mono", monospace';
-            ctx.textAlign = 'center';
-            ctx.fillText('sim → 0', x0, y1 + 22);
-            ctx.fillText('0.65', lerp(x0, x1, 0.65), y1 + 22);
-            ctx.fillText('sim → 1', x1, y1 + 22);
-            ctx.textAlign = 'right';
-            ctx.fillText('1.3', x0 - 8, y0 + 4);
-            ctx.fillText('0', x0 - 8, y1 + 4);
-            ctx.textAlign = 'left';
-            ctx.fillText('gain', x0, y0 - 18);
-            ctx.restore();
-
-            // 黄金区高亮
-            const goldStart = lerp(x0, x1, 0.45);
-            const goldEnd = lerp(x0, x1, 0.85);
-            ctx.save();
-            const grad = ctx.createLinearGradient(goldStart, 0, goldEnd, 0);
-            grad.addColorStop(0, hexToRgba(COLORS.gold, 0));
-            grad.addColorStop(0.5, hexToRgba(COLORS.gold, 0.16));
-            grad.addColorStop(1, hexToRgba(COLORS.gold, 0));
-            ctx.fillStyle = grad;
-            ctx.fillRect(goldStart, y0, goldEnd - goldStart, y1 - y0);
-            ctx.restore();
-
-            // 钟形曲线
-            ctx.save();
-            ctx.shadowBlur = 16;
-            ctx.shadowColor = COLORS.gold;
-            ctx.strokeStyle = COLORS.gold;
-            ctx.lineWidth = 2.5;
-            ctx.beginPath();
-            const samples = 200;
-            for (let i = 0; i <= samples; i++) {
-                const sim = i / samples;
-                const g = bell(sim);
-                const x = lerp(x0, x1, sim);
-                const y = y1 - (g / 1.3) * (y1 - y0);
-                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-            }
-            ctx.stroke();
-            ctx.restore();
-
-            // 三个区域标记
-            const marks = [
-                { sim: 0.05, label: '噪声底', color: COLORS.muted },
-                { sim: 0.65, label: 'PEAK', color: COLORS.gold },
-                { sim: 0.95, label: '回音壁', color: COLORS.pink },
-            ];
-            marks.forEach(m => {
-                const g = bell(m.sim);
-                const x = lerp(x0, x1, m.sim);
-                const y = y1 - (g / 1.3) * (y1 - y0);
-                ctx.save();
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = m.color;
-                ctx.fillStyle = hexToRgba(m.color, 0.9);
-                ctx.beginPath();
-                ctx.arc(x, y, 4, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.shadowBlur = 0;
-                ctx.font = '10px "JetBrains Mono", monospace';
-                ctx.textAlign = 'center';
-                ctx.fillStyle = hexToRgba(m.color, 0.9);
-                ctx.fillText(m.label, x, y - 12);
-                ctx.restore();
-            });
-
-            // 巡游游标
-            const g = bell(cursor.sim);
-            const cx = lerp(x0, x1, cursor.sim);
-            const cy = y1 - (g / 1.3) * (y1 - y0);
-            ctx.save();
-            ctx.strokeStyle = hexToRgba(COLORS.cyan, 0.4);
-            ctx.lineWidth = 1;
-            ctx.setLineDash([3, 3]);
-            ctx.beginPath();
-            ctx.moveTo(cx, y0); ctx.lineTo(cx, y1);
-            ctx.moveTo(x0, cy); ctx.lineTo(cx, cy);
-            ctx.stroke();
-            ctx.setLineDash([]);
-
-            ctx.shadowBlur = 16;
-            ctx.shadowColor = COLORS.cyan;
-            ctx.fillStyle = COLORS.cyan;
-            ctx.beginPath();
-            ctx.arc(cx, cy, 6, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
-
-            // 同步更新 DOM 显示
-            const simEl = document.getElementById('ch4SimValue');
-            const gainEl = document.getElementById('ch4GainValue');
-            if (simEl) simEl.textContent = cursor.sim.toFixed(2);
-            if (gainEl) gainEl.textContent = g.toFixed(2);
-        }, {
-            onResize: ({ w, h }) => build(w, h),
-        });
-
-        return { start: () => runner.start(), stop: () => runner.stop() };
-    }
-
-    // ============================================================
-    // Chapter 5 · RAG 直线 vs VCP 测地线
-    // ============================================================
-    function createScene_ch5(canvas) {
-        let dims = null;
-        let nodes = [];
-        let dotQ = null, dotA = null;
-        let ragParticles = [];
-        let vcpParticles = [];
-        let vcpPath = null;
-
-        function build(w, h) {
-            dims = { w, h };
-            // 起点 / 终点
-            dotQ = { x: w * 0.12, y: h * 0.5, label: 'Query', color: COLORS.gold };
-            dotA = { x: w * 0.88, y: h * 0.5, label: 'Target', color: COLORS.cyan };
-
-            // 中间地形：模拟"语义山峰"，用一些拓扑节点
-            nodes = [];
-            // 平坦底层
-            for (let i = 0; i < 18; i++) {
-                nodes.push({
-                    x: randRange(w * 0.18, w * 0.82),
-                    y: randRange(h * 0.18, h * 0.82),
-                    color: COLORS.blue,
-                    radius: randRange(2, 3.5),
-                    pulse: Math.random() * Math.PI * 2,
-                });
-            }
-            // VCP 测地线路径：一条绕过中央山峰的曲线
-            vcpPath = new RiverPath(
-                dotQ,
-                { x: w * 0.32, y: h * 0.18 },
-                { x: w * 0.68, y: h * 0.18 },
-                dotA,
-                { color: COLORS.cyan, opacity: 0, glow: false }
-            );
-
-            // RAG 粒子（直线穿过山峰，逐个变红/受阻）
-            ragParticles = [];
-            const ragCount = 12;
-            for (let i = 0; i < ragCount; i++) {
-                ragParticles.push({
-                    t: i / ragCount,
-                    speed: randRange(0.003, 0.006),
-                    size: randRange(1.5, 2.5),
-                });
-            }
-
-            // VCP 粒子沿 vcpPath 流动
-            vcpParticles = [];
-            for (let i = 0; i < 22; i++) {
-                vcpParticles.push(new RiverParticle(vcpPath, {
-                    startT: i / 22,
-                    speed: randRange(0.003, 0.005),
-                    size: randRange(1.6, 2.6),
-                    color: COLORS.cyan,
-                    tail: 14,
-                }));
-            }
-        }
-
-        const runner = new SceneRunner(canvas, (ctx, w, h, time) => {
-            // 中间"山峰" - 半透明白雾
-            ctx.save();
-            const mountainCx = w * 0.5, mountainCy = h * 0.55, mountainR = h * 0.32;
-            const mountGrad = ctx.createRadialGradient(mountainCx, mountainCy, 0, mountainCx, mountainCy, mountainR);
-            mountGrad.addColorStop(0, hexToRgba(COLORS.violet, 0.25));
-            mountGrad.addColorStop(0.6, hexToRgba(COLORS.violet, 0.08));
-            mountGrad.addColorStop(1, hexToRgba(COLORS.violet, 0));
-            ctx.fillStyle = mountGrad;
-            ctx.beginPath();
-            ctx.arc(mountainCx, mountainCy, mountainR, 0, Math.PI * 2);
-            ctx.fill();
-
-            // 山峰等高线
-            ctx.strokeStyle = hexToRgba(COLORS.violet, 0.35);
-            ctx.lineWidth = 1;
-            for (let i = 1; i <= 4; i++) {
-                ctx.setLineDash([3, 6]);
-                ctx.beginPath();
-                ctx.arc(mountainCx, mountainCy, mountainR * (i / 4) * 0.8, 0, Math.PI * 2);
-                ctx.stroke();
-            }
-            ctx.setLineDash([]);
-            ctx.restore();
-
-            // 拓扑底层散点
-            for (const n of nodes) {
-                n.pulse += 0.03;
-                ctx.save();
-                ctx.shadowBlur = 6;
-                ctx.shadowColor = n.color;
-                ctx.fillStyle = hexToRgba(n.color, 0.5 + Math.sin(n.pulse) * 0.2);
-                ctx.beginPath();
-                ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
-            }
-
-            // RAG 直线（穿山而过 - 红色虚线）
-            ctx.save();
-            ctx.shadowBlur = 8;
-            ctx.shadowColor = COLORS.pink;
-            ctx.strokeStyle = hexToRgba(COLORS.pink, 0.7);
-            ctx.lineWidth = 1.5;
-            ctx.setLineDash([8, 6]);
-            ctx.beginPath();
-            ctx.moveTo(dotQ.x, dotQ.y);
-            ctx.lineTo(dotA.x, dotA.y);
-            ctx.stroke();
-            ctx.setLineDash([]);
-
-            // RAG 粒子 - 经过山峰时变弱
-            for (const rp of ragParticles) {
-                rp.t += rp.speed;
-                if (rp.t > 1) rp.t -= 1;
-                const x = lerp(dotQ.x, dotA.x, rp.t);
-                const y = lerp(dotQ.y, dotA.y, rp.t);
-                // 山峰中心衰减
-                const distFromMountain = Math.hypot(x - mountainCx, y - mountainCy);
-                const damp = clamp(distFromMountain / mountainR, 0.15, 1);
-                ctx.shadowBlur = 8 * damp;
-                ctx.fillStyle = hexToRgba(COLORS.pink, damp);
-                ctx.beginPath();
-                ctx.arc(x, y, rp.size * damp, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            ctx.restore();
-
-            // VCP 测地线（贴地绕山）
-            vcpPath.color = COLORS.cyan;
-            vcpPath.opacity = 0.5;
-            vcpPath.glow = true;
-            vcpPath.draw(ctx);
-
-            for (const vp of vcpParticles) {
-                vp.update();
-                vp.draw(ctx);
-            }
-
-            // 端点
-            [dotQ, dotA].forEach(d => {
-                ctx.save();
-                ctx.shadowBlur = 18;
-                ctx.shadowColor = d.color;
-                const grad = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, 22);
-                grad.addColorStop(0, hexToRgba(d.color, 1));
-                grad.addColorStop(0.5, hexToRgba(d.color, 0.4));
-                grad.addColorStop(1, hexToRgba(d.color, 0));
-                ctx.fillStyle = grad;
-                ctx.beginPath();
-                ctx.arc(d.x, d.y, 22, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = hexToRgba(d.color, 1);
-                ctx.beginPath();
-                ctx.arc(d.x, d.y, 6, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.shadowBlur = 0;
-                ctx.font = 'bold 13px "Inter", sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillStyle = hexToRgba(COLORS.white, 0.95);
-                ctx.fillText(d.label, d.x, d.y - 18);
-                ctx.restore();
-            });
-
-            // 山峰标签
-            ctx.save();
-            ctx.shadowBlur = 0;
-            ctx.font = 'italic 12px "Inter", sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillStyle = hexToRgba(COLORS.violet, 0.9);
-            ctx.fillText('语义曲率 / Semantic Mountain', mountainCx, mountainCy + 6);
-            ctx.restore();
-        }, {
-            onResize: ({ w, h }) => build(w, h),
-        });
-
-        return { start: () => runner.start(), stop: () => runner.stop() };
-    }
-
-    // ============================================================
-    // Chapter 6 · LIF 脉冲扩散
-    // ============================================================
-    function createScene_ch6(canvas) {
-        let dims = null;
-        let nodes = [];
-        let edges = [];
-        let waves = [];
-        let activeNodes = new Set();
-        let lastFire = 0;
-
-        function build(w, h) {
-            dims = { w, h };
-            nodes = [];
-            edges = [];
-            waves = [];
-            activeNodes = new Set();
-
-            // 中央种子节点 + 外围邻居网络
-            const cx = w * 0.5, cy = h * 0.5;
-            nodes.push({ x: cx, y: cy, label: 'Seed', color: COLORS.gold, radius: 9, energy: 0, isSeed: true });
-
-            // 第一层
-            const ring1 = 6;
-            for (let i = 0; i < ring1; i++) {
-                const a = (Math.PI * 2 * i) / ring1;
-                const r = Math.min(w, h) * 0.22;
-                nodes.push({
-                    x: cx + Math.cos(a) * r,
-                    y: cy + Math.sin(a) * r,
-                    label: ['VCP', 'RAG', '语义', '河道', '动力学', '流形'][i],
-                    color: COLORS.cyan,
-                    radius: 6,
-                    energy: 0,
-                });
-                edges.push({ a: 0, b: nodes.length - 1, weight: randRange(0.4, 0.8) });
-            }
-
-            // 第二层（涌现节点）
-            const ring2 = 10;
-            for (let i = 0; i < ring2; i++) {
-                const a = (Math.PI * 2 * i) / ring2 + Math.PI / ring2;
-                const r = Math.min(w, h) * 0.38;
-                nodes.push({
-                    x: cx + Math.cos(a) * r,
-                    y: cy + Math.sin(a) * r,
-                    label: '',
-                    color: COLORS.violet,
-                    radius: 4,
-                    energy: 0,
-                });
-                // 连接到最近的第一层节点
-                const idx = nodes.length - 1;
-                let bestJ = 1, bestD = Infinity;
-                for (let j = 1; j <= ring1; j++) {
-                    const d = Math.hypot(nodes[j].x - nodes[idx].x, nodes[j].y - nodes[idx].y);
-                    if (d < bestD) { bestD = d; bestJ = j; }
-                }
-                edges.push({ a: bestJ, b: idx, weight: randRange(0.3, 0.6) });
-            }
-        }
-
-        function fire() {
-            // 重置所有节点能量
-            for (const n of nodes) n.energy = 0;
-            activeNodes.clear();
-            waves = [];
-
-            const seed = nodes[0];
-            seed.energy = 1;
-            activeNodes.add(0);
-            waves.push(new SpikeWave(seed.x, seed.y, { color: COLORS.gold, maxRadius: 60, decay: 0.022 }));
-
-            // 多跳传播 (动画式)
-            propagateHop(0, 1);
-        }
-
-        function propagateHop(fromIdx, hop) {
-            if (hop > 3) return;
-            const nextNodes = [];
-            for (const e of edges) {
-                if (e.a === fromIdx || e.b === fromIdx) {
-                    const other = e.a === fromIdx ? e.b : e.a;
-                    if (!activeNodes.has(other)) nextNodes.push({ idx: other, weight: e.weight });
-                }
-            }
-            const decay = Math.pow(0.55, hop - 1);
-            nextNodes.forEach((nn, k) => {
-                setTimeout(() => {
-                    const n = nodes[nn.idx];
-                    n.energy = nn.weight * decay;
-                    activeNodes.add(nn.idx);
-                    waves.push(new SpikeWave(n.x, n.y, {
-                        color: hop === 1 ? COLORS.cyan : COLORS.violet,
-                        maxRadius: 40 - hop * 5,
-                        decay: 0.025,
-                    }));
-                    propagateHop(nn.idx, hop + 1);
-                }, 180 + k * 60);
-            });
-        }
-
-        const runner = new SceneRunner(canvas, (ctx, w, h, time) => {
-            // 自动周期触发
-            if (time - lastFire > 5) {
-                fire();
-                lastFire = time;
-            }
-
-            // 边
-            for (const e of edges) {
-                const a = nodes[e.a], b = nodes[e.b];
-                const isActive = activeNodes.has(e.a) && activeNodes.has(e.b);
-                ctx.save();
-                if (isActive) {
-                    ctx.shadowBlur = 8;
-                    ctx.shadowColor = COLORS.cyan;
-                    ctx.strokeStyle = hexToRgba(COLORS.cyan, 0.7);
-                    ctx.lineWidth = 1.5;
-                } else {
-                    ctx.strokeStyle = hexToRgba(COLORS.blue, 0.18);
-                    ctx.lineWidth = 0.7;
-                }
-                ctx.beginPath();
-                ctx.moveTo(a.x, a.y);
-                ctx.lineTo(b.x, b.y);
-                ctx.stroke();
-                ctx.restore();
-            }
-
-            // 波纹
-            waves = waves.filter(w => w.alive);
-            for (const wv of waves) {
-                wv.update();
-                wv.draw(ctx);
-            }
-
-            // 节点
-            for (let i = 0; i < nodes.length; i++) {
-                const n = nodes[i];
-                n.energy *= 0.985;
-                ctx.save();
-                const r = n.radius * (1 + n.energy * 0.6);
-                const blur = 8 + n.energy * 24;
-                ctx.shadowBlur = blur;
-                ctx.shadowColor = n.color;
-
-                // 能量环
-                if (n.energy > 0.1) {
-                    ctx.strokeStyle = hexToRgba(n.color, n.energy * 0.7);
-                    ctx.lineWidth = 1.5;
-                    ctx.beginPath();
-                    ctx.arc(n.x, n.y, r + 5 + n.energy * 8, 0, Math.PI * 2);
-                    ctx.stroke();
-                }
-
-                const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, r * 2.2);
-                grad.addColorStop(0, hexToRgba(n.color, 0.95));
-                grad.addColorStop(0.5, hexToRgba(n.color, 0.4));
-                grad.addColorStop(1, hexToRgba(n.color, 0));
-                ctx.fillStyle = grad;
-                ctx.beginPath();
-                ctx.arc(n.x, n.y, r * 2.2, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = hexToRgba(n.color, 0.95);
-                ctx.beginPath();
-                ctx.arc(n.x, n.y, r * 0.5, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.shadowBlur = 0;
-                if (n.label) {
-                    ctx.font = '11px "Inter", sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.fillStyle = hexToRgba(COLORS.white, 0.9);
-                    ctx.fillText(n.label, n.x, n.y - r - 8);
-                }
-                ctx.restore();
-            }
-
-            // 阈值线显示
-            ctx.save();
-            ctx.font = '10px "JetBrains Mono", monospace';
-            ctx.fillStyle = hexToRgba(COLORS.cyan, 0.7);
-            ctx.textAlign = 'left';
-            ctx.fillText('THRESHOLD = 0.10', 16, h - 18);
-            ctx.fillText('DECAY = 0.55', 16, h - 4);
-            ctx.restore();
-        }, {
-            onResize: ({ w, h }) => build(w, h),
-        });
-
-        return {
-            start: () => runner.start(),
-            stop: () => runner.stop(),
-            trigger: () => fire(),
-        };
-    }
-
-    // ============================================================
-    // Chapter 7 · 虫洞飞溅
-    // ============================================================
-    function createScene_ch7(canvas) {
-        let dims = null;
-        let denseNodes = [];   // 稠密区
-        let farNode = null;    // 远端跨域节点
-        let denseCenter = null;
-        let flares = [];
-        let pulse = { t: 0, x: 0, y: 0, active: false, vx: 0, vy: 0, isWormhole: false };
-        let ringWaves = [];
-        let lastFire = 0;
-
-        function build(w, h) {
-            dims = { w, h };
-            denseNodes = [];
-            denseCenter = { x: w * 0.32, y: h * 0.5 };
-            farNode = { x: w * 0.85, y: h * 0.5, label: '远端跨域', color: COLORS.pink };
-
-            // 稠密区
-            for (let i = 0; i < 12; i++) {
-                const a = randRange(0, Math.PI * 2);
-                const r = randRange(20, 70);
-                denseNodes.push({
-                    x: denseCenter.x + Math.cos(a) * r,
-                    y: denseCenter.y + Math.sin(a) * r,
-                    radius: randRange(3, 5),
-                    pulse: Math.random() * Math.PI * 2,
-                });
-            }
-
-            flares = [];
-            ringWaves = [];
-        }
-
-        function fire() {
-            // 在稠密区内做几次衰减传导，然后触发虫洞跳到远端
-            ringWaves.push(new SpikeWave(denseCenter.x, denseCenter.y, {
-                color: COLORS.cyan, maxRadius: 80, decay: 0.018,
-            }));
-
-            // 3 跳衰减
-            for (let i = 0; i < 3; i++) {
-                setTimeout(() => {
-                    const t = denseNodes[i % denseNodes.length];
-                    ringWaves.push(new SpikeWave(t.x, t.y, {
-                        color: COLORS.blue, maxRadius: 30, decay: 0.025,
-                    }));
-                }, 160 * (i + 1));
-            }
-
-            // 触发虫洞 = 浪花飞溅 + 弹弓粒子
-            setTimeout(() => {
-                const start = denseNodes[denseNodes.length - 1];
-                flares.push(new WormholeFlare(start.x, start.y, {
-                    color: COLORS.pink, count: 32, speed: 5,
-                }));
-                // 弹弓粒子
-                pulse = {
-                    t: 0,
-                    x: start.x, y: start.y,
-                    targetX: farNode.x, targetY: farNode.y,
-                    active: true,
-                    isWormhole: true,
-                };
-            }, 700);
-
-            // 远端冲击波
-            setTimeout(() => {
-                ringWaves.push(new SpikeWave(farNode.x, farNode.y, {
-                    color: COLORS.pink, maxRadius: 90, decay: 0.018,
-                }));
-                flares.push(new WormholeFlare(farNode.x, farNode.y, {
-                    color: COLORS.pink, count: 24, speed: 4,
-                }));
-            }, 1400);
-        }
-
-        const runner = new SceneRunner(canvas, (ctx, w, h, time) => {
-            if (time - lastFire > 6) {
-                fire();
-                lastFire = time;
-            }
-
-            // 稠密区背景圈
-            ctx.save();
-            const grad = ctx.createRadialGradient(denseCenter.x, denseCenter.y, 0, denseCenter.x, denseCenter.y, 100);
-            grad.addColorStop(0, hexToRgba(COLORS.blue, 0.18));
-            grad.addColorStop(1, hexToRgba(COLORS.blue, 0));
-            ctx.fillStyle = grad;
-            ctx.beginPath();
-            ctx.arc(denseCenter.x, denseCenter.y, 100, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
-
-            // 稠密区节点
-            for (const n of denseNodes) {
-                n.pulse += 0.03;
-                ctx.save();
-                ctx.shadowBlur = 8;
-                ctx.shadowColor = COLORS.blue;
-                ctx.fillStyle = hexToRgba(COLORS.blue, 0.7 + Math.sin(n.pulse) * 0.2);
-                ctx.beginPath();
-                ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
-            }
-
-            // 远端节点
-            ctx.save();
-            ctx.shadowBlur = 18;
-            ctx.shadowColor = farNode.color;
-            const fgrad = ctx.createRadialGradient(farNode.x, farNode.y, 0, farNode.x, farNode.y, 28);
-            fgrad.addColorStop(0, hexToRgba(farNode.color, 1));
-            fgrad.addColorStop(0.5, hexToRgba(farNode.color, 0.4));
-            fgrad.addColorStop(1, hexToRgba(farNode.color, 0));
-            ctx.fillStyle = fgrad;
-            ctx.beginPath();
-            ctx.arc(farNode.x, farNode.y, 28, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = hexToRgba(farNode.color, 0.95);
-            ctx.beginPath();
-            ctx.arc(farNode.x, farNode.y, 7, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.shadowBlur = 0;
-            ctx.font = 'bold 12px "Inter", sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillStyle = hexToRgba(COLORS.white, 0.95);
-            ctx.fillText(farNode.label, farNode.x, farNode.y - 22);
-            ctx.restore();
-
-            // 标签
-            ctx.save();
-            ctx.font = 'italic 11px "Inter", sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillStyle = hexToRgba(COLORS.blue, 0.75);
-            ctx.fillText('稠密区 (普通衰减)', denseCenter.x, denseCenter.y - 90);
-            ctx.restore();
-
-            // 弹弓粒子（虫洞中的高速粒子）
-            if (pulse.active) {
-                pulse.t += 0.032;
-                if (pulse.t >= 1) pulse.active = false;
-                const x = lerp(pulse.x, pulse.targetX, pulse.t);
-                // 弧形抛物线（pulse.t = 0~1, 中间略下凹）
-                const arc = Math.sin(pulse.t * Math.PI) * (h * 0.18);
-                const y = lerp(pulse.y, pulse.targetY, pulse.t) - arc;
-
-                ctx.save();
-                ctx.shadowBlur = 22;
-                ctx.shadowColor = COLORS.pink;
-                ctx.fillStyle = hexToRgba(COLORS.pink, 1);
-                ctx.beginPath();
-                ctx.arc(x, y, 5, 0, Math.PI * 2);
-                ctx.fill();
-
-                // 拖尾
-                for (let i = 1; i <= 12; i++) {
-                    const tt = clamp(pulse.t - i * 0.04, 0, 1);
-                    const tx = lerp(pulse.x, pulse.targetX, tt);
-                    const tarc = Math.sin(tt * Math.PI) * (h * 0.18);
-                    const ty = lerp(pulse.y, pulse.targetY, tt) - tarc;
-                    ctx.fillStyle = hexToRgba(COLORS.pink, (1 - i / 12) * 0.6);
-                    ctx.beginPath();
-                    ctx.arc(tx, ty, 4 - i * 0.2, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-                ctx.restore();
-            }
-
-            // 飞溅
-            flares = flares.filter(f => f.alive);
-            for (const f of flares) {
-                f.update();
-                f.draw(ctx);
-            }
-
-            // 波纹
-            ringWaves = ringWaves.filter(w => w.alive);
-            for (const w of ringWaves) {
-                w.update();
-                w.draw(ctx);
-            }
-
-            // 张力公式（左下角，避开右下角的「触发虫洞」按钮）
-            ctx.save();
-            ctx.font = '10px "JetBrains Mono", monospace';
-            ctx.textAlign = 'left';
-            ctx.fillStyle = hexToRgba(COLORS.pink, 0.85);
-            ctx.fillText('Tension = coocW × residual', 16, h - 18);
-            ctx.fillText('if Tension ≥ 1.0 → 🌊 Wormhole', 16, h - 4);
-            ctx.restore();
-        }, {
-            onResize: ({ w, h }) => build(w, h),
-        });
-
-        return { start: () => runner.start(), stop: () => runner.stop(), trigger: () => fire() };
-    }
-
-    // ============================================================
-    // Chapter 8 · Anchored GS 残差定位
-    // ============================================================
-    function createScene_ch8(canvas) {
-        let dims = null;
-        let target = null;
-        let neighbors = [];
-        let energyRings = [];
-
-        const STAGES = [
-            { idx: 0, label: 'Anchor ①', residual: 0.78, gain: 0.42 },
-            { idx: 2, label: 'Anchor ②', residual: 0.54, gain: 0.31 },
-            { idx: 4, label: 'Anchor ③', residual: 0.36, gain: 0.22 },
-        ];
-
-        function build(w, h) {
-            dims = { w, h };
-            target = {
-                x: w * 0.52,
-                y: h * 0.52,
-                label: 'Target Tag',
-                residual: 1.0,
-            };
-            const cx = target.x, cy = target.y;
-            const raw = [
-                { a: -2.55, r: 0.34, label: 'VCP', semantic: 0.91, weight: 0.86, color: COLORS.cyan },
-                { a: -1.42, r: 0.42, label: 'RAG', semantic: 0.52, weight: 0.58, color: COLORS.blue },
-                { a: -0.35, r: 0.33, label: '流形', semantic: 0.84, weight: 0.74, color: COLORS.violet },
-                { a: 0.72, r: 0.43, label: '噪声', semantic: 0.18, weight: 0.91, color: COLORS.muted },
-                { a: 1.82, r: 0.35, label: 'EPA', semantic: 0.79, weight: 0.69, color: COLORS.gold },
-                { a: 2.65, r: 0.46, label: '同义回音', semantic: 0.96, weight: 0.35, color: COLORS.pink },
-            ];
-            neighbors = raw.map((n, i) => ({
-                ...n,
-                x: cx + Math.cos(n.a) * Math.min(w, h) * n.r,
-                y: cy + Math.sin(n.a) * Math.min(w, h) * n.r,
-                pulse: Math.random() * Math.PI * 2,
-                selectedAt: STAGES.findIndex(s => s.idx === i),
-            }));
-            energyRings = [];
-        }
-
-        function drawVector(ctx, from, to, color, alpha, width = 2, dashed = null) {
-            ctx.save();
-            ctx.strokeStyle = hexToRgba(color, alpha);
-            ctx.lineWidth = width;
-            ctx.lineCap = 'round';
-            ctx.shadowBlur = 10 * alpha;
-            ctx.shadowColor = color;
-            if (dashed) ctx.setLineDash(dashed);
-            ctx.beginPath();
-            ctx.moveTo(from.x, from.y);
-            ctx.lineTo(to.x, to.y);
-            ctx.stroke();
-
-            const angle = Math.atan2(to.y - from.y, to.x - from.x);
-            const head = 8;
-            ctx.beginPath();
-            ctx.moveTo(to.x, to.y);
-            ctx.lineTo(to.x - Math.cos(angle - 0.45) * head, to.y - Math.sin(angle - 0.45) * head);
-            ctx.lineTo(to.x - Math.cos(angle + 0.45) * head, to.y - Math.sin(angle + 0.45) * head);
-            ctx.closePath();
-            ctx.fillStyle = hexToRgba(color, alpha);
-            ctx.fill();
-            ctx.restore();
-        }
-
-        function drawNode(ctx, n, opts = {}) {
-            const active = opts.active ?? false;
-            const dimmed = opts.dimmed ?? false;
-            const radius = opts.radius ?? 6;
-            const color = opts.color || n.color || COLORS.cyan;
-            const alpha = dimmed ? 0.28 : 0.95;
-            n.pulse = (n.pulse || 0) + 0.045;
-            const pulse = 0.85 + Math.sin(n.pulse) * 0.15;
-
-            ctx.save();
-            ctx.shadowBlur = active ? 24 : 10;
-            ctx.shadowColor = color;
-            const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, radius * (active ? 4 : 2.5));
-            grad.addColorStop(0, hexToRgba(color, alpha * pulse));
-            grad.addColorStop(0.5, hexToRgba(color, alpha * 0.35 * pulse));
-            grad.addColorStop(1, hexToRgba(color, 0));
-            ctx.fillStyle = grad;
-            ctx.beginPath();
-            ctx.arc(n.x, n.y, radius * (active ? 4 : 2.5), 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = hexToRgba(color, alpha);
-            ctx.beginPath();
-            ctx.arc(n.x, n.y, radius, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.shadowBlur = 0;
-            ctx.font = active ? 'bold 12px "Inter", sans-serif' : '11px "Inter", sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillStyle = hexToRgba(COLORS.white, dimmed ? 0.45 : 0.9);
-            ctx.fillText(n.label, n.x, n.y - radius - 10);
-            if (n.semantic !== undefined) {
-                ctx.font = '9px "JetBrains Mono", monospace';
-                ctx.fillStyle = hexToRgba(color, dimmed ? 0.38 : 0.75);
-                ctx.fillText(`sem=${n.semantic.toFixed(2)} · w=${n.weight.toFixed(2)}`, n.x, n.y + radius + 14);
-            }
-            ctx.restore();
-        }
-
-        const runner = new SceneRunner(canvas, (ctx, w, h, time) => {
-            const cycle = (time % 9) / 9;
-            const stageCursor = Math.min(STAGES.length - 1, Math.floor(cycle * STAGES.length));
-            const local = (cycle * STAGES.length) % 1;
-            const selectedStage = STAGES[stageCursor];
-            const selected = neighbors[selectedStage.idx];
-            const prevResidual = stageCursor === 0 ? 1.0 : STAGES[stageCursor - 1].residual;
-            const currentResidual = lerp(prevResidual, selectedStage.residual, clamp(local * 1.4, 0, 1));
-
-            // 背景正交网格
-            ctx.save();
-            ctx.strokeStyle = hexToRgba(COLORS.blue, 0.10);
-            ctx.lineWidth = 1;
-            for (let x = 40; x < w; x += 42) {
-                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
-            }
-            for (let y = 34; y < h; y += 42) {
-                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
-            }
-            ctx.restore();
-
-            // 残差地势晕圈：越扣减越收缩
-            const residualRadius = Math.min(w, h) * (0.33 * currentResidual + 0.08);
-            ctx.save();
-            const rg = ctx.createRadialGradient(target.x, target.y, 0, target.x, target.y, residualRadius);
-            rg.addColorStop(0, hexToRgba(COLORS.pink, 0.20 * currentResidual));
-            rg.addColorStop(0.55, hexToRgba(COLORS.violet, 0.12 * currentResidual));
-            rg.addColorStop(1, hexToRgba(COLORS.pink, 0));
-            ctx.fillStyle = rg;
-            ctx.beginPath();
-            ctx.arc(target.x, target.y, residualRadius, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.strokeStyle = hexToRgba(COLORS.pink, 0.35);
-            ctx.setLineDash([6, 8]);
+            ctx.strokeStyle = hexToRgba(COLORS.amber, 0.28);
+            ctx.setLineDash([5, 6]);
             ctx.lineWidth = 1.2;
             ctx.beginPath();
-            ctx.arc(target.x, target.y, residualRadius * 0.72, 0, Math.PI * 2);
+            ctx.arc(gx, gy, 46 + Math.sin(t * 1.8) * 4, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+        }, { onResize: ({ w, h }) => build(w, h) });
+
+        return { start: () => runner.start(), stop: () => runner.stop() };
+    }
+
+    // =========================================================================
+    // CHAPTER 01 · LOCAL AGS EXPLAIN: 局部贪心正交剥离与残差范数比 r_t -> a_t
+    // =========================================================================
+    function createScene_ch1(canvas) {
+        let stepK = 3;
+        let autoCycle = false;
+        let lastSwitch = 0;
+
+        // 预设 3 个正交基对目标 Tag 的投影系数 ⟨t, b_k⟩
+        const basisSteps = [
+            { k: 1, name: 'b₁ (OneRing)', proj: 0.62, sem: 0.68, w: 14.2, color: COLORS.patina, angle: -0.42 },
+            { k: 2, name: 'b₂ (SQLite)', proj: 0.44, sem: 0.61, w: 9.6, color: COLORS.amber, angle: 0.55 },
+            { k: 3, name: 'b₃ (IPC)', proj: 0.29, sem: 0.57, w: 6.1, color: COLORS.mint, angle: -1.35 },
+        ];
+
+        function computeStats(k) {
+            let explainedEnergy = 0;
+            for (let i = 0; i < k; i++) {
+                explainedEnergy += basisSteps[i].proj * basisSteps[i].proj;
+            }
+            const rt = Math.sqrt(Math.max(0, 1 - explainedEnergy));
+            const at = clamp(0.75 + 1.25 * rt, 0.5, 2.0);
+            return { explainedEnergy, rt, at };
+        }
+
+        const runner = new SceneRunner(canvas, (ctx, w, h, t) => {
+            if (autoCycle && t - lastSwitch > 1.8) {
+                stepK = (stepK + 1) % 4;
+                lastSwitch = t;
+                document.querySelectorAll('[data-ags-step]').forEach((btn) => {
+                    btn.classList.toggle('active', parseInt(btn.dataset.agsStep, 10) === stepK);
+                });
+            }
+
+            drawIndustrialGrid(ctx, w, h, 42);
+            const { explainedEnergy, rt, at } = computeStats(stepK);
+            setReadout(
+                'ch1Readout',
+                `K = ${stepK} Anchors · Explained 1−r_t² = ${(explainedEnergy * 100).toFixed(1)}% · r_t = ${rt.toFixed(3)} · a_t = ${at.toFixed(2)}`
+            );
+
+            // 左侧：向量正交剥离几何圆盘
+            const cx = w * 0.34;
+            const cy = h * 0.53;
+            const R = Math.min(w * 0.26, h * 0.36);
+
+            // 单位圆参考
+            ctx.save();
+            ctx.strokeStyle = hexToRgba(COLORS.patina, 0.22);
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.arc(cx, cy, R, 0, Math.PI * 2);
             ctx.stroke();
             ctx.restore();
 
-            // 候选邻居连线与正交化状态
-            neighbors.forEach((n, i) => {
-                const selectedAt = n.selectedAt;
-                const alreadySelected = selectedAt >= 0 && selectedAt < stageCursor;
-                const isCurrent = i === selectedStage.idx;
-                const isNoise = n.semantic < 0.25;
-                const alpha = alreadySelected ? 0.72 : (isCurrent ? 0.95 : (isNoise ? 0.12 : 0.26));
-                const dash = alreadySelected || isCurrent ? null : [3, 6];
-                drawVector(ctx, n, target, alreadySelected ? COLORS.cyan : n.color, alpha, isCurrent ? 2.7 : 1.1, dash);
+            // 残差能量光晕
+            const haloGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * rt);
+            haloGrad.addColorStop(0, hexToRgba(COLORS.cinnabar, 0.28 * rt));
+            haloGrad.addColorStop(1, hexToRgba(COLORS.cinnabar, 0));
+            ctx.fillStyle = haloGrad;
+            ctx.beginPath();
+            ctx.arc(cx, cy, R * rt, 0, Math.PI * 2);
+            ctx.fill();
 
-                // 当前候选的“正交剥离”小切线
-                if (isCurrent) {
-                    const mx = lerp(n.x, target.x, 0.45);
-                    const my = lerp(n.y, target.y, 0.45);
-                    const dx = target.x - n.x, dy = target.y - n.y;
-                    const len = Math.hypot(dx, dy) || 1;
-                    const ortho = { x: mx - dy / len * 36, y: my + dx / len * 36 };
-                    drawVector(ctx, { x: mx, y: my }, ortho, COLORS.gold, 0.85, 2);
-                    ctx.save();
-                    ctx.font = '10px "JetBrains Mono", monospace';
-                    ctx.fillStyle = hexToRgba(COLORS.gold, 0.9);
+            // 原始单位目标向量 t (虚线基准)
+            const targetEnd = { x: cx + Math.cos(-0.18) * R, y: cy + Math.sin(-0.18) * R };
+            drawVectorArrow(ctx, { x: cx, y: cy }, targetEnd, {
+                color: COLORS.bone,
+                alpha: 0.35,
+                width: 1.5,
+                dashed: [4, 4],
+            });
+            drawPillTag(ctx, targetEnd.x + 8, targetEnd.y - 6, '‖t‖ = 1.00', COLORS.bone);
+
+            // 已选正交基向量与投影扣减
+            basisSteps.forEach((b, idx) => {
+                const active = idx < stepK;
+                const len = R * (active ? b.proj : 0.42);
+                const bx = cx + Math.cos(b.angle) * len;
+                const by = cy + Math.sin(b.angle) * len;
+
+                drawVectorArrow(ctx, { x: cx, y: cy }, { x: bx, y: by }, {
+                    color: b.color,
+                    alpha: active ? 0.92 : 0.22,
+                    width: active ? 2.6 : 1.2,
+                    glow: active,
+                });
+
+                drawNodeBadge(ctx, { x: bx, y: by }, {
+                    color: b.color,
+                    radius: active ? 6 : 4,
+                    dimmed: !active,
+                    label: b.name,
+                    sub: active ? `⟨t,b_${b.k}⟩=${b.proj.toFixed(2)}` : `sem=${b.sem}`,
+                });
+            });
+
+            // 剩余未解释残差向量 r_t (朱砂红高亮)
+            const resAngle = 0.85 - stepK * 0.12;
+            const resEnd = {
+                x: cx + Math.cos(resAngle) * R * rt,
+                y: cy + Math.sin(resAngle) * R * rt,
+            };
+            drawVectorArrow(ctx, { x: cx, y: cy }, resEnd, {
+                color: COLORS.cinnabar,
+                alpha: 0.98,
+                width: 3.2,
+                glow: true,
+            });
+            drawPillTag(ctx, resEnd.x + 10, resEnd.y + 4, `r_t = ${rt.toFixed(3)}`, COLORS.coral);
+
+            drawNodeBadge(ctx, { x: cx, y: cy }, {
+                color: COLORS.amber,
+                radius: 7,
+                energy: 0.8,
+                label: 'Target Tag t',
+                offsetY: 20,
+            });
+
+            // 右侧：范数比 r_t vs 能量比 1-r_t^2 vs 锚增益 a_t 仪表柱
+            const panelX = w * 0.65;
+            const panelW = w * 0.30;
+            const topY = h * 0.16;
+
+            ctx.save();
+            ctx.fillStyle = 'rgba(23, 28, 32, 0.9)';
+            ctx.strokeStyle = 'rgba(118, 191, 174, 0.28)';
+            ctx.beginPath();
+            ctx.roundRect(panelX, topY, panelW, h * 0.70, 8);
+            ctx.fill();
+            ctx.stroke();
+
+            const bars = [
+                {
+                    label: '已解释能量比 1 − r_t²',
+                    val: explainedEnergy,
+                    max: 1.0,
+                    text: `${(explainedEnergy * 100).toFixed(1)}%`,
+                    color: COLORS.patina,
+                },
+                {
+                    label: '未解释残差范数比 r_t (L2)',
+                    val: rt,
+                    max: 1.0,
+                    text: rt.toFixed(3),
+                    color: COLORS.cinnabar,
+                },
+                {
+                    label: '映射锚增益 a_t ∈ [0.5, 2.0]',
+                    val: at,
+                    max: 2.0,
+                    text: `${at.toFixed(2)}×`,
+                    color: COLORS.amber,
+                },
+            ];
+
+            bars.forEach((bar, i) => {
+                const by = topY + 28 + i * 68;
+                const bx = panelX + 14;
+                const bw = panelW - 28;
+
+                ctx.font = '600 10.5px "JetBrains Mono", monospace';
+                ctx.fillStyle = COLORS.bone;
+                ctx.textAlign = 'left';
+                ctx.fillText(bar.label, bx, by);
+
+                ctx.fillStyle = bar.color;
+                ctx.textAlign = 'right';
+                ctx.fillText(bar.text, bx + bw, by);
+
+                ctx.fillStyle = 'rgba(255,255,255,0.08)';
+                ctx.beginPath();
+                ctx.roundRect(bx, by + 8, bw, 10, 5);
+                ctx.fill();
+
+                ctx.fillStyle = bar.color;
+                ctx.beginPath();
+                ctx.roundRect(bx, by + 8, Math.max(4, bw * clamp(bar.val / bar.max, 0, 1)), 10, 5);
+                ctx.fill();
+            });
+            ctx.restore();
+        });
+
+        return {
+            start: () => runner.start(),
+            stop: () => runner.stop(),
+            setStep: (k) => {
+                autoCycle = false;
+                stepK = clamp(k, 0, 3);
+            },
+            toggleCycle: () => {
+                autoCycle = !autoCycle;
+            },
+        };
+    }
+
+    // =========================================================================
+    // CHAPTER 02 · GLOBAL AGS STAR SPAN: 星团中心化方向 s_t 与前缀嵌套覆盖率曲线
+    // =========================================================================
+    function createScene_ch2(canvas) {
+        let mode = 'star'; // 'star' (xi=0.8) | 'anchor' (xi=0.0)
+        let sweepPhase = 1.0;
+        let sweeping = false;
+
+        const coverageStar = [0.24, 0.41, 0.53, 0.62, 0.69, 0.74, 0.78, 0.81, 0.84, 0.86, 0.88, 0.895, 0.905, 0.912, 0.917, 0.921];
+        const coverageAnchor = [0.16, 0.28, 0.37, 0.45, 0.51, 0.56, 0.60, 0.63, 0.66, 0.68, 0.70, 0.715, 0.728, 0.738, 0.746, 0.752];
+        const axisNames = ['RiverMemo', 'OneRing', 'MoonAST', 'Scriptorium', 'JevCall', 'VMusic', 'VCPDesktop', 'OpenHer'];
+
+        const runner = new SceneRunner(canvas, (ctx, w, h, t) => {
+            drawIndustrialGrid(ctx, w, h, 44);
+            if (sweeping) {
+                sweepPhase += 0.012;
+                if (sweepPhase >= 1) {
+                    sweepPhase = 1;
+                    sweeping = false;
+                }
+            }
+
+            const xi = mode === 'star' ? 0.8 : 0.0;
+            const covArr = mode === 'star' ? coverageStar : coverageAnchor;
+            const kEff = mode === 'star' ? 14 : 16;
+            setReadout(
+                'ch2Readout',
+                `Mode: ${mode === 'star' ? 'Star Mixture (ξ=0.80)' : 'Single Anchor (ξ=0.00)'} · K_sem=8 · K_eff=${kEff} · Cov=${(covArr[kEff - 1] * 100).toFixed(1)}%`
+            );
+
+            // 左半区：星团中心化几何示意 (t - μ 与邻居噪声抵消)
+            const cx = w * 0.26;
+            const cy = h * 0.54;
+            const R = Math.min(w * 0.20, h * 0.34);
+
+            drawNodeBadge(ctx, { x: cx, y: cy }, {
+                color: COLORS.muted,
+                radius: 5,
+                label: 'Global Mean μ',
+                offsetY: 18,
+            });
+
+            // 单个 Tag 偏置向量 (t - μ)
+            const rawAngle = -0.78;
+            const rawPt = { x: cx + Math.cos(rawAngle) * R * 0.88, y: cy + Math.sin(rawAngle) * R * 0.88 };
+            drawVectorArrow(ctx, { x: cx, y: cy }, rawPt, {
+                color: COLORS.cinnabar,
+                alpha: mode === 'anchor' ? 0.95 : 0.42,
+                width: mode === 'anchor' ? 2.8 : 1.5,
+                dashed: mode === 'star' ? [4, 4] : null,
+            });
+            drawNodeBadge(ctx, rawPt, {
+                color: COLORS.cinnabar,
+                radius: 5,
+                label: 't − μ (单点偏置)',
+                offsetY: -12,
+            });
+
+            // 星团共现邻居 (t_j - μ)
+            const neighborAngles = [-0.48, -0.22, -0.05, 0.14];
+            neighborAngles.forEach((na, idx) => {
+                const nr = R * (0.72 + (idx % 2) * 0.14);
+                const np = { x: cx + Math.cos(na) * nr, y: cy + Math.sin(na) * nr };
+                drawVectorArrow(ctx, { x: cx, y: cy }, np, {
+                    color: COLORS.patina,
+                    alpha: mode === 'star' ? 0.45 : 0.15,
+                    width: 1.2,
+                });
+                ctx.fillStyle = hexToRgba(COLORS.patina, mode === 'star' ? 0.8 : 0.25);
+                ctx.beginPath();
+                ctx.arc(np.x, np.y, 3.2, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // 合成星团主轴 s_t
+            const starAngle = lerp(rawAngle, -0.24, xi);
+            const starPt = { x: cx + Math.cos(starAngle) * R, y: cy + Math.sin(starAngle) * R };
+            drawVectorArrow(ctx, { x: cx, y: cy }, starPt, {
+                color: COLORS.amber,
+                alpha: 0.98,
+                width: 3.2,
+                glow: true,
+            });
+            drawPillTag(ctx, starPt.x + 8, starPt.y, `s_t (ξ=${xi.toFixed(1)})`, COLORS.amber);
+
+            // 右半区：前缀嵌套覆盖率曲线 (k = 1..16)
+            const gx0 = w * 0.52;
+            const gx1 = w - 24;
+            const gy0 = 36;
+            const gy1 = h - 42;
+            const gw = gx1 - gx0;
+            const gh = gy1 - gy0;
+
+            ctx.save();
+            ctx.fillStyle = 'rgba(18, 22, 26, 0.88)';
+            ctx.strokeStyle = 'rgba(118, 191, 174, 0.25)';
+            ctx.beginPath();
+            ctx.roundRect(gx0 - 12, gy0 - 14, gw + 22, gh + 38, 8);
+            ctx.fill();
+            ctx.stroke();
+
+            // K_sem = 8 分界线
+            const kSemX = gx0 + (7 / 15) * gw;
+            ctx.strokeStyle = hexToRgba(COLORS.patina, 0.45);
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(kSemX, gy0);
+            ctx.lineTo(kSemX, gy1);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            drawPillTag(ctx, kSemX, gy0 + 10, 'K_sem = 8 (语义前缀)', COLORS.patina, 'center');
+
+            // 覆盖率折线与柱状能量
+            const maxIdx = Math.max(1, Math.floor(covArr.length * sweepPhase));
+            ctx.beginPath();
+            for (let i = 0; i < maxIdx; i++) {
+                const px = gx0 + (i / (covArr.length - 1)) * gw;
+                const py = gy1 - covArr[i] * gh;
+                if (i === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.strokeStyle = COLORS.amber;
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            for (let i = 0; i < maxIdx; i++) {
+                const px = gx0 + (i / (covArr.length - 1)) * gw;
+                const py = gy1 - covArr[i] * gh;
+                const isSem = i < 8;
+                ctx.fillStyle = isSem ? COLORS.patina : COLORS.amber;
+                ctx.beginPath();
+                ctx.arc(px, py, isSem ? 3.8 : 3, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (i < 4) {
+                    ctx.font = '9px "JetBrains Mono", monospace';
+                    ctx.fillStyle = hexToRgba(COLORS.bone, 0.8);
                     ctx.textAlign = 'center';
-                    ctx.fillText('orthogonalize', ortho.x, ortho.y - 8);
+                    ctx.fillText(axisNames[i], px, py - 10 - (i % 2) * 10);
+                }
+            }
+            ctx.restore();
+        });
+
+        return {
+            start: () => runner.start(),
+            stop: () => runner.stop(),
+            setStarMode: (m) => {
+                mode = m;
+            },
+            triggerSweep: () => {
+                sweepPhase = 0.12;
+                sweeping = true;
+            },
+        };
+    }
+
+    // =========================================================================
+    // CHAPTER 03 · SUB-STOCHASTIC TRANSPORT GRAPH: 顺逆流、钟形门控与预算内虫洞
+    // =========================================================================
+    function createScene_ch3(canvas) {
+        let flowMode = 'forward'; // 'forward' | 'wormhole' | 'backward'
+
+        function bellGate(sim) {
+            if (sim <= 0) return 0.35;
+            return Math.max(0.35, 0.5 + 0.8 * Math.exp(-Math.pow(sim - 0.65, 2) / (2 * 0.25 * 0.25)));
+        }
+
+        const runner = new SceneRunner(canvas, (ctx, w, h, t) => {
+            drawIndustrialGrid(ctx, w, h, 44);
+
+            const shares = flowMode === 'wormhole'
+                ? [
+                    { name: 'Neighbor A (普通边)', p: 0.18, color: COLORS.patina, wormhole: false },
+                    { name: 'Neighbor B (普通边)', p: 0.15, color: COLORS.turquoise, wormhole: false },
+                    { name: 'Cross-Domain Tag (虫洞 a_t=1.85)', p: 0.52, color: COLORS.cinnabar, wormhole: true },
+                ]
+                : flowMode === 'backward'
+                ? [
+                    { name: 'Forward i → j (×1.00)', p: 0.54, color: COLORS.patina, wormhole: false },
+                    { name: 'Reverse j → i (×0.42·a_t ≤ 0.95·fwd)', p: 0.26, color: COLORS.amber, wormhole: false },
+                    { name: 'Local Branch', p: 0.05, color: COLORS.turquoise, wormhole: false },
+                ]
+                : [
+                    { name: 'Neighbor A (sim=0.64 黄金区)', p: 0.38, color: COLORS.patina, wormhole: false },
+                    { name: 'Neighbor B (sim=0.52)', p: 0.29, color: COLORS.amber, wormhole: false },
+                    { name: 'Neighbor C (sim=0.93 同义抑制)', p: 0.18, color: COLORS.turquoise, wormhole: false },
+                ];
+
+            const sumP = shares.reduce((acc, s) => acc + s.p, 0);
+            setReadout(
+                'ch3Readout',
+                `Mode: ${flowMode.toUpperCase()} · Row Sum ΣP_ij = ${sumP.toFixed(2)} ≤ m_out < 1.00 (Resolvent Safe)`
+            );
+
+            // 左侧：源节点 i 向邻居分配固定行预算
+            const src = { x: w * 0.14, y: h * 0.44 };
+            shares.forEach((s, idx) => {
+                const ty = h * (0.20 + idx * 0.24);
+                const tx = w * 0.52;
+                const path = new RiverPath(
+                    src,
+                    { x: lerp(src.x, tx, 0.4), y: src.y },
+                    { x: lerp(src.x, tx, 0.7), y: ty },
+                    { x: tx, y: ty },
+                    { color: s.color, width: 1.5 + s.p * 6, opacity: 0.75 }
+                );
+                path.draw(ctx);
+
+                // 沿边流动的份额脉冲
+                const phase = (t * (s.wormhole ? 0.9 : 0.55) + idx * 0.3) % 1;
+                const pt = path.sample(phase);
+                ctx.fillStyle = s.color;
+                ctx.beginPath();
+                ctx.arc(pt.x, pt.y, 2.5 + s.p * 5, 0, Math.PI * 2);
+                ctx.fill();
+
+                drawNodeBadge(ctx, { x: tx, y: ty }, {
+                    color: s.color,
+                    radius: 5 + s.p * 6,
+                    energy: s.p,
+                    label: s.name,
+                    sub: `P_ij = ${s.p.toFixed(2)}`,
+                    align: 'left',
+                    offsetX: 14,
+                    offsetY: -2,
+                    subOffsetY: 12,
+                });
+            });
+
+            drawNodeBadge(ctx, src, {
+                color: COLORS.amber,
+                radius: 9,
+                energy: 0.9,
+                label: 'Source Tag i',
+                sub: `m_out = ${sumP.toFixed(2)}`,
+            });
+
+            // 底部：固定行预算守恒条 Σ_j P_ij < 1.00
+            const barX = 24;
+            const barY = h - 38;
+            const barW = w * 0.56;
+            ctx.save();
+            ctx.fillStyle = 'rgba(255,255,255,0.06)';
+            ctx.strokeStyle = 'rgba(242, 240, 233, 0.3)';
+            ctx.beginPath();
+            ctx.roundRect(barX, barY, barW, 14, 4);
+            ctx.fill();
+            ctx.stroke();
+
+            let offset = 0;
+            shares.forEach((s) => {
+                const segW = barW * s.p;
+                ctx.fillStyle = hexToRgba(s.color, 0.88);
+                ctx.fillRect(barX + offset, barY + 1, segW - 1, 12);
+                offset += segW;
+            });
+            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.fillStyle = COLORS.amber;
+            ctx.fillText(`Fixed Row Budget Cap (1.00) · Remained Sink = ${(1 - sumP).toFixed(2)}`, barX, barY - 6);
+            ctx.restore();
+
+            // 右侧小窗：内联钟形语义门控曲线 bell(sim)
+            const bx0 = w * 0.68;
+            const bx1 = w - 20;
+            const by0 = 36;
+            const by1 = h - 42;
+            const bw = bx1 - bx0;
+            const bh = by1 - by0;
+
+            ctx.save();
+            ctx.fillStyle = 'rgba(18, 22, 26, 0.9)';
+            ctx.strokeStyle = 'rgba(118, 191, 174, 0.25)';
+            ctx.beginPath();
+            ctx.roundRect(bx0 - 10, by0 - 12, bw + 18, bh + 30, 8);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.beginPath();
+            for (let k = 0; k <= 80; k++) {
+                const sim = k / 80;
+                const g = bellGate(sim);
+                const x = bx0 + sim * bw;
+                const y = by1 - (g / 1.4) * bh;
+                if (k === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.strokeStyle = COLORS.patina;
+            ctx.lineWidth = 2.2;
+            ctx.stroke();
+
+            const peakX = bx0 + 0.65 * bw;
+            const peakY = by1 - (1.3 / 1.4) * bh;
+            drawNodeBadge(ctx, { x: peakX, y: peakY }, {
+                color: COLORS.amber,
+                radius: 4.5,
+                label: 'Peak sim=0.65 (1.30×)',
+                offsetY: -10,
+            });
+            ctx.restore();
+        });
+
+        return {
+            start: () => runner.start(),
+            stop: () => runner.stop(),
+            setMode: (m) => {
+                flowMode = m;
+            },
+        };
+    }
+
+    // =========================================================================
+    // CHAPTER 04 · EPA CALIBRATION & RESIDUAL PYRAMID: 背景校准 g_Q 与 3 层正交金字塔
+    // =========================================================================
+    function createScene_ch4(canvas) {
+        let epaMode = 'focused'; // 'focused' | 'cross' | 'ood'
+
+        const presets = {
+            focused: {
+                rQ: 0.68,
+                cM: 0.78,
+                bIso: 0.08,
+                entropy: 0.22,
+                axes: [
+                    { name: 'RiverMemo', val: 0.58 },
+                    { name: 'VexusRust', val: 0.24 },
+                    { name: 'SQLite', val: 0.11 },
+                    { name: 'OneRing', val: 0.07 },
+                ],
+                levels: [
+                    { lv: 'L0 主方向', ratio: 0.54, tag: 'TopologyV3 · Ω泛函', coh: 0.88 },
+                    { lv: 'L1 一阶残差', ratio: 0.24, tag: 'AGS正交基 · CSR核', coh: 0.76 },
+                    { lv: 'L2 二阶残差', ratio: 0.11, tag: 'Rayon并发 · 句柄缓存', coh: 0.64 },
+                ],
+            },
+            cross: {
+                rQ: 0.61,
+                cM: 0.78,
+                bIso: 0.08,
+                entropy: 0.48,
+                axes: [
+                    { name: 'Scriptorium', val: 0.36 },
+                    { name: 'MoonAST', val: 0.33 },
+                    { name: 'VMusic', val: 0.19 },
+                    { name: 'JevCall', val: 0.12 },
+                ],
+                levels: [
+                    { lv: 'L0 主方向', ratio: 0.42, tag: '3D透视打字 · 源码映射', coh: 0.81 },
+                    { lv: 'L1 一阶残差', ratio: 0.29, tag: 'MoonAST跨进程追踪', coh: 0.79 },
+                    { lv: 'L2 二阶残差', ratio: 0.16, tag: 'Jev双轨安检验签', coh: 0.68 },
+                ],
+            },
+            ood: {
+                rQ: 0.09,
+                cM: 0.78,
+                bIso: 0.08,
+                entropy: 0.91,
+                axes: [
+                    { name: 'Axis#1', val: 0.27 },
+                    { name: 'Axis#2', val: 0.25 },
+                    { name: 'Axis#3', val: 0.24 },
+                    { name: 'Axis#4', val: 0.24 },
+                ],
+                levels: [
+                    { lv: 'L0 弱响应', ratio: 0.08, tag: '无显著域内主轴', coh: 0.21 },
+                    { lv: 'L1 噪声截断', ratio: 0.03, tag: 'Handshake Noise 高', coh: 0.14 },
+                    { lv: 'L2 提前终止', ratio: 0.00, tag: 'Gate → 保护原查询 q', coh: 0.00 },
+                ],
+            },
+        };
+
+        const runner = new SceneRunner(canvas, (ctx, w, h) => {
+            drawIndustrialGrid(ctx, w, h, 44);
+            const p = presets[epaMode] || presets.focused;
+            const gQ = clamp((p.rQ - p.bIso) / Math.max(1e-6, p.cM - p.bIso), 0, 1);
+            const logicDepth = (1 - p.entropy) * gQ;
+
+            setReadout(
+                'ch4Readout',
+                `r_Q=${p.rQ.toFixed(2)} vs b_iso=${p.bIso.toFixed(2)} · Gate g_Q=${gQ.toFixed(2)} · LogicDepth=${logicDepth.toFixed(2)}`
+            );
+
+            // 左栏：EPA 背景相对校准尺 (b_iso -> r_Q -> c_m)
+            const lx = 24;
+            const lw = w * 0.43;
+            const ly = 28;
+
+            ctx.save();
+            ctx.fillStyle = 'rgba(18, 22, 26, 0.92)';
+            ctx.strokeStyle = 'rgba(118, 191, 174, 0.28)';
+            ctx.beginPath();
+            ctx.roundRect(lx, ly, lw, h - 52, 8);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.font = '600 10.5px "JetBrains Mono", monospace';
+            ctx.fillStyle = COLORS.patina;
+            ctx.fillText('1. EPA BACKGROUND-RELATIVE GATE g_Q', lx + 14, ly + 22);
+
+            // 校准刻度条
+            const scaleX = lx + 14;
+            const scaleY = ly + 42;
+            const scaleW = lw - 28;
+            ctx.fillStyle = 'rgba(255,255,255,0.07)';
+            ctx.fillRect(scaleX, scaleY, scaleW, 14);
+
+            const bIsoX = scaleX + p.bIso * scaleW;
+            const cMX = scaleX + p.cM * scaleW;
+            const rQX = scaleX + p.rQ * scaleW;
+
+            ctx.fillStyle = hexToRgba(COLORS.patina, 0.25);
+            ctx.fillRect(bIsoX, scaleY, cMX - bIsoX, 14);
+
+            ctx.fillStyle = gQ > 0.2 ? COLORS.amber : COLORS.cinnabar;
+            ctx.beginPath();
+            ctx.arc(rQX, scaleY + 7, 6, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.font = '9.5px "JetBrains Mono", monospace';
+            ctx.fillStyle = COLORS.muted;
+            ctx.fillText(`b_iso=${p.bIso}`, bIsoX - 10, scaleY + 28);
+            ctx.fillStyle = COLORS.patina;
+            ctx.fillText(`c_m=${p.cM}`, cMX - 18, scaleY + 28);
+            ctx.fillStyle = COLORS.amber;
+            ctx.fillText(`r_Q=${p.rQ}`, rQX - 16, scaleY - 6);
+
+            // 前缀主题面投影分布
+            p.axes.forEach((ax, i) => {
+                const ay = ly + 94 + i * 38;
+                ctx.font = '10px "JetBrains Mono", monospace';
+                ctx.fillStyle = COLORS.bone;
+                ctx.fillText(ax.name, scaleX, ay);
+                ctx.fillStyle = 'rgba(255,255,255,0.07)';
+                ctx.fillRect(scaleX + 86, ay - 9, scaleW - 86, 10);
+                ctx.fillStyle = i === 0 ? COLORS.amber : COLORS.patina;
+                ctx.fillRect(scaleX + 86, ay - 9, (scaleW - 86) * ax.val, 10);
+            });
+            ctx.restore();
+
+            // 右栏：3 层 Residual Pyramid 正交剥离阶梯
+            const rx = w * 0.50;
+            const rw = w * 0.47;
+            ctx.save();
+            ctx.fillStyle = 'rgba(18, 22, 26, 0.92)';
+            ctx.strokeStyle = 'rgba(242, 169, 0, 0.28)';
+            ctx.beginPath();
+            ctx.roundRect(rx, ly, rw, h - 52, 8);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.font = '600 10.5px "JetBrains Mono", monospace';
+            ctx.fillStyle = COLORS.amber;
+            ctx.fillText('2. 3-LEVEL ORTHOGONAL RESIDUAL PYRAMID', rx + 14, ly + 22);
+
+            p.levels.forEach((lv, i) => {
+                const by = ly + 44 + i * 74;
+                const decay = Math.pow(0.7, i);
+                ctx.fillStyle = 'rgba(255,255,255,0.035)';
+                ctx.strokeStyle = hexToRgba(i === 0 ? COLORS.amber : COLORS.patina, 0.35);
+                ctx.beginPath();
+                ctx.roundRect(rx + 14, by, rw - 28, 60, 6);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.font = '600 10px "JetBrains Mono", monospace';
+                ctx.fillStyle = i === 0 ? COLORS.amber : COLORS.patina;
+                ctx.fillText(`${lv.lv} (LayerDecay 0.7^${i} = ${decay.toFixed(2)})`, rx + 24, by + 18);
+
+                ctx.font = '10px "Inter", sans-serif';
+                ctx.fillStyle = COLORS.bone;
+                ctx.fillText(`召回种子: ${lv.tag}`, rx + 24, by + 36);
+
+                ctx.font = '9.5px "JetBrains Mono", monospace';
+                ctx.fillStyle = COLORS.muted;
+                ctx.fillText(`Explained=${(lv.ratio * 100).toFixed(0)}% · HandshakeCoh=${lv.coh.toFixed(2)}`, rx + 24, by + 51);
+            });
+            ctx.restore();
+        });
+
+        return {
+            start: () => runner.start(),
+            stop: () => runner.stop(),
+            setEpaMode: (m) => {
+                epaMode = m;
+            },
+        };
+    }
+
+    // =========================================================================
+    // CHAPTER 05 · SENSE BOUNDED FIR WAVE: 4跳脉冲、软非回溯与请求级河网 R_q
+    // =========================================================================
+    function createScene_ch5(canvas) {
+        let viewMode = 'river'; // 'river' | 'all'
+        let firedAt = 0;
+
+        const nodes = [
+            { id: 0, rx: 0.11, ry: 0.50, hop: 0, label: 'Core Seed z₁', color: COLORS.amber },
+            { id: 1, rx: 0.31, ry: 0.26, hop: 1, label: 'Hop-1 Tag A', color: COLORS.patina },
+            { id: 2, rx: 0.31, ry: 0.74, hop: 1, label: 'Hop-1 Tag B', color: COLORS.patina },
+            { id: 3, rx: 0.54, ry: 0.28, hop: 2, label: 'Hop-2 Tag C', color: COLORS.mint },
+            { id: 4, rx: 0.54, ry: 0.72, hop: 2, label: 'Hop-2 Wormhole', color: COLORS.cinnabar },
+            { id: 5, rx: 0.77, ry: 0.36, hop: 3, label: 'Hop-3 Emergent', color: COLORS.patina },
+            { id: 6, rx: 0.86, ry: 0.68, hop: 4, label: 'Hop-4 Deep Node', color: COLORS.amber },
+            // 未激活静态背景节点
+            { id: 7, rx: 0.45, ry: 0.10, hop: -1, label: 'Static Idle', color: COLORS.dim },
+            { id: 8, rx: 0.72, ry: 0.86, hop: -1, label: 'Static Idle', color: COLORS.dim },
+        ];
+
+        const activeEdges = [
+            { a: 0, b: 1, flow: 0.48, wormhole: false },
+            { a: 0, b: 2, flow: 0.37, wormhole: false },
+            { a: 1, b: 3, flow: 0.31, wormhole: false },
+            { a: 2, b: 4, flow: 0.42, wormhole: true },
+            { a: 3, b: 5, flow: 0.22, wormhole: false },
+            { a: 4, b: 5, flow: 0.28, wormhole: false },
+            { a: 4, b: 6, flow: 0.25, wormhole: true },
+        ];
+
+        const staticEdges = [
+            { a: 1, b: 7 },
+            { a: 3, b: 7 },
+            { a: 2, b: 8 },
+            { a: 5, b: 8 },
+        ];
+
+        const runner = new SceneRunner(canvas, (ctx, w, h, t) => {
+            drawIndustrialGrid(ctx, w, h, 44);
+            if (t - firedAt > 6.5) firedAt = t;
+            const age = t - firedAt;
+
+            const pts = nodes.map((n) => ({ ...n, x: n.rx * w, y: n.ry * h }));
+
+            // 可选绘制未激活静态背景边（证明 R_q ≠ 全库静态图）
+            if (viewMode === 'all') {
+                staticEdges.forEach((se) => {
+                    drawVectorArrow(ctx, pts[se.a], pts[se.b], {
+                        color: COLORS.muted,
+                        alpha: 0.18,
+                        width: 1,
+                        dashed: [3, 5],
+                    });
+                });
+            }
+
+            // 绘制真实承载流量的请求级河网边 E_q
+            activeEdges.forEach((e) => {
+                const na = pts[e.a];
+                const nb = pts[e.b];
+                const hopStart = na.hop * 0.75;
+                const reached = age >= hopStart;
+                const col = e.wormhole ? COLORS.cinnabar : COLORS.patina;
+
+                drawVectorArrow(ctx, na, nb, {
+                    color: col,
+                    alpha: reached ? 0.85 : 0.22,
+                    width: 1.2 + e.flow * 4.5,
+                    glow: reached && e.wormhole,
+                });
+
+                if (reached) {
+                    const localT = clamp((age - hopStart) / 0.85, 0, 1);
+                    const px = lerp(na.x, nb.x, localT);
+                    const py = lerp(na.y, nb.y, localT);
+                    ctx.fillStyle = e.wormhole ? COLORS.amber : COLORS.mint;
+                    ctx.beginPath();
+                    ctx.arc(px, py, 3.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+
+            // 演示 i -> j -> i 立即回流软抑制 (×0.15)
+            drawVectorArrow(
+                ctx,
+                { x: pts[3].x - 6, y: pts[3].y + 10 },
+                { x: pts[1].x + 6, y: pts[1].y + 10 },
+                { color: COLORS.coral, alpha: 0.45, width: 1.2, dashed: [3, 3] }
+            );
+            drawPillTag(
+                ctx,
+                (pts[1].x + pts[3].x) / 2,
+                (pts[1].y + pts[3].y) / 2 + 18,
+                'Immediate Return ×0.15',
+                COLORS.coral,
+                'center'
+            );
+
+            // 绘制节点与 FIR 权重 a_h = γ^h / Σγ^r
+            pts.forEach((n) => {
+                if (n.hop < 0 && viewMode !== 'all') return;
+                const active = n.hop >= 0 && age >= n.hop * 0.75;
+                const fir = n.hop >= 0 ? Math.pow(0.6, n.hop) : 0;
+                drawNodeBadge(ctx, n, {
+                    color: n.color,
+                    radius: n.hop === 0 ? 8 : 6,
+                    energy: active ? fir : 0.1,
+                    dimmed: n.hop < 0 || !active,
+                    label: n.label,
+                    sub: n.hop >= 0 ? `hop=${n.hop} · γ^h=${fir.toFixed(2)}` : 'F_ij = 0 (Excluded)',
+                });
+            });
+        });
+
+        return {
+            start: () => runner.start(),
+            stop: () => runner.stop(),
+            trigger: () => {
+                firedAt = 0;
+            },
+            setViewMode: (m) => {
+                viewMode = m;
+            },
+        };
+    }
+
+    // =========================================================================
+    // CHAPTER 06 · RESOLVENT DUAL-SCALE FIELDS: u_L (α=0.15, η=0.80) vs u_T (α=0.55, η=0.90)
+    // =========================================================================
+    function createScene_ch6(canvas) {
+        let fieldMode = 'both'; // 'both' | 'local' | 'transfer'
+
+        const fieldNodes = [
+            { rx: 0.24, ry: 0.50, uL: 0.96, uT: 0.88, inL: true, inT: true, label: 'Source S₁' },
+            { rx: 0.36, ry: 0.30, uL: 0.74, uT: 0.72, inL: true, inT: true, label: 'Near Tag A' },
+            { rx: 0.38, ry: 0.70, uL: 0.68, uT: 0.69, inL: true, inT: true, label: 'Near Tag B' },
+            { rx: 0.56, ry: 0.28, uL: 0.21, uT: 0.61, inL: false, inT: true, label: 'Bridge Tag C' },
+            { rx: 0.60, ry: 0.68, uL: 0.16, uT: 0.54, inL: false, inT: true, label: 'Bridge Tag D' },
+            { rx: 0.78, ry: 0.46, uL: 0.06, uT: 0.42, inL: false, inT: true, label: 'Transfer Hub' },
+            { rx: 0.88, ry: 0.22, uL: 0.02, uT: 0.05, inL: false, inT: false, label: 'Tail Noise (Q_i=0)' },
+            { rx: 0.88, ry: 0.78, uL: 0.01, uT: 0.04, inL: false, inT: false, label: 'Tail Noise (Q_i=0)' },
+        ];
+
+        const runner = new SceneRunner(canvas, (ctx, w, h, t) => {
+            drawIndustrialGrid(ctx, w, h, 44);
+            setReadout(
+                'ch6Readout',
+                fieldMode === 'local'
+                    ? 'Viewing: Local Field u_L (α_L=0.15 · Support D_0.80)'
+                    : fieldMode === 'transfer'
+                    ? 'Viewing: Transfer Field u_T (α_T=0.55 · Support D_0.90)'
+                    : 'Viewing: Dual Overlay · D_0.80(u_L) + D_0.90(u_T)'
+            );
+
+            // 绘制有效支持域边界包络
+            if (fieldMode === 'both' || fieldMode === 'transfer') {
+                ctx.save();
+                ctx.fillStyle = hexToRgba(COLORS.amber, 0.07);
+                ctx.strokeStyle = hexToRgba(COLORS.amber, 0.5);
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([6, 4]);
+                ctx.beginPath();
+                ctx.ellipse(w * 0.48, h * 0.49, w * 0.35, h * 0.36, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+                ctx.restore();
+                drawPillTag(ctx, w * 0.66, h * 0.15, 'D_0.90(u_T) Transfer Support', COLORS.amber, 'center');
+            }
+
+            if (fieldMode === 'both' || fieldMode === 'local') {
+                ctx.save();
+                ctx.fillStyle = hexToRgba(COLORS.patina, 0.11);
+                ctx.strokeStyle = hexToRgba(COLORS.patina, 0.75);
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.ellipse(w * 0.33, h * 0.50, w * 0.16, h * 0.29, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+                ctx.restore();
+                drawPillTag(ctx, w * 0.33, h * 0.17, 'D_0.80(u_L) Local Support', COLORS.patina, 'center');
+            }
+
+            // 绘制节点双场势能
+            fieldNodes.forEach((n) => {
+                const x = n.rx * w;
+                const y = n.ry * h;
+                const isTail = !n.inL && !n.inT;
+                const val = fieldMode === 'local' ? n.uL : fieldMode === 'transfer' ? n.uT : Math.max(n.uL, n.uT);
+                const col = isTail
+                    ? COLORS.cinnabar
+                    : n.inL && fieldMode !== 'transfer'
+                    ? COLORS.patina
+                    : COLORS.amber;
+
+                drawNodeBadge(ctx, { x, y }, {
+                    color: col,
+                    radius: isTail ? 4.5 : 5 + val * 4,
+                    energy: val,
+                    dimmed: isTail || (fieldMode === 'local' && !n.inL),
+                    label: n.label,
+                    sub: `u_L=${n.uL.toFixed(2)} | u_T=${n.uT.toFixed(2)}`,
+                });
+            });
+        });
+
+        return {
+            start: () => runner.start(),
+            stop: () => runner.stop(),
+            setFieldMode: (m) => {
+                fieldMode = m;
+            },
+        };
+    }
+
+    // =========================================================================
+    // CHAPTER 07 · ORDERED CURVE & RELATIVE TOPOLOGY: Γ_c 路径几何与相对边映射
+    // =========================================================================
+    function createScene_ch7(canvas) {
+        let curveIdx = 0;
+
+        // 上方：查询感应河网 R_q
+        const riverNodes = [
+            { id: 'r1', rx: 0.16, ry: 0.24, hop: 0, label: 'r₁ (hop 0)' },
+            { id: 'r2', rx: 0.38, ry: 0.20, hop: 1, label: 'r₂ (hop 1)' },
+            { id: 'r3', rx: 0.62, ry: 0.24, hop: 2, label: 'r₃ (hop 2)' },
+            { id: 'r4', rx: 0.84, ry: 0.22, hop: 3, label: 'r₄ (hop 3)' },
+        ];
+
+        const candidates = [
+            {
+                name: 'Candidate A · 完整复现河网边结构 (edge_topology)',
+                pathQ: 0.84,
+                edgeScore: 0.79,
+                closure: 0.88,
+                ie: 0.92,
+                mode: 'edge_topology',
+                color: COLORS.patina,
+                tags: [
+                    { rx: 0.15, ry: 0.72, pos: 1, label: 't₁ (pos 1)', align: 0, supported: true },
+                    { rx: 0.37, ry: 0.76, pos: 2, label: 't₂ (pos 2)', align: 1, supported: true },
+                    { rx: 0.61, ry: 0.70, pos: 3, label: 't₃ (pos 3)', align: 2, supported: true },
+                    { rx: 0.83, ry: 0.74, pos: 4, label: 't₄ (pos 4)', align: 3, supported: true },
+                ],
+            },
+            {
+                name: 'Candidate B · 节点命中但序位逆序/缺边 (reverse credit ×0.25)',
+                pathQ: 0.41,
+                edgeScore: 0.28,
+                closure: 0.72,
+                ie: 0.65,
+                mode: 'node_alignment_fallback (cap 0.20)',
+                color: COLORS.amber,
+                tags: [
+                    { rx: 0.18, ry: 0.74, pos: 1, label: 't₁ (pos 1)', align: 2, supported: true },
+                    { rx: 0.44, ry: 0.78, pos: 2, label: 't₂ (pos 2)', align: 0, supported: true },
+                    { rx: 0.74, ry: 0.72, pos: 3, label: 't₃ (pos 3)', align: -1, supported: false },
+                ],
+            },
+            {
+                name: 'Candidate C · 落入支持域长尾外 (Q_i = 0)',
+                pathQ: 0.00,
+                edgeScore: 0.00,
+                closure: 0.31,
+                ie: 1.00,
+                mode: 'unavailable',
+                color: COLORS.cinnabar,
+                tags: [
+                    { rx: 0.20, ry: 0.76, pos: 1, label: 't₁ (长尾)', align: -1, supported: false },
+                    { rx: 0.50, ry: 0.78, pos: 2, label: 't₂ (长尾)', align: -1, supported: false },
+                    { rx: 0.80, ry: 0.75, pos: 3, label: 't₃ (长尾)', align: -1, supported: false },
+                ],
+            },
+        ];
+
+        const runner = new SceneRunner(canvas, (ctx, w, h, t) => {
+            drawIndustrialGrid(ctx, w, h, 44);
+            const c = candidates[curveIdx] || candidates[0];
+            setReadout(
+                'ch7Readout',
+                `PathQuality=${c.pathQ.toFixed(2)} · EdgeGraph=${c.edgeScore.toFixed(2)} · Closure=${c.closure.toFixed(2)} · I_e=${c.ie.toFixed(2)}`
+            );
+
+            // 上轨：查询感应河网 R_q
+            drawPillTag(ctx, 18, 20, 'UPPER: QUERY RIVER R_q (HOP 0 → 3)', COLORS.amber, 'left');
+            const rPts = riverNodes.map((n) => ({ ...n, x: n.rx * w, y: n.ry * h }));
+            for (let i = 0; i < rPts.length - 1; i++) {
+                drawVectorArrow(ctx, rPts[i], rPts[i + 1], {
+                    color: COLORS.amber,
+                    alpha: 0.88,
+                    width: 2.4,
+                });
+            }
+            rPts.forEach((rn) => {
+                drawNodeBadge(ctx, rn, {
+                    color: COLORS.amber,
+                    radius: 6,
+                    label: rn.label,
+                    offsetY: -12,
+                });
+            });
+
+            // 下轨：候选有序曲线 Γ_c = (t_1, ..., t_n)
+            drawPillTag(ctx, 18, h * 0.54, `LOWER: ${c.name} · Mode: ${c.mode}`, c.color, 'left');
+            const cPts = c.tags.map((tg) => ({ ...tg, x: tg.rx * w, y: tg.ry * h }));
+
+            for (let i = 0; i < cPts.length - 1; i++) {
+                const segSupported = cPts[i].supported && cPts[i + 1].supported;
+                drawVectorArrow(ctx, cPts[i], cPts[i + 1], {
+                    color: segSupported ? c.color : COLORS.cinnabar,
+                    alpha: segSupported ? 0.9 : 0.35,
+                    width: segSupported ? 2.8 : 1.4,
+                    dashed: segSupported ? null : [4, 5],
+                    glow: segSupported,
+                });
+            }
+
+            // 绘制节点对应弦 A(r, t)
+            cPts.forEach((tg) => {
+                if (tg.align >= 0 && rPts[tg.align]) {
+                    const rn = rPts[tg.align];
+                    ctx.save();
+                    ctx.strokeStyle = hexToRgba(COLORS.mint, 0.55);
+                    ctx.setLineDash([3, 4]);
+                    ctx.lineWidth = 1.4;
+                    ctx.beginPath();
+                    ctx.moveTo(rn.x, rn.y + 7);
+                    ctx.lineTo(tg.x, tg.y - 7);
+                    ctx.stroke();
                     ctx.restore();
                 }
-            });
 
-            // 被锚定的贡献流入目标并扣除
-            const flowPoint = {
-                x: lerp(selected.x, target.x, local),
-                y: lerp(selected.y, target.y, local),
-            };
-            ctx.save();
-            ctx.shadowBlur = 18;
-            ctx.shadowColor = COLORS.gold;
-            ctx.fillStyle = hexToRgba(COLORS.gold, 0.95);
-            ctx.beginPath();
-            ctx.arc(flowPoint.x, flowPoint.y, 4 + Math.sin(local * Math.PI) * 3, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
-
-            if (local > 0.72 && energyRings.length < stageCursor + 1) {
-                energyRings.push({ x: target.x, y: target.y, r: 0, life: 1, color: COLORS.pink });
-            }
-            energyRings = energyRings.filter(r => r.life > 0);
-            energyRings.forEach(r => {
-                r.r += 2.8;
-                r.life -= 0.025;
-                ctx.save();
-                ctx.strokeStyle = hexToRgba(r.color, r.life * 0.55);
-                ctx.lineWidth = 2 * r.life;
-                ctx.shadowBlur = 14;
-                ctx.shadowColor = r.color;
-                ctx.beginPath();
-                ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
-                ctx.stroke();
-                ctx.restore();
-            });
-
-            // 节点绘制
-            neighbors.forEach((n, i) => {
-                drawNode(ctx, n, {
-                    active: i === selectedStage.idx || (n.selectedAt >= 0 && n.selectedAt < stageCursor),
-                    dimmed: n.semantic < 0.25 || n.selectedAt > stageCursor,
-                    radius: i === selectedStage.idx ? 7 : 5,
+                drawNodeBadge(ctx, tg, {
+                    color: tg.supported ? c.color : COLORS.cinnabar,
+                    radius: 6.5,
+                    dimmed: !tg.supported,
+                    label: tg.label,
+                    sub: tg.supported ? 'In D_η(u) · Q_i > 0' : 'Outside Support · Q_i = 0',
                 });
             });
-
-            drawNode(ctx, { ...target, color: COLORS.gold, pulse: time * 2 }, {
-                active: true,
-                radius: 10 + currentResidual * 4,
-                color: COLORS.gold,
-            });
-
-            // 残差向量
-            const residualEnd = {
-                x: target.x + Math.cos(-0.78) * Math.min(w, h) * (0.16 + currentResidual * 0.16),
-                y: target.y + Math.sin(-0.78) * Math.min(w, h) * (0.16 + currentResidual * 0.16),
-            };
-            drawVector(ctx, target, residualEnd, COLORS.pink, 0.9, 3);
-            ctx.save();
-            ctx.font = 'bold 11px "JetBrains Mono", monospace';
-            ctx.textAlign = 'left';
-            ctx.fillStyle = hexToRgba(COLORS.pink, 0.95);
-            ctx.fillText(`residual L2 = ${currentResidual.toFixed(2)}`, residualEnd.x + 8, residualEnd.y + 4);
-            ctx.restore();
-
-            // HUD
-            ctx.save();
-            ctx.font = 'italic 12px "Inter", sans-serif';
-            ctx.textAlign = 'left';
-            ctx.fillStyle = hexToRgba(COLORS.cyan, 0.9);
-            ctx.fillText('Anchored Gram-Schmidt · greedy residual decomposition', 16, 24);
-            ctx.font = '10px "JetBrains Mono", monospace';
-            ctx.fillStyle = hexToRgba(COLORS.gold, 0.9);
-            ctx.fillText(`${selectedStage.label}: best_score = gain(${selectedStage.gain.toFixed(2)}) × orth × ln(1+w) × sem`, 16, 44);
-            ctx.fillStyle = hexToRgba(COLORS.muted, 0.8);
-            ctx.fillText('selected anchors explain the target; the pink vector is what neighbors cannot explain', 16, 62);
-            ctx.restore();
-        }, {
-            onResize: ({ w, h }) => build(w, h),
         });
 
-        return { start: () => runner.start(), stop: () => runner.stop() };
+        return {
+            start: () => runner.start(),
+            stop: () => runner.stop(),
+            setCurveIdx: (idx) => {
+                curveIdx = clamp(idx, 0, candidates.length - 1);
+            },
+        };
     }
 
-    // ============================================================
-    // Chapter 9 · 朗飞结跨域跳跃
-    // ============================================================
+    // =========================================================================
+    // CHAPTER 08 · MORPHOLOGY SOFTMAX & OMEGA FUNCTIONAL: 重心单纯形与 ∛Ω 仪表
+    // =========================================================================
+    function createScene_ch8(canvas) {
+        let presetKey = 'propositional';
+
+        const presets = {
+            atomic: {
+                pA: 0.68,
+                pP: 0.21,
+                pN: 0.11,
+                omegaE: 0.58,
+                omegaN: 0.46,
+                omegaF: 0.64,
+                obs: 1.0,
+                mode: 'atomic (浅层高凝聚)',
+            },
+            propositional: {
+                pA: 0.18,
+                pP: 0.58,
+                pN: 0.24,
+                omegaE: 0.82,
+                omegaN: 0.74,
+                omegaF: 0.79,
+                obs: 1.0,
+                mode: 'propositional (同层分叉与桥接)',
+            },
+            narrative: {
+                pA: 0.10,
+                pP: 0.22,
+                pN: 0.68,
+                omegaE: 0.86,
+                omegaN: 0.88,
+                omegaF: 0.81,
+                obs: 1.0,
+                mode: 'narrative (深链跨层持续)',
+            },
+            collapsed: {
+                pA: 0.36,
+                pP: 0.33,
+                pN: 0.31,
+                omegaE: 0.14,
+                omegaN: 0.04,
+                omegaF: 0.08,
+                obs: 1.0,
+                mode: 'prior_shrinkage (样本不足向 1/3 收缩)',
+            },
+        };
+
+        const runner = new SceneRunner(canvas, (ctx, w, h) => {
+            drawIndustrialGrid(ctx, w, h, 44);
+            const p = presets[presetKey] || presets.propositional;
+            const omegaGeo = Math.cbrt(Math.max(0.02, p.omegaE) * Math.max(0.02, p.omegaN) * Math.max(0.02, p.omegaF));
+            const omega = clamp(omegaGeo * p.obs, 0, 1);
+            const regime = omega < 0.12 ? 'COLLAPSED' : omega < 0.45 ? 'SPARSE' : 'DENSE';
+
+            setReadout(
+                'ch8Readout',
+                `M(R_q)=(${p.pA.toFixed(2)}, ${p.pP.toFixed(2)}, ${p.pN.toFixed(2)}) · Ω = ${omega.toFixed(2)} (${regime})`
+            );
+
+            // 左半区：(p_A, p_P, p_N) 形态单纯形三角形
+            const txTop = { x: w * 0.25, y: h * 0.16 };
+            const txLeft = { x: w * 0.09, y: h * 0.78 };
+            const txRight = { x: w * 0.41, y: h * 0.78 };
+
+            ctx.save();
+            ctx.fillStyle = 'rgba(118, 191, 174, 0.06)';
+            ctx.strokeStyle = hexToRgba(COLORS.patina, 0.55);
+            ctx.lineWidth = 1.8;
+            ctx.beginPath();
+            ctx.moveTo(txTop.x, txTop.y);
+            ctx.lineTo(txLeft.x, txLeft.y);
+            ctx.lineTo(txRight.x, txRight.y);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // 均匀先验中心 (1/3, 1/3, 1/3)
+            const priorPt = {
+                x: (txTop.x + txLeft.x + txRight.x) / 3,
+                y: (txTop.y + txLeft.y + txRight.y) / 3,
+            };
+            ctx.fillStyle = COLORS.muted;
+            ctx.beginPath();
+            ctx.arc(priorPt.x, priorPt.y, 3, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 当前形态重心坐标
+            const curPt = {
+                x: p.pP * txTop.x + p.pA * txLeft.x + p.pN * txRight.x,
+                y: p.pP * txTop.y + p.pA * txLeft.y + p.pN * txRight.y,
+            };
+            drawVectorArrow(ctx, priorPt, curPt, { color: COLORS.amber, alpha: 0.7, width: 1.6, dashed: [3, 3] });
+            drawNodeBadge(ctx, curPt, {
+                color: COLORS.amber,
+                radius: 7,
+                energy: 0.9,
+                label: `(${p.pA.toFixed(2)}, ${p.pP.toFixed(2)}, ${p.pN.toFixed(2)})`,
+                offsetY: -12,
+            });
+
+            drawPillTag(ctx, txTop.x, txTop.y - 12, `Propositional p_P=${p.pP.toFixed(2)}`, COLORS.patina, 'center');
+            drawPillTag(ctx, txLeft.x + 16, txLeft.y + 16, `Atomic p_A=${p.pA.toFixed(2)}`, COLORS.amber, 'center');
+            drawPillTag(ctx, txRight.x - 16, txRight.y + 16, `Narrative p_N=${p.pN.toFixed(2)}`, COLORS.mint, 'center');
+            ctx.restore();
+
+            // 右半区：Ω = ∛(Ω_E · Ω_N · Ω_F) · χ_obs 三维几何平均与工况门控
+            const rx = w * 0.49;
+            const rw = w * 0.47;
+            const ry = 28;
+
+            ctx.save();
+            ctx.fillStyle = 'rgba(18, 22, 26, 0.92)';
+            ctx.strokeStyle = 'rgba(242, 169, 0, 0.3)';
+            ctx.beginPath();
+            ctx.roundRect(rx, ry, rw, h - 52, 8);
+            ctx.fill();
+            ctx.stroke();
+
+            const comps = [
+                { name: 'Ω_E (边激活密度 M / κ_E N_s)', val: p.omegaE, color: COLORS.patina },
+                { name: 'Ω_N (涌现节点比 N_e / κ_N N_s)', val: p.omegaN, color: COLORS.mint },
+                { name: 'Ω_F (归一化边流 Shannon 熵)', val: p.omegaF, color: COLORS.amber },
+                { name: `Unified Ω = ∛(Ω_E·Ω_N·Ω_F) [${regime}]`, val: omega, color: omega < 0.12 ? COLORS.cinnabar : COLORS.amber },
+            ];
+
+            comps.forEach((c, idx) => {
+                const by = ry + 32 + idx * 58;
+                const bx = rx + 16;
+                const bw = rw - 32;
+
+                ctx.font = '600 10px "JetBrains Mono", monospace';
+                ctx.fillStyle = COLORS.bone;
+                ctx.textAlign = 'left';
+                ctx.fillText(c.name, bx, by);
+
+                ctx.fillStyle = c.color;
+                ctx.textAlign = 'right';
+                ctx.fillText(c.val.toFixed(2), bx + bw, by);
+
+                ctx.fillStyle = 'rgba(255,255,255,0.08)';
+                ctx.beginPath();
+                ctx.roundRect(bx, by + 7, bw, 11, 5);
+                ctx.fill();
+
+                ctx.fillStyle = c.color;
+                ctx.beginPath();
+                ctx.roundRect(bx, by + 7, Math.max(4, bw * c.val), 11, 5);
+                ctx.fill();
+            });
+            ctx.restore();
+        });
+
+        return {
+            start: () => runner.start(),
+            stop: () => runner.stop(),
+            setPreset: (k) => {
+                presetKey = k;
+            },
+        };
+    }
+
+    // =========================================================================
+    // CHAPTER 09 · CONDITIONAL INNOVATION LCB & DIRECT ANCHOR SMOOTHSTEP
+    // =========================================================================
     function createScene_ch9(canvas) {
-        let dims = null;
-        let leftCluster = [];
-        let rightCluster = [];
-        let bridgeSegments = []; // 朗飞结的"段"
-        let leapPulses = [];
-        let lastSpawn = 0;
+        let activeTab = 'innovation'; // 'innovation' | 'anchor'
 
-        function build(w, h) {
-            dims = { w, h };
-            leftCluster = [];
-            rightCluster = [];
-            bridgeSegments = [];
+        const peers = [
+            { z: 0.22, g: 0.26, exp: 0.24, std: 0.06, label: 'Peer 1' },
+            { z: 0.36, g: 0.33, exp: 0.34, std: 0.06, label: 'Peer 2' },
+            { z: 0.48, g: 0.68, exp: 0.43, std: 0.06, label: 'Candidate #A (+ΔG > 0)', highlight: true },
+            { z: 0.61, g: 0.54, exp: 0.52, std: 0.06, label: 'Peer 4 (Within 1σ)' },
+            { z: 0.76, g: 0.61, exp: 0.63, std: 0.06, label: 'Peer 5 (Below E → 0 Penalty)' },
+            { z: 0.88, g: 0.89, exp: 0.71, std: 0.06, label: 'Candidate #B (+ΔG > 0)', highlight: true },
+        ];
 
-            // 左域：技术 (Python决策树)
-            const lcx = w * 0.18, lcy = h * 0.5;
-            for (let i = 0; i < 8; i++) {
-                const a = randRange(0, Math.PI * 2);
-                const r = randRange(20, 80);
-                leftCluster.push({
-                    x: lcx + Math.cos(a) * r,
-                    y: lcy + Math.sin(a) * r,
-                    radius: randRange(2.5, 4.5),
-                    pulse: Math.random() * Math.PI * 2,
-                    color: COLORS.cyan,
-                });
-            }
-            // 中央枢纽
-            leftCluster[0] = { x: lcx, y: lcy, radius: 7, pulse: 0, color: COLORS.cyan, label: 'Python·决策' };
+        const runner = new SceneRunner(canvas, (ctx, w, h) => {
+            drawIndustrialGrid(ctx, w, h, 44);
+            const padX = 54;
+            const padY = 38;
+            const gw = w - padX * 2;
+            const gh = h - padY * 2;
 
-            // 右域：生物 (蟒蛇生物学)
-            const rcx = w * 0.82, rcy = h * 0.5;
-            for (let i = 0; i < 8; i++) {
-                const a = randRange(0, Math.PI * 2);
-                const r = randRange(20, 80);
-                rightCluster.push({
-                    x: rcx + Math.cos(a) * r,
-                    y: rcy + Math.sin(a) * r,
-                    radius: randRange(2.5, 4.5),
-                    pulse: Math.random() * Math.PI * 2,
-                    color: COLORS.pink,
-                });
-            }
-            rightCluster[0] = { x: rcx, y: rcy, radius: 7, pulse: 0, color: COLORS.pink, label: '蟒蛇·生物' };
+            if (activeTab === 'innovation') {
+                setReadout(
+                    'ch9Readout',
+                    'Mode: Peer Kernel Regression · Reward Only [G_i − E(G|Z_i) − z·σ]_+ > 0'
+                );
 
-            // 朗飞结桥 - 离散段
-            const segCount = 5;
-            bridgeSegments = [];
-            for (let i = 0; i < segCount; i++) {
-                const t1 = i / segCount;
-                const t2 = (i + 0.5) / segCount; // 段长度 = 半个间距
-                const sx = lerp(lcx, rcx, t1);
-                const ex = lerp(lcx, rcx, t2);
-                bridgeSegments.push({
-                    x1: sx, y1: lcy + Math.sin(i * 1.3) * 18,
-                    x2: ex, y2: lcy + Math.sin((i + 0.5) * 1.3) * 18,
-                    pulse: Math.random() * Math.PI * 2,
-                });
-            }
-        }
-
-        const runner = new SceneRunner(canvas, (ctx, w, h, time) => {
-            // 自动周期生成跨域脉冲
-            if (time - lastSpawn > 1.6) {
-                leapPulses.push({
-                    t: 0,
-                    speed: 0.014,
-                    color: time % 4 < 2 ? COLORS.cyan : COLORS.pink,
-                });
-                lastSpawn = time;
-            }
-
-            // 域背景圈
-            ctx.save();
-            const lg = ctx.createRadialGradient(leftCluster[0].x, leftCluster[0].y, 0, leftCluster[0].x, leftCluster[0].y, 110);
-            lg.addColorStop(0, hexToRgba(COLORS.cyan, 0.15));
-            lg.addColorStop(1, hexToRgba(COLORS.cyan, 0));
-            ctx.fillStyle = lg;
-            ctx.beginPath();
-            ctx.arc(leftCluster[0].x, leftCluster[0].y, 110, 0, Math.PI * 2);
-            ctx.fill();
-
-            const rg = ctx.createRadialGradient(rightCluster[0].x, rightCluster[0].y, 0, rightCluster[0].x, rightCluster[0].y, 110);
-            rg.addColorStop(0, hexToRgba(COLORS.pink, 0.15));
-            rg.addColorStop(1, hexToRgba(COLORS.pink, 0));
-            ctx.fillStyle = rg;
-            ctx.beginPath();
-            ctx.arc(rightCluster[0].x, rightCluster[0].y, 110, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
-
-            // 朗飞结桥（离散闪烁段）
-            for (const seg of bridgeSegments) {
-                seg.pulse += 0.08;
-                const intensity = 0.4 + Math.sin(seg.pulse) * 0.4;
+                // 绘制条件期望 E(G|Z) 与 +z·σ 置信上界带
                 ctx.save();
-                ctx.shadowBlur = 10 * intensity;
-                ctx.shadowColor = COLORS.violet;
-                ctx.strokeStyle = hexToRgba(COLORS.violet, intensity);
-                ctx.lineWidth = 2;
-                ctx.lineCap = 'round';
+                ctx.fillStyle = hexToRgba(COLORS.patina, 0.14);
                 ctx.beginPath();
-                ctx.moveTo(seg.x1, seg.y1);
-                ctx.lineTo(seg.x2, seg.y2);
+                for (let i = 0; i <= 60; i++) {
+                    const u = i / 60;
+                    const x = padX + u * gw;
+                    const expG = 0.10 + 0.70 * u;
+                    const upper = expG + 0.08;
+                    const y = h - padY - upper * gh;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                for (let i = 60; i >= 0; i--) {
+                    const u = i / 60;
+                    const x = padX + u * gw;
+                    const expG = 0.10 + 0.70 * u;
+                    const y = h - padY - expG * gh;
+                    ctx.lineTo(x, y);
+                }
+                ctx.closePath();
+                ctx.fill();
+
+                // 期望线 E(G|Z)
+                ctx.strokeStyle = COLORS.patina;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(padX, h - padY - 0.10 * gh);
+                ctx.lineTo(padX + gw, h - padY - 0.80 * gh);
+                ctx.stroke();
+
+                // LCB 门槛线 E(G|Z) + z·σ
+                ctx.strokeStyle = COLORS.amber;
+                ctx.setLineDash([5, 4]);
+                ctx.beginPath();
+                ctx.moveTo(padX, h - padY - 0.18 * gh);
+                ctx.lineTo(padX + gw, h - padY - 0.88 * gh);
                 ctx.stroke();
                 ctx.restore();
-            }
 
-            // 节点
-            const drawNode = (n) => {
-                n.pulse += 0.04;
-                const pulse = 0.85 + Math.sin(n.pulse) * 0.15;
+                drawPillTag(ctx, padX + gw * 0.36, h - padY - 0.48 * gh, 'Threshold: E(G|Z_i) + z·σ(G|Z_i)', COLORS.amber);
+
+                // 绘制候选散点与正创新增量柱
+                peers.forEach((p) => {
+                    const px = padX + p.z * gw;
+                    const py = h - padY - p.g * gh;
+                    const threshY = h - padY - (p.exp + p.std) * gh;
+
+                    if (p.highlight) {
+                        drawVectorArrow(ctx, { x: px, y: threshY }, { x: px, y: py }, {
+                            color: COLORS.amber,
+                            width: 3,
+                            glow: true,
+                        });
+                    }
+
+                    drawNodeBadge(ctx, { x: px, y: py }, {
+                        color: p.highlight ? COLORS.amber : COLORS.patina,
+                        radius: p.highlight ? 6.5 : 4.5,
+                        label: p.label,
+                        offsetY: -10,
+                    });
+                });
+            } else {
+                setReadout(
+                    'ch9Readout',
+                    'Mode: Direct Anchor SmoothStep · θ_H = max(0.05, μ_H + 2σ_H) · Cap C_A = 0.10'
+                );
+
+                const theta = 0.08;
+                const sat = 0.22;
                 ctx.save();
-                ctx.shadowBlur = 12;
-                ctx.shadowColor = n.color;
-                const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.radius * 2.3);
-                grad.addColorStop(0, hexToRgba(n.color, pulse));
-                grad.addColorStop(0.5, hexToRgba(n.color, 0.4));
-                grad.addColorStop(1, hexToRgba(n.color, 0));
-                ctx.fillStyle = grad;
                 ctx.beginPath();
-                ctx.arc(n.x, n.y, n.radius * 2.3, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = hexToRgba(n.color, 0.95);
-                ctx.beginPath();
-                ctx.arc(n.x, n.y, n.radius * 0.55, 0, Math.PI * 2);
-                ctx.fill();
-                if (n.label) {
-                    ctx.shadowBlur = 0;
-                    ctx.font = 'bold 12px "Inter", sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.fillStyle = hexToRgba(COLORS.white, 0.95);
-                    ctx.fillText(n.label, n.x, n.y - n.radius - 10);
+                for (let i = 0; i <= 100; i++) {
+                    const hVal = (i / 100) * 0.30;
+                    const act = smoothstep(theta, sat, hVal);
+                    const x = padX + (i / 100) * gw;
+                    const y = h - padY - act * gh * 0.82;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
                 }
-                ctx.restore();
-            };
-            leftCluster.forEach(drawNode);
-            rightCluster.forEach(drawNode);
+                ctx.strokeStyle = COLORS.cinnabar;
+                ctx.lineWidth = 3;
+                ctx.stroke();
 
-            // 跨域脉冲（在桥段间跳跃式前进）
-            leapPulses = leapPulses.filter(p => p.t < 1);
-            for (const p of leapPulses) {
-                p.t += p.speed;
-                // 桥的起终点
-                const sx = leftCluster[0].x;
-                const sy = leftCluster[0].y;
-                const ex = rightCluster[0].x;
-                const ey = rightCluster[0].y;
-
-                // 跳跃感：用 quantize 函数让粒子离散停留在每个段端
-                const segCount = bridgeSegments.length * 2;
-                const quant = Math.floor(p.t * segCount) / segCount;
-                const eased = quant + (p.t * segCount - Math.floor(p.t * segCount)) ** 2 / segCount;
-
-                const x = lerp(sx, ex, eased);
-                const y = lerp(sy, ey, eased) + Math.sin(eased * Math.PI * 4) * 8;
-
-                ctx.save();
-                ctx.shadowBlur = 14;
-                ctx.shadowColor = p.color;
-                ctx.fillStyle = hexToRgba(p.color, 1 - p.t * 0.3);
+                const thX = padX + (theta / 0.30) * gw;
+                const satX = padX + (sat / 0.30) * gw;
+                ctx.strokeStyle = hexToRgba(COLORS.amber, 0.55);
+                ctx.setLineDash([4, 4]);
                 ctx.beginPath();
-                ctx.arc(x, y, 4, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.moveTo(thX, padY);
+                ctx.lineTo(thX, h - padY);
+                ctx.moveTo(satX, padY);
+                ctx.lineTo(satX, h - padY);
+                ctx.stroke();
                 ctx.restore();
-            }
 
-            // 标签
-            ctx.save();
-            ctx.font = 'italic 11px "Inter", sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillStyle = hexToRgba(COLORS.cyan, 0.7);
-            ctx.fillText('技术域', leftCluster[0].x, h - 24);
-            ctx.fillStyle = hexToRgba(COLORS.violet, 0.85);
-            ctx.fillText('朗飞结跨域桥 · Node of Ranvier', w * 0.5, h - 24);
-            ctx.fillStyle = hexToRgba(COLORS.pink, 0.7);
-            ctx.fillText('生物域', rightCluster[0].x, h - 24);
-            ctx.restore();
-        }, {
-            onResize: ({ w, h }) => build(w, h),
+                drawPillTag(ctx, thX, h - padY + 14, 'θ_H = max(floor, μ+2σ)', COLORS.amber, 'center');
+                drawPillTag(ctx, satX, padY + 14, 'Saturation s_A → Bonus +0.10', COLORS.cinnabar, 'center');
+            }
         });
 
-        return { start: () => runner.start(), stop: () => runner.stop() };
+        return {
+            start: () => runner.start(),
+            stop: () => runner.stop(),
+            setTab: (tab) => {
+                activeTab = tab;
+            },
+        };
     }
 
-    // ============================================================
-    // Chapter 10 · Finale 全景 - 完整pipeline的河流图
-    // ============================================================
+    // =========================================================================
+    // CHAPTER 10 · FINALE: 全链路 Rust Runtime 模拟器 + Top-3 实时拆解表
+    // =========================================================================
     function createScene_finale(canvas) {
-        let dims = null;
-        let paths = [];
-        let particles = [];
-        let dots = [];
+        let currentScene = 'arch';
 
-        function build(w, h) {
-            dims = { w, h };
-            paths = [];
-            particles = [];
-            dots = [];
+        const scenarios = {
+            arch: {
+                omega: 0.82,
+                regime: 'DENSE',
+                mode: 'narrative (p_N=0.61)',
+                latency: '1.64ms',
+                items: [
+                    {
+                        rank: 1,
+                        title: 'RiverMemo Topology V3 与 AGS 双尺度几何事务闭合记录',
+                        role: 'direct_answer',
+                        s0: 0.78,
+                        bg: 0.06,
+                        bh: 0.08,
+                        tags: 'RiverMemo · TopologyV3 · AGS · Ω泛函',
+                    },
+                    {
+                        rank: 2,
+                        title: 'Sense 有界脉冲扩散与 Resolvent 双尺度连续场推导',
+                        role: 'structural_explanation',
+                        s0: 0.72,
+                        bg: 0.07,
+                        bh: 0.02,
+                        tags: 'Sense · Resolvent · 双场支持域 · 相对拓扑',
+                    },
+                    {
+                        rank: 3,
+                        title: 'VexusIndex N-API observationHandle 同代快照复用设计',
+                        role: 'thematic_neighbor',
+                        s0: 0.68,
+                        bg: 0.02,
+                        bh: 0.00,
+                        tags: 'MemoRuntime · observationHandle · Rayon',
+                    },
+                ],
+            },
+            fact: {
+                omega: 0.19,
+                regime: 'SPARSE',
+                mode: 'propositional (p_P=0.52)',
+                latency: '1.18ms',
+                items: [
+                    {
+                        rank: 1,
+                        title: '2026-10-15 MoonAST 全库扫描耗时 0.228s / 48MB 内存基线归档',
+                        role: 'direct_answer (Anchor Promoted)',
+                        s0: 0.74,
+                        bg: 0.01,
+                        bh: 0.10,
+                        tags: 'MoonAST · 0.228s · Hop-0 稀有锚点',
+                    },
+                    {
+                        rank: 2,
+                        title: 'ProjectForge 伐柯伐柯基准测试：1:6.8 Token 消耗对比',
+                        role: 'structural_explanation',
+                        s0: 0.69,
+                        bg: 0.03,
+                        bh: 0.03,
+                        tags: 'Kerr · CodeBench · AST锚点',
+                    },
+                    {
+                        rank: 3,
+                        title: 'JevCall 双轨安检参数级正则白名单策略',
+                        role: 'thematic_neighbor',
+                        s0: 0.64,
+                        bg: 0.01,
+                        bh: 0.00,
+                        tags: 'JevCall · SecurityGuard',
+                    },
+                ],
+            },
+            concept: {
+                omega: 0.48,
+                regime: 'DENSE',
+                mode: 'atomic (p_A=0.71)',
+                latency: '1.31ms',
+                items: [
+                    {
+                        rank: 1,
+                        title: 'OneRing 400 行纯 HASH-SQL 跨端唯一事实时间线定义',
+                        role: 'atomic_concept',
+                        s0: 0.81,
+                        bg: 0.07,
+                        bh: 0.06,
+                        tags: 'OneRing · HASH-SQL · 唯一事实源',
+                    },
+                    {
+                        rank: 2,
+                        title: '共笔文坊 Scriptorium V3 渲染态即编辑态三态解耦协议',
+                        role: 'atomic_concept',
+                        s0: 0.73,
+                        bg: 0.04,
+                        bh: 0.02,
+                        tags: 'ScriptoriumV3 · 3D透视IME · .vdocx',
+                    },
+                    {
+                        rank: 3,
+                        title: 'VMusic RubatoF64 205dB 连续 FIR 重采样管线说明',
+                        role: 'thematic_neighbor',
+                        s0: 0.66,
+                        bg: 0.01,
+                        bh: 0.00,
+                        tags: 'VMusic · WASAPI · 205dB',
+                    },
+                ],
+            },
+        };
 
-            // 8 个 pipeline 锚点，从左到右
-            const N = 8;
-            const labels = ['EPA', 'Anchored GS', 'β', '门控', 'LIF', '去重', '融合', '测地线'];
-            const colors = [COLORS.cyan, COLORS.blue, COLORS.violet, COLORS.gold,
-                            COLORS.violet, COLORS.cyan, COLORS.blue, COLORS.cyan];
-            const yMid = h * 0.5;
-            const xs = [];
-            for (let i = 0; i < N; i++) {
-                const x = lerp(w * 0.06, w * 0.94, i / (N - 1));
-                xs.push(x);
-                dots.push(new GlowDot(x, yMid, {
-                    color: colors[i],
-                    radius: 6,
-                    label: labels[i],
-                }));
-            }
-
-            // 多条河流贯穿所有锚点（不同弯度）
-            const lanes = 5;
-            for (let i = 0; i < lanes; i++) {
-                const offset = (i - (lanes - 1) / 2) * 22;
-                for (let k = 0; k < N - 1; k++) {
-                    const x1 = xs[k], x2 = xs[k + 1];
-                    const y1 = yMid + offset;
-                    const y2 = yMid + offset;
-                    const path = new RiverPath(
-                        { x: x1, y: y1 },
-                        { x: lerp(x1, x2, 0.3), y: y1 + Math.sin(k + i) * 30 },
-                        { x: lerp(x1, x2, 0.7), y: y2 + Math.cos(k + i) * 30 },
-                        { x: x2, y: y2 },
-                        { color: colors[k], opacity: 0.3, width: 1.2, glow: true }
-                    );
-                    paths.push(path);
-
-                    const count = 6;
-                    for (let j = 0; j < count; j++) {
-                        particles.push(new RiverParticle(path, {
-                            startT: j / count,
-                            speed: randRange(0.0035, 0.006),
-                            size: randRange(1.2, 2),
-                            opacity: randRange(0.5, 0.85),
-                            color: colors[k],
-                            tail: 10,
-                        }));
-                    }
-                }
-            }
+        function renderScoreTable(sc) {
+            const container = document.getElementById('finaleScoreTable');
+            if (!container) return;
+            container.innerHTML = sc.items
+                .map((item) => {
+                    const total = Math.min(1.0, item.s0 + item.bg + item.bh);
+                    const w0 = (item.s0 * 100).toFixed(1);
+                    const wg = (item.bg * 100).toFixed(1);
+                    const wh = (item.bh * 100).toFixed(1);
+                    return `
+                        <div class="score-row-card">
+                            <div class="score-row-head">
+                                <span class="score-row-title">#0${item.rank} · ${item.title}</span>
+                                <span class="score-role-badge">${item.role}</span>
+                            </div>
+                            <div class="score-bars" title="S_0 + Ω^γ B_G + B_H">
+                                <div class="bar-s0" style="width:${w0}%"></div>
+                                <div class="bar-bg" style="width:${wg}%"></div>
+                                <div class="bar-bh" style="width:${wh}%"></div>
+                            </div>
+                            <div class="score-breakdown">
+                                <span>S_0=${item.s0.toFixed(2)}</span>
+                                <span>+ Ω^γ B_G=${item.bg.toFixed(2)}</span>
+                                <span>+ B_H=${item.bh.toFixed(2)}</span>
+                                <strong>S_V3 = ${total.toFixed(2)}</strong>
+                            </div>
+                        </div>
+                    `;
+                })
+                .join('');
         }
 
-        const runner = new SceneRunner(canvas, (ctx, w, h, time) => {
-            for (const p of paths) p.draw(ctx);
-            for (const p of particles) {
-                p.update();
-                p.draw(ctx);
+        const stageLabels = ['AGS', 'EPA+RP', 'Sense R_q', 'Dual u_L/u_T', '7-Superset', 'Curve Γ_c', 'Softmax+Ω', 'Top-K'];
+
+        const runner = new SceneRunner(canvas, (ctx, w, h, t) => {
+            drawIndustrialGrid(ctx, w, h, 44);
+            const sc = scenarios[currentScene] || scenarios.arch;
+            setReadout(
+                'ch10Readout',
+                `Mode: ${sc.mode} · Ω = ${sc.omega.toFixed(2)} (${sc.regime}) · Native Compute = ${sc.latency}`
+            );
+
+            const yMid = h * 0.52;
+            const pts = stageLabels.map((lb, i) => ({
+                x: lerp(w * 0.07, w * 0.93, i / (stageLabels.length - 1)),
+                y: yMid + Math.sin(i * 1.1) * 28,
+                label: lb,
+                color: i < 4 ? COLORS.patina : i < 7 ? COLORS.amber : COLORS.cinnabar,
+            }));
+
+            for (let i = 0; i < pts.length - 1; i++) {
+                drawVectorArrow(ctx, pts[i], pts[i + 1], {
+                    color: pts[i].color,
+                    alpha: 0.78,
+                    width: 2.4,
+                });
             }
-            for (const d of dots) {
-                d.update();
-                d.draw(ctx);
-            }
+
+            // 沿 8 阶段管线奔涌的脉冲
+            const pulseStage = (t * 1.4) % (pts.length - 1);
+            const idx = Math.floor(pulseStage);
+            const frac = pulseStage - idx;
+            const px = lerp(pts[idx].x, pts[idx + 1].x, frac);
+            const py = lerp(pts[idx].y, pts[idx + 1].y, frac);
+            ctx.fillStyle = COLORS.amber;
+            ctx.beginPath();
+            ctx.arc(px, py, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            pts.forEach((p, i) => {
+                drawNodeBadge(ctx, p, {
+                    color: p.color,
+                    radius: i === pts.length - 1 ? 8 : 6,
+                    energy: 0.85,
+                    label: p.label,
+                    offsetY: i % 2 === 0 ? -14 : 20,
+                });
+            });
         }, {
-            onResize: ({ w, h }) => build(w, h),
+            onResize: () => {
+                renderScoreTable(scenarios[currentScene] || scenarios.arch);
+            },
         });
 
-        return { start: () => runner.start(), stop: () => runner.stop() };
+        renderScoreTable(scenarios[currentScene]);
+
+        return {
+            start: () => runner.start(),
+            stop: () => runner.stop(),
+            setScenario: (key) => {
+                currentScene = key;
+                renderScoreTable(scenarios[currentScene] || scenarios.arch);
+            },
+        };
     }
 
-    // ---------- Export ----------
     global.WaveScenes = {
         createGlobalRiver,
         createScene_hero,

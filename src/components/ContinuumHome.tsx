@@ -201,7 +201,7 @@ export function ContinuumHome({brand, themeControl, nova, onAskNova, documents}:
             <div className="stele-inscription"><p>传播，生成几何。<br/>审计，赋予联想以根据。</p><div className="stele-equation" aria-label="得分为基础场得分加上欧米伽门控的拓扑创新与直接锚点创新，限制在零到一之间">S = Π<sub>[0,1]</sub> [ S<sup>field</sup> + Ω<sup>γ</sup>B<sub>G</sub> + B<sub>H</sub> ]</div><p className="stele-explanation">以 TagMemo V9 查询观测为底座。<br/>双尺度连续场、相对拓扑、Ω 可观测性与直接事实锚，<br/>共同闭合为有界、可审计的记忆寻址。</p></div>
             <dl className="stele-facts"><div><dt>连续消融</dt><dd>41 <small>轮</small></dd></div><div><dt>黄金测试 · 对比 V9</dt><dd>+26<small>%</small></dd></div><div><dt>当期原生热点计算</dt><dd>2.5<small>ms</small></dd></div></dl>
             <p className="stele-citation">据 2026-07-23 工程记录；黄金测试共 10 轮。上述为当期特定测试范围，不代表端到端响应或所有部署环境。9 月 3 日进一步完成日记检索全链路 Rust 融合。</p>
-            <div className="stele-links"><button onClick={readRiver}>读碑 · 数学白皮书 <ArrowUpRight size={15}/></button><a href="/vcp_wave_v8_engine.html">观澜 · V9 传播底座</a><a href="/?page=changelog">考据 · 工程记录</a></div>
+            <div className="stele-links"><button onClick={readRiver}>读碑 · 数学白皮书 <ArrowUpRight size={15}/></button><a href="/vcp-rivermemo-engine">观澜 · RiverMemo Engine</a><a href="/?page=changelog">考据 · 工程记录</a></div>
             <footer>不是以修辞代替证明。是让已经完成的工程，留下文字。</footer>
           </article>
         </section>
@@ -238,7 +238,7 @@ export function ContinuumHome({brand, themeControl, nova, onAskNova, documents}:
         <section id="docs" ref={docsRef} className="archive-section">
           <div className="chapter-heading"><span>卷 五 / THE OPEN ARCHIVE</span><h2>归藏，不封卷。</h2><p>故事之外，协议、原理与每一步工程，都在这里。</p></div>
           <nav className="archive-links" aria-label="完整资源入口">
-            <a href="/?page=learn-vcp">全景白皮书 ↗</a><a href="/?page=changelog">更新日志 ↗</a><a href="/?page=plugin-store">插件商店 ↗</a><a href="/vcp-leaderboard">模型排行榜 ↗</a><a href="/vcp_wave_v8_engine.html">记忆原理演示 ↗</a><a href="/vcp-neon-game">浪潮纪念小游戏 ↗</a>
+            <a href="/?page=learn-vcp">全景白皮书 ↗</a><a href="/?page=changelog">更新日志 ↗</a><a href="/?page=plugin-store">插件商店 ↗</a><a href="/vcp-leaderboard">模型排行榜 ↗</a><a href="/vcp-rivermemo-engine">记忆原理演示 ↗</a><a href="/vcp-neon-game">浪潮纪念小游戏 ↗</a>
           </nav>
           <DocsViewer documents={documents} activeSlug={activeDoc} onSelect={setActiveDoc}/>
         </section>
