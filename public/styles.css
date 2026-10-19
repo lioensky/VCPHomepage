@@ -1557,3 +1557,38 @@ body.rmv3-body {
         opacity: 0.12;
     }
 }
+
+/* RiverMemo v2：两座可操作的科普实验舱 */
+.v2-lab-canvas {
+    flex: none;
+    height: 420px;
+    min-width: 0;
+}
+.v2-lab-caption {
+    padding: 1rem 1.1rem;
+    min-height: 108px;
+    color: #DFE6E3;
+    background: linear-gradient(120deg, rgba(118,191,174,.10), rgba(242,169,0,.06));
+    border-top: 1px solid rgba(118,191,174,.25);
+    font-size: .85rem;
+    line-height: 1.8;
+}
+.finale-quote .v2-boundary {
+    margin-top: 1rem;
+    font-family: var(--font-sans);
+    font-size: .8rem;
+    color: var(--nova-bone-muted);
+    text-align: left;
+}
+.ctrl-btn:focus-visible, .ctrl-btn-accent:focus-visible {
+    outline: 2px solid var(--nova-amber);
+    outline-offset: 3px;
+}
+@media (max-width: 720px) {
+    .v2-lab-canvas { height: 390px; }
+    .v2-lab-caption { min-height: 150px; }
+    .vcp2-topbar-right .vcp2-top-pill:first-child { display: none; }
+    .vcp2-topbar { gap: .4rem; padding-inline: .65rem; }
+    .vcp2-brand-group { gap: .4rem; }
+    .vcp2-top-pill { padding-inline: .5rem; font-size: .6rem; }
+}

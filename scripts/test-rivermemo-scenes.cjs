@@ -83,7 +83,7 @@ sandbox.window.RiverEngine.SceneRunner = class {
     stop() { this.running = false; }
     tick(dt) { this.time += dt; this.draw(ctx, 900, 340, this.time); }
 };
-for (const path of ['public/scenes.js', 'public/main.js']) vm.runInContext(fs.readFileSync(path, 'utf8'), sandbox);
+for (const path of ['public/scenes.js', 'public/rivermemo-v2.js', 'public/main.js']) vm.runInContext(fs.readFileSync(path, 'utf8'), sandbox);
 const observer = observers[0];
 assert.equal(observer.targets.length, 11);
 for (const target of observer.targets) observer.callback([{ target, isIntersecting: true, intersectionRatio: 0.001 }]);
@@ -113,6 +113,42 @@ cycle.click();
 assert.equal(cycle.attributes['aria-pressed'], 'true');
 cycle.click();
 assert.equal(cycle.attributes['aria-pressed'], 'false');
+
+const { evaluateWormholes, evaluateProjection } = sandbox.window.RiverMemoV2;
+const rescued = evaluateWormholes();
+assert.equal(rescued.selected, 2);
+assert.equal(rescued.promoted, 2);
+assert.equal(rescued.rows.filter(e => e.selected).length, 3);
+assert.equal(rescued.rows.find(e => e.id === 6).candidate, true);
+assert.equal(rescued.rows.find(e => e.id === 6).dynamic, false);
+assert.equal(evaluateWormholes({ energy: 0.1 }).fired, 0);
+assert.equal(evaluateWormholes({ sourceLayer: 2 }).selected, 0);
+assert.equal(evaluateWormholes({ enabled: false }).rows.find(e => e.id === 2).fired, true);
+assert.equal(evaluateWormholes({ maxTargets: 3 }).budgetExhausted, true);
+assert.equal(evaluateWormholes({ maxTargets: 3 }).selected, 0);
+assert.equal(evaluateWormholes({ returnFactor: 0.15 }).fired, 0);
+for (const k of [0, 1, 3, 64, 128, 193, 256, 512]) {
+    const p = evaluateProjection(k);
+    if (k) {
+        assert(p.local.selected.length <= k);
+        assert(p.transfer.selected.length <= k);
+        assert(p.union.length <= 2 * k);
+    }
+    assert.equal(evaluateProjection(k, p.union).missing.length, 0);
+    assert(p.local.selected.every(n => p.local.domain.some(d => d.id === n.id)));
+    assert(p.transfer.selected.every(n => p.transfer.domain.some(d => d.id === n.id)));
+}
+assert(evaluateProjection(0).union.length < 12);
+assert.notDeepEqual(Array.from(evaluateProjection(3).local.selected, n => n.id),
+    Array.from(evaluateProjection(3).transfer.selected, n => n.id));
+for (const k of [-1, 1.5, NaN, Infinity, '3']) assert.throws(() => evaluateProjection(k));
+queryAll('[data-pool-action]').find(b => b.dataset.poolAction === 'fresh').click();
+queryAll('[data-pool-action]').find(b => b.dataset.poolAction === 'reuse').click();
+runners.forEach(runner => runner.tick(0.1));
+assert(elements.get('ch6Readout').textContent.includes('本次补读 0'));
+queryAll('[data-pool-action]').find(b => b.dataset.poolAction === 'release').click();
+runners.forEach(runner => runner.tick(0.1));
+assert(elements.get('projectionStory').textContent.includes('载荷归零'));
 
 const times = [];
 let queued;

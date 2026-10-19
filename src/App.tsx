@@ -2197,6 +2197,8 @@ export default function App() {
   const [activeWikiTarget, setActiveWikiTarget] = useState<WikiCockpitTarget | null>(null);
   const documents = useMemo(() => getAllDocs(), []);
   const page = new URLSearchParams(window.location.search).get("page");
+  const [readerSlug, setReaderSlug] = useState(() =>
+    new URLSearchParams(window.location.search).get("doc") ?? "rivermemo-topology-v3");
   const isPondArchiveRoute = window.location.pathname === "/pond" || page === "pond";
   const isLegacyRoute = ["/learn-vcp", "/changelog", "/plugin-store", "/vcp-leaderboard", "/nova"].includes(window.location.pathname)
     || ["learn-vcp", "changelog", "plugin-store", "vcp-leaderboard", "legacy"].includes(page ?? "");
@@ -2207,6 +2209,23 @@ export default function App() {
     canonical: "https://www.vcptoolbox.com/",
   }), [isPondArchiveRoute]);
   usePageMeta(meta, !isLegacyRoute);
+
+  if (page === "docs") {
+    return (
+      <main className="min-h-screen bg-vcp-black px-5 py-12 md:px-10">
+        <nav className="mb-8 flex gap-6 text-vcp-cyan">
+          <a href="/vcp-rivermemo-engine.html">← 返回 RiverMemo 交互实验室</a>
+          <a href="/">VCP 首页</a>
+        </nav>
+        <DocsViewer documents={documents} activeSlug={readerSlug} onSelect={(slug) => {
+          setReaderSlug(slug);
+          const url = new URL(window.location.href);
+          url.searchParams.set("doc", slug);
+          window.history.replaceState(null, "", url);
+        }} />
+      </main>
+    );
+  }
 
   if (isLegacyRoute) return <LegacyApp />;
 

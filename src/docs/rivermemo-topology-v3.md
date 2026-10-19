@@ -11,12 +11,23 @@ category: guide
 > 算法标识：`rivermemo.topology-v3.1`
 > 结果协议：`rivermemo-topology-v3-result-v1`
 > 原生计算内核：`rivermemo.topology-v3.1-rust`
-> 文档更新时间：2026-08-04
+> 文档更新时间：2026-10-19
 > 本文只记录拓扑 V3；其他历史、实验或对照构型不属于本文范围。
 >
-> **当前实现状态**：Topology V3 的候选投影、候选超集、路径几何、相对拓扑、
-> 查询河网形态统计、DSTC 观测、Direct Anchor、批级条件创新与最终排序已下沉至 Rust。
-> JS 只负责 V9 查询观测、双场准备、一次 N-API 提交和稳定结果组装。
+> **当前实现状态**：降噪传播底座已切换为 **AGS 统一场背景图**：同一套 AGS
+> 双尺度统一几何预计算提供局部残差/锚增益与全局星团主题面，分别参与传输图构建和
+> EPA 背景校准。Rust 统一 Memo 管线负责 EPA、Residual Pyramid、Tag 门控、
+> Sense 扩散、请求级河网、向量融合和局部/迁移双场；Topology V3 继续在 Rust/Rayon
+> 内完成候选投影、候选超集、路径几何、相对拓扑、河网形态、Ω、Direct Anchor、
+> 批级条件创新与最终排序。
+>
+> JavaScript 只负责请求控制面、配置快照、显式日记权限范围、候选计划和稳定结果组装。
+> Rust 通过 `observationHandle` 在同一 `MemoRuntime` 代际中复用查询观测，避免
+> Sense、双场和 Topology V3 各自重复建立河网。
+>
+> 当前查询实现还包含两项升级：**请求级动态虫洞**与**双场投影预算/请求级向量复用**。
+> 前者使更深层金字塔残差参与传播选边，后者约束高维投影工作量并减少重复向量读取。
+> 它们更新观测生成与场读出方式，不替换 Topology V3 的最终评分公式或结果协议。
 
 ## 拓扑 V3 总方程
 
@@ -61,7 +72,7 @@ s_A-\tau_A
 
 - \(\Pi_{[a,b]}(x)=\min(b,\max(a,x))\) 是区间投影；
 - \([x]_+=\max(0,x)\) 是正部；
-- \(S_i^{\mathrm{field}}\) 是 V9 降噪观测经 RiverMemo 双场读出的语义基线；
+- \(S_i^{\mathrm{field}}\) 是 AGS 统一场背景图上的降噪观测经 RiverMemo 双场读出的语义基线；
 - \(G_i\) 是候选对查询河网的相对拓扑匹配，并由查询河网的
   Atomic / Propositional / Narrative 形态概率连续混合节点图与边图读出；
 - \(Z_i\) 是候选的语义、闭合、直接证据和角色条件；
@@ -89,9 +100,13 @@ s_A-\tau_A
 其中，关系拓扑通道只奖励候选超出同条件期望及其不确定性上界的正创新；直接锚点通道则保护无需复杂河网即可成立的 hop-0 事实接触。两条创新通道均受独立上限约束，最终结果统一投影至 \([0,1]\)。
 
 生产代码落点为 Rust 原生内核
-[`run_native()`](../rust-vexus-lite/src/rivermemo_topology_v3.rs:2346) 与异步 N-API 入口
-[`rerank_rivermemo_topology_v3()`](../rust-vexus-lite/src/rivermemo_topology_v3.rs:2777)。
-JS 入口 [`RiverMemoEngine.rerank()`](../RiverMemoEngine.js:425) 只准备连续查询场并消费原生结果。
+[`run_native()`](../rust-vexus-lite/src/rivermemo_topology_v3.rs:2478) 与异步 N-API 入口
+[`rerank_rivermemo_topology_v3()`](../rust-vexus-lite/src/lib.rs:890)。
+查询前半段由 Rust 统一管线
+[`run_pipeline()`](../rust-vexus-lite/src/memo_pipeline.rs:1302) 生成并缓存观测；
+JS 入口 [`KnowledgeBaseManager.prepareUnifiedMemoObservation()`](../KnowledgeBaseManager.js:1359)
+只提交控制面与查询向量，随后 [`RiverMemoEngine.rerank()`](../RiverMemoEngine.js:526)
+消费同一观测句柄与原生结果。
 [`experimentArms.js`](../modules/tagmemoV10/experimentArms.js) 等旧 JS 实验构型保留在仓库中，
 但不再属于 RiverMemo Topology V3 的生产执行路径。
 
@@ -99,7 +114,9 @@ JS 入口 [`RiverMemoEngine.rerank()`](../RiverMemoEngine.js:425) 只准备连�
 
 ## 1. 定位
 
-RiverMemo 是 VCP 长期记忆系统中建立在 TagMemo V9 已验证传播底座之上的连续信息场检索引擎。
+RiverMemo 是 VCP 长期记忆系统中以 **AGS 统一场作为降噪传播背景图**的连续信息场检索引擎。
+
+这里的“统一场”指长期记忆的共享背景几何与其派生传输资产，不等于单次查询产生的河网，也不等于查询后的局部场与迁移场。AGS 统一了局部与全局几何的预计算；请求侧仍由 EPA、残差金字塔、门控与有界 Sense 传播完成降噪，再由 Topology V3 读取场与拓扑。
 
 它首次把以下过去分别讨论的对象放入同一个可计算闭环：
 
@@ -136,15 +153,38 @@ RiverMemo 是 VCP 长期记忆系统中建立在 TagMemo V9 已验证传播底�
 
 拓扑 V3 是当前唯一需要记录的 RiverMemo 构型。
 
+### 1.1 RiverMemo V2 查询实现相对原始 V3 的升级
+
+为对应版本讨论，本文将“RiverMemo V1 / 原始 V3”理解为此前的查询实现，
+将“RiverMemo V2”理解为在同一 Topology V3 排序框架内加入下述机制的实现阶段。
+这不是另设一套拓扑评分版本，也不能仅凭日志中的 V2 字样判断两项机制是否实际生效。
+
+| 维度 | 原始查询实现的边界 | 当前实现的升级 |
+|:--|:--|:--|
+| Sense 传播选边 | 普通路径按历史导电率 Top-K 选边，未用更深层查询残差争取出边席位 | 请求级动态虫洞：从已有历史出边中，以深层残差共鸣争取有限动态席位，剩余席位静态补齐 |
+| 双场高维投影 | 高维读取与投影缺少当前显式节点预算的约束 | 在各场有效质量域内独立选取前 K 个节点，读取去重并集；全图标量求解不按 K 截断 |
+| 向量读取 | 跨阶段重复装载是本次优化的对象 | 请求级原始 FP32 向量池、差集批量加载与共享引用复用 |
+| 静态传播热路径 | 按脉冲状态重复准备和排序邻居 | 构建/冷加载时派生有序 CSR 行及紧凑属性数组；动态候选仍需请求级评估和排序 |
+
+两项升级分别回答“当前查询应优先走哪些已有关系”和“场投影应搬运多少高维向量”。
+前者可能改变实际河网、源场和后续排序；后者也可能改变投影语义，不能将其描述为逐位等价的纯性能优化。
+详细契约见
+[动态虫洞说明](MEMO_DYNAMIC_WORMHOLES.md)与
+[双场投影预算说明](MEMO_FIELD_PROJECTION_BUDGET.md)。
+
 ---
 
 ## 2. 理论边界
 
-### 2.1 RiverMemo 不重新发明查询降噪
+### 2.1 AGS 背景几何与请求级降噪
 
-当查询内容是“整个上下文”而不是一个孤立关键词时，RiverMemo 沿用 TagMemo V9 的查询观测架构：
+当查询内容是“整个上下文”而不是一个孤立关键词时，RiverMemo 在 AGS 统一场
+背景图上执行查询观测。EPA、Residual Pyramid 和有界 Spike 的机制延续自 TagMemo，
+但其几何资产已不再由旧 Pairwise、独立残差任务和独立 EPA 构建链分别提供。
 
-- EPA 全局语义状态分析；
+当前生产计算收敛到 Rust 统一管线：
+
+- 以 AGS 全局星团主题面为背景、经覆盖率与随机背景校准的 EPA 全局语义状态分析；
 - Residual Pyramid 多层残差分解；
 - Core Tag 与语言置信度调制；
 - 有界 Spike 传播；
@@ -152,13 +192,17 @@ RiverMemo 是 VCP 长期记忆系统中建立在 TagMemo V9 已验证传播底�
 - 有限时域加权；
 - 查询增强向量与源场生成。
 
-这一链路已经在工程上证明是当前项目已知的最优全上下文降噪方案，因此 RiverMemo 不对它进行替换。
+AGS 是降噪观测的背景几何，不是替代整个查询管线的独立召回器。源码可以确认其计算流程，但不能仅凭实现断言它是所有场景下的最优方案；效果与参数仍需通过实际语料评估。
 
-实现上，[`TagMemoV10Engine.prepareQuery()`](../TagMemoV10Engine.js:981) 默认要求 `v9_epa_pyramid_spike` 观测，并调用 [`TagMemoEngine.observeQueryForV10()`](../TagMemoEngine.js:1298)。普通 Tag KNN 回退默认关闭；完整降噪观测不可用时，系统拒绝把未降噪近邻伪装成 RiverMemo 源场。
+实现上，Rust [`run_pipeline()`](../rust-vexus-lite/src/memo_pipeline.rs:1518)
+依次执行 EPA、残差金字塔、Tag 门控、Sense 和向量融合；查询观测存入
+[`MemoRuntime.store_query_observation()`](../rust-vexus-lite/src/rivermemo_topology_v3.rs:469)，
+返回短生命周期的 `observationHandle`。普通 Tag KNN 不能被静默标记为完整
+RiverMemo；若统一原生 ABI、Artifact 或句柄不可用，上层才执行显式回退。
 
-### 2.2 V9 底座与 V3 贡献的分界
+### 2.2 AGS 背景底座与 V3 贡献的分界
 
-V9 提供：
+AGS 预计算及其派生的传输资产提供共享背景；Rust 统一查询管线在该背景上生成：
 
 \[
 (q,\ S,\ \mathcal R_q,\ q_d)
@@ -169,7 +213,7 @@ V9 提供：
 - \(q\)：原始整个上下文的查询向量；
 - \(S\)：归一化查询源场；
 - \(\mathcal R_q\)：本次查询实际传播形成的有向河网；
-- \(q_d\)：V9 降噪后的查询向量。
+- \(q_d\)：AGS 背景上的统一 Memo 管线降噪增强后的查询向量。
 
 拓扑 V3 在此基础上新增并统一：
 
@@ -189,7 +233,7 @@ V9 提供：
 \mathcal S_{V3}(c)
 \]
 
-所以，RiverMemo 的创新不在于否定 V9，而在于第一次把 V9 已验证的信息源与传播结果提升为可计算的场、拓扑对应和统一泛函。
+因此，AGS 负责共享背景几何与传播条件，统一 Memo 管线负责本次查询的观测，Topology V3 则把观测提升为可计算的场、拓扑对应和统一排序泛函。底座切换不改变本文的 V3 评分公式，也不意味着需要更改结果协议。
 
 ### 2.3 与层层特判式工程拟合的区别
 
@@ -212,7 +256,54 @@ V9 提供：
 
 ## 3. 基础对象
 
-令长期记忆 Tag 图为：
+### 3.1 三层对象：背景、河网与查询场
+
+必须区分以下三层：
+
+| 层次 | 对象 | 生命周期与用途 |
+|:--|:--|:--|
+| 共享背景 | AGS 双尺度几何及其派生的有向 Tag 传输图 | 训练/重建后发布，作为降噪分析与传播的背景 |
+| 请求级观测 | 查询源、节点势与实际边流组成的河网 | 每次查询生成，供形态统计、Ω 与拓扑对应使用 |
+| 请求级双场 | 局部场与迁移场 | 使用查询源和共享传输算子求解，供候选曲线读出 |
+
+AGS 的“局部/全局”是**预计算几何尺度**；RiverMemo 的“局部/迁移”是**查询响应尺度**，二者不可互换。
+
+### 3.2 AGS 双尺度统一几何
+
+AGS（Anchored Greedy Gram-Schmidt）用同一锚定贪心正交化算子生成两类背景资产，生产实现见
+[`anchored_gs()`](../rust-vexus-lite/src/memo_geometry.rs:101)。
+
+1. **局部 Explain**：用共现邻居解释目标 Tag，得到未解释残差范数比，并映射为锚增益；锚增益参与传输图的虫洞判定及可选反向增益。
+2. **全局 Span**：对高支持度候选的中心化星团方向做贪心正交化，得到具有真实 Tag 标签的主题面、全库均值与覆盖率曲线，供 EPA 读取。
+
+对单位目标向量 \(t\) 和已选局部正交基 \(b_k\)，残差量为：
+
+\[
+r_t=\sqrt{\max\left(0,1-\sum_k\langle t,b_k\rangle^2\right)}
+\]
+
+它是**残差范数比**，不是残差能量比；解释能量比为 \(1-r_t^2\)。锚增益采用有界映射：
+
+\[
+a_t=\Pi_{[a_{\min},a_{\max}]}\left(a_0+a_1r_t^\beta\right)
+\]
+
+全局默认使用星团方向，而非仅将单个 Tag 当作主题轴。令 \(\mu\) 为全库有效单位 Tag 向量的均值，则候选方向近似为：
+
+\[
+s_t=\operatorname{normalize}
+\left[(1-\xi)(t-\mu)+\xi\sum_{j\in N(t)}\bar w_{tj}(t_j-\mu)\right]
+\]
+
+其中邻居权重由共现支持与内联语义门控形成，并归一化；默认混合比例为 \(\xi=0.8\)。无有效邻居或混合退化时回退到中心化目标方向。星团构造见
+[`star_direction()`](../rust-vexus-lite/src/memo_geometry.rs:161)。
+
+全局基具有前缀嵌套性；系统按覆盖率、增量阈值和最大基数截取有效前缀，不要求固定数量的主题面必然覆盖整个知识库。当前几何算法标识见
+[`memo_geometry.rs`](../rust-vexus-lite/src/memo_geometry.rs:151)，为 unified_geometry_ags_v2；主题面缓存标识为 ags-global-star-v2。它们与 Topology V3 排序算法标识属于不同层次。
+
+### 3.3 共享传输图
+
+令 AGS 统一场背景中供传播使用的长期记忆 Tag 图为：
 
 \[
 G=(V,E,P)
@@ -231,7 +322,26 @@ G=(V,E,P)
 
 该严格次随机条件保证传输算子不会无界创造质量，并使后续 resolvent 场收敛。
 
-拓扑 V3 使用的传输资产直接继承 V9.1 的事实压缩、枢纽校正、预算内虫洞和固定行预算。构建时还显式拒绝最大行质量不小于 1 的不稳定资产，见 [`TagMemoV10Engine.buildArtifact()`](../TagMemoV10Engine.js:447)。
+背景图不是把 AGS 正交基直接当作 Tag 间邻接矩阵。有向边仍来自文件有序 Tag 共现，语义增益在构建时从 SQLite 权威原始向量现场计算余弦；AGS 局部锚增益参与传播条件，全局主题面则供 EPA 观测使用。
+
+传输资产保留事实压缩、枢纽校正、预算内虫洞和固定行预算；生产构建见
+[`build_fact_matrix()`](../rust-vexus-lite/src/memo_artifact_builder.rs:194) 与
+[`build_transport()`](../rust-vexus-lite/src/memo_artifact_builder.rs:311)。
+查询侧从实例运行时取得活动资产，冷加载仍须校验持久化校验和及 CSR 结构。
+
+### 3.4 预计算发布与代际
+
+当前训练/重建顺序为：事实快照 → AGS 统一几何 → RiverMemo 传输 Artifact → 运行时发布。
+
+局部残差/锚增益、全局 EPA 缓存和统一几何元数据在同一写事务内发布，见
+[`GeometryTask`](../rust-vexus-lite/src/memo_geometry.rs:319)。
+向量数学计算以 SQLite 原始向量为权威来源；检索索引不充当几何真值。几何缓存命中时不重写派生资产，避免无变化重启制造代际变动。
+
+传输 Artifact 的依赖键统一为
+[`MEMO_ARTIFACT_DEPENDENCIES`](../rust-vexus-lite/src/storage.rs:12)
+定义的 memo_tag_facts 与 derived_geometry，源签名纳入统一几何签名。
+旧 Pairwise 持久化表及独立 Pairwise/EPA/残差任务不再属于当前生产预计算链。
+事实更新后的训练调度与已发布快照复用，不应被误写为“每次查询都即时重算背景图”；新观测与后续读出必须遵守运行时的签名及代际校验。
 
 ---
 
@@ -239,13 +349,46 @@ G=(V,E,P)
 
 ### 4.1 全上下文观测
 
-输入不是简单关键词，而是整个当前上下文的 embedding：
+输入是调用方构造的查询向量，不保证是整段历史直接拼接后的 embedding。RAGDiary 默认对最新真实用户消息与最近 AI 消息分别向量化后加权；可选历史分段另作为联合 ANN 的补充查询，并不自动成为独立 Sense 种子。数学记号为：
 
 \[
 q\in\mathbb R^d
 \]
 
-EPA 估计其逻辑深度、熵和跨域共振；Residual Pyramid 逐层解释主方向并继续读取未解释残差。
+EPA 在 AGS 全局主题面上估计逻辑深度、熵和跨域共振；Residual Pyramid 逐层解释查询主方向并继续读取未解释残差。后者仍是请求侧分解，不等于预计算的局部 AGS 残差。
+
+#### EPA 的 AGS 背景校准
+
+令 \(x=q-\mu\)，前缀主题面数量为 \(m=\min(K_{\mathrm{sem}},K_{\mathrm{eff}})\)，其解释率为：
+
+\[
+r_Q=\frac{\sum_{k=1}^{m}\langle x,b_k\rangle^2}{\|x\|^2}
+\]
+
+生产默认不直接把低维前缀的绝对解释率当作域内置信度，而是用全库前缀覆盖率 \(c_m\) 与同均值中心化后的各向同性单位查询背景 \(b_{\mathrm{iso}}\) 校准：
+
+\[
+b_{\mathrm{iso}}
+=
+\frac{m/d+\sum_{k=1}^{m}\langle\mu,b_k\rangle^2}
+{1+\|\mu\|^2}
+\]
+
+\[
+g_Q=
+\begin{cases}
+\Pi_{[0,1]}\left((r_Q-b_{\mathrm{iso}})/(c_m-b_{\mathrm{iso}})\right),
+& c_m>b_{\mathrm{iso}}+\varepsilon\\
+0,& \text{否则}
+\end{cases}
+\]
+
+逻辑深度为 \((1-H_Q)g_Q\)。熵只在语义前缀上计算，以配置的语义前缀大小归一化；全基尾部可以改善域外残差诊断，但不会反向抬高前缀解释率。
+这里的随机背景是能量比校准参考，不是域外概率，也不是第二张传播图。
+实现及缺失缓存、零能量等边界处理见
+[`analyze_epa_with_mode()`](../rust-vexus-lite/src/memo_pipeline.rs:251)。
+
+全局主题面不直接过滤查询向量；其测量结果用于动态融合强度、Core 调制与语言门控，实际源种子仍由残差金字塔与 Tag 门控生成。
 
 由此得到带权初始 Tag：
 
@@ -255,7 +398,7 @@ Z_0=\{(z_i,w_i)\}
 
 这些权重已包含层级贡献、层级衰减、Core 调制和语言置信度。
 
-### 4.2 V9 有限传播
+### 4.2 AGS 背景图上的有限传播
 
 对传播状态：
 
@@ -301,7 +444,78 @@ E_i=\sum_{h=0}^{H}a_h e_i^{(h)}
 1. 节点势 \(E_i\)；
 2. 实际承载过信息的边流 \(F_{ij}=\sum_h f_{ij}^{(h)}\)。
 
-实现位于 [`TagMemoEngine._propagateSpikes()`](../TagMemoEngine.js:541)。
+当前生产实现位于 Rust
+[`sense_with_context()`](../rust-vexus-lite/src/memo_sensing.rs:366)。
+传播状态机延续有界 Spike 机制，但读取的是当前 AGS 几何参与构建的共享传输资产；保留的 V9 算法字符串不代表仍使用旧几何预计算链。
+旧 JS 传播实现仅作为历史兼容/实验代码保留，不属于当前 Rust Topology V3 的 Sense
+生产路径。
+
+#### 4.2.1 请求级动态虫洞：深层残差参与选边
+
+金字塔保留每个实际分析层在投影之前的查询残差，不额外生成 embedding。
+种子归属其首次出现在金字塔中的层级 L，传播后继承该来源层级。
+目标 j 的动态共鸣为：
+
+\[
+R(j\mid L)=
+\max\left(\{0\}\cup
+\left\{
+\max(0,\cos(r_\ell,v_j)):\ell>L
+\right\}\right)
+\]
+
+这里使用目标的 SQLite 权威原始向量，不使用近似索引向量代替。
+只有更深层残差可以提供支持；单层分析或最后一层来源没有动态支持。
+多路径合并状态保留最早来源层级，这不是精确多源血缘跟踪，也不证明发生了多源会师。
+
+每个可传播源状态从完整 CSR 行的已有正权重历史出边中检查动态候选。
+候选必须同时通过共鸣阈值与预估注入电流门槛，再按下式排名：
+
+\[
+D_{ij}=P_{ij}R(j\mid L)^4
+\]
+
+共鸣四次方会更强地抑制低共鸣，而不是增加能量。
+并列时按历史导电率降序、目标 Tag ID 升序决定顺序。
+默认每源状态在原有 20 个邻居名额内最多保留 2 个动态席位，
+再按原静态 Top-K 顺序填满剩余名额；并非新增 2 条出边，也不是全体边按动态分数重排。
+因此，原本位于静态 Top-K 之外的历史关系可以因本次查询共鸣而获得传播机会。
+
+被选中的动态边使用原虫洞衰减和零动量消耗规则，注入仍为：
+
+\[
+f_{ij}=e_iP_{ij}d_{\mathrm{wormhole}}\rho_{ij}
+\]
+
+共鸣只参与资格与选边，不直接乘入电流公式，不提供电流保底、重新归一化或额外能量。
+源发火阈值、非负动量、最低注入电流、安全跳数与状态数量上限仍然有效。
+动态虫洞不创造历史图中不存在的边，不修改共享传输算子，也不写回图资产；
+已有静态虫洞仍可沿普通历史选边路径激活。
+
+原生传播配置的默认值为：动态开关开启、共鸣阈值 0.2、动态席位 2、
+请求内不同目标评估预算 4096。定义见
+[`SenseConfig`](../rust-vexus-lite/src/memo_sensing.rs:49)。
+关闭开关、席位设为零或目标预算设为零均回退静态选边；共鸣阈值校验仍会执行。
+这些字段位于原生管线的传播配置下；上层 JS 是否透传覆盖值须单独核对，
+不能假设修改管理器配置就一定生效。
+
+每跳先汇总目标，请求内去重并按图内索引升序确定性截断；
+已缓存目标共鸣、已有金字塔相似度及缺失/无效向量结果跨跳复用。
+预算耗尽后，未评估目标不参与动态共鸣，静态路径仍有效。
+4096 是目标数预算，不是无损全邻居覆盖或固定时间保证；
+3072 维下仅 4096 个 FP32 原始向量载荷约为 48 MiB。
+
+#### 4.2.2 CSR 静态传播热路径预计算
+
+构建与冷加载通过统一预处理，将每行出边按权重降序、同权重按目标 Tag ID 升序排列。
+普通路径直接读取前 K 条正权重边，避免按每个脉冲状态重新分配邻居列表或排序。
+节点锚增益与显式虫洞标记分别按节点下标、CSR 边游标存入紧凑数组，
+新增常驻载荷约为每节点 8 字节、每边 1 字节，不含容器头。
+
+静态虫洞仍按“显式标记或边权乘目标锚增益达到本次请求阈值”判断，
+没有把请求阈值固化进资产。数组只在内存中派生，旧资产冷加载也适用，无需数据库迁移。
+行内重排不改变边权与目标的配对关系，但浮点累加可能出现末位差异。
+此优化不意味着整个传播循环无分配：动态虫洞仍需目标汇总、共鸣计算和动态排名。
 
 ### 4.3 请求级查询河网
 
@@ -338,7 +552,7 @@ E_i=\sum_{h=0}^{H}a_h e_i^{(h)}
 
 ### 5.1 场方程
 
-RiverMemo 使用同一源场 \(S\) 和同一条件化传输算子 \(T\)，并行求解两个尺度：
+RiverMemo 使用同一源场 \(S\) 和 AGS 背景图派生的共享资产传输算子 \(T\)，在同一个迭代循环内求解两个尺度。\(S\) 来自 Sense 节点累计能量的质量归一化，不是 AGS 全局主题面本身；这里也不表示两个求解器分别占用并行线程：
 
 \[
 u_L=(1-\alpha_L)S+\alpha_L T(u_L)
@@ -367,9 +581,11 @@ u_\alpha
 
 > 场不是额外虚构出来的评分地图，而是同一守恒传输过程在不同观测尺度下的稳态响应。
 
-双场求解目前仍由查询准备阶段的
-[`solveDualScaledFields()`](../modules/tagmemoV10/scaledFieldSolver.js:169) 完成；
-求解产生的局部场、迁移场及有效支持域随后通过唯一 N-API 请求交给 Rust 内核。
+双场求解目前由 Rust [`solve_dual_fields()`](../rust-vexus-lite/src/memo_pipeline.rs:1134)
+完成。局部场、迁移场、有效支持域及其投影向量和 Sense 河网一起写入
+`MemoRuntime` 的请求观测；Topology V3 只通过 `observationHandle` 读取这份同代快照。
+旧 JS [`solveDualScaledFields()`](../modules/tagmemoV10/scaledFieldSolver.js:169)
+不属于当前生产主链。
 
 ### 5.2 两个尺度的物理含义
 
@@ -408,6 +624,59 @@ D_\eta(u)
 \]
 
 候选路径的主质量只能由有效支持域内的场接触贡献。长尾仍保留诊断，但不能伪装成稳定路径。
+
+### 5.4 双场投影预算：区分标量场、有效域和高维投影
+
+全图 CSR 标量迭代不按投影预算截断。先求解双场及各自有效支持域，
+再在 Local 80% 与 Transfer 90% 质量域内分别选择最高质量的前 K 个节点：
+
+\[
+A_L=\operatorname{TopK}(D_{\eta_L}(u_L)),\qquad
+A_T=\operatorname{TopK}(D_{\eta_T}(u_T))
+\]
+
+读取向量时使用去重并集，但投影时各场只使用自己的集合：
+
+\[
+|A_L\cup A_T|\le 2K
+\]
+
+另一场选中的节点不能作为本场尾流混入。默认 K 为 256，即每场最多 256 个节点、
+去重并集最多 512 个节点；这不是整个请求向量池的节点上限，
+动态虫洞与候选阶段仍可能加载其他向量。
+
+配置默认值位于管理器的 RiverMemo 有效支持配置中；
+查询顶层投影预算或查询有效支持配置可覆盖已有值。
+完整字段路径及校验规则见
+[投影预算契约](MEMO_FIELD_PROJECTION_BUDGET.md)。
+接受任意非负整数，不要求是 SQL 批大小的倍数；
+显式 0 只取消数量上限，仍受各场有效质量域约束，不恢复旧版全正支撑投影。
+负数、小数、非有限数和字符串拒绝执行。
+
+标量保留也不由 K 决定：仅过滤低于该场最大质量 1e-12 倍的数值尾流，
+两场有效域并集及河网节点强制保留，以尽量保留路径势能和域外尾流读出。
+因此，未进入投影集合不等于从标量场或有效域中删除。
+有限 K 与数值尾流裁剪仍可能改变结果，必须结合实际语料评估；
+高维读取和投影有预算，不表示全图标量求解或整条查询成为 O(1)。
+
+### 5.5 请求级原始向量池、差集加载与生命周期
+
+金字塔、融合、动态虫洞、双场投影及后续候选读出复用请求级原始 FP32 Tag 向量池。
+观测持有该池，候选读出克隆共享引用而不是复制高维载荷；
+仅补读池内缺失的向量，每批最多 128 个 ID。
+候选曲线先批量读取标签关系、位置与名称，再补查向量差集，
+避免关联查询重复搬运已加载 Tag 的向量 BLOB。
+这里的共享不意味着整个请求没有分配、所有 SQL 均被消除，或 chunk 向量也全部受投影 K 限制。
+
+跨事务读出校验数据库代际；期间发生事实写入则返回过期观测错误，
+不把旧池向量与新 SQL 行混用。
+观测是跨原生调用的请求上下文，不是跨请求查询结果缓存。
+独立查询结束时释放；共享请求作用域须等内部消费者全部结束后释放，
+准备产物校验失败也释放已创建句柄。
+正常完成立即注销句柄，不等待 TTL；原有 TTL 仅作为漏释放兜底，
+原始 ABI 调用者仍需显式释放自己持有的句柄。
+释放观测不清除常驻 CSR 图；已取得共享引用的消费者继续有效，
+载荷在最后一份引用释放后回收。
 
 ---
 
@@ -481,7 +750,7 @@ Rust [`evaluate_path()`](../rust-vexus-lite/src/rivermemo_topology_v3.rs:1180)�
 查询河网节点 \(r\in V_q\) 可以通过两种方式对应候选 Tag：
 
 1. Tag ID 精确一致；
-2. 向量或持久化 Pairwise 语义相似度超过阈值。
+2. 已加载的查询 Tag 与候选 Tag 向量之间，直接计算的余弦相似度超过阈值；当前候选对应阶段不另查持久化 Pairwise 表。
 
 对应质量同时要求候选 Tag 能闭合回候选 chunk：
 
@@ -521,7 +790,7 @@ I_e
 
 ### 7.3 Motif 保持
 
-对于分叉或汇聚节点，系统比较查询河网与候选曲线是否保持相似入度、出度关系。
+当前实现的 Motif 项复用边拓扑分数，并未独立执行候选分叉／汇聚模体匹配。查询侧形态统计确实计算分叉与汇聚，但不能据此宣称候选侧已经实现完整图同构。以下加权形式应按这一实现边界理解。
 
 最终相对拓扑分综合：
 
@@ -765,7 +1034,7 @@ p_k=\frac{F_k}{\sum_jF_j}
 \chi_{obs}
 =
 \begin{cases}
-1,& \text{V9 完整降噪观测成立}\\
+1,& \text{AGS 背景上的统一 Memo 完整降噪观测成立}\\
 0.5,& \text{观测不完整}
 \end{cases}
 \]
@@ -841,8 +1110,8 @@ R_A(c)
 H(c)=A(c)R_A(c)
 \]
 
-这一通道只读取 hop-0 源锚，不允许远端涌现节点伪装成直接事实。生产实现位于
-Rust [`compute_anchors()`](../rust-vexus-lite/src/rivermemo_topology_v3.rs:1662)，
+正常路径优先读取 hop-0 源锚。源码还保留了“没有可用 Core/Seed 来源时使用源场作为锚候选”的兼容分支，并限制其可靠度，不能将该分支解释为严格的直接事实证明。生产实现位于
+Rust [`compute_anchors()`](../rust-vexus-lite/src/rivermemo_topology_v3.rs:1790)，
 接触发现与候选锚计算由 Rayon 并行执行。
 
 ---
@@ -851,7 +1120,7 @@ Rust [`compute_anchors()`](../rust-vexus-lite/src/rivermemo_topology_v3.rs:1662)
 
 ### 10.1 基础场分
 
-基础分 \(S_0(c)\) 由原查询、V9 降噪场、局部场、迁移场、路径质量和正文闭合共同形成。
+基础分 \(S_0(c)\) 的语义部分直接混合原查询、局部场与迁移场的候选余弦分，再加上受上限限制、由路径质量和正文相关性调制的路径奖励。增强查询参与候选超集筛选，但不是此处语义混合的第四个直接加权项。基础分中的路径奖励与后续乘 Ω 的条件拓扑创新是两个不同项。
 
 它表示候选在不依赖额外拓扑创新奖励时，已经获得的连续场解释。
 
@@ -963,7 +1232,7 @@ B_H(c)
 
 同一个传输算子 \(T\) 同时决定：
 
-- V9 请求级传播能够走到哪里；
+- AGS 背景图上的请求级 Sense 传播能够走到哪里；
 - RiverMemo 局部场与迁移场如何生成；
 - 候选曲线相邻段是否导通；
 - 相对拓扑边是否具有方向依据。
@@ -974,7 +1243,7 @@ B_H(c)
 
 查询河网提供被传递的信息结构，候选有序 Tag 曲线提供可观测载体。
 
-相对拓扑不是要求 Tag 名称完全相同，而是判断两个结构是否在节点对应、相对距离、方向和 Motif 上同构。
+相对拓扑不要求 Tag 名称完全相同，而是对节点对应、相对距离与方向进行加权匹配。它不是形式化图同构判定，当前 Motif 项也不是独立的模体匹配器。
 
 ### 11.3 局部证据与全局可信度不再分离
 
@@ -996,59 +1265,127 @@ B_H(c)
 
 ## 12. 完整生产链
 
-[`RiverMemoEngine.rerank()`](../RiverMemoEngine.js:425) 的拓扑 V3 生产链为：
+[`KnowledgeBaseManager.prepareUnifiedMemoObservation()`](../KnowledgeBaseManager.js:1359)
+与 [`RiverMemoEngine.rerank()`](../RiverMemoEngine.js:526) 的当前拓扑 V3 生产链为：
+
+生产查询之前，训练/重建链先完成：
 
 ```text
-JS：整个上下文查询向量
-→ JS：V9 EPA + Residual Pyramid 降噪
-→ JS：V9 有界 Spike 传播
-→ JS：查询源场 + 请求级有向河网
-→ JS：同一守恒传输资产上的局部场/迁移场求解
-→ 单次 N-API AsyncTask 提交
-→ Rust：加载并缓存同代不可变 RiverMemo Artifact
-→ Rust/SQLite：候选 Chunk、向量和有序 Tag 曲线投影
-→ Rust/Rayon：Query / Denoised / Local / Transfer / BM25 / Anchor 六路候选超集
-→ Rust：查询河网形态统计、稳定 Softmax 与低样本先验收缩
-→ Rust/Rayon：双尺度路径几何
-→ Rust/Rayon：查询河网—候选曲线相对拓扑匹配
-→ Rust/Rayon：DSTC、正文闭合与 hop-0 Direct Anchor
-→ Rust：查询河网 Ω 与批级条件创新
-→ Rust：Topology V3 统一评分与 Top-K
-→ JS：稳定结果协议组装
+SQLite：Tag 原始向量与文件有序 Tag 事实快照
+→ Rust：局部 AGS Explain → 残差范数比与锚增益
+→ Rust：全局星团 AGS Span → 主题面、均值与覆盖率
+→ SQLite：统一几何事务发布
+→ Rust：有序共现 + 内联语义增益 + 锚增益 → 有界传输 Artifact
+→ Rust：运行时发布共享背景快照
 ```
 
-整个请求持有同一代不可变 Artifact，禁止在查询中途混合不同传输核、残差、
-Pairwise 或配置代际。原生 Artifact 按签名缓存；签名变化时旧缓存整体淘汰。
+查询链为：
+
+```text
+JS：提取查询向量、Artifact 签名与控制面配置
+→ Rust：run_pipeline()
+→ Rust：读取 AGS 主题面，执行 EPA 覆盖率/随机背景校准
+→ Rust：Residual Pyramid + 正交投影 + 握手特征；保留逐层投影前残差与种子来源层级
+→ Rust：Core/语言/层级门控
+→ Rust：Sense 有界 Spike 扩散；请求级动态虫洞在既有邻居名额内选边，静态路径补齐
+→ Rust：节点势、边流，以及按请求启用的有界逐跳转移记录
+→ Rust：查询向量与 Memo 上下文融合；复用请求级原始 Tag 向量池
+→ Rust：全图局部场/迁移场标量求解与有效支持域处理
+→ Rust：各场独立 Top-K 投影选点；去重并集差集加载原始向量，分别投影
+→ Rust：MemoRuntime 保存同代 QueryObservation 与请求级向量池
+→ 返回 observationHandle
+→ JS：准备显式日记权限范围与可选 BM25/Time/历史查询计划
+→ NativeKnowledgeRuntime：原生多索引 ANN、候选合并、文件候选展开、语义去重
+→ Rust：加载同代 RiverMemo Artifact 与 observationHandle
+→ Rust/SQLite：Chunk 与有序 Tag 曲线读取；共享请求池，仅补查缺失 Tag 向量
+→ Rust/Rayon：Query / Denoised / Local / Transfer / BM25 / Time / Anchor 候选超集
+→ Rust：查询河网形态统计、Softmax 与低样本先验收缩
+→ Rust/Rayon：双尺度路径几何、相对拓扑、闭合与 Direct Anchor
+→ Rust：Ω、批级条件创新、角色判定与 Top-K
+→ JS：稳定结果协议组装
+→ 请求作用域：全部内部消费者完成后释放观测句柄与请求载荷
+```
+
+当调用方没有 `observationHandle` 时，不能把普通 ANN 冒充为完整 RiverMemo
+Sense；元思考场景可选择 Rust 原生 ANN 作为无观测降级路径，但该路径不产生
+Sense 拓扑关系，最终仍需标记为 `rivermemo-native-ann`。
+
+整个请求按已发布 Artifact 与观测句柄绑定共享传输快照，禁止绕过校验混合不同
+传输核、AGS 几何或配置代际。原生 Artifact 按签名缓存；签名变化时旧缓存整体淘汰。
+当前几何依赖是统一派生版本，不再分别校验旧 Pairwise、独立残差和独立 EPA 版本。
 
 ### 12.1 并发与线程边界
 
 生产路径不再创建 [`worker_threads`](../modules/tagmemoV10/riverMemoWorkerPool.js)
 形式的 RiverMemo Node Worker 池。旧 Worker 文件仅作为退役代码保留，不会被
-[`KnowledgeBaseManager.rerankWithRiverMemoAsync()`](../KnowledgeBaseManager.js:935)
+[`KnowledgeBaseManager.rerankWithRiverMemoAsync()`](../KnowledgeBaseManager.js:2023)
 引用或启动。
 
 当前线程模型为：
 
-1. Node 主线程完成查询观测和双场准备；
-2. [`rerank_rivermemo_topology_v3()`](../rust-vexus-lite/src/rivermemo_topology_v3.rs:2777)
-   返回原生 `AsyncTask`，将整次原生计算移出 Node 事件循环；
-3. Rust 任务内部使用 Rayon 对候选路径、相对拓扑、观测和锚接触并行计算；
-4. 批级统计与最终排序在 Rust 内闭合；
-5. 只跨越一次请求边界和一次结果边界，不在候选循环中往返 JS/Rust。
+1. Node 主线程只完成查询控制面、权限范围和候选计划准备；
+2. [`run_pipeline()`](../rust-vexus-lite/src/memo_pipeline.rs:1302) 通过 N-API
+   `AsyncTask` 完成 Sense 与双场，观测保存在 Rust；
+3. [`execute_river_query_hybrid()`](../rust-vexus-lite/src/knowledge_runtime.rs:1171)
+   将 ANN、候选合并、hydrate、语义去重和 Topology V3 置于同一后台任务；
+4. [`rerank_rivermemo_topology_v3()`](../rust-vexus-lite/src/lib.rs:890)
+   在非联合路径下直接运行 Rust Topology V3；
+5. Rust 任务内部使用 Rayon 对候选路径、相对拓扑、观测和锚接触并行计算；
+6. 批级统计与最终排序在 Rust 内闭合；
+7. 原生联合查询不把中间候选跨过 N-API 返回 JS，只有最终结果在边界上组装。
+
+**跨界计数：** 常规新观测请求包括一次观测任务和一次 ANN→V3 联合任务；联合任务内部的一次跨界诊断不代表整个请求只有一次 N-API 调用。元思考还会增加候选检索和构链调用。
+
+**并发边界：** 原生 ANN 使用共享读锁，不能称为“无锁”。现有多索引 ANN 在后台任务内按索引遍历，候选级 V3 数学计算才明确使用 Rayon；多个请求可以异步运行，但不等于一个元思考链的全部阶段已并行。当前元思考 ANN 分支仍逐阶段等待、回到 JS 读取候选正文，不是整条思维链单次原生执行。
 
 ### 12.2 运行诊断
 
-生产日志应包含 `RiverMemo Topology V3 [Rust/Rayon]`，并报告：
+当前 RAG 日志可见“Native River full path V2”，并报告是否实际使用联合查询及混合计划；不能要求旧版本的日志标题一定出现。
 
-- `nativeTotal`：原生任务总耗时；
-- `load`：Artifact、SQLite 候选曲线及查询/锚 Tag 向量加载耗时；
-- `compute`：Rayon 候选计算和批级排序耗时；
-- `ffi`：从 JS 提交到结果返回的总边界耗时；
-- `threads`：当前 Rayon 工作线程数；
-- `nativeProjection`：Rust 成功投影的候选数；
-- `nativeSelection`：Rust 候选超集选中数。
+详细耗时、投影数量、筛选数量及线程数来自原生结果诊断，JS 在 [`RiverMemoEngine._rerankNative()`](../RiverMemoEngine.js:137) 中组装这些字段。联合查询是否成功应查看实际使用标志，而不是仅看请求是否启用了 RiverMemo。元思考引擎名称属于 VCPInfo 广播字段，不保证每个成功分支都会打印同名控制台日志。
 
 正常生产日志不应再出现 `RiverMemoWorkerPool Started`。
+
+动态虫洞原生诊断区分候选、动态入选、动态注入与静态 Top-K 外提升事件，
+并记录目标评估数、SQL 新加载数/批数、点积数、缓存命中、预算耗尽及分项耗时。
+这些计数按源状态和跳累计，不是唯一边数；注入计数发生在目标状态上限裁剪之前，
+也不等于目标下一跳发火或语义正确。
+
+双场诊断区分标量求解、有效域处理、向量投影耗时，
+并报告有效域规模、投影选点数/有效向量数、实际新加载数、
+各场选点与有效向量投影质量比例及标量保留数。
+候选诊断区分标签关系 SQL、候选向量差集 SQL 与查询河网补查 SQL，
+内存统计纳入请求向量节点数和 FP32 载荷字节数。
+具体字段与可见范围以
+[动态虫洞诊断](MEMO_DYNAMIC_WORMHOLES.md)和
+[投影预算诊断](MEMO_FIELD_PROJECTION_BUDGET.md)为准，
+不能假设原生诊断全部已在 JS 广播中透出。
+
+工程回归测试不替代生产质量验收。
+动态开关应在相同条件下对照传播总耗时与管线总耗时，
+投影预算应同时观察投影质量覆盖与实际召回；
+不据此承诺固定触发次数、新增延迟小于 20 ms、零召回损失或并发内存上限。
+
+### 12.3 元思考的 RiverMemo 复用与降级
+
+元思考不是 Topology V3 候选排序的别名，而是复用同一次 Sense 观测的独立读出：
+
+```text
+元思考占位符 + RiverMemo 日记检索成功
+→ 复用 observationHandle
+→ 思维簇候选按有序 Tag 曲线与逐跳传播记录构链
+→ 有 grounded route：rivermemo-sense
+→ 无 grounded route：Rust NativeKnowledgeRuntime 原生 ANN
+→ 原生 ANN 不可用：旧 JS 元思考链
+```
+
+逐跳转移记录由 Rust [`sense_with_context()`](../rust-vexus-lite/src/memo_sensing.rs:366)
+按 `(hop, previous_id, source_id, target_id)` 保留，并受 `maxTransitionRecords` 硬上限约束。
+记录被截断时不得将其解释为完整逻辑路径。思维簇的 `Tag:` 行参与索引、闭合和方向判断，
+但只在最终回填给 AI 时移除；源文件和 SQLite Tag 事实不修改。
+
+无观测时的 `rivermemo-native-ann` 只表示 Rust 并发 ANN 候选召回，不表示 Sense 河网
+已经形成，也不产生 Topology V3 的逻辑承接证据。该区分必须保留在日志和 VCPInfo 中。
 
 ---
 
@@ -1056,8 +1393,8 @@ Pairwise 或配置代际。原生 Artifact 按签名缓存；签名变化时旧�
 
 拓扑 V3 必须保持以下不变量：
 
-1. 输入是整个上下文时，必须优先使用 V9 完整降噪观测；
-2. 未完成 V9 降噪时，不得把普通 Tag KNN 静默标记为完整 RiverMemo；
+1. 输入是整个上下文时，必须优先使用 AGS 统一场背景上的完整 Memo 降噪观测；
+2. 未完成统一 Memo 降噪时，不得把普通 Tag KNN 静默标记为完整 RiverMemo；
 3. 传输算子的最大行质量必须严格小于 1；
 4. 河网边必须来自本次查询实际承载过的流量；
 5. Ω 只读取查询河网，不读取候选；
@@ -1071,13 +1408,27 @@ Pairwise 或配置代际。原生 Artifact 按签名缓存；签名变化时旧�
 13. 相对拓扑必须区分节点对应与完整边对应；
 14. 没有完整边对应时，只能使用受限节点退化读出；
 15. 结构增量必须由 \(\Omega^\gamma\) 统一授权；
-16. 直接锚只能来自 hop-0 `core/seed`；
+16. 正常直接锚使用 hop-0 Core/Seed；缺少来源的兼容分支须受可靠度上限约束，不得宣称具有相同事实强度；
 17. 直接锚与结构增量不得互相伪造；
 18. RiverMemo 只做非负修正，无证据候选保留基础分；
-19. 所有结果必须绑定 Artifact 签名与查询 ID；
-20. 候选级 Topology V3 热点必须在 Rust 内部并行，禁止恢复 JS 逐候选计算；
-21. 生产请求只允许一次原生任务提交，不得为 RiverMemo 再启动 Node Worker 池；
-22. 拓扑 V3 是本文唯一正式构型。
+19. 观测读出必须绑定 Artifact 签名和观测句柄；查询 ID 是可选诊断字段，当前调用方可能未提供；
+20. Sense 观测句柄必须与当前 Artifact 代际一致，过期或代际不匹配时必须失败关闭；
+21. 候选级 Topology V3 热点必须在 Rust 内部并行，禁止恢复 JS 逐候选计算；
+22. 单次联合检索把 ANN→V3 收敛到一个后台任务；前置观测、多占位符和联想检索可以产生其他任务，不得宣称整个请求恒为一次提交；
+23. 元思考不得把无 grounded route 伪装为 Sense 逻辑链；
+24. 元思考无观测时可使用 Rust 原生 ANN，但必须与 Sense 构链结果区分；
+25. 拓扑 V3 是本文唯一正式构型；
+26. AGS 局部/全局预计算不得与查询局部/迁移双场混淆，AGS 主题面不得冒充实际传播边；
+27. 几何数学以 SQLite 原始向量为权威来源，语义门控不得恢复对旧持久化 Pairwise 表的依赖；
+28. 几何与传输资产按统一依赖链发布，查询不得自行拼接不同来源的局部残差与全局主题面；
+29. EPA 背景校准与 Ω 可观测性是不同测量：前者读取共享几何，后者只读取本次查询河网；
+30. 动态虫洞只能选择已有正权重历史出边，且只由来源层之后的残差支持，不修改共享图资产；
+31. 动态席位包含在原邻居名额内；共鸣不提供额外能量，电流门槛、回流惩罚和传播安全上限仍然有效；
+32. 动态目标评估预算与双场投影预算是不同预算，均不得解释为整个请求的固定时间或内存保证；
+33. 双场先进行全图标量求解和有效域处理，再在各自有效域内独立选取投影节点；读取并集不代表混用两场投影集合；
+34. 投影预算为零只取消数量上限，不取消有效质量域约束；标量保留不由投影 K 决定；
+35. 跨阶段复用权威原始 Tag 向量并校验数据库代际，不允许混用旧池与新事实行；
+36. 共享观测须在全部内部消费者完成后释放，不能由第一个读出提前注销，也不能以跨请求结果缓存替代请求生命周期管理。
 
 ---
 
@@ -1102,7 +1453,7 @@ Pairwise 或配置代际。原生 Artifact 按签名缓存；签名变化时旧�
 
 结果诊断中的 `nativeTopologyV3.backend` 应为 `rust-rayon-sqlite`。
 
-`queryMorphology` 在正式结果中直接提供，不依赖候选 trace 开关。其核心字段包括：
+完整查询形态在 Rust 原生结果中提供，不依赖候选 trace 开关；当前 JS 公共门面只保留主导模式到查询诊断中，尚未透传完整形态对象。下列字段描述 Rust 原生结果，不能假定在 RAG 广播中全部可见：
 
 - `atomicWeight`、`propositionalWeight`、`narrativeWeight`：三种形态的连续混合权重；
 - `confidence`：形态统计的样本与观测置信度；
@@ -1112,14 +1463,7 @@ Pairwise 或配置代际。原生 Artifact 按签名缓存；签名变化时旧�
 - `chainness`、`branching`、`merging`、`growthPersistence`：链性、跨尺度层级扩张与关系复杂度；
 - `dominantMode`：为兼容输出导出的最大概率标签。
 
-当开启 trace 时，还可检查：
-
-- 河网节点与边；
-- Ω 的边、涌现、流熵分量；
-- 相对拓扑节点和边对应；
-- 路径段势能、方向和连续性；
-- 直接锚接触、闭合、特异性和稀有度；
-- 结构增量被 Ω 门控前后的差异。
+当前 trace 返回候选级路径几何、相对拓扑和观测的汇总统计，以及 Ω 分量、锚强度和奖励分解。它不导出完整河网、逐节点对应表、逐段路径或每个锚接触明细。完整 Sense 观测仍保存在原生运行时中；元思考选出的逐跳转移是独立构链结果，并非 V3 trace 的完整河网导出。
 
 ---
 
@@ -1129,7 +1473,7 @@ Pairwise 或配置代际。原生 Artifact 按签名缓存；签名变化时旧�
 
 在当前 RiverMemo 数学和实现中，已经明确成立：
 
-1. V9 的全上下文降噪结果可以构成归一化信息源；
+1. AGS 背景上的统一 Memo 降噪观测可以构成归一化信息源；
 2. 有界传输过程可同时产生节点势与实际边流；
 3. 同一守恒传输算子可通过 resolvent 方程生成不同尺度的连续场；
 4. 候选有序 Tag 曲线可以读取该场；
@@ -1158,9 +1502,11 @@ RiverMemo 拓扑 V3 的严谨价值在于：它把系统内部的信息传递、
 
 ## 16. 总结
 
-RiverMemo 没有抛弃 TagMemo V9。
+RiverMemo 当前以 **AGS 统一场作为降噪传播背景图**，不再将旧 V9 独立几何资产链描述为现行底座。
 
-相反，它保留了 V9 在“整个上下文”查询场景中已经验证的 EPA、Residual Pyramid 与有界传播降噪，把其输出从“增强向量和节点能量”提升为完整的请求级信息河网。
+同一 AGS 算子在局部生成残差与锚增益，在全局生成星团主题面与覆盖率背景；这些资产分别参与共享传输图构建和 EPA 校准。请求侧保留 EPA、Residual Pyramid 与有界 Sense 传播的计算职责，将背景上的查询响应提升为请求级河网，再供双场与 Topology V3 读出。
+
+统一背景不等于统一取消边界：AGS 背景几何、实际传播河网、查询双场、Ω 与直接锚各有不同的测量对象和生命周期。
 
 在拓扑 V3 中：
 

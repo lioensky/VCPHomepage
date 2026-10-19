@@ -1649,14 +1649,14 @@
                 .join('');
         }
 
-        const stageLabels = ['AGS', 'EPA+RP', 'Sense R_q', 'Dual u_L/u_T', '7-Superset', 'Curve Γ_c', 'Softmax+Ω', 'Top-K'];
+        const stageLabels = ['AGS/CSR', '残差分层', '动态虫洞', '双场预算 K', '并集差集', '共享池读出', 'Softmax+Ω', 'Top-K'];
 
         const runner = new SceneRunner(canvas, (ctx, w, h, t) => {
             drawIndustrialGrid(ctx, w, h, 44);
             const sc = scenarios[currentScene] || scenarios.arch;
             setReadout(
                 'ch10Readout',
-                `Mode: ${sc.mode} · Ω = ${sc.omega.toFixed(2)} (${sc.regime}) · Native Compute = ${sc.latency}`
+                `教学预设 · ${sc.mode} · Ω = ${sc.omega.toFixed(2)} (${sc.regime}) · 非生产性能数据`
             );
 
             const yMid = h * 0.52;
