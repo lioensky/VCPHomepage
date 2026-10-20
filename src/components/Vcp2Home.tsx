@@ -21,6 +21,7 @@ import {
   Zap,
 } from "lucide-react";
 import {DocsViewer, type DocItem} from "./DocsViewer";
+import {VexusArchitecture, ToolRecordTheater} from "./MemoryToolTheaters";
 import {V4StreamTheater} from "./V4StreamTheater";
 import {NovaRiverTheater, primeNovaRiverAudio} from "./NovaRiverTheater";
 import {ScriptoriumTheater} from "./ScriptoriumTheater";
@@ -215,6 +216,8 @@ const milestoneNodes = [
   {date: "2026.09.28", tag: "FORGE", title: "V工程 ProjectForge & Jev 双轨", desc: "1:6.8 极限 Token 能效比，自然语言 JevCall 与工业安检双轨隔离全面贯通。"},
   {date: "2026.10.01", tag: "RELEASE", title: "VCP 2.0 正式版盛大发布", desc: "全栈 AGI 运行时生态大成，《让智慧如河流流淌》首映，池月映照新纪元。"},
   {date: "2026.10.15", tag: "MOONAST", title: "纯几何逻辑门 MoonAST 落地", desc: "脱离 Tree-sitter 语法壁垒，检索提速 40 倍、内存降 80%，「繁星如盛」上线。"},
+  {date: "2026.10.19", tag: "VEXUSMEMO", title: "原生一体化记忆数据库", desc: "SQLite 事实、TDB 2-bit 冲程与 AGS 几何统一进入 Rust 数据底座。"},
+  {date: "2026.10.20", tag: "RIVERMEMO V2", title: "共享双场预算与动态语境虫洞", desc: "跨阶段复用原始向量，沿历史关系展开有界联想，双槽代际快照守护资产。"},
 ];
 
 export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
@@ -234,7 +237,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
     };
   }, []);
 
-  // WebAudio Synthesizer for VMusic Capsule & Theater 04 (从独立音频模块驱动)
+  // WebAudio Synthesizer for VMusic Capsule & Theater 05 (从独立音频模块驱动)
   const {
     isPlayingAudio,
     toggleAmbientMusic,
@@ -356,9 +359,9 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
     };
   }, []);
 
-  // Theater 03: Scriptorium V3 —— 状态与组字剧本已下沉到 <ScriptoriumTheater />
+  // Theater 04: Scriptorium V3 —— 状态与组字剧本已下沉到 <ScriptoriumTheater />
 
-  // Theater 04: VMusic Waveform Canvas & Stage
+  // Theater 05: VMusic Waveform Canvas & Stage
   const waveCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const [comparePureRust, setComparePureRust] = useState(true);
   const [activeStageId, setActiveStageId] = useState("starburst");
@@ -445,14 +448,14 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
 
   const currentStage = vmusicStages.find((s) => s.id === activeStageId) ?? vmusicStages[0];
 
-  // Theater 05: RiverMemo Scenario & Jev Dual-Track
+  // Theater 06: RiverMemo Scenario & Jev Dual-Track
   const [riverScenarioIdx, setRiverScenarioIdx] = useState(0);
   const [activeRiverBranch, setActiveRiverBranch] = useState<number | null>(null);
   const [riverPulseKey, setRiverPulseKey] = useState(0);
   const [jevMode, setJevMode] = useState<"safe" | "danger">("danger");
   const currentRiver = riverScenarios[riverScenarioIdx];
 
-  // Theater 06: Docs Viewer state
+  // Theater 07: Docs Viewer state
   const [activeDocSlug, setActiveDocSlug] = useState(documents[0]?.slug ?? "");
   const docsRef = useRef<HTMLElement | null>(null);
 
@@ -478,14 +481,15 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
           </span>
         </div>
 
-        <nav className="vcp2-nav-links" aria-label="六大概念剧场导航">
+        <nav className="vcp2-nav-links" aria-label="七大概念剧场与文档导航">
           <a href="#theater-01"><span>01</span>奇点宣言</a>
-          <a href="#theater-02"><span>02</span>V4流式</a>
-          <a href="#theater-03"><span>03</span>共笔文坊</a>
-          <a href="#theater-04"><span>04</span>VMusic视听</a>
-          <a href="#theater-05"><span>05</span>River×Jev</a>
-          <a href="#theater-06"><span>06</span>Kerr与生态</a>
-          <a href="#docs"><span>07</span>归藏文档</a>
+          <a href="#theater-02"><span>02</span>VexusMemo</a>
+          <a href="#theater-03"><span>03</span>V4流式</a>
+          <a href="#theater-04"><span>04</span>共笔文坊</a>
+          <a href="#theater-05"><span>05</span>VMusic视听</a>
+          <a href="#theater-06"><span>06</span>ToolCall生态</a>
+          <a href="#theater-07"><span>07</span>Kerr与生态</a>
+          <a href="#docs"><span>08</span>归藏文档</a>
         </nav>
 
         <div className="vcp2-topbar-right">
@@ -535,7 +539,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
               <div>
                 <div className="vcp2-hero-kicker">
                   <Sparkles size={14} />
-                  <span>2026.10.15 MILESTONE</span>
+                  <span>2026.10.20 MILESTONE</span>
                   <strong>VCP 2.0 正式版 · 全栈自研 AGI 运行时与 Agent 操作系统</strong>
                 </div>
 
@@ -548,9 +552,9 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
 
                 <p className="vcp2-hero-lead">
                   告别无状态、无记忆、盲盒试错的旧时代 API 中间件。VCP 2.0 以纯几何逻辑门{" "}
-                  <strong>MoonAST</strong>、<strong>RiverMemo V10 统一语义动力场</strong>、
+                  <strong>MoonAST</strong>、<strong>VexusMemo × RiverMemo V2 一体化记忆</strong>、
                   <strong>共笔文坊 V3 源码保持渲染编辑</strong> 与{" "}
-                  <strong>JevCall 双轨安检中枢</strong>，构筑人类与 AI Agent 长期共居的工业级底座。
+                  <strong>ToolCall生态与调用黑匣子</strong>，构筑人类与 AI Agent 长期共居的工业级底座。
                 </p>
 
                 <div className="vcp2-hero-actions">
@@ -582,7 +586,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                   </a>
                   <a href="/?page=changelog" className="vcp2-btn-secondary">
                     <Clock size={17} />
-                    2026.10.15 更新日志
+                    2026.10.20 更新日志
                   </a>
                 </div>
               </div>
@@ -591,7 +595,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
               <aside className="vcp2-hero-telemetry" aria-label="VCP 2.0 实时工程铭牌">
                 <div className="vcp2-telemetry-head">
                   <span>NOVA INDUSTRIAL TELEMETRY</span>
-                  <span>BUILD // 2026.10.15-RUST</span>
+                  <span>BUILD // 2026.10.20-RUST</span>
                 </div>
                 <div className="vcp2-telemetry-grid">
                   <div className="vcp2-stat-box">
@@ -666,20 +670,327 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
           </div>
         </section>
 
-        {/* ====================================================================
-            THEATER 02: V4 STREAMING RENDERER MICRO-THEATER
-            ==================================================================== */}
-        <section id="theater-02" className="vcp2-section vcp2-section-dark">
+        <section id="theater-02" className="vcp2-section vcp2-section-paper">
           <div className="vcp2-container">
             <div className="vcp2-hud-bar">
-              <span className="vcp2-hud-cross">SEC-02 // VCP_MESSAGE_RENDERER_V4</span>
+              <span className="vcp2-hud-cross">SEC-02 // VEXUSMEMO_UNIFIED_NATIVE_MEMORY</span>
+              <span>RIVERMEMO V2 × TDB 2-BIT × SQLITE</span>
+              <span>ONE ENGINE / READ · WRITE · SEARCH</span>
+            </div>
+            <div className="vcp2-theater-header">
+              <div>
+                <span className="vcp2-eyebrow">THEATER 02 · VEXUSMEMO / 一体化记忆范式</span>
+                <h2 className="vcp2-title">VexusMemo：<br />运行轻，数学不轻。</h2>
+              </div>
+              <p className="vcp2-subtitle">以 Lite 的运行成本，承载不 Lite 的数学与工程高度。<strong>RiverMemo V2 × TDB 2-bit 冲程 × 原生数据库</strong>，以紧凑布局、精密几何与一体架构挑战 Heavy 的资源堆叠：从事实事务到双场裁决，让数据库与记忆成为一体，让过去的经验在理解当下之前先行浮现。</p>
+            </div>
+            <div className="diptych-grid">
+              <VexusArchitecture onRead={() => jumpToDoc("rivermemo-topology-v3")} />
+              {/* Left Diptych: RiverMemo V2 Gravity Sandbox */}
+              <article className="diptych-card">
+                <div>
+                  <div style={{display: "flex", justifyContent: "space-between", fontFamily: "JetBrains Mono", fontSize: "0.68rem", color: "#21675C", marginBottom: "0.6rem"}}>
+                    <span>LEFT WING // RIVERMEMO V2 河网引力沙盘</span>
+                    <span>SCENARIO DEMO / 非实时测量</span>
+                  </div>
+                  <h3 style={{margin: "0 0 0.75rem", fontSize: "1.45rem"}}>
+                    无需主动搜索，记忆沿有向河网如直觉浮现
+                  </h3>
+
+                  <div style={{display: "flex", flexWrap: "wrap", gap: "0.45rem", marginBottom: "0.75rem"}}>
+                    {riverScenarios.map((sc, idx) => (
+                      <button
+                        key={sc.id}
+                        type="button"
+                        onClick={() => {
+                          setRiverScenarioIdx(idx);
+                          setActiveRiverBranch(null);
+                          setRiverPulseKey((k) => k + 1);
+                        }}
+                        style={{
+                          padding: "0.4rem 0.75rem",
+                          borderRadius: "6px",
+                          border: riverScenarioIdx === idx ? "1px solid #21675C" : "1px solid rgba(27,33,31,0.18)",
+                          background: riverScenarioIdx === idx ? "#21675C" : "transparent",
+                          color: riverScenarioIdx === idx ? "#F2EFE7" : "#1B211F",
+                          fontSize: "0.75rem",
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          transition: "all 0.2s ease",
+                        }}
+                      >
+                        {sc.trigger}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Interactive River SVG Graph */}
+                  <svg
+                    key={`river-svg-${riverScenarioIdx}-${riverPulseKey}`}
+                    className="river-sandbox-svg"
+                    viewBox="0 0 600 210"
+                    role="img"
+                    aria-label="RiverMemo 拓扑河网脉冲演示"
+                  >
+                    <defs>
+                      <linearGradient id="vcp2-river-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#F2A900" />
+                        <stop offset="42%" stopColor="#76BFAE" />
+                        <stop offset="100%" stopColor="#4CE0B3" />
+                      </linearGradient>
+                      <radialGradient id="vcp2-omega-glow" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stopColor="#21675C" stopOpacity="0.32" />
+                        <stop offset="55%" stopColor="#21675C" stopOpacity="0.12" />
+                        <stop offset="100%" stopColor="#0E1315" stopOpacity="0" />
+                      </radialGradient>
+                      <filter id="vcp2-pulse-glow" x="-40%" y="-40%" width="180%" height="180%">
+                        <feGaussianBlur stdDeviation="3.2" result="blur" />
+                        <feMerge>
+                          <feMergeNode in="blur" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+                      {/* 三条从 AGS SOURCE 经 Ω 门流向目标记忆节点的完整拓扑河道 */}
+                      <path id="vcp2-river-path-0" d="M 60 105 C 125 105, 175 105, 235 105 C 305 105, 355 52, 510 45" />
+                      <path id="vcp2-river-path-1" d="M 60 105 C 125 105, 175 105, 235 105 C 315 105, 385 105, 510 105" />
+                      <path id="vcp2-river-path-2" d="M 60 105 C 125 105, 175 105, 235 105 C 305 105, 355 158, 510 165" />
+                    </defs>
+
+                    {/* 背景测地线坐标微网格 */}
+                    <g stroke="rgba(118, 191, 174, 0.07)" strokeWidth="1">
+                      <line x1="0" y1="52" x2="600" y2="52" />
+                      <line x1="0" y1="105" x2="600" y2="105" />
+                      <line x1="0" y1="158" x2="600" y2="158" />
+                      <line x1="145" y1="0" x2="145" y2="210" />
+                      <line x1="235" y1="0" x2="235" y2="210" />
+                      <line x1="375" y1="0" x2="375" y2="210" />
+                    </g>
+
+                    {/* Ω 泛函引力透镜背景光晕与旋转测地环 */}
+                    <circle cx="235" cy="105" r="48" fill="url(#vcp2-omega-glow)" className="river-omega-breath" />
+                    <circle
+                      cx="235"
+                      cy="105"
+                      r="31"
+                      fill="none"
+                      stroke="#76BFAE"
+                      strokeOpacity="0.55"
+                      strokeWidth="1.4"
+                      strokeDasharray="5 5"
+                      className="river-omega-orbit"
+                    />
+                    <circle
+                      cx="235"
+                      cy="105"
+                      r="41"
+                      fill="none"
+                      stroke="#F2A900"
+                      strokeOpacity="0.42"
+                      strokeWidth="1.2"
+                      strokeDasharray="3 7"
+                      className="river-omega-orbit-rev"
+                    />
+
+                    {/* 底层河床光轨 */}
+                    {[0, 1, 2].map((bIdx) => {
+                      const isDimmed = activeRiverBranch !== null && activeRiverBranch !== bIdx;
+                      const isFocused = activeRiverBranch === bIdx;
+                      return (
+                        <g key={`stream-${bIdx}`} style={{opacity: isDimmed ? 0.28 : 1, transition: "opacity 0.25s ease"}}>
+                          <use
+                            href={`#vcp2-river-path-${bIdx}`}
+                            fill="none"
+                            stroke="#21675C"
+                            strokeOpacity="0.45"
+                            strokeWidth={isFocused ? "6" : "4"}
+                          />
+                          <use
+                            href={`#vcp2-river-path-${bIdx}`}
+                            fill="none"
+                            stroke={bIdx === 1 || isFocused ? "#76BFAE" : "url(#vcp2-river-grad)"}
+                            strokeWidth={isFocused ? "3.4" : bIdx === 1 ? "3" : "2.4"}
+                            strokeDasharray={bIdx === 1 && !isFocused ? "10 6" : "7 5"}
+                            className={`river-stream-flow river-stream-flow-${bIdx}`}
+                          />
+                        </g>
+                      );
+                    })}
+
+                    {/* 沿三条有向河道实时奔涌的记忆脉冲粒子 (SVG SMIL animateMotion) */}
+                    {[
+                      {id: 0, dur: "2.4s", delay: "0s", color: "#F2A900", r: 4.5},
+                      {id: 0, dur: "2.4s", delay: "-1.2s", color: "#76BFAE", r: 3.5},
+                      {id: 1, dur: "2.0s", delay: "-0.3s", color: "#4CE0B3", r: 5},
+                      {id: 1, dur: "2.0s", delay: "-1.3s", color: "#F2A900", r: 3.8},
+                      {id: 2, dur: "2.7s", delay: "-0.6s", color: "#76BFAE", r: 4.5},
+                      {id: 2, dur: "2.7s", delay: "-1.95s", color: "#F2A900", r: 3.5},
+                    ].map((p, pIdx) => {
+                      const isDimmed = activeRiverBranch !== null && activeRiverBranch !== p.id;
+                      return (
+                        <circle
+                          key={`pulse-${pIdx}`}
+                          r={p.r}
+                          fill={p.color}
+                          filter="url(#vcp2-pulse-glow)"
+                          style={{opacity: isDimmed ? 0.18 : 0.95}}
+                        >
+                          <animateMotion
+                            dur={p.dur}
+                            begin={p.delay}
+                            repeatCount="indefinite"
+                             calcMode="spline"
+                            keyTimes="0;1"
+                            keySplines="0.4 0 0.2 1"
+                          >
+                            <mpath href={`#vcp2-river-path-${p.id}`} />
+                          </animateMotion>
+                        </circle>
+                      );
+                    })}
+
+                    {/* Source Node (EPA 源点 + 脉冲波纹) */}
+                    <g
+                      style={{cursor: "pointer"}}
+                      onClick={() => {
+                        setActiveRiverBranch(null);
+                        setRiverPulseKey((k) => k + 1);
+                      }}
+                    >
+                      <circle cx="60" cy="105" r="14" fill="none" stroke="#F2A900" strokeWidth="1.8" className="river-node-ripple" />
+                      <circle cx="60" cy="105" r="14" fill="#F2A900" filter="url(#vcp2-pulse-glow)" />
+                      <circle cx="60" cy="105" r="5" fill="#FFF8E7" />
+                      <text x="60" y="138" textAnchor="middle" fill="#F2F0E9" fontSize="10" fontFamily="JetBrains Mono" fontWeight="700">
+                        AGS SOURCE
+                      </text>
+                    </g>
+
+                    {/* Omega Gate Node (中央 Ω 泛函门) */}
+                    <g
+                      style={{cursor: "pointer"}}
+                      onClick={() => {
+                        setActiveRiverBranch(null);
+                        setRiverPulseKey((k) => k + 1);
+                      }}
+                    >
+                      <circle cx="235" cy="105" r="21" fill="#151A1C" stroke="#F2A900" strokeWidth="1.2" opacity="0.7" />
+                      <circle cx="235" cy="105" r="18" fill="#21675C" stroke="#76BFAE" strokeWidth="2.5" />
+                      <text x="235" y="109" textAnchor="middle" fill="#F2F0E9" fontSize="11.5" fontFamily="JetBrains Mono" fontWeight="bold">
+                        Ω={currentRiver.omega}
+                      </text>
+                      <rect x="184" y="132" width="102" height="15" rx="4" fill="#0B0F11" fillOpacity="0.85" stroke="#21675C" strokeWidth="0.8" />
+                      <text x="235" y="143" textAnchor="middle" fill="#F2A900" fontSize="9.5" fontFamily="JetBrains Mono" fontWeight="700">
+                        DUAL-FIELD GATE
+                      </text>
+                    </g>
+
+                    {/* Target Memory Nodes (右侧三大直觉浮现节点) */}
+                    {[45, 105, 165].map((cy, idx) => {
+                      const isSelected = activeRiverBranch === idx;
+                      return (
+                        <g
+                          key={cy}
+                          style={{cursor: "pointer"}}
+                          onClick={() => setActiveRiverBranch(activeRiverBranch === idx ? null : idx)}
+                        >
+                          <circle
+                            cx="510"
+                            cy={cy}
+                            r="11"
+                            fill="none"
+                            stroke={isSelected ? "#F2A900" : "#76BFAE"}
+                            strokeWidth="1.6"
+                            className={`river-node-ripple river-node-ripple-delay-${idx}`}
+                          />
+                          <circle
+                            cx="510"
+                            cy={cy}
+                            r={isSelected ? "12" : "10"}
+                            fill={isSelected ? "#F2A900" : "#76BFAE"}
+                            stroke="#151A1C"
+                            strokeWidth="2"
+                          />
+                          <circle cx="510" cy={cy} r="3.5" fill="#151A1C" />
+                          <text
+                            x="490"
+                            y={cy - 13}
+                            textAnchor="end"
+                            fill={isSelected ? "#F2A900" : "#F2F0E9"}
+                            fontSize="10.5"
+                            fontWeight={isSelected ? "700" : "500"}
+                            fontFamily="JetBrains Mono"
+                          >
+                            {currentRiver.nodes[idx].title} ({currentRiver.nodes[idx].score})
+                          </text>
+                        </g>
+                      );
+                    })}
+                  </svg>
+
+                  <div style={{display: "grid", gap: "0.45rem", marginBottom: "1rem"}}>
+                    {currentRiver.nodes.map((node, idx) => {
+                      const isSelected = activeRiverBranch === idx;
+                      return (
+                        <div
+                          key={node.title}
+                          onClick={() => setActiveRiverBranch(isSelected ? null : idx)}
+                          onMouseEnter={() => setActiveRiverBranch(idx)}
+                          onMouseLeave={() => setActiveRiverBranch(null)}
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            padding: "0.5rem 0.75rem",
+                            borderRadius: "6px",
+                            background: isSelected ? "rgba(33,103,92,0.18)" : "rgba(33,103,92,0.08)",
+                            border: isSelected ? "1px solid #21675C" : "1px solid rgba(33,103,92,0.2)",
+                            fontSize: "0.78rem",
+                            cursor: "pointer",
+                            transform: isSelected ? "translateX(4px)" : "none",
+                            transition: "all 0.2s ease",
+                          }}
+                        >
+                          <div>
+                            <strong>{node.title}</strong>
+                            <span style={{marginLeft: "0.5rem", fontSize: "0.68rem", color: "#5A635F", fontFamily: "JetBrains Mono"}}>
+                              [{node.tag}]
+                            </span>
+                          </div>
+                          <strong style={{fontFamily: "JetBrains Mono", color: "#21675C"}}>S={node.score}</strong>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="omega-formula-plate">
+                  <div>
+                    <strong>S<sub>i</sub> = Π<sub>[0,1]</sub> [ S<sub>i</sub><sup>field</sup> + Ω<sub>Q</sub><sup>γ</sup> B<sub>G</sub>(i) + B<sub>H</sub>(i) ]</strong>
+                  </div>
+                  <div style={{fontSize: "0.68rem", fontFamily: "JetBrains Mono", color: "#5A635F", marginTop: "0.25rem"}}>
+                    示例场景耗时: {currentRiver.latency} · 分数与耗时仅作交互示意
+                  </div>
+                </div>
+              </article>
+
+
+            </div>
+          </div>
+        </section>
+
+        {/* ====================================================================
+            THEATER 03: V4 STREAMING RENDERER MICRO-THEATER
+            ==================================================================== */}
+        <section id="theater-03" className="vcp2-section vcp2-section-dark">
+          <div className="vcp2-container">
+            <div className="vcp2-hud-bar">
+              <span className="vcp2-hud-cross">SEC-03 // VCP_MESSAGE_RENDERER_V4</span>
               <span>FEATURE: SEMANTIC DIV-ISLAND + SCOPED CSS + TOMBSTONE FREEZE V2</span>
               <span>STREAM_AST: ACTIVE</span>
             </div>
 
             <div className="vcp2-theater-header">
               <div>
-                <span className="vcp2-eyebrow">THEATER 02 · NATIVE DOM STREAMING MIRACLE</span>
+                <span className="vcp2-eyebrow">THEATER 03 · NATIVE DOM STREAMING MIRACLE</span>
                 <h2 className="vcp2-title">
                   V4 流式渲染微剧场：<br />
                   HTML 天然兜底的丝滑奇迹
@@ -698,19 +1009,19 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
         </section>
 
         {/* ====================================================================
-            THEATER 03: SCRIPTORIUM V3 · 3D CUBE PERSPECTIVE TYPING (PAPER ZONE)
+            THEATER 04: SCRIPTORIUM V3 · 3D CUBE PERSPECTIVE TYPING (PAPER ZONE)
             ==================================================================== */}
-        <section id="theater-03" className="vcp2-section vcp2-section-paper">
+        <section id="theater-04" className="vcp2-section vcp2-section-paper">
           <div className="vcp2-container">
             <div className="vcp2-hud-bar">
-              <span className="vcp2-hud-cross">SEC-03 // SCRIPTORIUM_V3_COAUTHORING</span>
+              <span className="vcp2-hud-cross">SEC-04 // SCRIPTORIUM_V3_COAUTHORING</span>
               <span>MODE: RENDER-STATE EDITING × IDEMPOTENT SOURCE MAPPING</span>
               <span>CONTAINER: .VDOCX / .VPPTX ZIP V2</span>
             </div>
 
             <div className="vcp2-theater-header">
               <div>
-                <span className="vcp2-eyebrow">THEATER 03 · 3D PERSPECTIVE IME & SOURCE TRUTH</span>
+                <span className="vcp2-eyebrow">THEATER 04 · 3D PERSPECTIVE IME & SOURCE TRUTH</span>
                 <h2 className="vcp2-title">
                   共笔文坊 Scriptorium V3：<br />
                   3D 立方体上的透视打字神迹
@@ -727,19 +1038,19 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
         </section>
 
         {/* ====================================================================
-            THEATER 04: VMUSIC 205dB AUDIO LAB & 8 STAGES GALLERY (DARK ZONE)
+            THEATER 05: VMUSIC 205dB AUDIO LAB & 8 STAGES GALLERY (DARK ZONE)
             ==================================================================== */}
-        <section id="theater-04" className="vcp2-section vcp2-section-dark">
+        <section id="theater-05" className="vcp2-section vcp2-section-dark">
           <div className="vcp2-container">
             <div className="vcp2-hud-bar">
-              <span className="vcp2-hud-cross">SEC-04 // VMUSIC_SYNESTHESIA_HALL</span>
+              <span className="vcp2-hud-cross">SEC-05 // VMUSIC_SYNESTHESIA_HALL</span>
               <span>AUDIO: WASAPI EXCLUSIVE + RUST RUBATO_F64 (205dB ATTENUATION)</span>
               <span>GRAPHICS: CUSTOM SHADER + PIXI V8 + 3D STAGE</span>
             </div>
 
             <div className="vcp2-theater-header">
               <div>
-                <span className="vcp2-eyebrow">THEATER 04 · 205dB PURE AUDIO × SHADER OPERA</span>
+                <span className="vcp2-eyebrow">THEATER 05 · 205dB PURE AUDIO × SHADER OPERA</span>
                 <h2 className="vcp2-title">
                   VMusic 概念视听馆：<br />
                   当 205dB 纯血音频遇见着色器歌剧
@@ -923,316 +1234,32 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
         </section>
 
         {/* ====================================================================
-            THEATER 05: RIVERMEMO V10 & JEVCALL DUAL-TRACK (PAPER ZONE)
+            THEATER 06: TOOLCALL ECOSYSTEM & TOOLRECORD (PAPER ZONE)
             ==================================================================== */}
-        <section id="theater-05" className="vcp2-section vcp2-section-paper">
+        <section id="theater-06" className="vcp2-section vcp2-section-paper">
           <div className="vcp2-container">
             <div className="vcp2-hud-bar">
-              <span className="vcp2-hud-cross">SEC-05 // RIVERMEMO_V10_AND_JEVCALL_SECURITY</span>
-              <span>{"LEFT: TOPOLOGY V3 × OMEGA FUNCTIONAL (<2ms RUST)"}</span>
+              <span className="vcp2-hud-cross">SEC-06 // TOOLCALL_ECOSYSTEM_AND_TOOLRECORD</span>
+              <span>LEFT: TOOLRECORD FULL LIFECYCLE DATABASE</span>
               <span>RIGHT: NATURAL LANGUAGE COMPILER × DUAL-TRACK ISOLATION</span>
             </div>
 
             <div className="vcp2-theater-header">
               <div>
-                <span className="vcp2-eyebrow">THEATER 05 · INTUITION MEMORY × DUAL-TRACK SECURITY</span>
+                <span className="vcp2-eyebrow">THEATER 06 · SEMANTIC RESILIENCE × FULL RUNTIME TRACE</span>
                 <h2 className="vcp2-title">
-                  RiverMemo & Jev 双轨中枢：<br />
-                  直觉浮现与言出法随
+                  ToolCall生态：<br />
+                  意图可理解，调用可追溯
                 </h2>
               </div>
               <p className="vcp2-subtitle">
-                2026 年 10 月 13 日，TagMemo 完成历史使命光荣退役，<strong>RiverMemo 全面接管记忆生态</strong>；
-                与此同时，<strong>JevCall 自然语言工具编译层</strong>与<strong>工业级安检双轨隔离</strong>让日常交互如呼吸般自由，让高危代码操作固若金汤。
+                <strong>语义容错工具解析</strong>吸收格式偏差、嵌套始末与边界噪声，优先把意图归一为可执行参数；
+                <strong>Jev 自然语言编译与安全双轨</strong>明确执行边界，<strong>ToolRecord 数据库</strong>完整记录每次调用的运行时。容错不等于放宽权限，黑匣子让成功、失败与拒绝都有据可查。
               </p>
             </div>
 
             <div className="diptych-grid">
-              {/* Left Diptych: RiverMemo V10 Gravity Sandbox */}
-              <article className="diptych-card">
-                <div>
-                  <div style={{display: "flex", justifyContent: "space-between", fontFamily: "JetBrains Mono", fontSize: "0.68rem", color: "#21675C", marginBottom: "0.6rem"}}>
-                    <span>LEFT WING // RIVERMEMO V10 河网引力沙盘</span>
-                    <span>GOLDEN TEST: +26% VS V9</span>
-                  </div>
-                  <h3 style={{margin: "0 0 0.75rem", fontSize: "1.45rem"}}>
-                    无需主动搜索，记忆沿有向河网如直觉浮现
-                  </h3>
-
-                  <div style={{display: "flex", flexWrap: "wrap", gap: "0.45rem", marginBottom: "0.75rem"}}>
-                    {riverScenarios.map((sc, idx) => (
-                      <button
-                        key={sc.id}
-                        type="button"
-                        onClick={() => {
-                          setRiverScenarioIdx(idx);
-                          setActiveRiverBranch(null);
-                          setRiverPulseKey((k) => k + 1);
-                        }}
-                        style={{
-                          padding: "0.4rem 0.75rem",
-                          borderRadius: "6px",
-                          border: riverScenarioIdx === idx ? "1px solid #21675C" : "1px solid rgba(27,33,31,0.18)",
-                          background: riverScenarioIdx === idx ? "#21675C" : "transparent",
-                          color: riverScenarioIdx === idx ? "#F2EFE7" : "#1B211F",
-                          fontSize: "0.75rem",
-                          fontWeight: 600,
-                          cursor: "pointer",
-                          transition: "all 0.2s ease",
-                        }}
-                      >
-                        {sc.trigger}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Interactive River SVG Graph */}
-                  <svg
-                    key={`river-svg-${riverScenarioIdx}-${riverPulseKey}`}
-                    className="river-sandbox-svg"
-                    viewBox="0 0 600 210"
-                    role="img"
-                    aria-label="RiverMemo 拓扑河网脉冲演示"
-                  >
-                    <defs>
-                      <linearGradient id="vcp2-river-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#F2A900" />
-                        <stop offset="42%" stopColor="#76BFAE" />
-                        <stop offset="100%" stopColor="#4CE0B3" />
-                      </linearGradient>
-                      <radialGradient id="vcp2-omega-glow" cx="50%" cy="50%" r="50%">
-                        <stop offset="0%" stopColor="#21675C" stopOpacity="0.32" />
-                        <stop offset="55%" stopColor="#21675C" stopOpacity="0.12" />
-                        <stop offset="100%" stopColor="#0E1315" stopOpacity="0" />
-                      </radialGradient>
-                      <filter id="vcp2-pulse-glow" x="-40%" y="-40%" width="180%" height="180%">
-                        <feGaussianBlur stdDeviation="3.2" result="blur" />
-                        <feMerge>
-                          <feMergeNode in="blur" />
-                          <feMergeNode in="SourceGraphic" />
-                        </feMerge>
-                      </filter>
-                      {/* 三条从 EPA SOURCE 经 Ω 门流向目标记忆节点的完整拓扑河道 */}
-                      <path id="vcp2-river-path-0" d="M 60 105 C 125 105, 175 105, 235 105 C 305 105, 355 52, 510 45" />
-                      <path id="vcp2-river-path-1" d="M 60 105 C 125 105, 175 105, 235 105 C 315 105, 385 105, 510 105" />
-                      <path id="vcp2-river-path-2" d="M 60 105 C 125 105, 175 105, 235 105 C 305 105, 355 158, 510 165" />
-                    </defs>
-
-                    {/* 背景测地线坐标微网格 */}
-                    <g stroke="rgba(118, 191, 174, 0.07)" strokeWidth="1">
-                      <line x1="0" y1="52" x2="600" y2="52" />
-                      <line x1="0" y1="105" x2="600" y2="105" />
-                      <line x1="0" y1="158" x2="600" y2="158" />
-                      <line x1="145" y1="0" x2="145" y2="210" />
-                      <line x1="235" y1="0" x2="235" y2="210" />
-                      <line x1="375" y1="0" x2="375" y2="210" />
-                    </g>
-
-                    {/* Ω 泛函引力透镜背景光晕与旋转测地环 */}
-                    <circle cx="235" cy="105" r="48" fill="url(#vcp2-omega-glow)" className="river-omega-breath" />
-                    <circle
-                      cx="235"
-                      cy="105"
-                      r="31"
-                      fill="none"
-                      stroke="#76BFAE"
-                      strokeOpacity="0.55"
-                      strokeWidth="1.4"
-                      strokeDasharray="5 5"
-                      className="river-omega-orbit"
-                    />
-                    <circle
-                      cx="235"
-                      cy="105"
-                      r="41"
-                      fill="none"
-                      stroke="#F2A900"
-                      strokeOpacity="0.42"
-                      strokeWidth="1.2"
-                      strokeDasharray="3 7"
-                      className="river-omega-orbit-rev"
-                    />
-
-                    {/* 底层河床光轨 */}
-                    {[0, 1, 2].map((bIdx) => {
-                      const isDimmed = activeRiverBranch !== null && activeRiverBranch !== bIdx;
-                      const isFocused = activeRiverBranch === bIdx;
-                      return (
-                        <g key={`stream-${bIdx}`} style={{opacity: isDimmed ? 0.28 : 1, transition: "opacity 0.25s ease"}}>
-                          <use
-                            href={`#vcp2-river-path-${bIdx}`}
-                            fill="none"
-                            stroke="#21675C"
-                            strokeOpacity="0.45"
-                            strokeWidth={isFocused ? "6" : "4"}
-                          />
-                          <use
-                            href={`#vcp2-river-path-${bIdx}`}
-                            fill="none"
-                            stroke={bIdx === 1 || isFocused ? "#76BFAE" : "url(#vcp2-river-grad)"}
-                            strokeWidth={isFocused ? "3.4" : bIdx === 1 ? "3" : "2.4"}
-                            strokeDasharray={bIdx === 1 && !isFocused ? "10 6" : "7 5"}
-                            className={`river-stream-flow river-stream-flow-${bIdx}`}
-                          />
-                        </g>
-                      );
-                    })}
-
-                    {/* 沿三条有向河道实时奔涌的记忆脉冲粒子 (SVG SMIL animateMotion) */}
-                    {[
-                      {id: 0, dur: "2.4s", delay: "0s", color: "#F2A900", r: 4.5},
-                      {id: 0, dur: "2.4s", delay: "-1.2s", color: "#76BFAE", r: 3.5},
-                      {id: 1, dur: "2.0s", delay: "-0.3s", color: "#4CE0B3", r: 5},
-                      {id: 1, dur: "2.0s", delay: "-1.3s", color: "#F2A900", r: 3.8},
-                      {id: 2, dur: "2.7s", delay: "-0.6s", color: "#76BFAE", r: 4.5},
-                      {id: 2, dur: "2.7s", delay: "-1.95s", color: "#F2A900", r: 3.5},
-                    ].map((p, pIdx) => {
-                      const isDimmed = activeRiverBranch !== null && activeRiverBranch !== p.id;
-                      return (
-                        <circle
-                          key={`pulse-${pIdx}`}
-                          r={p.r}
-                          fill={p.color}
-                          filter="url(#vcp2-pulse-glow)"
-                          style={{opacity: isDimmed ? 0.18 : 0.95}}
-                        >
-                          <animateMotion
-                            dur={p.dur}
-                            begin={p.delay}
-                            repeatCount="indefinite"
-                             calcMode="spline"
-                            keyTimes="0;1"
-                            keySplines="0.4 0 0.2 1"
-                          >
-                            <mpath href={`#vcp2-river-path-${p.id}`} />
-                          </animateMotion>
-                        </circle>
-                      );
-                    })}
-
-                    {/* Source Node (EPA 源点 + 脉冲波纹) */}
-                    <g
-                      style={{cursor: "pointer"}}
-                      onClick={() => {
-                        setActiveRiverBranch(null);
-                        setRiverPulseKey((k) => k + 1);
-                      }}
-                    >
-                      <circle cx="60" cy="105" r="14" fill="none" stroke="#F2A900" strokeWidth="1.8" className="river-node-ripple" />
-                      <circle cx="60" cy="105" r="14" fill="#F2A900" filter="url(#vcp2-pulse-glow)" />
-                      <circle cx="60" cy="105" r="5" fill="#FFF8E7" />
-                      <text x="60" y="138" textAnchor="middle" fill="#F2F0E9" fontSize="10" fontFamily="JetBrains Mono" fontWeight="700">
-                        EPA SOURCE
-                      </text>
-                    </g>
-
-                    {/* Omega Gate Node (中央 Ω 泛函门) */}
-                    <g
-                      style={{cursor: "pointer"}}
-                      onClick={() => {
-                        setActiveRiverBranch(null);
-                        setRiverPulseKey((k) => k + 1);
-                      }}
-                    >
-                      <circle cx="235" cy="105" r="21" fill="#151A1C" stroke="#F2A900" strokeWidth="1.2" opacity="0.7" />
-                      <circle cx="235" cy="105" r="18" fill="#21675C" stroke="#76BFAE" strokeWidth="2.5" />
-                      <text x="235" y="109" textAnchor="middle" fill="#F2F0E9" fontSize="11.5" fontFamily="JetBrains Mono" fontWeight="bold">
-                        Ω={currentRiver.omega}
-                      </text>
-                      <rect x="184" y="132" width="102" height="15" rx="4" fill="#0B0F11" fillOpacity="0.85" stroke="#21675C" strokeWidth="0.8" />
-                      <text x="235" y="143" textAnchor="middle" fill="#F2A900" fontSize="9.5" fontFamily="JetBrains Mono" fontWeight="700">
-                        DUAL-FIELD GATE
-                      </text>
-                    </g>
-
-                    {/* Target Memory Nodes (右侧三大直觉浮现节点) */}
-                    {[45, 105, 165].map((cy, idx) => {
-                      const isSelected = activeRiverBranch === idx;
-                      return (
-                        <g
-                          key={cy}
-                          style={{cursor: "pointer"}}
-                          onClick={() => setActiveRiverBranch(activeRiverBranch === idx ? null : idx)}
-                        >
-                          <circle
-                            cx="510"
-                            cy={cy}
-                            r="11"
-                            fill="none"
-                            stroke={isSelected ? "#F2A900" : "#76BFAE"}
-                            strokeWidth="1.6"
-                            className={`river-node-ripple river-node-ripple-delay-${idx}`}
-                          />
-                          <circle
-                            cx="510"
-                            cy={cy}
-                            r={isSelected ? "12" : "10"}
-                            fill={isSelected ? "#F2A900" : "#76BFAE"}
-                            stroke="#151A1C"
-                            strokeWidth="2"
-                          />
-                          <circle cx="510" cy={cy} r="3.5" fill="#151A1C" />
-                          <text
-                            x="490"
-                            y={cy - 13}
-                            textAnchor="end"
-                            fill={isSelected ? "#F2A900" : "#F2F0E9"}
-                            fontSize="10.5"
-                            fontWeight={isSelected ? "700" : "500"}
-                            fontFamily="JetBrains Mono"
-                          >
-                            {currentRiver.nodes[idx].title} ({currentRiver.nodes[idx].score})
-                          </text>
-                        </g>
-                      );
-                    })}
-                  </svg>
-
-                  <div style={{display: "grid", gap: "0.45rem", marginBottom: "1rem"}}>
-                    {currentRiver.nodes.map((node, idx) => {
-                      const isSelected = activeRiverBranch === idx;
-                      return (
-                        <div
-                          key={node.title}
-                          onClick={() => setActiveRiverBranch(isSelected ? null : idx)}
-                          onMouseEnter={() => setActiveRiverBranch(idx)}
-                          onMouseLeave={() => setActiveRiverBranch(null)}
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            padding: "0.5rem 0.75rem",
-                            borderRadius: "6px",
-                            background: isSelected ? "rgba(33,103,92,0.18)" : "rgba(33,103,92,0.08)",
-                            border: isSelected ? "1px solid #21675C" : "1px solid rgba(33,103,92,0.2)",
-                            fontSize: "0.78rem",
-                            cursor: "pointer",
-                            transform: isSelected ? "translateX(4px)" : "none",
-                            transition: "all 0.2s ease",
-                          }}
-                        >
-                          <div>
-                            <strong>{node.title}</strong>
-                            <span style={{marginLeft: "0.5rem", fontSize: "0.68rem", color: "#5A635F", fontFamily: "JetBrains Mono"}}>
-                              [{node.tag}]
-                            </span>
-                          </div>
-                          <strong style={{fontFamily: "JetBrains Mono", color: "#21675C"}}>S={node.score}</strong>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="omega-formula-plate">
-                  <div>
-                    <strong>S<sub>i</sub> = Π<sub>[0,1]</sub> [ S<sub>i</sub><sup>field</sup> + Ω<sub>Q</sub><sup>γ</sup> B<sub>G</sub>(i) + B<sub>H</sub>(i) ]</strong>
-                  </div>
-                  <div style={{fontSize: "0.68rem", fontFamily: "JetBrains Mono", color: "#5A635F", marginTop: "0.25rem"}}>
-                    单次 Rust 内存融合事务耗时: {currentRiver.latency} · 41 轮消融 All Pass
-                  </div>
-                </div>
-              </article>
+              <ToolRecordTheater />
 
               {/* Right Diptych: JevCall Dual-Track Security Splitter */}
               <article className="diptych-card cinnabar-top">
@@ -1242,8 +1269,14 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                     <span>PARAMETER-LEVEL REGEX GUARD</span>
                   </div>
                   <h3 style={{margin: "0 0 0.75rem", fontSize: "1.45rem"}}>
-                    日常意图 300ms 概率直通，高危代码强制原生协议
+                    意图优先确定性编译，高危操作回归原生协议
                   </h3>
+                  <div className="mt-parser-note">
+                    <strong>宽进严出 / 语义容错，不是权限放行</strong><br />
+                    格式幻觉、嵌套始末、错误边界与字段偏差由 Fuzzy 解析检查点兼容；
+                    Jev 进一步把自然语言中的能力域、核心目标与约束映射为结构化参数，仅在必要时辅助消歧。
+                    解析之后仍须通过工具权限与参数级规则审核，不能可靠确定的高危意图不会被猜测执行。
+                  </div>
 
                   <div style={{display: "flex", gap: "0.5rem", marginBottom: "0.85rem"}}>
                     <button
@@ -1396,7 +1429,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                     <g transform="translate(530, 32)">
                       <circle cx="0" cy="0" r="9" fill={jevMode === "safe" ? "#4CE0B3" : "rgba(76,224,179,0.3)"} />
                       <text x="-16" y="4" textAnchor="end" fill={jevMode === "safe" ? "#4CE0B3" : "#76BFAE"} fontSize="9.5" fontFamily="JetBrains Mono" fontWeight={jevMode === "safe" ? "bold" : "normal"}>
-                        JevCall 280ms 绿通直达
+                        确定性编译 / 必要时 Jev 消歧
                       </text>
                     </g>
 
@@ -1404,7 +1437,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                     <g transform="translate(530, 88)">
                       <circle cx="0" cy="0" r="9" fill={jevMode === "danger" ? "#FF5238" : "rgba(255,82,56,0.3)"} />
                       <text x="-16" y="4" textAnchor="end" fill={jevMode === "danger" ? "#FF9E8A" : "#B94832"} fontSize="9.5" fontFamily="JetBrains Mono" fontWeight={jevMode === "danger" ? "bold" : "normal"}>
-                        Native VCP 强制验签
+                        拒绝 Jev / 另发原生请求
                       </text>
                     </g>
                   </svg>
@@ -1418,7 +1451,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                         JEV:「始」10分钟后叫我起床，并播放【星の余韻】开启[星诞]演出模式「末」
                       </div>
                       <div style={{color: "#76BFAE", marginTop: "0.75rem"}}>
-                        ➔ <strong>GREEN TRACK PASSED (280ms)</strong>：JevCallEXPService 确定性编译 + 扩散概率消歧完成，已分发至 <code>VCPAlarm</code> 与 <code>VMusic.Starborn</code>。
+                        ➔ <strong>GREEN TRACK PASSED / 演示</strong>：确定性编译完成，歧义场景才由 Jev 辅助裁决，已分发至 <code>VCPAlarm</code> 与 <code>VMusic.Starborn</code>。
                       </div>
                     </div>
                   ) : (
@@ -1452,10 +1485,10 @@ target_file:「始」src/db/indexRepository.js「末」
                 </div>
 
                 <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(27,33,31,0.14)", paddingTop: "0.85rem", fontSize: "0.75rem", color: "#5A635F"}}>
-                  <span>全插件零代码修改声明式接入 (JevDesPrompt / JevcallArg)</span>
+                  <span>插件声明式接入 · 同步 / 异步调用统一记录</span>
                   <button
                     type="button"
-                    onClick={() => jumpToDoc("rivermemo-topology-v3")}
+                    onClick={() => jumpToDoc("changelog")}
                     style={{
                       border: "none",
                       background: "none",
@@ -1466,7 +1499,7 @@ target_file:「始」src/db/indexRepository.js「末」
                       fontSize: "0.72rem",
                     }}
                   >
-                    阅读数学白皮书 ↗
+                    阅读工具链演进 ↗
                   </button>
                 </div>
               </article>
@@ -1475,19 +1508,19 @@ target_file:「始」src/db/indexRepository.js「末」
         </section>
 
         {/* ====================================================================
-            THEATER 06: KERR CODEBENCH & AI NATIVE ECOSYSTEM BENTO (DARK ZONE)
+            THEATER 07: KERR CODEBENCH & AI NATIVE ECOSYSTEM BENTO (DARK ZONE)
             ==================================================================== */}
-        <section id="theater-06" className="vcp2-section vcp2-section-dark">
+        <section id="theater-07" className="vcp2-section vcp2-section-dark">
           <div className="vcp2-container">
             <div className="vcp2-hud-bar">
-              <span className="vcp2-hud-cross">SEC-06 // KERR_CODEBENCH_AND_ECOSYSTEM</span>
+              <span className="vcp2-hud-cross">SEC-07 // KERR_CODEBENCH_AND_ECOSYSTEM</span>
               <span>BENCHMARK: VCP PROJECT_FORGE (KERR) VS CLI TOOLS</span>
               <span>MOON_AST: 1.028S FULL REPO SCAN</span>
             </div>
 
             <div className="vcp2-theater-header">
               <div>
-                <span className="vcp2-eyebrow">THEATER 06 · 「伐柯伐柯」 CODEBENCH & BENTO MATRIX</span>
+                <span className="vcp2-eyebrow">THEATER 07 · 「伐柯伐柯」 CODEBENCH & BENTO MATRIX</span>
                 <h2 className="vcp2-title">
                   V工程 Kerr 施工台 &<br />
                   AI Native 生态全书
@@ -1745,7 +1778,7 @@ target_file:「始」src/db/indexRepository.js「末」
         <section id="docs" ref={docsRef} className="vcp2-section vcp2-section-dark">
           <div className="vcp2-container">
             <div className="vcp2-hud-bar">
-              <span className="vcp2-hud-cross">SEC-07 // THE_OPEN_ARCHIVE_DOCS</span>
+              <span className="vcp2-hud-cross">SEC-08 // THE_OPEN_ARCHIVE_DOCS</span>
               <span>RENDERER: GFM + KATEX + MERMAID DIAGRAM</span>
               <span>AUTO-INDEXED FROM SRC/DOCS</span>
             </div>

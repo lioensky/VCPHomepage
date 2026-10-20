@@ -2324,3 +2324,143 @@
   .nova-river-overlay,
   .nova-river-shell { animation: none; }
 }
+
+/* VexusMemo unified architecture & ToolCall runtime recorder */
+.mt-kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--nova-turquoise);
+  font: 0.68rem "JetBrains Mono", monospace;
+  letter-spacing: 0.08em;
+}
+.memory-architecture h3,
+.tool-record-theater h3 {
+  margin: 0.9rem 0;
+  font-size: clamp(1.5rem, 2.4vw, 2.1rem);
+  line-height: 1.3;
+}
+.mt-intro { font-size: 0.86rem; line-height: 1.85; color: var(--nova-charcoal-muted); }
+.memory-layer-list { display: grid; gap: 0.4rem; margin: 1.4rem 0 0.9rem; }
+.memory-layer-list button {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.8rem;
+  border: 1px solid rgba(33, 103, 92, 0.22);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--nova-charcoal);
+  text-align: left;
+  cursor: pointer;
+}
+.memory-layer-list button span { font: 0.7rem "JetBrains Mono", monospace; color: var(--nova-turquoise); }
+.memory-layer-list button small { font-size: 0.7rem; }
+.memory-layer-list button.is-active { background: var(--nova-turquoise); color: var(--nova-bone); border-color: var(--nova-turquoise); }
+.memory-layer-list button.is-active span { color: var(--nova-amber); }
+.memory-layer-detail {
+  min-height: 200px;
+  padding: 1.15rem;
+  border-radius: 8px;
+  background: var(--nova-graphite);
+  color: var(--nova-bone);
+  border-top: 2px solid var(--nova-patina);
+}
+.memory-layer-detail small { color: var(--nova-patina); }
+.memory-layer-detail h4 { margin: 0.75rem 0; font-size: 0.95rem; line-height: 1.6; }
+.memory-layer-detail p { margin: 0; font-size: 0.8rem; line-height: 1.85; color: #C4CACD; }
+.memory-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.65rem; margin-top: 1rem; }
+.memory-facts > div { padding: 0.75rem; border: 1px solid rgba(33, 103, 92, 0.2); border-radius: 6px; }
+.memory-facts strong { display: block; color: var(--nova-turquoise); font: 700 1.45rem "Space Grotesk", sans-serif; }
+.memory-facts span { display: block; margin-top: 0.4rem; font-size: 0.65rem; line-height: 1.6; color: var(--nova-charcoal-muted); }
+.mt-note { font-size: 0.7rem; line-height: 1.85; color: var(--nova-charcoal-muted); }
+.mt-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 1.3rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid rgba(27, 33, 31, 0.14);
+  color: var(--nova-charcoal-muted);
+  font-size: 0.7rem;
+}
+.mt-footer button, .mt-footer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 0;
+  background: none;
+  color: var(--nova-turquoise);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+.tool-record-search { display: grid; gap: 0.5rem; margin: 1.2rem 0 0.7rem; font-size: 0.75rem; color: var(--nova-turquoise); }
+.tool-record-search input {
+  width: 100%;
+  min-width: 0;
+  padding: 0.8rem;
+  border: 1px solid rgba(33, 103, 92, 0.35);
+  border-radius: 6px;
+  background: var(--nova-paper);
+  color: var(--nova-charcoal);
+  font: inherit;
+}
+.tool-record-list { display: grid; gap: 0.4rem; margin-bottom: 1rem; }
+.tool-record-list button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem;
+  border: 1px solid rgba(27, 33, 31, 0.16);
+  border-left: 3px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--nova-charcoal);
+  text-align: left;
+  cursor: pointer;
+}
+.tool-record-list button.is-active { border-left-color: var(--nova-turquoise); background: rgba(33, 103, 92, 0.08); }
+.tool-record-list strong { font-size: 0.8rem; }
+.tool-record-list small { display: block; margin-top: 0.25rem; font-size: 0.62rem; overflow-wrap: anywhere; color: var(--nova-charcoal-muted); }
+.tool-record-list b, .tool-record-id b { flex-shrink: 0; padding: 0.2rem 0.45rem; border-radius: 4px; font-size: 0.65rem; }
+.tool-record-list b[data-state="成功"], .tool-record-id b[data-state="成功"] { background: #D7E9DE; color: #17554C; }
+.tool-record-list b[data-state="拒绝"], .tool-record-id b[data-state="拒绝"] { background: #F5DDD6; color: #8D3020; }
+.tool-record-list b[data-state="失败"], .tool-record-id b[data-state="失败"] { background: #F4E4B7; color: #755200; }
+.tool-record-detail { padding: 1rem; border-radius: 8px; background: #171A1D; color: #F2F0E9; }
+.tool-record-id { display: flex; justify-content: space-between; align-items: center; gap: 0.4rem; color: #76BFAE; font: 0.78rem "JetBrains Mono", monospace; }
+.tool-record-detail dl { margin: 1rem 0; font-size: 0.75rem; line-height: 1.8; }
+.tool-record-detail dt { color: #76BFAE; margin-top: 0.6rem; }
+.tool-record-detail dd { margin: 0.15rem 0 0; color: #C4CACD; overflow-wrap: anywhere; }
+.tool-record-events { list-style: none; padding: 0; margin: 1rem 0; }
+.tool-record-events li { position: relative; display: grid; grid-template-columns: 2.7rem minmax(0, 1fr); gap: 0.65rem; margin-left: 0.3rem; padding: 0.4rem 0 0.65rem 1rem; border-left: 1px solid #38665C; font-size: 0.7rem; line-height: 1.7; }
+.tool-record-events li::before { content: ""; position: absolute; left: -4px; top: 0.7rem; width: 7px; height: 7px; border-radius: 50%; background: #76BFAE; }
+.tool-record-events b { color: #F2A900; }
+.tool-record-events span { color: #C4CACD; }
+.tool-record-result { margin: 0; padding-top: 0.8rem; border-top: 1px solid #35423F; font-size: 0.73rem; line-height: 1.8; color: #76BFAE; }
+.mt-parser-note { padding: 0.85rem; margin: 0.8rem 0; border: 1px dashed rgba(33, 103, 92, 0.4); border-radius: 6px; background: rgba(33, 103, 92, 0.06); font-size: 0.76rem; line-height: 1.85; }
+.mt-parser-note strong { color: var(--nova-turquoise); }
+.memory-layer-list button:focus-visible, .tool-record-list button:focus-visible, .tool-record-search input:focus-visible, .mt-footer button:focus-visible { outline: 2px solid var(--nova-cinnabar); outline-offset: 3px; }
+@media (max-width: 640px) {
+  .memory-facts { grid-template-columns: 1fr; }
+  .memory-facts > div { display: flex; align-items: center; gap: 1rem; }
+  .memory-facts strong { min-width: 5rem; }
+  .memory-facts span { margin: 0; }
+  .memory-architecture, .tool-record-theater { padding: 1rem; min-width: 0; }
+  .memory-layer-detail { min-height: 230px; }
+}
+
+.memory-cost-demo { margin: 1.2rem 0; padding: 1rem; border: 1px solid rgba(33,103,92,0.3); border-radius: 8px; background: var(--nova-paper-2); }
+.memory-cost-switch { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 0.9rem; }
+.memory-cost-switch button { flex: 1; padding: 0.6rem; border: 1px solid rgba(33,103,92,0.3); border-radius: 5px; background: transparent; color: var(--nova-charcoal); font: inherit; font-size: 0.75rem; cursor: pointer; }
+.memory-cost-switch button[aria-pressed="true"] { background: var(--nova-turquoise); border-color: var(--nova-turquoise); color: var(--nova-bone); }
+.memory-cost-switch button:focus-visible { outline: 2px solid var(--nova-cinnabar); outline-offset: 3px; }
+.memory-cost-flow { min-height: 190px; }
+.memory-cost-flow small { color: var(--nova-turquoise); font: 0.62rem "JetBrains Mono", monospace; }
+.memory-cost-flow strong { display: block; margin-top: 0.8rem; font-size: 0.95rem; line-height: 1.8; }
+.memory-cost-flow p { font-size: 0.78rem; line-height: 1.85; color: var(--nova-charcoal-muted); }
