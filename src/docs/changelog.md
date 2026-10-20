@@ -1,6 +1,6 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-10-20 的真实演进记录，最新覆盖 RiverMemo V2 记忆算法重磅登场、双场投影多源流域测地扩圈与 I/O 复杂度坍缩至 O(1)、动态语境残差虫洞赋予跨界顿悟能力，以及 TDB 冲程与高维幽灵 bug 修复、Vexus 智能节流阀与代际 AB 槽双写安全升级。
+summary: 汇总 VCP 从 2023-12 到 2026-10-20 的真实演进记录，最新覆盖 RiverMemo V2 记忆算法重磅登场、双场投影多源流域测地扩圈与 I/O 复杂度坍缩至 O(1)、动态语境残差虫洞赋予跨界顿悟能力，以及 TDB 冲程、V 工程 MoonAST 全栈自研 NativeAgentCode 平台等历史。
 updatedAt: 2026-10-20
 category: changelog
 ---
