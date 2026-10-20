@@ -7,6 +7,11 @@
 .db-instrument h3 { margin: .9rem 0 .55rem; font-size: clamp(1.5rem, 2.2vw, 2rem); line-height: 1.3; letter-spacing: -.035em; }
 .db-instrument h3 em { font-style: normal; color: #21675C; }
 .recorder-instrument h3 em { color: #B94832; }
+.vexus-title-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .5rem 1rem; margin: .9rem 0 .55rem; }
+.vexus-title-row h3 { margin: 0; }
+.vexus-doc-link { display: inline-flex; align-items: center; gap: .4rem; flex-shrink: 0; padding: .55rem .75rem; border: 1px solid #21675c50; border-radius: 6px; background: #21675c0a; color: #21675C; text-decoration: none; font: .68rem "JetBrains Mono", monospace; transition: background .2s, border-color .2s; }
+.vexus-doc-link:hover { background: #21675c18; border-color: #21675C; }
+.vexus-doc-link:focus-visible { outline: 2px solid #B94832; outline-offset: 3px; }
 .db-deck { margin: 0 0 1rem; font-size: .78rem; line-height: 1.7; color: #5A635F; }
 .db-instrument-foot { margin-top: 1rem; padding-top: .7rem; border-top: 1px solid #d9dbd1; flex-wrap: wrap; }
 .db-instrument-foot a { color: #21675C; text-decoration: none; }

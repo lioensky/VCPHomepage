@@ -1,5 +1,5 @@
 import {useEffect, useRef, useState, type CSSProperties} from "react";
-import {ArrowUpRight, Cpu, Database, Fingerprint, Pause, Play, Radio, RotateCcw, ShieldCheck} from "lucide-react";
+import {ArrowUpRight, BookOpen, Cpu, Database, Fingerprint, Pause, Play, Radio, RotateCcw, ShieldCheck} from "lucide-react";
 import "./memory-tool-theaters.css";
 
 /** 独立演示时钟：离屏、后台与减少动态效果时不推进。 */
@@ -44,7 +44,14 @@ export function VexusArchitecture({onRead}: {onRead: () => void}) {
   return (
     <article ref={clock.ref} className="diptych-card db-instrument vexus-instrument" data-running={clock.running}>
       <div className="db-instrument-head"><span><Database size={14} /> VEXUS / NATIVE CORE</span><button type="button" aria-label={clock.playing ? "暂停引擎演示" : "播放引擎演示"} onClick={() => clock.setPlaying(!clock.playing)}>{clock.playing ? <Pause size={13} /> : <Play size={13} />}</button></div>
-      <h3>Lite 的是成本。<br /><em>不是数学高度。</em></h3>
+      <div className="vexus-title-row">
+        <h3>Lite 的是成本。<br /><em>不是数学高度。</em></h3>
+        <a className="vexus-doc-link" href={`/?page=docs&doc=${encodeURIComponent("VexusMemo技术文档")}`}>
+          <BookOpen size={14} aria-hidden="true" />
+          技术文档
+          <ArrowUpRight size={13} aria-hidden="true" />
+        </a>
+      </div>
       <p className="db-deck">以精密几何与一体架构，挑战 Heavy 的资源堆叠。</p>
       <div className="vexus-machine" data-assembled={assembled}>
         <div className="db-screen-label"><span>RUST / {assembled ? "多运行时拼装示意" : "单一原生执行边界"}</span><span className="db-led">● {clock.running ? "FLOW" : "HOLD"}</span></div>
