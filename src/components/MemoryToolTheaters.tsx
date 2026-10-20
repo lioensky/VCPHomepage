@@ -48,7 +48,7 @@ export function VexusArchitecture({onRead}: {onRead: () => void}) {
         <h3>Lite 的是成本。<br /><em>不是数学高度。</em></h3>
         <a className="vexus-doc-link" href={`/?page=docs&doc=${encodeURIComponent("VexusMemo技术文档")}`}>
           <BookOpen size={14} aria-hidden="true" />
-          技术文档
+          了解 VexusMemo 核心技术
           <ArrowUpRight size={13} aria-hidden="true" />
         </a>
       </div>
