@@ -2203,9 +2203,11 @@ export default function App() {
   const isLegacyRoute = ["/learn-vcp", "/changelog", "/plugin-store", "/vcp-leaderboard", "/nova"].includes(window.location.pathname)
     || ["learn-vcp", "changelog", "plugin-store", "vcp-leaderboard", "legacy"].includes(page ?? "");
   const meta = useMemo<PageMeta>(() => ({
-    title: isPondArchiveRoute ? "VCP 池月 · 云中卷 | 中秋国庆限定主题纪念馆" : "VCP 2.0 官方网站 | Nova 纸墨工业 · 全栈自研 AGI 运行时",
-    description: "VCP 2.0 正式版官网（Nova 纸墨工业概念剧场）：让 AI 拥有连续的记忆、行动与共同生活的世界。探索 MoonAST 纯几何代码检索、RiverMemo V10 统一语义动力场、共笔文坊 V3 3D 透视编辑、VMusic 205dB 纯血视听与 JevCall 双轨安检中枢。",
-    keywords: "VCP 2.0,VCP-OS,VCPToolBox,VCPChat,MoonAST,RiverMemo V10,共笔文坊 Scriptorium V3,JevCall,VMusic 繁星如盛,OneRing,Kerr,Nova 纸墨工业",
+    title: isPondArchiveRoute ? "VCP 池月 · 云中卷 | 中秋国庆限定主题纪念馆" : "VCP 官方网站 | VCPToolBox · 全栈 AI Agent 运行时",
+    description: isPondArchiveRoute
+      ? "VCP 池月 · 云中卷，中秋国庆限定主题纪念馆。重访 VCP 的交互主题、记忆演示与工程档案。"
+      : "VCP 是开源的全栈 AI Agent 运行时，集成长期记忆、工具调用、统一上下文与分布式协作，让 AI 从对话走向持续行动。官网提供 VCPToolBox、VCPChat 下载入口、部署指南、技术文档与生态应用。",
+    keywords: "VCP,VCPToolBox,VCPChat,VCP-OS,AI Agent,AGI Runtime,Variable Command Protocol,长期记忆,工具调用,统一上下文,分布式协作",
     canonical: "https://www.vcptoolbox.com/",
   }), [isPondArchiveRoute]);
   usePageMeta(meta, !isLegacyRoute);

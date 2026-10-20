@@ -551,10 +551,11 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                 </h1>
 
                 <p className="vcp2-hero-lead">
-                  告别无状态、无记忆、盲盒试错的旧时代 API 中间件。VCP 2.0 以纯几何逻辑门{" "}
-                  <strong>MoonAST</strong>、<strong>VexusMemo × RiverMemo V2 一体化记忆</strong>、
-                  <strong>共笔文坊 V3 源码保持渲染编辑</strong> 与{" "}
-                  <strong>ToolCall生态与调用黑匣子</strong>，构筑人类与 AI Agent 长期共居的工业级底座。
+                  VCP 是开源的全栈 AI Agent 运行时，集成长期记忆、工具调用、统一上下文与分布式协作，让 AI 从对话走向持续行动。
+                  VCPToolBox 与 VCPChat 共同连接{" "}
+                  <strong>VexusMemo × RiverMemo V2 一体化记忆</strong>、
+                  <strong>MoonAST 代码检索</strong>与<strong>共笔文坊协同编辑</strong>，
+                  构筑人类与 AI Agent 长期协作的工业级底座。
                 </p>
 
                 <div className="vcp2-hero-actions">
