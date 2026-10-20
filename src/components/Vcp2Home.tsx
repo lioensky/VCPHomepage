@@ -474,9 +474,9 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
           <a href="/" className="site-brand-link" aria-label="VCP 2.0 首页">
             {brand}
           </a>
-          <span className="vcp2-release-badge" title="VCP 2.0 OFFICIAL · NOVA INDUSTRIAL">
+          <span className="vcp2-release-badge" title="VCP 2.0 OFFICIAL">
             <i className="vcp2-release-dot" />
-            <span className="vcp2-ellipsis vcp2-text-full">VCP 2.0 OFFICIAL · NOVA INDUSTRIAL</span>
+            <span className="vcp2-ellipsis vcp2-text-full">VCP 2.0 OFFICIAL</span>
             <span className="vcp2-ellipsis vcp2-text-short" aria-hidden="true">VCP 2.0</span>
           </span>
         </div>
