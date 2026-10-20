@@ -277,7 +277,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const glyphs = ["Ω", "VCP", "2.0", "AST", "JEV", "SOM", "F64", "RUST", "星", "河", "墨", "01"];
+    const glyphs = ["Ω", "VCP", "2.0", "AST", "残差", "RUST", "星", "河", "墨", "01"];
     type StarParticle = {
       x: number;
       y: number;
