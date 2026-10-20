@@ -1,0 +1,126 @@
+/* Compact native-engine instruments: paper shell, graphite machinery. */
+.db-instrument { min-width: 0; justify-content: flex-start; gap: 0; }
+.db-instrument-head, .db-instrument-foot { display: flex; align-items: center; justify-content: space-between; gap: .6rem; font: .62rem "JetBrains Mono", monospace; color: #21675C; }
+.db-instrument-head > span, .db-instrument-head button, .db-instrument-foot button { display: inline-flex; align-items: center; gap: .4rem; }
+.db-instrument button { cursor: pointer; }
+.db-instrument-head button, .db-instrument-foot button { border: 0; background: transparent; color: inherit; padding: .3rem; font: inherit; }
+.db-instrument h3 { margin: .9rem 0 .55rem; font-size: clamp(1.5rem, 2.2vw, 2rem); line-height: 1.3; letter-spacing: -.035em; }
+.db-instrument h3 em { font-style: normal; color: #21675C; }
+.recorder-instrument h3 em { color: #B94832; }
+.db-deck { margin: 0 0 1rem; font-size: .78rem; line-height: 1.7; color: #5A635F; }
+.db-instrument-foot { margin-top: 1rem; padding-top: .7rem; border-top: 1px solid #d9dbd1; flex-wrap: wrap; }
+.db-instrument-foot a { color: #21675C; text-decoration: none; }
+.db-disclaimer { display: block; margin-top: .55rem; color: #727972; font-size: .58rem; line-height: 1.6; }
+.vexus-machine, .recorder-console { position: relative; overflow: hidden; border: 1px solid #3c504a; border-radius: 9px; background: #13191a; color: #F2F0E9; box-shadow: inset 0 1px 0 #ffffff12, 0 7px 14px #1b211f16; }
+.db-screen-label, .recorder-topline { display: flex; justify-content: space-between; align-items: center; gap: .4rem; padding: .7rem .85rem; border-bottom: 1px solid #76bfae25; font: .56rem "JetBrains Mono", monospace; color: #9facaa; }
+.db-led { color: #76BFAE; }
+.vexus-chips { position: relative; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .45rem; padding: 1.3rem .7rem 1rem; perspective: 700px; }
+.vexus-chips button { position: relative; min-width: 0; padding: .8rem .15rem .65rem; border: 1px solid #54605a; border-radius: 5px; color: #b5bfba; background: linear-gradient(145deg, #303934, #151c1b); box-shadow: 0 4px 0 #080d0c, inset 0 1px 0 #ffffff15; transition: transform .3s, border-color .3s, box-shadow .3s; }
+.vexus-chips button::before, .vexus-chips button::after { content: ""; position: absolute; left: 15%; right: 15%; height: 5px; background: repeating-linear-gradient(90deg, #9f8c5f 0 2px, transparent 2px 7px); }
+.vexus-chips button::before { top: -6px; }
+.vexus-chips button::after { bottom: -6px; }
+.vexus-chips button.is-active { transform: translateY(-6px); border-color: #76BFAE; box-shadow: 0 6px 0 #080d0c, 0 0 19px #76bfae30; color: #F2F0E9; }
+.vexus-chip-symbol { display: block; color: #76BFAE; font: 1.5rem Georgia, serif; height: 2rem; }
+.vexus-chips strong { display: block; font: .58rem "JetBrains Mono", monospace; overflow-wrap: anywhere; }
+.vexus-chips small { display: block; margin-top: .35rem; font-size: .55rem; }
+.vexus-chips button i { display: block; height: 3px; width: 45%; margin: .65rem auto 0; background: #76BFAE; opacity: .3; }
+.vexus-chips button.is-active i { animation: db-chip-pulse 1.4s ease-in-out infinite; }
+.vexus-bus { position: absolute; top: 100px; left: 5%; right: 5%; height: 1px; background: #76bfae60; overflow: hidden; }
+.vexus-bus i { position: absolute; width: 24px; height: 2px; background: #F2A900; box-shadow: 0 0 9px #F2A900; animation: db-bus-flow 3s linear infinite; }
+.vexus-bus i:nth-child(2) { animation-delay: -1s; }
+.vexus-bus i:nth-child(3) { animation-delay: -2s; }
+.vexus-machine[data-assembled="true"] .vexus-chips button { transform: translateY(calc(var(--chip-index) * 3px - 5px)) rotateY(-12deg); border-color: #ac7758; }
+.vexus-machine[data-assembled="true"] .vexus-bus { background: repeating-linear-gradient(90deg, #B94832 0 9px, transparent 9px 19px); }
+.vexus-flow-caption { display: flex; justify-content: space-between; gap: .5rem; padding: .6rem .85rem; color: #76BFAE; font-size: .55rem; border-bottom: 1px solid #76bfae20; }
+.vexus-flow-caption b { font: .5rem "JetBrains Mono", monospace; color: #F2A900; white-space: nowrap; }
+.vexus-readout { display: grid; grid-template-columns: 95px minmax(0, 1fr); gap: .8rem; align-items: center; padding: .9rem; min-height: 116px; }
+.vexus-readout > div { border-right: 1px solid #76bfae30; }
+.vexus-readout strong { display: block; color: #F2A900; font: 1.15rem "Space Grotesk", sans-serif; }
+.vexus-readout small { display: block; margin-top: .4rem; font-size: .53rem; color: #9facaa; }
+.vexus-readout p { margin: 0; font-size: .66rem; line-height: 1.75; color: #aeb9b4; }
+.vexus-readout p b { display: block; color: #F2F0E9; font-size: .72rem; margin-bottom: .2rem; }
+.db-mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; margin-top: .75rem; }
+.db-mini { display: grid; grid-template-columns: 40px minmax(0, 1fr); column-gap: .6rem; align-items: center; padding: .65rem; border: 1px solid #21675c30; border-radius: 6px; background: #21675c06; }
+.db-mini > span { grid-row: span 2; }
+.db-mini strong { font-size: .7rem; }
+.db-mini small { font-size: .55rem; color: #5A635F; margin-top: .3rem; }
+.db-bit-grid { display: grid; grid-template-columns: repeat(4, 5px); gap: 3px; }
+.db-bit-grid i { width: 5px; height: 5px; background: #21675C; animation: db-chip-pulse 2s infinite alternate; }
+.db-orbit { position: relative; display: grid; place-items: center; width: 32px; height: 32px; border: 1px dashed #21675c70; border-radius: 50%; color: #21675C; font: 1.1rem Georgia, serif; }
+.db-orbit i { position: absolute; inset: -4px; border-top: 2px solid #B94832; border-radius: 50%; animation: db-reel-spin 6s linear infinite; }
+.db-rec-dot { color: #B94832; font-size: .6rem; }
+.recorder-topline > span { display: flex; align-items: center; gap: .35rem; color: #F2A900; }
+.recorder-topline select { max-width: 45%; background: #232b29; color: #c5d0c8; border: 1px solid #4b5c53; border-radius: 4px; padding: .2rem; font: .55rem "JetBrains Mono", monospace; }
+.recorder-flight { display: grid; grid-template-columns: 70px minmax(0, 1fr) 44px; gap: .8rem; align-items: center; padding: 1rem .85rem; background: radial-gradient(ellipse at 10% 50%, #f2a9000e, transparent 70%); }
+.recorder-reel { position: relative; width: 68px; height: 68px; border: 1px solid #a88e60; border-radius: 50%; background: repeating-conic-gradient(#a18d6a 0deg 20deg, #292d27 20deg 65deg, #c3ae83 65deg 85deg, #292d27 85deg 120deg); box-shadow: 0 0 0 4px #101512, 0 0 0 5px #6c694f; animation: db-reel-spin 9s linear infinite; }
+.recorder-reel b { position: absolute; inset: 19px; display: grid; place-items: center; border-radius: 50%; border: 1px solid #cfbc91; background: #222922; color: #F2A900; font: .6rem "JetBrains Mono", monospace; }
+.recorder-flight-data { display: grid; gap: .35rem; min-width: 0; }
+.recorder-flight-data > small { font: .5rem "JetBrains Mono", monospace; color: #94a49b; overflow-wrap: anywhere; }
+.recorder-flight-data > strong { font: 1.25rem "Space Grotesk", monospace; letter-spacing: .04em; }
+.recorder-flight-data > span { font-size: .65rem; overflow-wrap: anywhere; }
+.recorder-flight-data b { color: #F2A900; padding: 0 .2rem; }
+.recorder-signal { display: flex; gap: 2px; align-items: center; height: 56px; }
+.recorder-signal i { width: 2px; height: var(--signal-height); background: #76BFAE; animation: db-signal 1.2s ease-in-out infinite alternate; }
+.recorder-timeline { display: grid; grid-template-columns: repeat(6, 1fr); padding: .2rem .6rem .7rem; }
+.recorder-timeline button { position: relative; border: 0; background: transparent; color: #71847a; font-size: .55rem; padding: .7rem .1rem 0; }
+.recorder-timeline button::before { content: ""; position: absolute; top: 2px; left: 0; right: 0; height: 1px; background: #3e4c44; }
+.recorder-timeline button i { position: absolute; top: -1px; left: calc(50% - 3px); width: 7px; height: 7px; border: 1px solid #63776b; border-radius: 50%; background: #13191a; z-index: 1; }
+.recorder-timeline button.is-passed { color: #b6c6bc; }
+.recorder-timeline button.is-passed i { background: #76BFAE; border-color: #76BFAE; }
+.recorder-timeline button[aria-pressed="true"] i { box-shadow: 0 0 0 3px #f2a90030; background: #F2A900; border-color: #F2A900; }
+.recorder-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid #76bfae25; border-bottom: 1px solid #76bfae25; }
+.recorder-tabs button { padding: .65rem .15rem; border: 0; border-right: 1px solid #76bfae15; background: #ffffff03; color: #9cafa2; font-size: .59rem; }
+.recorder-tabs button[aria-pressed="true"] { background: #F2A900; color: #1B211F; }
+.recorder-panel { height: 172px; overflow: auto; padding: .85rem; animation: db-panel-enter .25s ease-out; }
+.recorder-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem .65rem; }
+.recorder-fields small, .recorder-output small { display: block; font: .5rem "JetBrains Mono", monospace; color: #7f9c8c; }
+.recorder-fields strong { display: flex; align-items: center; gap: .3rem; font-size: .74rem; margin-top: .4rem; }
+.recorder-log { display: grid; gap: .45rem; font: .56rem "JetBrains Mono", monospace; }
+.recorder-log > div { display: grid; grid-template-columns: 35px minmax(0, 1fr); gap: .3rem; color: #53665a; }
+.recorder-log > div.is-recorded { color: #b6cebe; }
+.recorder-log time { color: #ae9461; }
+.recorder-log span { overflow-wrap: anywhere; }
+.recorder-scheduler { display: grid; gap: .45rem; }
+.recorder-scheduler > div { display: grid; grid-template-columns: 44px 1fr; gap: .5rem; align-items: center; }
+.recorder-scheduler small { font: .5rem "JetBrains Mono", monospace; color: #9bafa1; }
+.recorder-scheduler span { display: flex; gap: 3px; height: 9px; background: #ffffff05; }
+.recorder-scheduler i { background: #76BFAE; border-radius: 1px; animation: db-chip-pulse 1.6s infinite alternate; }
+.recorder-scheduler > div:nth-child(2) i { background: #F2A900; }
+.recorder-resource-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: .4rem; margin-top: .8rem; }
+.recorder-resource-row span { font-size: .55rem; color: #9bafa1; }
+.recorder-resource-row b { display: block; color: #F2F0E9; font: .85rem "Space Grotesk", monospace; margin-top: .35rem; }
+.recorder-output { display: grid; grid-template-columns: 1.3fr 1fr; gap: .75rem; align-items: center; height: 100%; }
+.recorder-output strong { display: block; font-size: .77rem; line-height: 1.6; margin: .45rem 0; }
+.recorder-output span { display: block; font: .54rem "JetBrains Mono", monospace; color: #b6cebe; overflow-wrap: anywhere; }
+.recorder-cost { border-left: 1px solid #76bfae25; padding-left: .75rem; color: #F2A900; }
+.recorder-cost small { font-size: .5rem; line-height: 1.7; }
+.recorder-controls { display: flex; align-items: center; gap: .55rem; padding: .55rem .85rem; border-top: 1px solid #76bfae25; }
+.recorder-controls button { border: 0; background: none; color: #F2A900; padding: 0; display: flex; }
+.recorder-controls input { width: 0; flex: 1; min-width: 20px; accent-color: #F2A900; height: 4px; }
+.recorder-controls span { font: .5rem "JetBrains Mono", monospace; color: #acbcaf; }
+.db-instrument button:focus-visible, .db-instrument select:focus-visible, .db-instrument input:focus-visible { outline: 2px solid #B94832; outline-offset: 3px; }
+.db-instrument[data-running="false"] *, .db-instrument[data-running="false"] *::before, .db-instrument[data-running="false"] *::after { animation-play-state: paused; }
+@keyframes db-chip-pulse { from { opacity: .3; } to { opacity: 1; } }
+@keyframes db-bus-flow { from { left: -10%; } to { left: 110%; } }
+@keyframes db-reel-spin { to { transform: rotate(360deg); } }
+@keyframes db-signal { to { transform: scaleY(.25); opacity: .4; } }
+@keyframes db-panel-enter { from { opacity: .3; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+@media (max-width: 640px) {
+  .db-instrument { padding: 1rem; }
+  .vexus-chips { gap: .25rem; padding-left: .4rem; padding-right: .4rem; }
+  .vexus-chips strong { font-size: .49rem; }
+  .vexus-chips small { font-size: .48rem; }
+  .vexus-readout { grid-template-columns: 70px 1fr; gap: .5rem; }
+  .vexus-flow-caption { flex-wrap: wrap; }
+  .db-mini { padding: .5rem; column-gap: .3rem; grid-template-columns: 30px 1fr; }
+  .db-mini strong { font-size: .61rem; }
+  .db-mini small { font-size: .49rem; }
+  .recorder-flight { grid-template-columns: 54px 1fr; gap: .7rem; }
+  .recorder-reel { width: 50px; height: 50px; }
+  .recorder-reel b { inset: 13px; }
+  .recorder-signal { display: none; }
+  .recorder-tabs button { font-size: .52rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .db-instrument *, .db-instrument *::before, .db-instrument *::after { animation: none !important; transition: none !important; }
+}
