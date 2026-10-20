@@ -1,5 +1,5 @@
 ---
-title: VexusMemo-Lite：读、写、搜一体化的原生记忆数据库
+title: VexusMemo-Lite 技术文档
 summary: 介绍 VexusMemo-Lite 如何整合 SQLite 权威事实层、TDB 2-bit 检索、AGS 统一背景场、Spike 有界传播与动态虫洞、RiverMemo 共享预算双场投影及统一排序，为 Agent 提供被动记忆背景与主动回忆能力。
 updatedAt: 2026-10-20
 category: guide
