@@ -722,6 +722,27 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                         {sc.trigger}
                       </button>
                     ))}
+                    <a
+                      href="/vcp-rivermemo-engine"
+                      title="前往 RiverMemo 动画技术演示页"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.3rem",
+                        padding: "0.4rem 0.75rem",
+                        borderRadius: "6px",
+                        border: "1px solid #21675C",
+                        background: "rgba(33,103,92,0.08)",
+                        color: "#21675C",
+                        fontSize: "0.75rem",
+                        fontWeight: 600,
+                        textDecoration: "none",
+                        transition: "all 0.2s ease",
+                      }}
+                    >
+                      RiverMemo技术演示
+                      <ArrowUpRight size={14} aria-hidden="true" />
+                    </a>
                   </div>
 
                   {/* Interactive River SVG Graph */}
