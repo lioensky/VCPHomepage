@@ -58,6 +58,28 @@ Write-Host "⚠️ 注意：请【彻底重启】当前已打开的 VCP 客户�
 
 ---
 
+## 🛑 【致命盲区·必须执行】加固后必须【彻底重启所有 Node.js 服务器与进程】！
+
+> ### ⚠️ 为什么必须彻底重启？
+> 环境变量（`SSL_CERT_FILE` 与 `NODE_OPTIONS`）的系统级注入**只对之后新创建的进程生效**！
+> **操作系统绝对不会把新环境变量热更新给内存中已经存活的旧进程！**
+> 如果您在运行脚本后没有重启已打开的服务，正在运行的 VCP 客户端、后台 Node 服务依然会沿用旧进程内存上下文中的弱熵失陷根，**拦截策略将完全无法生效，系统依旧裸奔在出站中间人劫持风险之下！**
+
+### 必须逐一重启的进程清单：
+1. **后台托管服务与守护进程**：VCPServer、VCPToolBox、PM2 管理的全部实例、Nodemon 等后台服务器；
+2. **桌面客户端程序**：VCPChat、VChat 前端客户端（需彻底退出托盘并重新打开）；
+3. **IDE 与开发环境**：VS Code、Cursor、WebStorm（包括其内置的所有 Integrated Terminal 终端面板）；
+4. **所有已打开的命令行窗口**：PowerShell、CMD、Git Bash、Windows Terminal（旧窗口不会载入新环境变量）。
+
+### Windows 一键强杀全部残留 Node 进程（重新拉起前推荐执行）：
+若不确定后台是否有隐蔽或僵尸 Node.js 进程仍在运行，可在新的 PowerShell 管理员窗口执行以下命令彻底清场：
+```powershell
+Stop-Process -Name "node" -Force -ErrorAction SilentlyContinue
+Write-Host "已彻底终止所有旧版 Node 进程！现在请重新启动您的 VCP 服务。" -ForegroundColor Green
+```
+
+---
+
 ## 🔍 加固效果自测（验证是否修复成功）
 
 重启任意 PowerShell 窗口，运行以下单行命令测试安全靶机：
