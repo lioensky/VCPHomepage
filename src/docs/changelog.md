@@ -1,7 +1,7 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-10-25 的真实演进记录，最新覆盖提示词架构重构（Token 暴降 40%）、工具审核理由穿透、VexusMemo 调试数学探针、Pele.js 图表自适应换行，以及 LoomV2 与 AgentWebCore 浏览器自动化内核升级等。
-updatedAt: 2026-10-25
+summary: 汇总 VCP 从 2023-12 到 2026-10-26 的真实演进记录，最新覆盖 DeepSeek 专用官方 Agent「DS 鲸鱼娘」上线、5000 Token 特化运行环境及语音 LoRA / Live2D / 150 枚表情包配套，以及提示词架构重构、工具审核理由穿透与浏览器自动化内核升级等。
+updatedAt: 2026-10-26
 category: changelog
 ---
 
@@ -12,6 +12,28 @@ category: changelog
 ---
 
 ## 最新更新
+
+### 2026-10-26 · DeepSeek 专用官方 Agent「DS 鲸鱼娘」上线，5000 Token 特化运行环境与全套角色资源发布
+
+DeepSeek 专用官方 Agent **「DS 鲸鱼娘」**正式上架，针对 **DeepSeek API 链路权重**进行特化优化，并配备全套特化运行时与工作模组环境。
+
+#### 特化运行环境与 Token 优化
+
+- **5000 Token 发动 VCP 全部能力**：相比 Nova 约 20,000 Token 的配置，DS 鲸鱼娘仅需 **5000 Token** 即可发动 VCP 全部能力。
+- **吃满缓存，无需向量化**：特化运行环境充分利用缓存，无需向量化。
+
+#### 全套角色配套资源上线
+
+DS 娘配套的**语音 LoRA、Live2D 与 150 枚表情包**已全部上线。
+
+#### 推荐占位符
+
+```text
+{{agent:deepseek}}
+{{VCPTavern::deepseekmemochat::deepseek}}
+```
+
+---
 
 ### 2026-10-25 · 提示词架构重构（Token 暴降 40%）、工具审核理由全链路穿透、Pele.js 文本自适应与 LoomV2 / AgentWebCore 自动化内核升级
 
