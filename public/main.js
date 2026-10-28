@@ -251,6 +251,9 @@
             [6, 'projectionPlay', 'projectionToggle'],
             [6, 'projectionStep', 'projectionStep'],
             [6, 'projectionReplay', 'projectionReplay'],
+            [9, 'wormPlay', 'wormToggle'],
+            [9, 'wormStep', 'wormStep'],
+            [9, 'wormReplay', 'wormReplay'],
         ].forEach(([id, buttonId, method]) => {
             const btn = document.getElementById(buttonId);
             if (!btn) return;

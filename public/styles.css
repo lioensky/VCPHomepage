@@ -1592,3 +1592,60 @@ body.rmv3-body {
     .vcp2-brand-group { gap: .4rem; }
     .vcp2-top-pill { padding-inline: .5rem; font-size: .6rem; }
 }
+
+/* 两阶段读出与罕见逻辑虫洞工作台 */
+.worm-explanation {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    margin-bottom: 1.6rem;
+}
+.worm-explanation .text-pane {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+}
+.worm-explanation > .spec-card { align-self: start; }
+.worm-explanation .spec-note + .spec-note { margin-top: .8rem; }
+.worm-workbench { min-width: 0; }
+.worm-canvas-scroll { overflow-x: auto; }
+.worm-proof-canvas {
+    height: 460px;
+    min-width: 740px;
+    flex: none;
+}
+.worm-gate-status {
+    color: var(--nova-patina);
+    font: .72rem var(--font-mono);
+    line-height: 1.8;
+}
+.worm-rank-table {
+    padding: 1rem;
+    overflow-x: auto;
+    color: var(--nova-bone);
+}
+.worm-rank-table table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 620px;
+    font: .8rem var(--font-mono);
+}
+.worm-rank-table caption {
+    text-align: left;
+    color: var(--nova-bone-muted);
+    padding-bottom: .8rem;
+    font-size: .72rem;
+}
+.worm-rank-table th, .worm-rank-table td {
+    text-align: left;
+    padding: .8rem;
+    border-bottom: 1px solid rgba(118,191,174,.2);
+}
+.worm-rank-table th { color: var(--nova-patina); }
+.worm-rank-table small { display: block; color: var(--nova-bone-muted); margin-top: .3rem; }
+.worm-target { background: rgba(242,169,0,.10); color: var(--nova-amber); }
+@media (max-width: 1180px) {
+    .worm-explanation { grid-template-columns: 1fr; }
+}
+@media (max-width: 720px) {
+    .worm-explanation .text-pane { grid-template-columns: 1fr; }
+    .worm-proof-canvas { height: 400px; }
+}

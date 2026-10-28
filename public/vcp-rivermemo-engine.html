@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VCP RiverMemo V3 · 支流确权与四项评分交互实验室</title>
-    <meta name="description" content="RiverMemo V3 教学实验室：探索非负场共振、单支流饱和、一对一接触、尾残差虫洞与四项评分共享预算。教学模拟，非原生引擎或性能基准。" />
+    <title>VCP RiverMemo V3 · 逻辑虫洞门控与两阶段读出实验室</title>
+    <meta name="description" content="探索罕见逻辑虫洞的跨文件交叉见证、实际传播与正文落地，交互拆解完整四项基线和条件式解释加权 RRF。教学模拟，非原生引擎或性能基准。" />
     <meta name="keywords" content="VCP,RiverMemo V3,尾残差,单支流饱和,一对一匹配,动态虫洞,双场投影预算,AGS,Ω泛函,Direct Anchor" />
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
     <meta name="author" content="VCP Ecosystem" />
@@ -47,12 +47,12 @@
     <section class="seo-summary" aria-label="VCP RiverMemo Engine 算法摘要">
         <h1>RiverMemo V3 · 支流确权、尾残差与四项评分</h1>
         <p>
-            当前架构为 Topology V3；白皮书记载的读出与管线实现编号分别为 rivermemo.conservative-topology-v2.2 与 memo.conservative-topology-v2.2，编号不是产品版本号。
+            当前架构为 Topology V3；读出实现为 rivermemo.conservative-topology-v2.5-confidence-rrf，统一管线为 memo.conservative-topology-v2.2，编号不是产品版本号。
             同一套锚定贪心 Gram-Schmidt（AGS）算子在局部生成残差范数比与锚增益，在全局生成中心化星团主题面（ags-global-star-v2），彻底替代旧版重型 SVD 全局扫描、独立残差任务与持久化 Pairwise 表。
         </p>
         <p>
             请求侧在 AGS 背景图上依次完成 EPA 覆盖率/随机背景校准、Residual Pyramid 正交剥离、Tag 门控、有界 Sense 脉冲扩散、Resolvent 局部/迁移双场求解，
-            并由 Topology V3 在 Rust/Rayon 内完成一对一拓扑对应、支流置信度、形态混合、Ω 与绝对阈值锚激活。最终按基础分、路径、图、锚独立记账，不再采用同伴条件创新或批内锚异常阈值。
+            并由 Topology V3 在 Rust/Rayon 内完成一对一拓扑对应、支流置信度、形态混合、Ω 与绝对阈值锚激活。先形成完整四项基线；仅在严格全局见证与候选落地后，启用解释力度加权虫洞 RRF，否则原样返回基线。
         </p>
     </section>
 
@@ -92,7 +92,7 @@
             <a href="#chapter-dualfield"><span>06</span>双场登船处</a>
             <a href="#chapter-geodesic"><span>07</span>曲线与拓扑</a>
             <a href="#chapter-morphology"><span>08</span>形态×Ω</a>
-            <a href="#chapter-wormhole"><span>09</span>四项评分×确权</a>
+            <a href="#chapter-wormhole"><span>09</span>逻辑虫洞×RRF</a>
             <a href="#chapter-grand-view"><span>10</span>原生闭环</a>
         </nav>
 
@@ -164,7 +164,7 @@
                                 <span>RANGE: Π<sub>[0,1]</sub> NON-NEGATIVE CORRECTION</span>
                             </div>
                             <div class="eq-monolith-body">
-                                <span class="eq-lhs">S<sub>i</sub> = Π<sub>[0,1]</sub></span>
+                                <span class="eq-lhs">S₀(c) = Π<sub>[0,1]</sub></span>
                                 <span class="eq-bracket">[</span>
                                 <span class="eq-term eq-term-field" data-eq-focus="field">
                                     <strong>B(c) + P(c)</strong>
@@ -181,6 +181,11 @@
                                     <small>绝对阈值事实锚 · 独立限额，不乘 Ω</small>
                                 </span>
                                 <span class="eq-bracket">]</span>
+                            </div>
+                            <div class="formula-plate dark-plate">
+                                有实际正路线贡献：S(c) = 1/(60+r₀(c)) + maxₑ wₑ/(60+rₑ(c))<br/>
+                                wₑ = (fₑ/f_ref) · Ω<sup>γ</sup>；无贡献：S(c) = S₀(c)<br/>
+                                两阶段独立记账 · 全局联合见证 ≠ 全局常驻加分 · 融合分不是余弦或概率
                             </div>
                         </div>
 
@@ -878,24 +883,24 @@
 
                 <div class="chapter-header">
                     <div>
-                        <div class="chapter-meta">CHAPTER 09 · SELF EVIDENCE AND SHARED BUDGET</div>
-                        <h2 class="chapter-title">四项独立分账 × 显式锚确权：奖励来自自身证据，而非同伴竞争</h2>
+                        <div class="chapter-meta">CHAPTER 09 · RARE LOGICAL ROUTES / TWO-STAGE READOUT</div>
+                        <h2 class="chapter-title">数学上有路，逻辑上有据吗？<br/>罕见交叉见证 × 解释力度加权 RRF</h2>
                     </div>
                     <p class="chapter-intro">
-                        最终分为 <strong>B + P + G + A</strong>：基础分包含有界非负场共振，路径不乘 Ω，图由候选自身证据与支流置信度计算后乘 Ω。
-                        <strong>路径优先占用 0.08 拓扑预算；锚点另有 0.10 上限。</strong>角色仅作解释，不决定倍率或相互压制；不再以同伴均值决定获奖资格。
+                        <strong>大多数虫洞只是数学虫洞，逻辑虫洞非常罕见。</strong>两个文件的 X 型交叉、三个文件的 W 型交织，启发了对关系本身的见证门控。结合传播链与残差分解，实验中可较完整地还原前因后果，而非仅聚合向量相关片段；这仍需正文核对，不是自动因果证明。
                     </p>
                 </div>
 
-                <div class="chapter-body">
+                <div class="chapter-body worm-explanation">
                     <div class="text-pane">
                         <div class="spec-card">
                             <div class="spec-card-head">
-                                <span>1. NON-NEGATIVE RESONANCE & SHARED BUDGET</span>
+                                <span>01 / 完整基线 S₀ · 自身证据</span>
                                 <span>CANDIDATE SELF EVIDENCE</span>
                             </div>
                             <div class="formula-plate">
-                                B = q + min(0.03, λ[F − q]<sub>+</sub>) · 标量支持<br/>
+                                S₀ = clip(B + P + G + A)；A ≤ 0.10<br/>
+                                B = q + min(0.03, λ[F − q]<sub>+</sub>) · 标量支持（且不超过 1）<br/>
                                 G = min(G<sub>self</sub> · Ω<sup>γ</sup>, [0.08 − P]<sub>+</sub>), &nbsp; P + G ≤ 0.08
                             </div>
                             <p class="spec-note">
@@ -905,34 +910,55 @@
 
                         <div class="spec-card">
                             <div class="spec-card-head">
-                                <span>2. DIRECT ANCHOR CHANNEL (NOISY-OR + SMOOTHSTEP)</span>
-                                <span>INDEPENDENT OF Ω DENSITY</span>
+                                <span>02 / 条件式融合 · 非常驻评分因子</span>
+                                <span>STRICT GLOBAL WITNESS + GROUNDING</span>
                             </div>
                             <div class="formula-plate">
-                                a<sub>sc</sub> = m<sub>s</sub> · Spec(t) · Closure(t,c) · Rarity(s) · Match(s,t)<br/>
-                                H(c) = [1 − Π<sub>s</sub>(1 − a<sub>sc</sub>)] · R<sub>A</sub>(c)<br/>
-                                A(c) = 0.10 · SmoothStep(clip((H(c) − 0.05) / 0.15))
+                                wₑ = (fₑ / f_ref) · Ω<sup>γ</sup><br/>
+                                S = 1/(60+r₀) + maxₑ wₑ/(60+rₑ)<br/>
+                                无实际正贡献：S = S₀，原分数与原顺序不变
                             </div>
                             <p class="spec-note">
-                                锚奖励不乘 Ω，采用绝对阈值而非批内异常阈值。双侧一对一接触最多三项；纯隐式种子锚强度最多 0.035，低于默认激活值。非原子候选要解释为直接答案，还须有真实显式精确接触，且正文闭合至少 0.55；奖励与角色不可混为一谈。
+                                f_ref 取普通非回流非自环边最大正电流，无普通边时用全部观测边最大正电流；路线内按相对流量 × 目标—正文正余弦 × Ω 的幂排序。多路线取最大贡献，权重可大于 1；融合分不是四项之和、余弦或概率。基线预算不改写，Ω 数值也不被直接抬高。
                             </p>
                         </div>
                     </div>
 
-                    <div class="canvas-pane">
-                        <div class="canvas-hud-top">
-                            <span>SELF EVIDENCE AND ABSOLUTE ANCHOR // 四项评分教学沙盘</span>
-                            <span id="ch9Readout">B + P + G + A · 共享拓扑预算与独立锚限额</span>
-                        </div>
-                        <canvas id="ch9Canvas" class="scene-canvas" role="img" aria-label="四项分数、共享预算与绝对锚阈值教学对照"></canvas>
-                        <div class="v2-lab-caption" id="v3ScoreStory" aria-live="polite"></div>
-                        <div class="canvas-controls">
-                            <div class="ctrl-group">
-                                <button type="button" class="ctrl-btn active" data-ch9-tab="innovation">支流饱和与四项分账</button>
-                                <button type="button" class="ctrl-btn" data-ch9-tab="anchor">Noisy-OR 直接锚 SmoothStep 激活</button>
-                            </div>
+                    <aside class="spec-card">
+                        <div class="spec-card-head"><span>门控清单 / X、W 是洞察，不是数量投票</span></div>
+                        <p class="spec-note">当前实现要求两个不同文件同时包含路线两端，校验和非空且不同，共享排除两端与显式焦点的第三标签，至少一篇含额外显式焦点。还须满足完整观测、显式来源、强流量和候选落地。每路线文件与每文件标签上限均为 128，超限不放行。</p>
+                        <p class="spec-note">不同校验和不证明来源独立。W 预设只展示交织洞察，不冒充当前严格文件对门控已实现任意 W 模式识别。传播动画是预设链，不运行真实残差分解，也不证明因果。</p>
+                    </aside>
+                </div>
+                <div class="canvas-pane worm-workbench">
+                    <div class="canvas-hud-top">
+                        <span>证据闸门 / 12 候选教学池 · 非生产遥测</span>
+                        <span id="ch9Readout">1/4 · 完整基线</span>
+                    </div>
+                    <div class="canvas-controls">
+                        <div class="ctrl-group" role="group" aria-label="交叉见证与失败条件">
+                            <button type="button" class="ctrl-btn active" data-ch9-tab="proof">X · 联合见证</button>
+                            <button type="button" class="ctrl-btn" data-ch9-tab="isolated">两端孤立</button>
+                            <button type="button" class="ctrl-btn" data-ch9-tab="duplicate">内容重复</button>
+                            <button type="button" class="ctrl-btn" data-ch9-tab="weak">弱电流</button>
+                            <button type="button" class="ctrl-btn" data-ch9-tab="ungrounded">正文未落地</button>
+                            <button type="button" class="ctrl-btn" data-ch9-tab="incomplete">观测不完整</button>
+                            <button type="button" class="ctrl-btn" data-ch9-tab="w">W · 洞察示意</button>
                         </div>
                     </div>
+                    <div class="worm-canvas-scroll" tabindex="0" aria-label="证据动画，窄屏可横向滚动">
+                        <canvas id="ch9Canvas" class="scene-canvas worm-proof-canvas" role="img" aria-label="文件标签交叉见证、逐项门控与逻辑传递链分阶段动画，数据为预设"></canvas>
+                    </div>
+                    <div class="canvas-controls">
+                        <div class="ctrl-group">
+                            <button type="button" class="ctrl-btn-accent" id="wormPlay">Ⅱ 暂停</button>
+                            <button type="button" class="ctrl-btn-accent" id="wormStep">→ 单步</button>
+                            <button type="button" class="ctrl-btn-accent" id="wormReplay">↻ 重播</button>
+                        </div>
+                        <span id="wormGateStatus" class="worm-gate-status"></span>
+                    </div>
+                    <div class="v2-lab-caption" id="v3ScoreStory" aria-live="polite"></div>
+                    <div id="wormRankTable" class="worm-rank-table"></div>
                 </div>
             </div>
         </section>
@@ -1006,7 +1032,7 @@
                     <div class="pipe-step pipe-final" data-pipe-idx="7">
                         <div class="pipe-num">STAGE 08</div>
                         <div class="pipe-name">S_V3 统一闭合</div>
-                        <div class="pipe-desc">B + P + G + A − 截断扣分 → Top-K</div>
+                        <div class="pipe-desc">完整基线 → 严格见证 / 条件式 RRF → Top-K</div>
                     </div>
                 </div>
 
@@ -1035,7 +1061,8 @@
 
                 <div class="finale-quote">
                     <p>“传播产生河网，河网与同一传输算子产生连续场，候选曲线读取场并复现相对拓扑，形态 Softmax 连续混合图读出，Ω 测量河网是否真正形成，直接锚保护不依赖复杂河网的事实接触。”</p>
-                    <p class="quote-en">RiverMemo V3 · Branch Saturation × Explicit Identity × B + P + G + A</p>
+                    <p class="quote-en">RiverMemo V3 · Complete Baseline → Strict Witness → Conditional RRF</p>
+                    <p class="v2-boundary">下方终章的三个常规教学场景不预设合格虫洞路线，因此保留完整基线；第九章另行演示特殊路线的门控与融合。RRF 不补回共同候选池外的记录，也不扩大候选权限。</p>
                     <p class="v2-boundary">请求向量池复用于金字塔、融合、动态共鸣、投影和候选读出；只向 SQL 补读差集，每批最多 128 个 ID。跨事务校验数据库代际，事实写入后拒绝过期观测。全部内部消费者完成后立即释放句柄，最后共享引用释放后回收载荷；常驻 CSR 不清除，TTL 仅兜底。动态计数是传播事件，不是准确率，也不保证目标下一跳发火。</p>
                 </div>
             </div>
@@ -1079,6 +1106,7 @@
     <script src="rivermemo-v2.js"></script>
     <script src="memo-basin-projection.js"></script>
     <script src="rivermemo-v3.js"></script>
+    <script src="rivermemo-wormhole-lab.js"></script>
     <script src="main.js"></script>
 </body>
 </html>

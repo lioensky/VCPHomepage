@@ -83,7 +83,7 @@ sandbox.window.RiverEngine.SceneRunner = class {
     stop() { this.running = false; }
     tick(dt) { this.time += dt; this.draw(ctx, 900, 340, this.time); }
 };
-for (const path of ['public/scenes.js', 'public/rivermemo-v2.js', 'public/memo-basin-projection.js', 'public/rivermemo-v3.js', 'public/main.js']) vm.runInContext(fs.readFileSync(path, 'utf8'), sandbox);
+for (const path of ['public/scenes.js', 'public/rivermemo-v2.js', 'public/memo-basin-projection.js', 'public/rivermemo-v3.js', 'public/rivermemo-wormhole-lab.js', 'public/main.js']) vm.runInContext(fs.readFileSync(path, 'utf8'), sandbox);
 const observer = observers[0];
 assert.equal(observer.targets.length, 11);
 for (const target of observer.targets) observer.callback([{ target, isIntersecting: true, intersectionRatio: 0.001 }]);
@@ -289,11 +289,38 @@ const before = JSON.stringify(scoreCandidate(evidence));
 assert.equal(JSON.stringify(scoreCandidate(evidence)), before);
 assert(elements.get('finaleScoreTable').innerHTML.includes('P+G='));
 const scoring = runners.find(r => r.canvas === elements.get('ch9Canvas'));
-for (const tab of ['innovation', 'anchor']) {
-    queryAll('[data-ch9-tab]').find(b => b.dataset.ch9Tab === tab).click();
-    for (const width of [390, 650, 1200]) scoring.draw(ctx, width, 340, 5);
+const { fuse, wormholeFixture, gateWitness } = sandbox.window.RiverMemoV3;
+const proofFixture = wormholeFixture();
+const fused = fuse(proofFixture.candidates, proofFixture.routes, proofFixture.observation);
+assert(fused.enabled);
+assert.equal(fused.rows[0].id, 12);
+assert.equal(fused.rows[0].baseRank, 12);
+assert(Math.abs(fused.rows[0].contribution - (.12 / .10 * .72) / 61) < 1e-12);
+const repeated = fuse(proofFixture.candidates, [...proofFixture.routes, ...proofFixture.routes], proofFixture.observation);
+assert.equal(JSON.stringify(repeated.rows), JSON.stringify(fused.rows), '重复路线不叠加');
+for (const mode of ['proof', 'isolated', 'duplicate', 'weak', 'ungrounded', 'incomplete', 'w']) {
+    const f = wormholeFixture(mode);
+    const result = fuse(f.candidates, f.routes, f.observation);
+    assert.equal(result.enabled, mode === 'proof');
+    if (!result.enabled) {
+        result.rows.forEach((c, i) => {
+            assert.equal(c.final, c.baseline);
+            assert.equal(c.baseRank, i + 1);
+        });
+    }
+    queryAll('[data-ch9-tab]').find(b => b.dataset.ch9Tab === mode).click();
+    for (const width of [390, 650, 1200]) scoring.draw(ctx, width, 460, 5);
+    elements.get('wormStep').click();
+    elements.get('wormStep').click();
+    elements.get('wormStep').click();
+    scoring.tick(.1);
+    assert(elements.get('wormRankTable').innerHTML.includes('目标事件记录'));
 }
-assert(elements.get('ch9Readout').textContent.includes('绝对阈值'));
+assert.equal(gateWitness([...proofFixture.observation.files, ...Array(127).fill(proofFixture.observation.files[0])], 1, 2, [1, 4]), null);
+queryAll('[data-ch9-tab]').find(b => b.dataset.ch9Tab === 'proof').click();
+elements.get('wormReplay').click();
+scoring.tick(.1);
+assert(elements.get('ch9Readout').textContent.includes('完整基线'));
 
 const times = [];
 let queued;
