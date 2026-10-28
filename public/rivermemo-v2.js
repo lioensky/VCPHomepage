@@ -1,4 +1,4 @@
-/* RiverMemo v2 教学模型：非原生引擎、非性能基准。 */
+/* RiverMemo V3 虫洞教学模型；保留历史文件名与全局接口，非原生引擎、非性能基准。 */
 (function (global) {
     'use strict';
     const { COLORS: C, SceneRunner, drawIndustrialGrid, drawNodeBadge, drawVectorArrow,
@@ -17,13 +17,19 @@
     ];
     function evaluateWormholes(options = {}) {
         const { enabled = true, sourceLayer = 0, energy = 1, maxTargets = 4096,
-            slots = 2, neighborLimit = 3, returnFactor = 1, threshold = 0.2 } = options;
+            slots = 2, neighborLimit = 3, returnFactor = 1, threshold = 0.2,
+            acceptedLayers = 3, tailEnergyRatio = 0, tailEnergy = tailEnergyRatio } = options;
+        const tailAppended = enabled && acceptedLayers > 0 && Number.isFinite(tailEnergy)
+            && tailEnergy > 1e-12 && Number.isFinite(tailEnergyRatio) && tailEnergyRatio >= 0.02;
+        const routingResidualCount = enabled ? acceptedLayers + Number(tailAppended) : 0;
         const staticTop = history.slice(0, neighborLimit);
-        const available = enabled && slots > 0 && maxTargets > 0 && sourceLayer < 2;
+        const available = enabled && slots > 0 && maxTargets > 0 && sourceLayer + 1 < routingResidualCount;
         const evaluated = available ? history.slice().sort((a, b) => a.id - b.id).slice(0, maxTargets) : [];
         const ids = new Set(evaluated.map(e => e.id));
         const rows = history.map(edge => {
-            const resonance = ids.has(edge.id) ? Math.max(0, ...edge.resonance.slice(sourceLayer + 1)) : 0;
+            // 预设余弦仅表示路由输入的教学测量，不执行真实高维正交消元。
+            const resonance = ids.has(edge.id)
+                ? Math.max(0, ...edge.resonance.slice(sourceLayer + 1, routingResidualCount)) : 0;
             const current = energy * edge.weight * 0.70 * returnFactor;
             return { ...edge, resonance, current, score: edge.weight * resonance ** 4,
                 candidate: ids.has(edge.id) && resonance >= threshold,
@@ -46,7 +52,8 @@
         return { rows, candidates: rows.filter(e => e.candidate).length,
             selected: dynamic.length, fired: rows.filter(e => e.dynamic && e.fired).length,
             promoted: dynamic.filter(e => !staticTop.some(s => s.id === e.id)).length,
-            evaluated: evaluated.length, budgetExhausted: available && evaluated.length < history.length };
+            evaluated: evaluated.length, budgetExhausted: available && evaluated.length < history.length,
+            routingResidualCount, tailAppended };
     }
     const localMass = [0.25, 0.18, 0.12, 0.10, 0.07, 0.05, 0.04, 0.03, 0.02, 0.02, 0.12, 0];
     const transferMass = [0.12, 0.06, 0.05, 0.05, 0.18, 0.16, 0.12, 0.08, 0.03, 0.03, 0.12, 0];
@@ -101,7 +108,8 @@
     const wormPresets = {
         rescue: { story: 'D、E 原本排在静态 Top-3 之外。深层残差点亮旧桥：先拿动态席位，再用 A 补齐，总名额仍是 3。' },
         weak: { energy: 0.10, story: '投缘不等于通电！共鸣候选仍存在，但电流 = 源能量 × 历史导电率 × 0.70，低于 0.01 就不能拿动态席位。静态路线仍独立检查。' },
-        last: { sourceLayer: 2, story: '来源已经是最后一层，没有更深层残差支援。传播继承来源层，不会重新运行金字塔；单层分析也不会产生动态支持。' },
+        last: { sourceLayer: 0, acceptedLayers: 1, story: '只接受 L0，且没有满足追加条件的尾残差：路由输入仅 1 个，来源层后没有可用输入，动态席位无法激活。' },
+        tail: { sourceLayer: 0, acceptedLayers: 1, tailEnergyRatio: 0.08, story: '只接受 L0，但尾残差能量比例 8% 达到 2% 门槛：路由输入变为 2 个，尾部可支持选边。它不新增种子层、不改解释能量，也不保证注入。' },
         budget: { maxTargets: 3, story: '教学预算缩小为 3：按图内索引确定性评估 A、B、C；D、E、F 跳过动态判定。静态路线照走，不是假装已覆盖所有邻居。' },
         off: { enabled: false, story: '关闭的是动态调度，不是历史河道。A、B、C 按静态顺序入选，已有静态虫洞 B 仍可通电。' },
     };
@@ -119,7 +127,7 @@
             const phase = Math.min(3, Math.floor(age / 2));
             const result = evaluateWormholes(wormPresets[preset]);
             drawIndustrialGrid(ctx, w, h);
-            text('ch5Readout', `Hop 0/4 · 教学单源选边 · 候选 ${result.candidates} → 入选 ${result.selected} → 动态注入 ${result.fired} · 尾部提升 ${result.promoted}`);
+            text('ch5Readout', `Hop 0/4 · 路由残差 ${result.routingResidualCount} · 尾部${result.tailAppended ? '已追加' : '未追加'} · 候选 ${result.candidates} → 入选 ${result.selected} → 注入 ${result.fired}`);
             text('wormholeStory', `${['① 深层残差扫描旧桥', '② 共鸣达标，还要验电流', '③ 两席动态优先，静态补齐', '④ 只把成功注入画进河网'][phase]}。${wormPresets[preset].story} 计数为本轮单源事件，不是准确率。`);
             const sx = w * 0.13, tx = w * 0.43;
             const src = { x: sx, y: h * 0.51 };
@@ -153,7 +161,7 @@
                 ctx.fillText(`P=${e.weight.toFixed(3)}  共鸣=${e.resonance.toFixed(2)}`, w * 0.55, y - 8);
                 ctx.fillText(`I=${e.current.toFixed(4)}  ${status}`, w * 0.55, y + 9);
             });
-            drawNodeBadge(ctx, src, { color: C.amber, radius: 10, label: preset === 'last' ? '来源 L2' : '来源 L0',
+            drawNodeBadge(ctx, src, { color: C.amber, radius: 10, label: '来源 L0',
                 sub: `能量 ${preset === 'weak' ? '0.10' : '1.00'}` });
             drawPillTag(ctx, 18, h - 24, '排名 P × 共鸣⁴ ≠ 注入电流 · 不加能量', C.amber);
             ctx.restore();

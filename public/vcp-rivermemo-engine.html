@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VCP RiverMemo v2 · 动态虫洞与双场预算交互实验室</title>
-    <meta name="description" content="RiverMemo v2 科普交互实验室：用虫洞调度站和双场登船动画理解残差共鸣、动态席位、电流门槛、独立投影预算及请求向量池复用。教学模拟，不代表生产性能。" />
-    <meta name="keywords" content="VCP,RiverMemo v2,动态虫洞,双场投影预算,请求向量池,Topology V3.1,AGS统一场,Residual Pyramid,Resolvent双场,相对拓扑,Ω泛函,Direct Anchor" />
+    <title>VCP RiverMemo V3 · 支流确权与四项评分交互实验室</title>
+    <meta name="description" content="RiverMemo V3 教学实验室：探索非负场共振、单支流饱和、一对一接触、尾残差虫洞与四项评分共享预算。教学模拟，非原生引擎或性能基准。" />
+    <meta name="keywords" content="VCP,RiverMemo V3,尾残差,单支流饱和,一对一匹配,动态虫洞,双场投影预算,AGS,Ω泛函,Direct Anchor" />
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
     <meta name="author" content="VCP Ecosystem" />
     <link rel="canonical" href="https://www.vcptoolbox.com/vcp-rivermemo-engine" />
     <link rel="icon" type="image/png" href="/assets/logo1.png" />
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content="VCP.OS" />
-    <meta property="og:title" content="RiverMemo v2 · 动态虫洞与双场预算实验室" />
-    <meta property="og:description" content="让残差为历史桥梁点灯，让双场各自挑选投影乘客。交互探索 RiverMemo v2 动态虫洞、预算投影与请求级向量复用；教学数据不代表生产性能。" />
+    <meta property="og:title" content="RiverMemo V3 · 支流确权与四项评分实验室" />
+    <meta property="og:description" content="原始语义保底、支流覆盖饱和、一对一接触与尾残差路由。通过教学计算理解路径与图共享预算、锚点独立限额。" />
     <meta property="og:url" content="https://www.vcptoolbox.com/vcp-rivermemo-engine" />
     <meta property="og:image" content="https://www.vcptoolbox.com/assets/logo1.png" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="RiverMemo v2 · 动态虫洞与双场预算实验室" />
-    <meta name="twitter:description" content="AGS 统一场背景图 × 有界 Sense 河网 × 双尺度连续场 × Ω 授权条件拓扑创新 × Direct Anchor。" />
+    <meta name="twitter:title" content="RiverMemo V3 · 支流确权与四项评分实验室" />
+    <meta name="twitter:description" content="AGS 背景 × 有界真实边传播 × 支流置信度 × 四项独立分账；Ω 只门控图奖励。" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
@@ -26,8 +26,8 @@
       {
         "@context": "https://schema.org",
         "@type": "TechArticle",
-        "headline": "RiverMemo v2：动态虫洞与双场投影预算交互科普",
-        "description": "在 Topology V3.1 与 AGS 底座上演示请求级动态共鸣、预算选点和向量池生命周期。数据为教学模拟，不连接生产原生引擎。",
+        "headline": "RiverMemo V3：支流确权、尾残差与四项评分交互科普",
+        "description": "按 2026-10-28 生产白皮书演示四项分账、共享预算与绝对锚阈值。数据为教学模拟，不连接生产原生引擎。",
         "url": "https://www.vcptoolbox.com/vcp-rivermemo-engine",
         "inLanguage": "zh-CN",
         "author": {
@@ -45,14 +45,14 @@
 </head>
 <body class="rmv3-body">
     <section class="seo-summary" aria-label="VCP RiverMemo Engine 算法摘要">
-        <h1>RiverMemo v2 · 动态虫洞、双场投影预算与请求级向量复用</h1>
+        <h1>RiverMemo V3 · 支流确权、尾残差与四项评分</h1>
         <p>
-            当前生产构型已全面切换为 AGS 统一场背景图（unified_geometry_ags_v2）与 Rust 统一 Memo 管线（rivermemo.topology-v3.1-rust）。
+            当前架构为 Topology V3；白皮书记载的读出与管线实现编号分别为 rivermemo.conservative-topology-v2.2 与 memo.conservative-topology-v2.2，编号不是产品版本号。
             同一套锚定贪心 Gram-Schmidt（AGS）算子在局部生成残差范数比与锚增益，在全局生成中心化星团主题面（ags-global-star-v2），彻底替代旧版重型 SVD 全局扫描、独立残差任务与持久化 Pairwise 表。
         </p>
         <p>
             请求侧在 AGS 背景图上依次完成 EPA 覆盖率/随机背景校准、Residual Pyramid 正交剥离、Tag 门控、有界 Sense 脉冲扩散、Resolvent 局部/迁移双场求解，
-            并由 Topology V3 在 Rust/Rayon 内部完成候选有序曲线读出、相对拓扑对应、河网形态 Softmax、Ω 可观测泛函、Direct Anchor 异常激活与批级条件创新排序。
+            并由 Topology V3 在 Rust/Rayon 内完成一对一拓扑对应、支流置信度、形态混合、Ω 与绝对阈值锚激活。最终按基础分、路径、图、锚独立记账，不再采用同伴条件创新或批内锚异常阈值。
         </p>
     </section>
 
@@ -75,10 +75,10 @@
                     </span>
                 </span>
             </a>
-            <span class="vcp2-release-badge" title="rivermemo.topology-v3.1-rust · unified_geometry_ags_v2">
+            <span class="vcp2-release-badge" title="Topology V3 · 教学模型，非原生加载诊断">
                 <i class="vcp2-release-dot"></i>
-                <span class="vcp2-text-full">RIVERMEMO v2 · 记忆河网实验室</span>
-                <span class="vcp2-text-short">RIVERMEMO v2</span>
+                <span class="vcp2-text-full">RIVERMEMO V3 · 记忆河网实验室</span>
+                <span class="vcp2-text-short">RIVERMEMO V3</span>
             </span>
         </div>
 
@@ -92,7 +92,7 @@
             <a href="#chapter-dualfield"><span>06</span>双场登船处</a>
             <a href="#chapter-geodesic"><span>07</span>曲线与拓扑</a>
             <a href="#chapter-morphology"><span>08</span>形态×Ω</a>
-            <a href="#chapter-wormhole"><span>09</span>直接锚×条件创新</a>
+            <a href="#chapter-wormhole"><span>09</span>四项评分×确权</a>
             <a href="#chapter-grand-view"><span>10</span>原生闭环</a>
         </nav>
 
@@ -119,7 +119,7 @@
             <li data-chapter="6" class="dot"><span>06 · Resolvent 局部/迁移双场</span></li>
             <li data-chapter="7" class="dot"><span>07 · 候选有序曲线与相对拓扑</span></li>
             <li data-chapter="8" class="dot"><span>08 · 河网形态 Softmax 与 Ω</span></li>
-            <li data-chapter="9" class="dot"><span>09 · Direct Anchor 与条件创新</span></li>
+            <li data-chapter="9" class="dot"><span>09 · 四项评分与独立事实锚</span></li>
             <li data-chapter="10" class="dot"><span>10 · Rust N-API 全链路闭环</span></li>
         </ul>
     </nav>
@@ -133,17 +133,17 @@
 
             <div class="rmv3-container hero-shell">
                 <div class="vcp2-hud-bar">
-                    <span class="vcp2-hud-cross">SEC-00 // RIVERMEMO_TOPOLOGY_V3.1_RUST</span>
+                    <span class="vcp2-hud-cross">SEC-00 // RIVERMEMO_V3_TEACHING_LAB</span>
                     <span>GEOMETRY: UNIFIED_GEOMETRY_AGS_V2 (LOCAL EXPLAIN + GLOBAL STAR SPAN)</span>
-                    <span>SYS_CLOCK: <span id="hudClock">2026-10-19 // 00:00:00.000</span></span>
+                    <span>SYS_CLOCK: <span id="hudClock">2026-10-28 // 00:00:00.000</span></span>
                 </div>
 
                 <div class="hero-grid">
                     <div class="hero-main">
                         <div class="hero-kicker">
                             <span class="kicker-dot"></span>
-                            <span>RIVERMEMO v2 · 2026.10</span>
-                            <strong>历史桥梁临时点灯 · 高维投影按需登船</strong>
+                            <span>RIVERMEMO V3 · 2026.10.27</span>
+                            <strong>专名不被泛词淹没 · 支流证据各自确权</strong>
                         </div>
 
                         <h1 class="hero-title">
@@ -154,7 +154,7 @@
 
                         <p class="hero-subtitle">
                             RiverMemo 是 VCP 长期记忆系统中以 <strong>AGS 双尺度统一场</strong> 作为降噪传播背景图的连续信息场检索引擎。
-                            <strong>RiverMemo v2</strong> 在既有 Topology V3.1 与 AGS 底座上，让深层残差为已有历史边“点灯”，再让局部场与迁移场各自挑选值得读取高维向量的节点。下面的光点、分数与计数均为<strong>教学模拟，不连接生产 Rust 引擎，也不代表检索质量或实测延迟</strong>。
+                            <strong>RiverMemo V3</strong> 以非负场共振保护原始语义，通过单支流饱和与一对一匹配限制泛标签刷分；有效尾残差让单层查询也有机会沿已有历史边探索。下面的光点、分数与计数均为<strong>教学模拟，不连接生产 Rust 引擎，也不代表检索质量或实测延迟</strong>。
                         </p>
 
                         <!-- 总方程工业铭牌 -->
@@ -167,18 +167,18 @@
                                 <span class="eq-lhs">S<sub>i</sub> = Π<sub>[0,1]</sub></span>
                                 <span class="eq-bracket">[</span>
                                 <span class="eq-term eq-term-field" data-eq-focus="field">
-                                    <strong>S<sub>i</sub><sup>field</sup></strong>
-                                    <small>双场语义与路径基线</small>
+                                    <strong>B(c) + P(c)</strong>
+                                    <small>语义保底与非负场共振 + 路径（不乘 Ω）</small>
                                 </span>
                                 <span class="eq-plus">+</span>
                                 <span class="eq-term eq-term-topo" data-eq-focus="topo">
-                                    <strong>Ω<sub>Q</sub><sup>γ</sup> · Π<sub>[0,C<sub>r<sub>i</sub></sub>]</sub>( λ<sub>r<sub>i</sub></sub> C<sub>i</sub> [G<sub>i</sub> − E(G|Z<sub>i</sub>) − zσ(G|Z<sub>i</sub>)]<sub>+</sub> )</strong>
-                                    <small>Ω 授权的条件关系拓扑创新</small>
+                                    <strong>G(c) = min(G<sub>self</sub> Ω<sup>γ</sup>, [0.08 − P(c)]<sub>+</sub>)</strong>
+                                    <small>候选自身图证据 · 与路径共享上限</small>
                                 </span>
                                 <span class="eq-plus">+</span>
                                 <span class="eq-term eq-term-anchor" data-eq-focus="anchor">
-                                    <strong>C<sub>A</sub> · SmoothStep( (A<sub>i</sub>R<sub>i</sub><sup>A</sup> − τ<sub>A</sub>) / (s<sub>A</sub> − τ<sub>A</sub>) )</strong>
-                                    <small>与河网密度正交的直接锚点创新</small>
+                                    <strong>A(c) = 0.10 · SmoothStep((H(c) − 0.05) / 0.15)</strong>
+                                    <small>绝对阈值事实锚 · 独立限额，不乘 Ω</small>
                                 </span>
                                 <span class="eq-bracket">]</span>
                             </div>
@@ -219,7 +219,7 @@
                             <div class="layer-card layer-readout">
                                 <div class="layer-tag">LAYER 03 · 请求级双场与 V3 读出</div>
                                 <strong>Resolvent 双场 (u<sub>L</sub>, u<sub>T</sub>) × 形态 Softmax × Ω × 锚</strong>
-                                <p>候选作为有序 Tag 曲线读取双场并检验相对拓扑；Ω 统一度量河网可观测性并门控结构排序权。</p>
+                                <p>候选曲线提供路径与图证据；Ω 只门控图奖励，路径与图共享预算，事实锚另有独立限额。</p>
                             </div>
                         </div>
 
@@ -250,7 +250,7 @@
                 <div class="vcp2-hud-bar">
                     <span class="vcp2-hud-cross">SEC-01 // AGS_LOCAL_EXPLAIN_GEOMETRY</span>
                     <span>RUST FN: memo_geometry::anchored_gs(AgsTarget::Explain)</span>
-                    <span>COMPLEXITY: GRAM-SPACE O(K·n²) · NO PAIRWISE TABLE</span>
+                    <span>ORIGINAL VECTOR SPACE · TWO-PASS REORTHOGONALIZATION</span>
                 </div>
 
                 <div class="chapter-header">
@@ -260,7 +260,7 @@
                     </div>
                     <p class="chapter-intro">
                         旧版独立残差任务已被 <strong>AGS（Anchored Greedy Gram-Schmidt）局部 Explain 模式</strong> 完全接管。
-                        对于每个目标 Tag 单位向量 <code>t</code>，Rust 从 SQLite 权威原始向量读取其共现邻居，结合内联钟形语义门控构造先验，在 Gram 空间内逐轮贪心选出“解释增益 × 正交新意 × 先验权重”最高的邻居作为正交基 <code>b<sub>k</sub></code>。
+                        对于每个目标 Tag 单位向量 <code>t</code>，Rust 从 SQLite 权威原始向量读取共现邻居，在原始向量空间贪心构造正交基 <code>b<sub>k</sub></code>，并以两遍重正交化维护数值正交性。
                     </p>
                 </div>
 
@@ -286,7 +286,7 @@
                                 <strong>内联钟形语义门控</strong>：邻居候选先验为 <code>prior = ln(1 + w) · bell(sim)</code>，在 <code>sim ≈ 0.65</code> 概念邻接区达峰（1.30），抑制偶然噪声与同义词复读。
                             </li>
                             <li>
-                                <strong>Gram 空间贪心选基</strong>：每轮按 <code>score = |⟨r, u⟩| · ‖u<sub>⊥</sub>‖ · prior</code> 挑选最优邻居正交化，计算复杂度从 <code>O(K·n²·d)</code> 降至 <code>O(K·n²)</code>。
+                                <strong>原空间贪心选基</strong>：按解释增益与正交新意选择邻居，复用已有投影并重正交化；本画布只演示预设投影系数，不运行高维预计算或验证复杂度。
                             </li>
                             <li>
                                 <strong>权威真值隔离</strong>：向量计算仅以 SQLite <code>tags.vector</code> 为唯一真源，检索索引（ANN）绝不污染几何预计算。
@@ -439,7 +439,7 @@
                                 <span>NO FREE ENERGY CREATION</span>
                             </div>
                             <p class="spec-note">
-                                运行时，显式虫洞标记或“边权 × 目标锚增益达到本次请求阈值”均可激活<strong>静态虫洞路径</strong>；阈值并未固化进图资产。v2 另有请求级动态共鸣，两者不是同一种判定。
+                                运行时，显式虫洞标记或“边权 × 目标锚增益达到本次请求阈值”均可激活<strong>静态虫洞路径</strong>；阈值并未固化进图资产。请求级动态共鸣是另一种选边机制，两者不是同一种判定。
                                 虫洞传播免除动量消耗，沿用虫洞衰减（教学示例 0.70，普通边 0.25），但<strong>仍须通过发火、电流、非负动量与安全跳数检查</strong>。CSR 行顺序与紧凑属性在构建、冷加载时内存派生，不改持久化格式；动态席位从原邻居名额里划拨，而非额外出边。
                             </p>
                         </div>
@@ -593,7 +593,8 @@
                             <div class="ctrl-group" role="group" aria-label="虫洞实验条件">
                                 <button type="button" class="ctrl-btn active" data-worm-preset="rescue">点灯！救回尾部小桥</button>
                                 <button type="button" class="ctrl-btn" data-worm-preset="weak">很投缘，却没电</button>
-                                <button type="button" class="ctrl-btn" data-worm-preset="last">最后一层，没有援军</button>
+                                <button type="button" class="ctrl-btn" data-worm-preset="last">单层 · 无有效尾残差</button>
+                                <button type="button" class="ctrl-btn" data-worm-preset="tail">单层 · 追加尾残差</button>
                                 <button type="button" class="ctrl-btn" data-worm-preset="budget">评估预算用尽</button>
                                 <button type="button" class="ctrl-btn" data-worm-preset="off">关闭动态 · 静态照走</button>
                             </div>
@@ -643,7 +644,7 @@
                                 u<sub>L</sub> = (1 − α<sub>L</sub>)S + α<sub>L</sub> T(u<sub>L</sub>), &nbsp;&nbsp; α<sub>L</sub> = 0.15<br/>
                                 u<sub>T</sub> = (1 − α<sub>T</sub>)S + α<sub>T</sub> T(u<sub>T</sub>), &nbsp;&nbsp; α<sub>T</sub> = 0.55<br/>
                                 边代价 = −log(传输率)，从各流域内圈边界以零距离出发<br/>
-                                前 8 个外圈机会轮转；之后每批 ≤ 4：优先级 ∝ √流域能量 × 近期归一化收益 / (1 + 外圈数 / 8)<br/>
+                                每通道先轮转最多 2 个外圈机会，再按重要性与近期收益每批 ≤ 4 调度<br/>
                                 |Local 支持集 ∪ Transfer 支持集| ≤ K，全部核心计入预算
                             </div>
                             <p class="spec-note">
@@ -666,7 +667,7 @@
                         </div>
 
                         <p class="lead-quote">
-                            <strong>种子流域内圈复用＋共享预算动态扩展</strong>：复用 Spike 骨架、hop-0 根线索与代表来源，在正观测流且有真实 CSR 边的图上稳定构造多源 BFS 森林；未分配骨架独立保留，不重新聚类或读取向量找质心。每个“流域 × 场”沿 0 < 权重 ≤ 1 的真实出边维护最短路前沿，先轮转给最多 8 个外圈机会，再按收益分批调度。内圈不占保底机会，保底也不保证拿到 8 个新向量。K 约束双场去重并集，包含全部核心，核心超预算显式报冲突。交汇节点只扣一次票，两场资格和质量独立累计。低质量桥不能跳过，零质量与数值尾流不扩展；核心允许多分量。K=0 仍受质量目标与工作限额约束。
+                            <strong>种子流域内圈复用＋共享预算动态扩展</strong>：复用活跃河网与零跳根线索构造确定性多源森林，未分配核心独立保留。每个“流域 × 场”沿真实正权重边维护负对数距离前沿，先轮转最多 2 个外圈机会，再按收益每批最多 4 个调度；机会不保证获得新向量。K 限制双场去重并集，包含核心，核心超额显式失败。交汇节点只扣一次票，两场资格和质量独立累计。低质量桥不能跳过；K=0 仅取消数量上限，工作与质量边界仍保留。
                         </p>
                     </div>
 
@@ -764,7 +765,7 @@
                                 <strong>节点与边对应</strong>：河网节点可通过精确 ID 或向量余弦 <code>≥ 0.48</code> 对齐候选 Tag（均需乘正文闭合度）；当边两端均对齐时，比较归一化查询跳距 <code>Δ̂<sub>q</sub></code> 与候选序位跨度 <code>Δ̂<sub>c</sub></code>、方向一致性（顺向 1.0 / 逆向 0.25）及独立来源比例 <code>I<sub>e</sub></code>。
                             </li>
                             <li>
-                                <strong>受限退化保护（不变量 #14）</strong>：若无完整边对应，仅允许受限节点图分退化读出（可靠度上限 <code>0.20</code>），绝不把不可观测的距离和方向当零值混入。
+                                <strong>一对一与支流饱和</strong>：先精确、再按质量贪心绑定，查询与候选双侧容量均为一；节点／边原始覆盖分别除以 0.35／0.20 后饱和。无匹配边时非原子支流覆盖仅取节点覆盖的 0.35 倍，不能冒充完整关系。无支持长度只折减节点信用；Motif 复用边值，并非独立图同构匹配。
                             </li>
                         </ol>
                     </div>
@@ -830,7 +831,7 @@
                             <div class="regime-pill regime-collapsed">
                                 <span>Ω &lt; 0.12</span>
                                 <strong>COLLAPSED 坍缩态</strong>
-                                <small>河网未成形 · 冻结结构角色提权</small>
+                                <small>图奖励被明显缩小 · 路径与锚独立</small>
                             </div>
                             <div class="regime-pill regime-sparse">
                                 <span>0.12 ≤ Ω &lt; 0.45</span>
@@ -840,7 +841,7 @@
                             <div class="regime-pill regime-dense">
                                 <span>Ω ≥ 0.45</span>
                                 <strong>DENSE 丰沛态</strong>
-                                <small>多边高熵涌现 · 全额开启关系拓扑通道</small>
+                                <small>仍按 Ω 连续门控 · 不代表主题正确</small>
                             </div>
                         </div>
                     </div>
@@ -856,7 +857,7 @@
                                 <button type="button" class="ctrl-btn" data-morph-preset="atomic">浅聚河网 (Atomic 主导)</button>
                                 <button type="button" class="ctrl-btn active" data-morph-preset="propositional">分叉桥接河网 (Propositional)</button>
                                 <button type="button" class="ctrl-btn" data-morph-preset="narrative">深链持续河网 (Narrative)</button>
-                                <button type="button" class="ctrl-btn" data-morph-preset="collapsed">单边退化河网 (Collapsed Ω)</button>
+                                <button type="button" class="ctrl-btn" data-morph-preset="collapsed">低观测退化预设 (Collapsed Ω)</button>
                             </div>
                         </div>
                     </div>
@@ -870,19 +871,19 @@
         <section id="chapter-wormhole" class="chapter vcp2-section-paper" data-chapter="9">
             <div class="rmv3-container">
                 <div class="vcp2-hud-bar">
-                    <span class="vcp2-hud-cross">SEC-09 // DIRECT_ANCHOR_AND_CONDITIONAL_INNOVATION</span>
+                    <span class="vcp2-hud-cross">SEC-09 // SELF_EVIDENCE_AND_SHARED_BUDGET</span>
                     <span>RUST FN: compute_anchors() + assign_v3_scores()</span>
                     <span>ORTHOGONAL CHANNELS: TOPOLOGY BONUS ≤ 0.08 · ANCHOR BONUS ≤ 0.10</span>
                 </div>
 
                 <div class="chapter-header">
                     <div>
-                        <div class="chapter-meta">CHAPTER 09 · ORTHOGONAL FACT ANCHOR &amp; PEER LCB INNOVATION</div>
-                        <h2 class="chapter-title">批级条件拓扑创新 × Direct Anchor：为什么只奖“超预期正创新”与“稀有直接锚”？</h2>
+                        <div class="chapter-meta">CHAPTER 09 · SELF EVIDENCE AND SHARED BUDGET</div>
+                        <h2 class="chapter-title">四项独立分账 × 显式锚确权：奖励来自自身证据，而非同伴竞争</h2>
                     </div>
                     <p class="chapter-intro">
-                        如果一个候选的基础语义分 <code>S<sub>0</sub></code> 本来就很高，它的图分 <code>G<sub>i</sub></code> 自然也会偏高——直接把 <code>G<sub>i</sub></code> 加进总分会导致重复计分。
-                        因此，Topology V3 引入<strong>高斯核同类 Peer 条件期望 <code>E(G|Z<sub>i</sub>)</code> 与下置信界（LCB）</strong>，并设立一条<strong>与河网密度完全正交的 hop-0 Direct Anchor 通道</strong>。
+                        最终分为 <strong>B + P + G + A</strong>：基础分包含有界非负场共振，路径不乘 Ω，图由候选自身证据与支流置信度计算后乘 Ω。
+                        <strong>路径优先占用 0.08 拓扑预算；锚点另有 0.10 上限。</strong>角色仅作解释，不决定倍率或相互压制；不再以同伴均值决定获奖资格。
                     </p>
                 </div>
 
@@ -890,15 +891,15 @@
                     <div class="text-pane">
                         <div class="spec-card">
                             <div class="spec-card-head">
-                                <span>1. CONDITIONAL TOPOLOGY INNOVATION (LOWER CONFIDENCE BOUND)</span>
-                                <span>KERNEL PEER REGRESSION</span>
+                                <span>1. NON-NEGATIVE RESONANCE & SHARED BUDGET</span>
+                                <span>CANDIDATE SELF EVIDENCE</span>
                             </div>
                             <div class="formula-plate">
-                                ΔG<sub>i</sub><sup>+</sup> = [ G<sub>i</sub> − E(G | Z<sub>i</sub>) − z · σ(G | Z<sub>i</sub>) ]<sub>+</sub>, &nbsp;&nbsp; Z<sub>i</sub> = (S<sub>0</sub>, Closure, Direct, Role)<br/>
-                                B<sub>G</sub>(i) = Ω<sub>Q</sub><sup>γ</sup> · Π<sub>[0, C<sub>role</sub>]</sub>( λ<sub>role</sub> · C<sub>i</sub> · ΔG<sub>i</sub><sup>+</sup> )
+                                B = q + min(0.03, λ[F − q]<sub>+</sub>) · 标量支持<br/>
+                                G = min(G<sub>self</sub> · Ω<sup>γ</sup>, [0.08 − P]<sub>+</sub>), &nbsp; P + G ≤ 0.08
                             </div>
                             <p class="spec-note">
-                                系统在当前候选池中寻找基础分、闭合度、直接证据与角色相近的同类样本（Peers），计算条件均值与含有效样本数修正的标准差。<strong>只有超出同类期望加一倍不确定性上界的正创新才获得奖励</strong>，且受 <code>direct_frontier</code> 边界保护约束。
+                                场共振先封顶再乘标量支持，不能拉低原始查询分。图置信度由支流覆盖、闭合与节点对齐形成，不再重复乘全河网可靠性。<strong>固定查询观测、身份与配置时，增加无关候选不会改变已有候选自身奖励</strong>；候选截断与排名不在此保证内。
                             </p>
                         </div>
 
@@ -909,23 +910,25 @@
                             </div>
                             <div class="formula-plate">
                                 a<sub>sc</sub> = m<sub>s</sub> · Spec(t) · Closure(t,c) · Rarity(s) · Match(s,t)<br/>
-                                H(c) = [ 1 − Π<sub>s</sub>(1 − a<sub>sc</sub>) ] · R<sub>A</sub>(c), &nbsp;&nbsp; B<sub>H</sub>(c) = C<sub>A</sub> · SmoothStep( (H(c) − θ<sub>H</sub>)/(s<sub>A</sub> − θ<sub>H</sub>) )
+                                H(c) = [1 − Π<sub>s</sub>(1 − a<sub>sc</sub>)] · R<sub>A</sub>(c)<br/>
+                                A(c) = 0.10 · SmoothStep(clip((H(c) − 0.05) / 0.15))
                             </div>
                             <p class="spec-note">
-                                哪怕一次查询河网极度稀疏（<code>Ω → 0</code>），只要候选精准命中了查询的 hop-0 稀有高特异度种子锚，并显著超越批内异常阈值 <code>θ<sub>H</sub> = max(0.05, μ<sub>H</sub> + 2σ<sub>H</sub>)</code>，依然能通过独立 SmoothStep 通道直接晋升为 <code>direct_answer</code>。
+                                锚奖励不乘 Ω，采用绝对阈值而非批内异常阈值。双侧一对一接触最多三项；纯隐式种子锚强度最多 0.035，低于默认激活值。非原子候选要解释为直接答案，还须有真实显式精确接触，且正文闭合至少 0.55；奖励与角色不可混为一谈。
                             </p>
                         </div>
                     </div>
 
                     <div class="canvas-pane">
                         <div class="canvas-hud-top">
-                            <span>PEER LCB REGRESSION &amp; ANCHOR SMOOTHSTEP // 双通道正交裁决沙盘</span>
-                            <span id="ch9Readout">Mode: Conditional LCB + Direct Anchor Frontier</span>
+                            <span>SELF EVIDENCE AND ABSOLUTE ANCHOR // 四项评分教学沙盘</span>
+                            <span id="ch9Readout">B + P + G + A · 共享拓扑预算与独立锚限额</span>
                         </div>
-                        <canvas id="ch9Canvas" class="scene-canvas"></canvas>
+                        <canvas id="ch9Canvas" class="scene-canvas" role="img" aria-label="四项分数、共享预算与绝对锚阈值教学对照"></canvas>
+                        <div class="v2-lab-caption" id="v3ScoreStory" aria-live="polite"></div>
                         <div class="canvas-controls">
                             <div class="ctrl-group">
-                                <button type="button" class="ctrl-btn active" data-ch9-tab="innovation">条件拓扑创新 LCB 散点带</button>
+                                <button type="button" class="ctrl-btn active" data-ch9-tab="innovation">支流饱和与四项分账</button>
                                 <button type="button" class="ctrl-btn" data-ch9-tab="anchor">Noisy-OR 直接锚 SmoothStep 激活</button>
                             </div>
                         </div>
@@ -952,12 +955,12 @@
                     </div>
                     <p class="chapter-intro">
                         生产环境已彻底淘汰旧版 Node <code>worker_threads</code> 池与跨 N-API JSON 往返传输。
-                        单次请求由 <code>run_pipeline()</code> 在 Rust `MemoRuntime` 中生成并缓存同代 `MemoQueryObservation`，返回轻量级句柄 <code>observationHandle</code>；随后 7 路召回超集（最高 300 候选）在 Rayon 线程池内一次性完成路径、拓扑、形态、Ω、锚点与条件创新重排。
+                        新观测通常先由原生观测任务生成同代请求句柄，再由联合检索任务完成 ANN、候选合并与拓扑读出。候选级数学通过 Rayon 并行；不意味着整条请求只有一次 N-API 调用，或多索引 ANN 无锁、全阶段并行。
                     </p>
                 </div>
 
                 <!-- 8 步生产管线矩阵 -->
-                <div class="finale-pipeline" aria-label="Topology V3.1 生产执行管线">
+                <div class="finale-pipeline" aria-label="Topology V3 执行链教学示意">
                     <div class="pipe-step" data-pipe-idx="0">
                         <div class="pipe-num">STAGE 01</div>
                         <div class="pipe-name">AGS 双尺度预计算</div>
@@ -1003,7 +1006,7 @@
                     <div class="pipe-step pipe-final" data-pipe-idx="7">
                         <div class="pipe-num">STAGE 08</div>
                         <div class="pipe-name">S_V3 统一闭合</div>
-                        <div class="pipe-desc">S_0 + Ω^γ B_G + B_H → Top-K</div>
+                        <div class="pipe-desc">B + P + G + A − 截断扣分 → Top-K</div>
                     </div>
                 </div>
 
@@ -1011,7 +1014,7 @@
                 <div class="finale-workbench">
                     <div class="finale-canvas-wrap">
                         <div class="canvas-hud-top">
-                            <span>v2 全链路教学模拟 / 预设候选分数，非原生遥测</span>
+                            <span>V3 全链路教学模拟 / 预设证据计算，非原生遥测</span>
                             <span id="ch10Readout">教学场景 · 非生产遥测</span>
                         </div>
                         <canvas id="ch10Canvas" class="scene-canvas finale-canvas"></canvas>
@@ -1026,13 +1029,13 @@
 
                     <!-- 实时 Top-3 候选拆解表 -->
                     <div class="finale-score-table" id="finaleScoreTable" aria-live="polite">
-                        <!-- 由 JS 动态渲染当前场景下 Top-3 候选的 S_0 / Ω^γ B_G / B_H / Role 完整分解 -->
+                        <!-- 按预设证据计算 B / P / G / A 与截断扣分；不代表实际检索结果 -->
                     </div>
                 </div>
 
                 <div class="finale-quote">
                     <p>“传播产生河网，河网与同一传输算子产生连续场，候选曲线读取场并复现相对拓扑，形态 Softmax 连续混合图读出，Ω 测量河网是否真正形成，直接锚保护不依赖复杂河网的事实接触。”</p>
-                    <p class="quote-en">RiverMemo v2 · Dynamic Wormholes × Budgeted Projection · Topology V3.1</p>
+                    <p class="quote-en">RiverMemo V3 · Branch Saturation × Explicit Identity × B + P + G + A</p>
                     <p class="v2-boundary">请求向量池复用于金字塔、融合、动态共鸣、投影和候选读出；只向 SQL 补读差集，每批最多 128 个 ID。跨事务校验数据库代际，事实写入后拒绝过期观测。全部内部消费者完成后立即释放句柄，最后共享引用释放后回收载荷；常驻 CSR 不清除，TTL 仅兜底。动态计数是传播事件，不是准确率，也不保证目标下一跳发火。</p>
                 </div>
             </div>
@@ -1056,7 +1059,7 @@
                         </span>
                     </span>
                 </a>
-                <p>VCP 2.0 · Nova 纸墨工业 (Paper &amp; Ink Industrial) · RiverMemo Topology V3.1 原生连续信息场检索引擎</p>
+                <p>VCP 2.0 · Nova 纸墨工业 · RiverMemo V3 教学实验室，非原生引擎或性能基准</p>
             </div>
 
             <div class="vcp2-footer-links">
@@ -1075,6 +1078,7 @@
     <script src="scenes.js"></script>
     <script src="rivermemo-v2.js"></script>
     <script src="memo-basin-projection.js"></script>
+    <script src="rivermemo-v3.js"></script>
     <script src="main.js"></script>
 </body>
 </html>

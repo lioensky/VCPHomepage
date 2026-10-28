@@ -174,18 +174,16 @@ const riverScenarios = [
     id: "late-night",
     trigger: "凌晨 03:00 发消息：「Nova 你好」",
     omega: "0.94",
-    latency: "1.42ms",
     nodes: [
       {title: "关心熬夜与作息记录", tag: "Local Field · 连续3天凌晨活跃", score: "0.96"},
       {title: "提醒 MoonAST 单元测试收尾", tag: "Ω Topology · 关联昨晚未提交分支", score: "0.91"},
-      {title: "2小时后降雨 · 已通过米家关窗", tag: "Direct Anchor · Hop-0 物理环境锚点", score: "0.89"},
+      {title: "此前雨天关窗的习惯记录", tag: "主题关联示意 · 不证明当前天气或动作完成", score: "0.89"},
     ],
   },
   {
     id: "code-refactor",
     trigger: "打开 V工程：「准备重构渲染器」",
     omega: "0.97",
-    latency: "1.68ms",
     nodes: [
       {title: "V4 Div 岛未闭合标签边界用例", tag: "Direct Anchor · 8月26日压测归档", score: "0.98"},
       {title: "Preload 子应用渐进声明式校验", tag: "Ω Topology · Electron IPC 依赖链", score: "0.93"},
@@ -196,7 +194,6 @@ const riverScenarios = [
     id: "weekend-music",
     trigger: "耳机接入：「放首适合写白皮书的歌」",
     omega: "0.92",
-    latency: "1.19ms",
     nodes: [
       {title: "《让智慧如河流流淌》无损母带", tag: "Direct Anchor · 10月1日宣传片首映曲", score: "0.97"},
       {title: "商籁 Sonnet 舞台 + 胆机温暖谐波 +2dB", tag: "Ω Topology · 偏好多模态创作环境", score: "0.90"},
@@ -218,6 +215,7 @@ const milestoneNodes = [
   {date: "2026.10.15", tag: "MOONAST", title: "纯几何逻辑门 MoonAST 落地", desc: "脱离 Tree-sitter 语法壁垒，检索提速 40 倍、内存降 80%，「繁星如盛」上线。"},
   {date: "2026.10.19", tag: "VEXUSMEMO", title: "原生一体化记忆数据库", desc: "SQLite 事实、TDB 2-bit 冲程与 AGS 几何统一进入 Rust 数据底座。"},
   {date: "2026.10.20", tag: "RIVERMEMO V2", title: "共享双场预算与动态语境虫洞", desc: "跨阶段复用原始向量，沿历史关系展开有界联想，双槽代际快照守护资产。"},
+  {date: "2026.10.27", tag: "RIVERMEMO V3", title: "支流饱和、显式确权与尾残差路由", desc: "非负场共振保护原始语义，一对一接触限制标签堆砌；VTrade 模拟交易同步接入 VGame。"},
 ];
 
 export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
@@ -539,7 +537,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
               <div>
                 <div className="vcp2-hero-kicker">
                   <Sparkles size={14} />
-                  <span>2026.10.20 MILESTONE</span>
+                  <span>2026.10.27 UPDATE</span>
                   <strong>VCP 2.0 正式版 · 全栈自研 AGI 运行时与 Agent 操作系统</strong>
                 </div>
 
@@ -553,7 +551,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                 <p className="vcp2-hero-lead">
                   VCP 是开源的全栈 AI Agent 运行时，集成长期记忆、工具调用、统一上下文与分布式协作，让 AI 从对话走向持续行动。
                   VCPToolBox 与 VCPChat 共同连接{" "}
-                  <strong>VexusMemo × RiverMemo V2 一体化记忆</strong>、
+                  <strong>VexusMemo × RiverMemo V3 一体化记忆</strong>、
                   <strong>MoonAST 代码检索</strong>与<strong>共笔文坊协同编辑</strong>，
                   构筑人类与 AI Agent 长期协作的工业级底座。
                 </p>
@@ -587,7 +585,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                   </a>
                   <a href="/?page=changelog" className="vcp2-btn-secondary">
                     <Clock size={17} />
-                    2026.10.20 更新日志
+                    2026.10.27 更新日志
                   </a>
                 </div>
               </div>
@@ -596,7 +594,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
               <aside className="vcp2-hero-telemetry" aria-label="VCP 2.0 实时工程铭牌">
                 <div className="vcp2-telemetry-head">
                   <span>NOVA INDUSTRIAL TELEMETRY</span>
-                  <span>BUILD // 2026.10.20-RUST</span>
+                  <span>DOC SYNC // 2026.10.28</span>
                 </div>
                 <div className="vcp2-telemetry-grid">
                   <div className="vcp2-stat-box">
@@ -608,8 +606,8 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                     <span>全栈自研前端应用生态</span>
                   </div>
                   <div className="vcp2-stat-box">
-                    <strong>2<em>ms</em></strong>
-                    <span>RiverMemo 记忆寻址</span>
+                    <strong>256<em>节点</em></strong>
+                    <span>默认双场投影共享预算 · 含核心</span>
                   </div>
                   <div className="vcp2-stat-box">
                     <strong>300<em>+</em></strong>
@@ -675,7 +673,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
           <div className="vcp2-container">
             <div className="vcp2-hud-bar">
               <span className="vcp2-hud-cross">SEC-02 // VEXUSMEMO_UNIFIED_NATIVE_MEMORY</span>
-              <span>RIVERMEMO V2 × TDB 2-BIT × SQLITE</span>
+              <span>RIVERMEMO V3 × TDB 2-BIT × SQLITE</span>
               <span>ONE ENGINE / READ · WRITE · SEARCH</span>
             </div>
             <div className="vcp2-theater-header">
@@ -683,7 +681,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                 <span className="vcp2-eyebrow">THEATER 02 · VEXUSMEMO / 一体化记忆范式</span>
                 <h2 className="vcp2-title">VexusMemo：<br />运行轻，数学不轻。</h2>
               </div>
-              <p className="vcp2-subtitle">以 Lite 的运行成本，承载不 Lite 的数学与工程高度。<strong>RiverMemo V2 × TDB 2-bit 冲程 × 原生数据库</strong>，以紧凑布局、精密几何与一体架构挑战 Heavy 的资源堆叠：从事实事务到双场裁决，让数据库与记忆成为一体，让过去的经验在理解当下之前先行浮现。</p>
+              <p className="vcp2-subtitle">以 Lite 的运行成本，承载不 Lite 的数学与工程高度。<strong>RiverMemo V3 × TDB 2-bit 冲程 × 原生数据库</strong>，以非负场共振保护查询语义，通过单支流饱和与一对一接触约束结构奖励；基础、路径、图和锚独立记账，让记忆读出更可解释。</p>
             </div>
             <div className="diptych-grid">
               <VexusArchitecture onRead={() => jumpToDoc("rivermemo-topology-v3")} />
@@ -691,7 +689,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
               <article className="diptych-card">
                 <div>
                   <div style={{display: "flex", justifyContent: "space-between", fontFamily: "JetBrains Mono", fontSize: "0.68rem", color: "#21675C", marginBottom: "0.6rem"}}>
-                    <span>LEFT WING // RIVERMEMO V2 河网引力沙盘</span>
+                    <span>LEFT WING // RIVERMEMO V3 河网概念沙盘</span>
                     <span>SCENARIO DEMO / 非实时测量</span>
                   </div>
                   <h3 style={{margin: "0 0 0.75rem", fontSize: "1.45rem"}}>
@@ -882,7 +880,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                       <circle cx="60" cy="105" r="14" fill="#F2A900" filter="url(#vcp2-pulse-glow)" />
                       <circle cx="60" cy="105" r="5" fill="#FFF8E7" />
                       <text x="60" y="138" textAnchor="middle" fill="#F2F0E9" fontSize="10" fontFamily="JetBrains Mono" fontWeight="700">
-                        AGS SOURCE
+                        QUERY SEEDS
                       </text>
                     </g>
 
@@ -901,7 +899,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                       </text>
                       <rect x="184" y="132" width="102" height="15" rx="4" fill="#0B0F11" fillOpacity="0.85" stroke="#21675C" strokeWidth="0.8" />
                       <text x="235" y="143" textAnchor="middle" fill="#F2A900" fontSize="9.5" fontFamily="JetBrains Mono" fontWeight="700">
-                        DUAL-FIELD GATE
+                        GRAPH GATE ONLY
                       </text>
                     </g>
 
@@ -986,10 +984,10 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
 
                 <div className="omega-formula-plate">
                   <div>
-                    <strong>S<sub>i</sub> = Π<sub>[0,1]</sub> [ S<sub>i</sub><sup>field</sup> + Ω<sub>Q</sub><sup>γ</sup> B<sub>G</sub>(i) + B<sub>H</sub>(i) ]</strong>
+                    <strong>S = Π<sub>[0,1]</sub> [ B + P + G + A ] · P + G ≤ 0.08 · A ≤ 0.10</strong>
                   </div>
                   <div style={{fontSize: "0.68rem", fontFamily: "JetBrains Mono", color: "#5A635F", marginTop: "0.25rem"}}>
-                    示例场景耗时: {currentRiver.latency} · 分数与耗时仅作交互示意
+                    Ω 只门控图奖励；路径与锚不乘 Ω。节点、分数与 Ω 均为概念预设，不代表真实检索或动作执行。
                   </div>
                 </div>
               </article>
@@ -1715,7 +1713,7 @@ target_file:「始」src/db/indexRepository.js「末」
                     华山论剑 / 霓虹肉鸽 / 桌面 Q 版 Nova
                   </h3>
                   <p style={{margin: 0, fontSize: "0.82rem", color: "#C4CACD", lineHeight: 1.65}}>
-                    多重异步状态博弈引擎支持人机对弈与纯 Agent 自治闯关；Nova 亲手绘制的 Q 版 Live2D 桌面悬浮陪伴。
+                    VGame 支持人机对弈与 Agent 自治闯关；新增 VTrade 组队操盘与生存对决，支持虚拟或真实大盘行情，但所有交易均为虚拟，不涉及真实资金。VPet 提供 Live2D 桌面陪伴。
                   </p>
                 </div>
                 <div style={{display: "flex", gap: "0.6rem", marginTop: "0.85rem"}}>

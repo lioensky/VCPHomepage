@@ -83,7 +83,7 @@ sandbox.window.RiverEngine.SceneRunner = class {
     stop() { this.running = false; }
     tick(dt) { this.time += dt; this.draw(ctx, 900, 340, this.time); }
 };
-for (const path of ['public/scenes.js', 'public/rivermemo-v2.js', 'public/memo-basin-projection.js', 'public/main.js']) vm.runInContext(fs.readFileSync(path, 'utf8'), sandbox);
+for (const path of ['public/scenes.js', 'public/rivermemo-v2.js', 'public/memo-basin-projection.js', 'public/rivermemo-v3.js', 'public/main.js']) vm.runInContext(fs.readFileSync(path, 'utf8'), sandbox);
 const observer = observers[0];
 assert.equal(observer.targets.length, 11);
 for (const target of observer.targets) observer.callback([{ target, isIntersecting: true, intersectionRatio: 0.001 }]);
@@ -123,6 +123,17 @@ assert.equal(rescued.rows.find(e => e.id === 6).candidate, true);
 assert.equal(rescued.rows.find(e => e.id === 6).dynamic, false);
 assert.equal(evaluateWormholes({ energy: 0.1 }).fired, 0);
 assert.equal(evaluateWormholes({ sourceLayer: 2 }).selected, 0);
+assert.equal(evaluateWormholes({ acceptedLayers: 1 }).selected, 0);
+const tail = evaluateWormholes({ acceptedLayers: 1, tailEnergyRatio: .08 });
+assert.equal(tail.tailAppended, true);
+assert.equal(tail.routingResidualCount, 2);
+assert(tail.selected > 0);
+for (const options of [
+    { tailEnergyRatio: .019 }, { tailEnergyRatio: .08, tailEnergy: 0 },
+    { tailEnergyRatio: .08, tailEnergy: Infinity }, { tailEnergyRatio: .08, acceptedLayers: 0 },
+]) assert.equal(evaluateWormholes({ acceptedLayers: 1, ...options }).tailAppended, false);
+assert.equal(evaluateWormholes({ acceptedLayers: 1, tailEnergyRatio: .02 }).tailAppended, true);
+assert.equal(evaluateWormholes({ enabled: false, tailEnergyRatio: .08 }).routingResidualCount, 0);
 assert.equal(evaluateWormholes({ enabled: false }).rows.find(e => e.id === 2).fired, true);
 assert.equal(evaluateWormholes({ maxTargets: 3 }).budgetExhausted, true);
 assert.equal(evaluateWormholes({ maxTargets: 3 }).selected, 0);
@@ -209,7 +220,7 @@ for (const k of [0, 4, 8, 24, 64, 128, 193, 256, 512]) {
         }
         assert.equal(field.selected.length, new Set(field.selected.map(n => n.id)).size);
     }
-    assert(result.frontiers.every(f => f.guarantee <= 8));
+    assert(result.frontiers.every(f => f.guarantee <= 2));
     assert(result.work.popped <= 8192 && result.work.discovered <= 8192 && result.work.edges <= 65536);
     assert.equal(simulateProjection(k, { cached: result.union }).missing.length, 0);
     assert.equal(JSON.stringify(result.events), JSON.stringify(simulateProjection(k).events), '回放必须确定');
@@ -237,6 +248,52 @@ assert.equal(elements.get('projectionPlay').attributes['aria-pressed'], 'false')
 for (const [w, h] of [[390, 560], [650, 560], [1200, 560]]) {
     projection.draw(ctx, w, h, 5);
 }
+
+const { scoreCandidate, branchCoverage, alignContacts, densityCredit, examples } = sandbox.window.RiverMemoV3;
+const evidence = examples[0].input;
+const full = scoreCandidate(evidence);
+const weak = scoreCandidate({ ...evidence, omega: .08 });
+assert.equal(full.path, weak.path);
+assert.equal(full.anchor, weak.anchor);
+assert(weak.graph < full.graph);
+assert.equal(scoreCandidate({ ...evidence, implicitOnly: true }).anchor, 0);
+assert.equal(scoreCandidate({ query: .7, field: .2, support: 1 }).base, .7);
+assert.equal(scoreCandidate({ query: .7, field: 1, support: 0 }).resonance, 0);
+assert(Math.abs(scoreCandidate({ query: .5, field: 1, support: .1 }).resonance - .003) < 1e-12);
+assert.equal(branchCoverage(.35, .20).combined, 1);
+assert.equal(branchCoverage(.35, 0, false, false).combined, .35);
+assert.equal(densityCredit(20, 20), 1);
+assert(densityCredit(20, 1) < 1);
+const contacts = alignContacts([
+    { queryId: 1, tagId: 1, exact: true, weight: .1, quality: .1 },
+    { queryId: 1, tagId: 2, exact: false, weight: 1, quality: 1 },
+    { queryId: 2, tagId: 1, exact: false, weight: 1, quality: 1 },
+    { queryId: 2, tagId: 2, exact: false, weight: .5, quality: .8 },
+]);
+assert.equal(contacts.length, 2);
+assert(contacts[0].exact);
+assert.equal(new Set(contacts.map(p => p.queryId)).size, 2);
+assert.equal(new Set(contacts.map(p => p.tagId)).size, 2);
+for (let i = 0; i <= 100; i++) {
+    const r = scoreCandidate({ ...evidence, query: i / 100, pathQuality: i / 100 });
+    assert(r.path + r.graph <= .08 + 1e-12);
+    assert(r.anchor <= .10);
+    assert(r.score >= i / 100);
+    assert(Math.abs(r.base + r.path + r.graph + r.anchor - r.clipping - r.score) < 1e-12);
+}
+const clipped = scoreCandidate({ ...evidence, query: .99 });
+assert(clipped.clipping > 0);
+assert.equal(clipped.score, 1);
+const before = JSON.stringify(scoreCandidate(evidence));
+[evidence, { query: .1 }, { query: .99 }].map(scoreCandidate);
+assert.equal(JSON.stringify(scoreCandidate(evidence)), before);
+assert(elements.get('finaleScoreTable').innerHTML.includes('P+G='));
+const scoring = runners.find(r => r.canvas === elements.get('ch9Canvas'));
+for (const tab of ['innovation', 'anchor']) {
+    queryAll('[data-ch9-tab]').find(b => b.dataset.ch9Tab === tab).click();
+    for (const width of [390, 650, 1200]) scoring.draw(ctx, width, 340, 5);
+}
+assert(elements.get('ch9Readout').textContent.includes('绝对阈值'));
 
 const times = [];
 let queued;

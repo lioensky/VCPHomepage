@@ -1,4 +1,4 @@
-/* RiverMemo v2：种子流域共享预算教学模型，非原生实现、非生产遥测。 */
+/* RiverMemo V3：种子流域共享预算教学模型，非原生实现、非生产遥测。 */
 (function (global) {
     'use strict';
     const { COLORS: C, SceneRunner, drawIndustrialGrid, drawVectorArrow, drawNodeBadge, drawPillTag } = global.RiverEngine;
@@ -112,7 +112,7 @@
                         f.radius = Math.max(f.radius, item.distance);
                         snapshot({ kind: 'accept', phase, field: f.field, root: f.basin.root,
                             id: item.id, parent: item.parent, distance: item.distance, newlyGlobal, newlyField,
-                            message: `${f.basin.root === 1 ? '主主题 A' : '弱主题 B'} · ${f.field ? 'Transfer' : 'Local'}：${phase === 'guarantee' ? `轮转机会 ${f.guarantee}/8` : '收益批次 ≤4'} → 节点 ${item.id}，${newlyGlobal ? '扣 1 张共享票' : '复用 ID，不再扣票'}${newlyField ? '，新增本场资格' : '，本场质量不重复累计'}。` });
+                            message: `${f.basin.root === 1 ? '主主题 A' : '弱主题 B'} · ${f.field ? 'Transfer' : 'Local'}：${phase === 'guarantee' ? `轮转机会 ${f.guarantee}/2` : '收益批次 ≤4'} → 节点 ${item.id}，${newlyGlobal ? '扣 1 张共享票' : '复用 ID，不再扣票'}${newlyField ? '，新增本场资格' : '，本场质量不重复累计'}。` });
                     }
                     if (spec.current >= spec.mass - 1e-12) break;
                     const outgoing = data.edges.filter(e => e.a === item.id).sort((a, b) => a.b - b.b);
@@ -134,15 +134,15 @@
                 }
                 if (opportunities) f.gain = .5 * f.gain + .5 * gained / opportunities;
             }
-            // 每前沿先轮转 8 个外圈机会；遍历已有内圈不计入该 8 次。
-            for (let round = 0; round < 8 && !truncated; round++)
+            // 每前沿先轮转最多 2 个外圈机会，已有内圈不消耗机会。
+            for (let round = 0; round < 2 && !truncated; round++)
                 for (const f of frontiers) if (active(f) && !truncated) advance(f, 1, 'guarantee');
             while (!truncated) {
                 const candidates = frontiers.filter(active);
                 if (!candidates.length) break;
                 candidates.sort((a, b) =>
-                    Math.sqrt(b.basin.importance) * b.gain / (1 + b.outer / 8)
-                    - Math.sqrt(a.basin.importance) * a.gain / (1 + a.outer / 8)
+                    Math.sqrt(b.basin.importance) * b.gain / (1 + b.outer / 2)
+                    - Math.sqrt(a.basin.importance) * a.gain / (1 + a.outer / 2)
                     || a.basin.root - b.basin.root || a.field - b.field);
                 advance(candidates[0], 4, 'gain');
             }
@@ -174,7 +174,7 @@
     global.RiverMemoV2.projectionFixture = fixture;
     global.RiverMemoV2.buildBasins = buildBasins;
     const presets = {
-        normal: { note: '先轮转，后收益调度：弱主题也有探索机会，不承诺无条件拿满 8 个新向量。' },
+        normal: { note: '每通道先轮转最多两个外圈机会，再按收益调度；机会不保证得到两个新向量。' },
         bridge: { note: '节点 5 只有很少质量，却是必经桥。最短路不跳过低谷，不能直接瞬移到远端高峰。' },
         overlap: { note: '两流域在 25 相遇：全局只扣一次票；Local / Transfer 分别盖章，质量各算一次。交叠仅统计实际触达。' },
         work: { limits: { popped: 12, discovered: 24, edges: 14 },

@@ -1,7 +1,7 @@
 ---
 title: RiverMemo V3 · Topology V3 与 Ω 统一泛函
 summary: RiverMemo V3 生产白皮书
-updatedAt: 2026-010-28
+updatedAt: 2026-10-28
 category: guide
 ---
 # RiverMemo Topology V3：最终算法与实现

@@ -1,7 +1,7 @@
 /* ==========================================================================
    scenes.js
-   RiverMemo V10 · Topology V3.1 & AGS 统一场交互算法动画集
-   严格对齐 Rust 源码 (memo_geometry.rs / memo_pipeline.rs / memo_sensing.rs / rivermemo_topology_v3.rs)
+   RiverMemo V3 · AGS 统一场交互教学动画集
+   公开白皮书的简化示意，不执行 Rust 原生计算或性能测量
    ========================================================================== */
 
 (function (global) {
@@ -35,7 +35,7 @@
     // =========================================================================
     function createGlobalRiver(canvas) {
         let stars = [];
-        const glyphs = ['Ω', 'AGS', 'V3.1', 'u_L', 'u_T', 'Γ_c', 'CSR', 'RUST', 'r_t', 'p_N'];
+        const glyphs = ['Ω', 'AGS', 'V3', 'u_L', 'u_T', 'Γ_c', 'CSR', 'RUST', 'r_t', 'p_N'];
 
         function build(w, h) {
             stars = Array.from({ length: 44 }, (_, i) => ({
@@ -1101,7 +1101,7 @@
                 edgeScore: 0.28,
                 closure: 0.72,
                 ie: 0.65,
-                mode: 'node_alignment_fallback (cap 0.20)',
+                mode: 'partial_alignment (教学预设，非完整关系复现)',
                 color: COLORS.amber,
                 tags: [
                     { rx: 0.18, ry: 0.74, pos: 1, label: 't₁ (pos 1)', align: 2, supported: true },
@@ -1367,252 +1367,56 @@
     // =========================================================================
     // CHAPTER 09 · CONDITIONAL INNOVATION LCB & DIRECT ANCHOR SMOOTHSTEP
     // =========================================================================
-    function createScene_ch9(canvas) {
-        let activeTab = 'innovation'; // 'innovation' | 'anchor'
+    // Chapter 09 is provided by rivermemo-v3.js.
 
-        const peers = [
-            { z: 0.22, g: 0.26, exp: 0.24, std: 0.06, label: 'Peer 1' },
-            { z: 0.36, g: 0.33, exp: 0.34, std: 0.06, label: 'Peer 2' },
-            { z: 0.48, g: 0.68, exp: 0.43, std: 0.06, label: 'Candidate #A (+ΔG > 0)', highlight: true },
-            { z: 0.61, g: 0.54, exp: 0.52, std: 0.06, label: 'Peer 4 (Within 1σ)' },
-            { z: 0.76, g: 0.61, exp: 0.63, std: 0.06, label: 'Peer 5 (Below E → 0 Penalty)' },
-            { z: 0.88, g: 0.89, exp: 0.71, std: 0.06, label: 'Candidate #B (+ΔG > 0)', highlight: true },
-        ];
-
-        const runner = new SceneRunner(canvas, (ctx, w, h) => {
-            drawIndustrialGrid(ctx, w, h, 44);
-            const padX = 54;
-            const padY = 38;
-            const gw = w - padX * 2;
-            const gh = h - padY * 2;
-
-            if (activeTab === 'innovation') {
-                setReadout(
-                    'ch9Readout',
-                    'Mode: Peer Kernel Regression · Reward Only [G_i − E(G|Z_i) − z·σ]_+ > 0'
-                );
-
-                // 绘制条件期望 E(G|Z) 与 +z·σ 置信上界带
-                ctx.save();
-                ctx.fillStyle = hexToRgba(COLORS.patina, 0.14);
-                ctx.beginPath();
-                for (let i = 0; i <= 60; i++) {
-                    const u = i / 60;
-                    const x = padX + u * gw;
-                    const expG = 0.10 + 0.70 * u;
-                    const upper = expG + 0.08;
-                    const y = h - padY - upper * gh;
-                    if (i === 0) ctx.moveTo(x, y);
-                    else ctx.lineTo(x, y);
-                }
-                for (let i = 60; i >= 0; i--) {
-                    const u = i / 60;
-                    const x = padX + u * gw;
-                    const expG = 0.10 + 0.70 * u;
-                    const y = h - padY - expG * gh;
-                    ctx.lineTo(x, y);
-                }
-                ctx.closePath();
-                ctx.fill();
-
-                // 期望线 E(G|Z)
-                ctx.strokeStyle = COLORS.patina;
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(padX, h - padY - 0.10 * gh);
-                ctx.lineTo(padX + gw, h - padY - 0.80 * gh);
-                ctx.stroke();
-
-                // LCB 门槛线 E(G|Z) + z·σ
-                ctx.strokeStyle = COLORS.amber;
-                ctx.setLineDash([5, 4]);
-                ctx.beginPath();
-                ctx.moveTo(padX, h - padY - 0.18 * gh);
-                ctx.lineTo(padX + gw, h - padY - 0.88 * gh);
-                ctx.stroke();
-                ctx.restore();
-
-                drawPillTag(ctx, padX + gw * 0.36, h - padY - 0.48 * gh, 'Threshold: E(G|Z_i) + z·σ(G|Z_i)', COLORS.amber);
-
-                // 绘制候选散点与正创新增量柱
-                peers.forEach((p) => {
-                    const px = padX + p.z * gw;
-                    const py = h - padY - p.g * gh;
-                    const threshY = h - padY - (p.exp + p.std) * gh;
-
-                    if (p.highlight) {
-                        drawVectorArrow(ctx, { x: px, y: threshY }, { x: px, y: py }, {
-                            color: COLORS.amber,
-                            width: 3,
-                            glow: true,
-                        });
-                    }
-
-                    drawNodeBadge(ctx, { x: px, y: py }, {
-                        color: p.highlight ? COLORS.amber : COLORS.patina,
-                        radius: p.highlight ? 6.5 : 4.5,
-                        label: p.label,
-                        offsetY: -10,
-                    });
-                });
-            } else {
-                setReadout(
-                    'ch9Readout',
-                    'Mode: Direct Anchor SmoothStep · θ_H = max(0.05, μ_H + 2σ_H) · Cap C_A = 0.10'
-                );
-
-                const theta = 0.08;
-                const sat = 0.22;
-                ctx.save();
-                ctx.beginPath();
-                for (let i = 0; i <= 100; i++) {
-                    const hVal = (i / 100) * 0.30;
-                    const act = smoothstep(theta, sat, hVal);
-                    const x = padX + (i / 100) * gw;
-                    const y = h - padY - act * gh * 0.82;
-                    if (i === 0) ctx.moveTo(x, y);
-                    else ctx.lineTo(x, y);
-                }
-                ctx.strokeStyle = COLORS.cinnabar;
-                ctx.lineWidth = 3;
-                ctx.stroke();
-
-                const thX = padX + (theta / 0.30) * gw;
-                const satX = padX + (sat / 0.30) * gw;
-                ctx.strokeStyle = hexToRgba(COLORS.amber, 0.55);
-                ctx.setLineDash([4, 4]);
-                ctx.beginPath();
-                ctx.moveTo(thX, padY);
-                ctx.lineTo(thX, h - padY);
-                ctx.moveTo(satX, padY);
-                ctx.lineTo(satX, h - padY);
-                ctx.stroke();
-                ctx.restore();
-
-                drawPillTag(ctx, thX, h - padY + 14, 'θ_H = max(floor, μ+2σ)', COLORS.amber, 'center');
-                drawPillTag(ctx, satX, padY + 14, 'Saturation s_A → Bonus +0.10', COLORS.cinnabar, 'center');
-            }
-        });
-
-        return {
-            start: () => runner.start(),
-            stop: () => runner.stop(),
-            setTab: (tab) => {
-                activeTab = tab;
-            },
-        };
-    }
-
-    // =========================================================================
-    // CHAPTER 10 · FINALE: 全链路 Rust Runtime 模拟器 + Top-3 实时拆解表
-    // =========================================================================
     function createScene_finale(canvas) {
         let currentScene = 'arch';
 
+        // 标题和解释角色是教学预设；证据标量不来自真实日记或生产观测。
+        const common = { field: .88, support: .8, scalarPath: .4,
+            graphScore: .8, nodeCoverage: .35, edgeCoverage: .20,
+            closure: .9, alignment: .85, direction: .9 };
         const scenarios = {
             arch: {
-                omega: 0.82,
-                regime: 'DENSE',
-                mode: 'narrative (p_N=0.61)',
-                latency: '1.64ms',
+                omega: .82, regime: 'DENSE', mode: 'narrative · 预设结构证据',
                 items: [
-                    {
-                        rank: 1,
-                        title: 'RiverMemo Topology V3 与 AGS 双尺度几何事务闭合记录',
-                        role: 'direct_answer',
-                        s0: 0.78,
-                        bg: 0.06,
-                        bh: 0.08,
-                        tags: 'RiverMemo · TopologyV3 · AGS · Ω泛函',
-                    },
-                    {
-                        rank: 2,
-                        title: 'Sense 有界脉冲扩散与 Resolvent 双尺度连续场推导',
-                        role: 'structural_explanation',
-                        s0: 0.72,
-                        bg: 0.07,
-                        bh: 0.02,
-                        tags: 'Sense · Resolvent · 双场支持域 · 相对拓扑',
-                    },
-                    {
-                        rank: 3,
-                        title: 'VexusIndex N-API observationHandle 同代快照复用设计',
-                        role: 'thematic_neighbor',
-                        s0: 0.68,
-                        bg: 0.02,
-                        bh: 0.00,
-                        tags: 'MemoRuntime · observationHandle · Rayon',
-                    },
+                    { title: 'RiverMemo Topology V3 与 AGS 双尺度几何事务闭合记录',
+                        role: '显式精确接触 · 闭合达标（预设）',
+                        evidence: { query: .78, pathQuality: .7, anchorStrength: .18 } },
+                    { title: 'Sense 有界脉冲扩散与 Resolvent 双尺度连续场推导',
+                        role: '结构解释（预设）',
+                        evidence: { query: .72, pathQuality: .8, anchorStrength: 0 } },
+                    { title: '请求句柄与同代快照复用设计',
+                        role: '主题邻居（预设）',
+                        evidence: { query: .68, pathQuality: .2, nodeCoverage: .12, edgeCoverage: .03 } },
                 ],
             },
             fact: {
-                omega: 0.19,
-                regime: 'SPARSE',
-                mode: 'propositional (p_P=0.52)',
-                latency: '1.18ms',
+                omega: .19, regime: 'SPARSE', mode: 'propositional · 预设配置核查',
                 items: [
-                    {
-                        rank: 1,
-                        title: '2026-10-15 MoonAST 全库扫描耗时 0.228s / 48MB 内存基线归档',
-                        role: 'direct_answer (Anchor Promoted)',
-                        s0: 0.74,
-                        bg: 0.01,
-                        bh: 0.10,
-                        tags: 'MoonAST · 0.228s · Hop-0 稀有锚点',
-                    },
-                    {
-                        rank: 2,
-                        title: 'ProjectForge 伐柯伐柯基准测试：1:6.8 Token 消耗对比',
-                        role: 'structural_explanation',
-                        s0: 0.69,
-                        bg: 0.03,
-                        bh: 0.03,
-                        tags: 'Kerr · CodeBench · AST锚点',
-                    },
-                    {
-                        rank: 3,
-                        title: 'JevCall 双轨安检参数级正则白名单策略',
-                        role: 'thematic_neighbor',
-                        s0: 0.64,
-                        bg: 0.01,
-                        bh: 0.00,
-                        tags: 'JevCall · SecurityGuard',
-                    },
+                    { title: '双场共享预算默认 K=256 的配置说明',
+                        role: '显式精确接触 · 闭合达标（预设）',
+                        evidence: { query: .74, pathQuality: .12, anchorStrength: .20 } },
+                    { title: '路径与图共享 0.08 拓扑预算的说明',
+                        role: '结构解释（预设）',
+                        evidence: { query: .69, pathQuality: .6, anchorStrength: .09 } },
+                    { title: '动态虫洞与静态邻居名额的关系',
+                        role: '隐式种子（预设）',
+                        evidence: { query: .64, pathQuality: .2, implicitOnly: true, anchorStrength: .2 } },
                 ],
             },
             concept: {
-                omega: 0.48,
-                regime: 'DENSE',
-                mode: 'atomic (p_A=0.71)',
-                latency: '1.31ms',
+                omega: .48, regime: 'DENSE', mode: 'atomic · 预设概念证据',
                 items: [
-                    {
-                        rank: 1,
-                        title: 'OneRing 400 行纯 HASH-SQL 跨端唯一事实时间线定义',
-                        role: 'atomic_concept',
-                        s0: 0.81,
-                        bg: 0.07,
-                        bh: 0.06,
-                        tags: 'OneRing · HASH-SQL · 唯一事实源',
-                    },
-                    {
-                        rank: 2,
-                        title: '共笔文坊 Scriptorium V3 渲染态即编辑态三态解耦协议',
-                        role: 'atomic_concept',
-                        s0: 0.73,
-                        bg: 0.04,
-                        bh: 0.02,
-                        tags: 'ScriptoriumV3 · 3D透视IME · .vdocx',
-                    },
-                    {
-                        rank: 3,
-                        title: 'VMusic RubatoF64 205dB 连续 FIR 重采样管线说明',
-                        role: 'thematic_neighbor',
-                        s0: 0.66,
-                        bg: 0.01,
-                        bh: 0.00,
-                        tags: 'VMusic · WASAPI · 205dB',
-                    },
+                    { title: 'OneRing 跨端唯一事实时间线定义',
+                        role: '原子概念（预设）',
+                        evidence: { query: .81, pathQuality: .4, atomic: true, anchorStrength: .16 } },
+                    { title: '共笔文坊三态解耦协议',
+                        role: '原子概念（预设）',
+                        evidence: { query: .73, pathQuality: .3, atomic: true, anchorStrength: .10 } },
+                    { title: 'VMusic 音频重采样管线说明',
+                        role: '主题邻居（预设）',
+                        evidence: { query: .66, pathQuality: .1, nodeCoverage: .08, edgeCoverage: 0, hasEdges: false } },
                 ],
             },
         };
@@ -1620,28 +1424,32 @@
         function renderScoreTable(sc) {
             const container = document.getElementById('finaleScoreTable');
             if (!container) return;
-            container.innerHTML = sc.items
-                .map((item) => {
-                    const total = Math.min(1.0, item.s0 + item.bg + item.bh);
-                    const w0 = (item.s0 * 100).toFixed(1);
-                    const wg = (item.bg * 100).toFixed(1);
-                    const wh = (item.bh * 100).toFixed(1);
+            const ranked = sc.items.map(item => ({ ...item, result:
+                global.RiverMemoV3.scoreCandidate({ ...common, omega: sc.omega, ...item.evidence }) }))
+                .sort((a, b) => b.result.score - a.result.score);
+            container.innerHTML = ranked
+                .map((item, index) => {
+                    const r = item.result;
                     return `
                         <div class="score-row-card">
                             <div class="score-row-head">
-                                <span class="score-row-title">#0${item.rank} · ${item.title}</span>
+                                <span class="score-row-title">#0${index + 1} · ${item.title}</span>
                                 <span class="score-role-badge">${item.role}</span>
                             </div>
-                            <div class="score-bars" title="S_0 + Ω^γ B_G + B_H">
-                                <div class="bar-s0" style="width:${w0}%"></div>
-                                <div class="bar-bg" style="width:${wg}%"></div>
-                                <div class="bar-bh" style="width:${wh}%"></div>
+                            <div class="score-bars" title="B + P + G + A；超出 1 的部分另记截断扣分">
+                                <div class="bar-s0" style="width:${r.base * 100}%"></div>
+                                <div class="bar-bg" style="width:${r.path * 100}%;background:#76BFAE"></div>
+                                <div class="bar-bg" style="width:${r.graph * 100}%"></div>
+                                <div class="bar-bh" style="width:${r.anchor * 100}%"></div>
                             </div>
                             <div class="score-breakdown">
-                                <span>S_0=${item.s0.toFixed(2)}</span>
-                                <span>+ Ω^γ B_G=${item.bg.toFixed(2)}</span>
-                                <span>+ B_H=${item.bh.toFixed(2)}</span>
-                                <strong>S_V3 = ${total.toFixed(2)}</strong>
+                                <span>B=${r.base.toFixed(4)}（含共振 ${r.resonance.toFixed(4)}）</span>
+                                <span>+ P=${r.path.toFixed(4)}</span>
+                                <span>+ G=${r.graph.toFixed(4)}</span>
+                                <span>+ A=${r.anchor.toFixed(4)}</span>
+                                <span>− 截断=${r.clipping.toFixed(4)}</span>
+                                <span>P+G=${(r.path + r.graph).toFixed(4)} ≤ 0.08</span>
+                                <strong>S_V3 = ${r.score.toFixed(4)}</strong>
                             </div>
                         </div>
                     `;
@@ -1724,7 +1532,6 @@
         createScene_ch6,
         createScene_ch7,
         createScene_ch8,
-        createScene_ch9,
         createScene_finale,
     };
 })(window);

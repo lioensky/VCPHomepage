@@ -34,7 +34,7 @@ const layers = [
   {name: "TDB 2-bit", sub: "冲程筛选", symbol: "01", title: "用位码找路，用原始精度裁决。", text: "紧凑导航与有界候选池减少搬运；精排仍读取 SQL 原始 FP32。", metric: "1 / 16", note: "位码 / FP32 载荷"},
   {name: "AGS", sub: "正交背景", symbol: "⊥", title: "把长期几何，留在预计算里。", text: "锚定正交化统一局部残差与全局主题面，不在每次查询重新训练。", metric: "SHARED", note: "同代背景资产"},
   {name: "Spike", sub: "残差虫洞", symbol: "↗", title: "让语境打开已有的隐秘支流。", text: "深层残差为历史边争取动态席位，有界传播，不凭空创造关系。", metric: "BOUNDED", note: "请求级动态联想"},
-  {name: "RiverMemo V2", sub: "双场裁决", symbol: "Ω", title: "双场汇流，一个统一泛函。", text: "局部场与迁移场共享投影预算，复用 FP32 池，以正文和拓扑共同读出。", metric: "≤256", note: "默认双场选点并集"},
+  {name: "RiverMemo V3", sub: "支流确权", symbol: "Ω", title: "支流各自确权，四项独立分账。", text: "非负共振保护查询分；一对一接触与支流饱和约束图奖励，路径与图共享预算，事实锚独立限额。", metric: "≤256", note: "默认双场选点并集"},
 ];
 
 export function VexusArchitecture({onRead}: {onRead: () => void}) {
