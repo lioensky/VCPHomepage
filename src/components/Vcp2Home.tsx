@@ -219,6 +219,9 @@ const milestoneNodes = [
 ];
 
 export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
+  // 复用 Markdown 元数据；按日期字面量展示，避免 Date 在不同时区偏移一天。
+  const changelogDate = documents.find((doc) => doc.slug === "changelog")
+    ?.updatedAt.match(/^\d{4}-\d{2}-\d{2}(?=T|$)/)?.[0].replaceAll("-", ".");
   // 首页以「纸墨 × 石墨」深浅交错为固定设计语言，不提供主题切换。
   // 强制站点变量为 industrial，保证 Logo、Nova 驾驶舱等共享组件在深色顶栏上可读；
   // 不写入 localStorage，卸载时恢复，旧页面的主题偏好不受影响。
@@ -537,7 +540,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
               <div>
                 <div className="vcp2-hero-kicker">
                   <Sparkles size={14} />
-                  <span>2026.10.27 UPDATE</span>
+                  <span>{changelogDate ? `${changelogDate} UPDATE` : "LATEST UPDATE"}</span>
                   <strong>VCP 2.0 正式版 · 全栈自研 AGI 运行时与 Agent 操作系统</strong>
                 </div>
 
@@ -585,7 +588,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                   </a>
                   <a href="/?page=changelog" className="vcp2-btn-secondary">
                     <Clock size={17} />
-                    2026.10.27 更新日志
+                    {changelogDate ? `${changelogDate} 更新日志` : "更新日志"}
                   </a>
                 </div>
               </div>
@@ -594,7 +597,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
               <aside className="vcp2-hero-telemetry" aria-label="VCP 2.0 实时工程铭牌">
                 <div className="vcp2-telemetry-head">
                   <span>NOVA INDUSTRIAL TELEMETRY</span>
-                  <span>DOC SYNC // 2026.10.28</span>
+                  <span>{changelogDate ? `DOC SYNC // ${changelogDate}` : "DOC SYNC"}</span>
                 </div>
                 <div className="vcp2-telemetry-grid">
                   <div className="vcp2-stat-box">
