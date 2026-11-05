@@ -2,6 +2,7 @@ import {useEffect, useRef, useState, type ReactNode} from "react";
 import {
   ArrowUpRight,
   BookOpen,
+  Building2,
   Clock,
   Cpu,
   ExternalLink,
@@ -255,6 +256,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
   // 《河》概念视听剧场：打开时先停掉全站氛围音，避免两路 WebAudio 叠音；
   // 并在本次点击的同步调用栈内解锁音频，iframe 内即可免点击直接进入开场报幕。
   const [isRiverOpen, setIsRiverOpen] = useState(false);
+  const [isCityOpen, setIsCityOpen] = useState(false);
   const openRiverTheater = () => {
     if (isPlayingAudio) stopAmbientMusic();
     primeNovaRiverAudio();
@@ -573,6 +575,16 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                   >
                     <Play size={16} />
                     观看《河》· Nova 原创 60s 概念短片
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsCityOpen(true)}
+                    className="vcp2-btn-secondary vcp-city-entry"
+                    title="进入 Nova 构建的交互式都市：探索建筑、地下记忆长河与一条消息的旅程"
+                    aria-haspopup="dialog"
+                  >
+                    <Building2 size={17} />
+                    探索 V 都市 · 3D 架构沙盘
                   </button>
                   <button
                     type="button"
@@ -1857,6 +1869,7 @@ target_file:「始」src/db/indexRepository.js「末」
       </button>
 
       <NovaRiverTheater open={isRiverOpen} onClose={() => setIsRiverOpen(false)} />
+      <NovaRiverTheater experience="city" open={isCityOpen} onClose={() => setIsCityOpen(false)} />
 
       {nova}
     </div>

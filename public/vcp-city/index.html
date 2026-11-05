@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VCP 都市 · 3D 架构陶瓷沙盘 | VCP Metropolis</title>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+  <style>
+    /* ==========================================================================
+       Nova 纸墨工业视觉规范 (Paper & Ink Industrial System)
+       浅色：暖纸 #F2EFE7 / 炭墨 #1B211F / 朱砂 #B94832 / 松石 #21675C
+       深色：石墨 #171A1D / 骨白 #F2F0E9 / 警示黄 #F2A900 / 铜绿 #76BFAE
+       ========================================================================== */
+    :root {
+      --bg-paper: #F2EFE7;
+      --fg-ink: #1B211F;
+      --accent-primary: #B94832;
+      --accent-secondary: #21675C;
+      --panel-bg: rgba(242, 239, 231, 0.86);
+      --panel-border: rgba(27, 33, 31, 0.16);
+      --muted-ink: rgba(27, 33, 31, 0.66);
+      --chip-bg: rgba(27, 33, 31, 0.06);
+      --shadow-soft: 0 10px 30px rgba(27, 33, 31, 0.10);
+    }
+
+    body.theme-night {
+      --bg-paper: #171A1D;
+      --fg-ink: #F2F0E9;
+      --accent-primary: #F2A900;
+      --accent-secondary: #76BFAE;
+      --panel-bg: rgba(23, 26, 29, 0.86);
+      --panel-border: rgba(242, 240, 233, 0.16);
+      --muted-ink: rgba(242, 240, 233, 0.68);
+      --chip-bg: rgba(242, 240, 233, 0.07);
+      --shadow-soft: 0 12px 34px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg-paper);
+      color: var(--fg-ink);
+      font-family: "Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      user-select: none;
+      transition: background 0.35s ease, color 0.35s ease;
+    }
+
+    #city-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      z-index: 1;
+    }
+
+    /* 3D 场景悬浮地标铭牌 */
+    #floating-labels {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+      overflow: hidden;
+    }
+
+    .city-pin {
+      position: absolute;
+      left: 0;
+      top: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      color: var(--fg-ink);
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+      backdrop-filter: blur(8px);
+      cursor: pointer;
+      transition: opacity 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .city-pin:hover,
+    .city-pin.selected {
+      border-color: var(--accent-primary);
+      background: var(--fg-ink);
+      color: var(--bg-paper);
+      z-index: 10;
+    }
+
+    .city-pin .pin-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-secondary);
+    }
+
+    .city-pin.selected .pin-dot {
+      background: var(--accent-primary);
+    }
+
+    /* 顶部纸墨工业标题栏 */
+    .hud-header {
+      position: fixed;
+      top: 18px;
+      left: 22px;
+      right: 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      pointer-events: none;
+      z-index: 5;
+      gap: 16px;
+    }
+
+    .brand-card {
+      pointer-events: auto;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-left: 4px solid var(--accent-primary);
+      padding: 12px 18px;
+      border-radius: 10px;
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(12px);
+      max-width: 460px;
+    }
+
+    .brand-eyebrow {
+      font-size: 10.5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent-primary);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .brand-title {
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-sub {
+      font-size: 12px;
+      color: var(--muted-ink);
+      margin-top: 4px;
+      line-height: 1.45;
+    }
+
+    .top-actions {
+      pointer-events: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .hud-btn {
+      appearance: none;
+      border: 1px solid var(--panel-border);
+      background: var(--panel-bg);
+      color: var(--fg-ink);
+      padding: 8px 13px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(10px);
+      transition: all 0.18s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+
+    .hud-btn:hover {
+      border-color: var(--accent-primary);
+      transform: translateY(-1px);
+    }
+
+    .hud-btn.active {
+      background: var(--accent-primary);
+      color: #FFF;
+      border-color: var(--accent-primary);
+    }
+
+    body.theme-night .hud-btn.active {
+      color: #171A1D;
+    }
+
+    /* 左侧四层地质剖面切换栏 */
+    .strata-dock {
+      position: fixed;
+      left: 22px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 5;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .strata-label {
+      font-size: 10px;
+      font-family: ui-monospace, monospace;
+      letter-spacing: 0.1em;
+      color: var(--muted-ink);
+      padding: 0 4px 4px;
+      border-bottom: 1px solid var(--panel-border);
+    }
+
+    .strata-pill {
+      appearance: none;
+      border: 1px solid transparent;
+      background: var(--chip-bg);
+      color: var(--fg-ink);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      text-align: left;
+      transition: all 0.15s ease;
+    }
+
+    .strata-pill:hover {
+      border-color: var(--accent-secondary);
+    }
+
+    .strata-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* 右侧建筑内核档案检视抽屉 */
+    .inspector-card {
+      position: fixed;
+      top: 78px;
+      right: 22px;
+      width: 340px;
+      max-height: calc(100vh - 190px);
+      overflow-y: auto;
+      z-index: 5;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-top: 3px solid var(--accent-secondary);
+      border-radius: 12px;
+      padding: 16px 18px;
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(14px);
+    }
+
+    .insp-eyebrow {
+      font-size: 11px;
+      font-family: ui-monospace, monospace;
+      color: var(--accent-secondary);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+
+    .insp-title {
+      font-size: 17px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+
+    .insp-story {
+      font-size: 12.5px;
+      line-height: 1.6;
+      color: var(--muted-ink);
+      padding-bottom: 12px;
+      border-bottom: 1px dashed var(--panel-border);
+      margin-bottom: 12px;
+    }
+
+    .flow-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .flow-item {
+      background: var(--chip-bg);
+      border-radius: 8px;
+      padding: 8px 10px;
+      border-left: 3px solid var(--accent-secondary);
+    }
+
+    .flow-item.out {
+      border-left-color: var(--accent-primary);
+    }
+
+    .flow-item.sig {
+      border-left-color: #E5A93C;
+    }
+
+    .flow-tag {
+      font-size: 10.5px;
+      font-family: ui-monospace, monospace;
+      font-weight: 700;
+      color: var(--muted-ink);
+      margin-bottom: 2px;
+      letter-spacing: 0.05em;
+    }
+
+    .flow-val {
+      font-size: 12px;
+      line-height: 1.45;
+      font-weight: 500;
+    }
+
+    /* 底部五拍时间轴控制台 (一生二，二生多，多归一) */
+    .timeline-dock {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 5;
+      width: min(880px, calc(100vw - 44px));
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 10px 14px 12px;
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(14px);
+    }
+
+    .beat-banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 8px;
+      padding: 0 4px;
+    }
+
+    #beat-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--accent-primary);
+    }
+
+    #beat-desc {
+      font-size: 12px;
+      color: var(--muted-ink);
+      flex: 1;
+      text-align: right;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    #beat-buttons {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 7px;
+    }
+
+    .beat-btn {
+      appearance: none;
+      border: 1px solid var(--panel-border);
+      background: var(--chip-bg);
+      color: var(--fg-ink);
+      padding: 7px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.18s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .beat-btn:hover {
+      border-color: var(--accent-primary);
+    }
+
+    .beat-btn.active {
+      background: var(--fg-ink);
+      color: var(--bg-paper);
+      border-color: var(--fg-ink);
+    }
+
+    .beat-num {
+      font-size: 10px;
+      font-family: ui-monospace, monospace;
+      opacity: 0.72;
+      font-weight: 700;
+    }
+
+    .beat-name {
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    /* 一条消息的旅程 顶部浮动字幕条 */
+    #tour-toast {
+      position: fixed;
+      top: 86px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-12px);
+      z-index: 6;
+      background: var(--fg-ink);
+      color: var(--bg-paper);
+      padding: 10px 18px;
+      border-radius: 999px;
+      box-shadow: var(--shadow-soft);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s ease;
+      max-width: 620px;
+      text-align: center;
+    }
+
+    #tour-toast.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    #tour-step-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--accent-primary);
+    }
+
+    body.theme-night #tour-step-title {
+      color: var(--accent-secondary);
+    }
+
+    #tour-step-detail {
+      font-size: 11.5px;
+      opacity: 0.9;
+      margin-top: 2px;
+    }
+
+    @media (max-width: 960px) {
+      .inspector-card {
+        width: 280px;
+      }
+      .strata-dock {
+        display: none;
+      }
+      #beat-desc {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body class="theme-night">
+  <canvas id="city-canvas"></canvas>
+  <div id="floating-labels"></div>
+
+  <!-- 顶部纸墨工业标题与控制栏 -->
+  <header class="hud-header">
+    <div class="brand-card">
+      <div class="brand-eyebrow">VCP SKYLINE · CERAMIC DIORAMA</div>
+      <div class="brand-title">
+        <span>🏙️ VCP 都市 · 公用事业之城</span>
+      </div>
+      <div class="brand-sub">
+        西岸中央都市 <b>VCPToolBox</b> 双子塔与百座插件灯海 · 东岸 <b>VChat</b> 23 座独立内核建筑 · 地底 <b>RiverMemo</b> 记忆长河
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <button id="btn-start-tour" class="hud-btn">
+        <span>✨ 一条消息的旅程 · 导览</span>
+      </button>
+      <button id="btn-toggle-xray" class="hud-btn">
+        <span>⛏️ 地质剖切 · 透视地下河</span>
+      </button>
+      <button id="btn-toggle-theme" class="hud-btn">
+        <span>🌙 石墨星夜 · Cyber Night</span>
+      </button>
+      <button id="btn-reset-cam" class="hud-btn">
+        <span>🧭 全景复位</span>
+      </button>
+      <a href="/" class="hud-btn" title="返回 VCP 官网主页">
+        <span>↩ 官网主页</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- 一条消息的旅程 实时导览字幕 -->
+  <div id="tour-toast">
+    <div id="tour-step-title">01 · 用户在 VChat 敲下一句话</div>
+    <div id="tour-step-detail">东城 VCPChatKernel 开启独立话题线程…</div>
+  </div>
+
+  <!-- 左侧四层地质剖面快捷导航 -->
+  <aside class="strata-dock">
+    <div class="strata-label">STRATA · 城市四层结构</div>
+    <div id="strata-buttons" style="display:flex;flex-direction:column;gap:5px;"></div>
+  </aside>
+
+  <!-- 右侧内核流量与依赖检视抽屉 -->
+  <aside class="inspector-card" id="inspector-panel">
+    <div class="insp-eyebrow" id="insp-category">地标 · 万流归宗</div>
+    <h2 class="insp-title" id="insp-title">🖥️ 桌面 · VCPProxy 总闸</h2>
+    <p class="insp-story" id="insp-story"></p>
+
+    <div class="flow-grid">
+      <div class="flow-item sig" id="insp-signature-box">
+        <div class="flow-tag">SIGNATURE · 建筑招牌动作</div>
+        <div class="flow-val" id="insp-signature"></div>
+      </div>
+      <div class="flow-item">
+        <div class="flow-tag">INFLOW · 什么流进来</div>
+        <div class="flow-val" id="insp-inflow"></div>
+      </div>
+      <div class="flow-item out">
+        <div class="flow-tag">OUTFLOW · 什么流出去</div>
+        <div class="flow-val" id="insp-outflow"></div>
+      </div>
+      <div class="flow-item">
+        <div class="flow-tag">DEPENDS ON · 谁离了它就停摆</div>
+        <div class="flow-val" id="insp-depends"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 底部五拍时间轴 (Shift+滚轮 或 点击切换) -->
+  <footer class="timeline-dock">
+    <div class="beat-banner">
+      <div id="beat-title">万流归宗 · VCPProxy 桌面总闸</div>
+      <div id="beat-desc">全城 IPC 与后端 Admin/插件 API 经地下管网汇聚至 V 桌面。</div>
+    </div>
+    <div id="beat-buttons"></div>
+  </footer>
+
+  <script>
+    (() => {
+      if (window.parent === window || new URLSearchParams(location.search).get('embed') !== '1') return;
+      const close = () => window.parent.postMessage({ type: 'vcp-city:close' }, location.origin);
+      window.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          close();
+        }
+      });
+      const home = document.querySelector('.top-actions a[href="/"]');
+      if (home) {
+        home.innerHTML = '<span>↩ 关闭展示</span>';
+        home.title = '关闭 V 都市，返回官网';
+        home.addEventListener('click', (event) => {
+          event.preventDefault();
+          close();
+        });
+      }
+    })();
+  </script>
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>

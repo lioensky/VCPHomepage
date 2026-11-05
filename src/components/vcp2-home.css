@@ -2464,3 +2464,19 @@
 .memory-cost-flow small { color: var(--nova-turquoise); font: 0.62rem "JetBrains Mono", monospace; }
 .memory-cost-flow strong { display: block; margin-top: 0.8rem; font-size: 0.95rem; line-height: 1.8; }
 .memory-cost-flow p { font-size: 0.78rem; line-height: 1.85; color: var(--nova-charcoal-muted); }
+/* V 都市 shares the on-demand theater shell, not the film's aspect ratio. */
+.vcp-city-entry {
+  border-color: rgba(118, 191, 174, 0.5) !important;
+  background: linear-gradient(135deg, rgba(118, 191, 174, 0.12), rgba(23, 26, 29, 0.8)) !important;
+}
+.vcp-city-entry:hover {
+  border-color: #76bfae !important;
+  box-shadow: 0 0 24px rgba(118, 191, 174, 0.2);
+}
+.vcp-city-overlay .nova-river-shell {
+  width: min(100%, 1760px);
+  height: min(920px, calc(100dvh - 2 * clamp(0.5rem, 3vw, 2.5rem)));
+}
+.vcp-city-overlay .nova-river-shell-bar { flex: none; color: #76bfae; }
+.vcp-city-overlay .nova-river-live-dot { background: #76bfae; box-shadow: 0 0 10px #76bfae; }
+.vcp-city-overlay .nova-river-frame { flex: 1; min-height: 0; aspect-ratio: auto; }

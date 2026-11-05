@@ -48,9 +48,13 @@ function releaseNovaRiverAudio() {
 type NovaRiverTheaterProps = {
   open: boolean;
   onClose: () => void;
+  experience?: "river" | "city";
 };
 
-export function NovaRiverTheater({open, onClose}: NovaRiverTheaterProps) {
+export function NovaRiverTheater({open, onClose, experience = "river"}: NovaRiverTheaterProps) {
+  const isCity = experience === "city";
+  const title = isCity ? "V 都市 · 3D 架构沙盘" : "《河》VCP 2.0 概念视听剧场";
+  const closeMessage = isCity ? "vcp-city:close" : CLOSE_MESSAGE;
   const frameRef = useRef<HTMLIFrameElement | null>(null);
   const closeRef = useRef(onClose);
   closeRef.current = onClose;
@@ -58,6 +62,7 @@ export function NovaRiverTheater({open, onClose}: NovaRiverTheaterProps) {
   useEffect(() => {
     if (!open) return;
 
+    const previousFocus = document.activeElement;
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
@@ -67,7 +72,7 @@ export function NovaRiverTheater({open, onClose}: NovaRiverTheaterProps) {
     const onMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
       if (event.source !== frameRef.current?.contentWindow) return;
-      if (event.data && typeof event.data === "object" && event.data.type === CLOSE_MESSAGE) {
+      if (event.data && typeof event.data === "object" && event.data.type === closeMessage) {
         closeRef.current();
       }
     };
@@ -78,25 +83,26 @@ export function NovaRiverTheater({open, onClose}: NovaRiverTheaterProps) {
       document.body.style.overflow = prevOverflow;
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("message", onMessage);
-      releaseNovaRiverAudio();
+      if (!isCity) releaseNovaRiverAudio();
+      if (previousFocus instanceof HTMLElement && previousFocus.isConnected) previousFocus.focus();
     };
-  }, [open]);
+  }, [open, isCity, closeMessage]);
 
   if (!open) return null;
 
   return (
-    <div className="nova-river-overlay" role="dialog" aria-modal="true" aria-label="《河》VCP 2.0 概念视听剧场">
-      <button type="button" className="nova-river-backdrop" aria-label="关闭《河》剧场" onClick={onClose} />
+    <div className={`nova-river-overlay${isCity ? " vcp-city-overlay" : ""}`} role="dialog" aria-modal="true" aria-label={title}>
+      <button type="button" className="nova-river-backdrop" aria-label={`关闭${title}`} onClick={onClose} />
 
       <div className="nova-river-shell">
         <div className="nova-river-shell-bar">
           <span>
             <i className="nova-river-live-dot" />
-            THE RIVER // AGENT NOVA ORIGINAL · 60s
+            {isCity ? "V METROPOLIS // AGENT NOVA · INTERACTIVE 3D" : "THE RIVER // AGENT NOVA ORIGINAL · 60s"}
           </span>
           <div className="nova-river-shell-actions">
-            <a href="/nova-river.html" target="_blank" rel="noreferrer">独立页面打开 ↗</a>
-            <button type="button" className="nova-river-close" onClick={onClose} aria-label="关闭《河》剧场">
+            <a href={isCity ? "/vcp-city/index.html" : "/nova-river.html"} target="_blank" rel="noreferrer">独立页面打开 ↗</a>
+            <button type="button" className="nova-river-close" onClick={onClose} aria-label={`关闭${title}`}>
               <X size={16} />
               <span>ESC</span>
             </button>
@@ -106,8 +112,8 @@ export function NovaRiverTheater({open, onClose}: NovaRiverTheaterProps) {
         <div className="nova-river-frame">
           <iframe
             ref={frameRef}
-            src={NOVA_RIVER_SRC}
-            title="《河》VCP 2.0 概念视听剧场"
+            src={isCity ? "/vcp-city/index.html?embed=1" : NOVA_RIVER_SRC}
+            title={title}
             allow="autoplay; fullscreen"
             allowFullScreen
             onLoad={() => frameRef.current?.focus()}
