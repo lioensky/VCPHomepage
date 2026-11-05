@@ -27,7 +27,7 @@ class VCPMetropolisApp {
     this.labelsContainer = document.getElementById('floating-labels');
 
     this.activeBeat = 5; // 默认展示完整的「现在」(第五拍：万流归宗)
-    this.isNight = true; // 默认以赛博星夜真霓虹模式启动
+    this.isNight = false; // 默认暖纸晨光，夜景仍可手动切换
     this.isXray = false;
     this.selectedMeta = null;
 
@@ -45,6 +45,7 @@ class VCPMetropolisApp {
     this._buildFloatingPins();
     this._bindUI();
     this._bindPointer();
+    this.setNightMode(this.isNight); // 全部建筑及发光材质创建后统一应用，首帧即白昼
 
     // 默认选中城心「桌面 · VCPProxy 总闸」展示架构信息
     const defaultMeta = VCHAT_CITY.buildings.find((b) => b.id === 'v-desktop');
@@ -103,8 +104,7 @@ class VCPMetropolisApp {
 
   _buildWorld() {
     this.mats = new CeramicMaterialSystem(this.scene);
-    document.body.classList.add('theme-night');
-    this.mats.setNightMode(true); // 初始为赛博星夜模式
+
 
     this.bf = new BuildingFactory(this.mats);
     this.strata = new CityStrataBuilder(this.scene, this.mats, this.bf);
@@ -306,7 +306,11 @@ class VCPMetropolisApp {
   }
 
   toggleNightMode() {
-    this.isNight = !this.isNight;
+    this.setNightMode(!this.isNight);
+  }
+
+  setNightMode(isNight) {
+    this.isNight = isNight;
     document.body.classList.toggle('theme-night', this.isNight);
     this.mats.setNightMode(this.isNight);
     if (this.bloomPass) {

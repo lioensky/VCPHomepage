@@ -11,7 +11,7 @@ import * as THREE from 'three';
 export class CeramicMaterialSystem {
   constructor(scene) {
     this.scene = scene;
-    this.isNight = true; // 默认以最具视觉冲击力的赛博星夜模式启动
+    this.isNight = false; // 默认白昼；主控在世界构建完成后统一应用光照与材质
     this.windowMaterials = [];
     this.glowMaterials = [];
     this.cityLights = [];
