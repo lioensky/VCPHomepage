@@ -621,8 +621,8 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                     <span>全栈自研前端应用生态</span>
                   </div>
                   <div className="vcp2-stat-box">
-                    <strong>256<em>节点</em></strong>
-                    <span>默认双场投影共享预算 · 含核心</span>
+                    <strong>4<em>X</em></strong>
+                    <span>工程产品交付速度</span>
                   </div>
                   <div className="vcp2-stat-box">
                     <strong>300<em>+</em></strong>
