@@ -633,8 +633,8 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                     <span>LCP 极速冷启 / CLS 0.00</span>
                   </div>
                   <div className="vcp2-stat-box">
-                    <strong>40<em>x</em></strong>
-                    <span>MoonAST 编程链路检索提速</span>
+                    <strong>1<em>ms</em></strong>
+                    <span>Vexus 读写查搜遍历</span>
                   </div>
                 </div>
               </aside>
