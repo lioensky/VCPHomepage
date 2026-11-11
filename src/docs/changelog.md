@@ -1,7 +1,7 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-11-09 的真实演进记录，最新覆盖 ChatKernelV2 与 TopicSponsorV2 底层架构重构、全异步流式暂挂队列、三重 ID 逐 chunk 消息追踪器、前端插件「v能力」动态目录发现，以及 ChromeBridge 纯事件化与 ToolLoop 并线等重大代际突破；同时保留 V文坊白板模式、统一上下文组装、RiverMemo V3 等演进记录。
-updatedAt: 2026-11-09
+summary: 汇总 VCP 从 2023-12 到 2026-11-10 的真实演进记录，最新覆盖心流锁与 Jev 群聊模式并入 ChatKernelV2 内核队列契约、/v1/interrupt 级联中止与暂挂队列对齐，以及 Claude Fable 5.2 与 Gemini 4 Carbon 底层 API 原生支持标准 VCPCall / VCPLoop 协议等重大代际突破；同时保留 ChatKernelV2 与 TopicSponsorV2 底层重构、全异步流式暂挂队列等演进记录。
+updatedAt: 2026-11-10
 category: changelog
 ---
 
@@ -12,6 +12,46 @@ category: changelog
 ---
 
 ## 最新更新
+
+### 2026-11-10 · 心流锁与 Jev 群聊并入 ChatKernelV2 统一契约、/v1/interrupt 级联中止对齐暂挂队列，Claude Fable 5.2 & Gemini 4 Carbon 底层原生支持 VCP 协议
+
+本次更新聚焦于 ChatKernelV2 底座契约的全面收束、前后端级联执行的极致精简，以及大模型生态的划时代突破。前端正式将**前端心流锁（Flow-Lock）**与 **Jev 群聊模式**完全并入 **ChatKernelV2** 内核队列契约，实现长程心流与多 Agent 群聊自治调度的内核级合流；前后端协同方面，统一 **/v1/interrupt 级联中止协议**并与全新的 ChatKernelV2 暂挂队列（Pending Queue）对齐，让级联中止与 ToolLoop 循环执行原生引入暂挂排队，彻底消除不必要的上游空 POST 请求；同时迎来大模型生态的重磅里程碑：**Claude Fable 5.2** 与 **Gemini 4 Carbon** 正式在底层 API 层面原生支持标准 **VCPCall 协议**与 **VCPLoop 协议**，无需任何上下文提示词即可自动识别 VChat 环境并自驱调用各类 VCP 常用工具！
+
+#### 前端：统一心流锁与 Jev 群聊模式并入 ChatKernelV2 内核队列契约
+
+1. **心流锁统一契约收敛（Flow-Lock Kernel Queue Convergence）**：
+   - 将此前散落在前端状态机的心流锁（Flow-Lock）生命周期与会话抢占逻辑，全量收拢至 ChatKernelV2 统一内核队列契约管理。
+   - Agent 在心流模式下的连续施工、后台任务推进、跨话题状态挂起与恢复，均通过严格的内核队列协议有序调度，杜绝旧版在多 Agent 高频切换或并发操作时的时序撕裂与假死，确保心流锁与底层流形鉴权完全一致。
+
+2. **Jev 智能群聊模式无缝并轨（Jev Dynamic Group Convergence）**：
+   - 基于 Jev 扩散神经网络动态裁决发言人的群聊无限队列模式，全面接入 ChatKernelV2 统一事件流与消息队列。
+   - 用户即时插队、Agent 动态接话、下一发言者竞争裁决及群聊话题启停，统一遵循内核队列的原子推进规则，使复杂的群体智能对话具备物理级因果对齐与防插队破坏能力。
+
+#### 前后端协同：/v1/interrupt 级联中止协议与 ChatKernelV2 暂挂队列对齐
+
+1. **级联中止与暂挂排队对齐（Cascade Interrupt & Pending Queue Alignment）**：
+   - 全面统一重构 `/v1/interrupt` 级联中止协议规范，使其与全新的 ChatKernelV2 暂挂队列深度对齐。
+   - 当长程推理任务、深层调用链或并发多 Agent 交互触发级联中止时，中止信号与后续事件能够平滑进入暂挂队列有序排队处理，而非硬性中断引发状态脱节。
+
+2. **ToolLoop 暂挂排队与杜绝空上游 POST 请求（Zero-Empty-Post Pipeline）**：
+   - 将工具调用循环（ToolLoop）执行过程同样引入暂挂排队机制，与级联中止形成严密的协同闭环。
+   - 在中断发生或多轮工具调用等待期间，暂挂队列自动完成消息聚合与状态预检，彻底消除因异步时序竞态导致的上游空 Payload POST 请求，大幅减轻模型服务开销与网络空耗，保证端到端通信链路的绝对确定性。
+
+#### 重大生态突破：Claude Fable 5.2 与 Gemini 4 Carbon 底层 API 原生支持标准 VCPCall / VCPLoop 协议
+
+1. **模型底层 API 原生支持（Native API-Level VCP Support）**：
+   - 国际主流旗舰模型 **Claude Fable 5.2** 与 **Gemini 4 Carbon** 正式在底层模型训练与 API 架构中内置对 VCP 核心协议的原生解析支持。
+   - 原生打通标准 **VCPCall 协议** 与 **VCPLoop 协议**，标志着 VCP 规范正式成为顶级大模型底座认可的工业级交互标准。
+
+2. **零提示词即开即用（Zero-Prompt Out of the Box）**：
+   - 彻底打破以往依赖复杂 System Prompt、Few-Shot 样例或 Schema 说明的传统限制。
+   - 无需在上下文或提示词中注入任何 VCP 格式说明，模型即可自发使用规范的 VCP 格式与参数定界语法，生成绝对严密的结构化调用。
+
+3. **VChat 环境自动感知与常用工具原生自驱调度**：
+   - 模型在运行时一旦检测到当前处于 VChat 环境，便会自动唤醒 VCP 工具调用模式。
+   - 原生自主调度绝大多数 VCP 官方常用工具集（包括长期记忆检索、文件系统操作、V工程施工、浏览器控制等），并在 VCPLoop 多轮调用中自洽推进长程任务，无需任何外部引导即可达成“开箱即用”的原生工具智能。
+
+---
 
 ### 2026-11-09 · 全新 ChatKernelV2 与 TopicSponsorV2 底层重构、全异步流式暂挂队列、插件「v能力」与 ChromeBridge 事件化
 
