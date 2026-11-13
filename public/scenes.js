@@ -1,6 +1,6 @@
 /* ==========================================================================
    scenes.js
-   RiverMemo V3 · AGS 统一场交互教学动画集
+   RiverMemo V3/V4 · AGS 统一场交互教学动画集（第 1、9 章由 rivermemo-v4.js 覆盖为 V4）
    公开白皮书的简化示意，不执行 Rust 原生计算或性能测量
    ========================================================================== */
 
@@ -1397,7 +1397,7 @@
                     { title: '双场共享预算默认 K=256 的配置说明',
                         role: '显式精确接触 · 闭合达标（预设）',
                         evidence: { query: .74, pathQuality: .12, anchorStrength: .20 } },
-                    { title: '路径与图共享 0.08 拓扑预算的说明',
+                    { title: '路径、图与传输共享 C_T 拓扑预算的说明',
                         role: '结构解释（预设）',
                         evidence: { query: .69, pathQuality: .6, anchorStrength: .09 } },
                     { title: '动态虫洞与静态邻居名额的关系',
@@ -1424,8 +1424,11 @@
         function renderScoreTable(sc) {
             const container = document.getElementById('finaleScoreTable');
             if (!container) return;
+            // V4 统一读出：路径同样受 Ω 门控；排序分与展示分同源。V4 未加载时回退 V3 教学模型。
+            const model = global.RiverMemoV4 || global.RiverMemoV3;
+            const isV4 = model === global.RiverMemoV4;
             const ranked = sc.items.map(item => ({ ...item, result:
-                global.RiverMemoV3.scoreCandidate({ ...common, omega: sc.omega, ...item.evidence }) }))
+                model.scoreCandidate({ ...common, omega: sc.omega, ...item.evidence }) }))
                 .sort((a, b) => b.result.score - a.result.score);
             container.innerHTML = ranked
                 .map((item, index) => {
@@ -1436,20 +1439,20 @@
                                 <span class="score-row-title">#0${index + 1} · ${item.title}</span>
                                 <span class="score-role-badge">${item.role}</span>
                             </div>
-                            <div class="score-bars" title="B + P + G + A；超出 1 的部分另记截断扣分">
+                            <div class="score-bars" title="B̂ + P + G + A；超出 1 的部分另记截断扣分">
                                 <div class="bar-s0" style="width:${r.base * 100}%"></div>
                                 <div class="bar-bg" style="width:${r.path * 100}%;background:#76BFAE"></div>
                                 <div class="bar-bg" style="width:${r.graph * 100}%"></div>
                                 <div class="bar-bh" style="width:${r.anchor * 100}%"></div>
                             </div>
                             <div class="score-breakdown">
-                                <span>B=${r.base.toFixed(4)}（含共振 ${r.resonance.toFixed(4)}）</span>
+                                <span>${isV4 ? 'B̂' : 'B'}=${r.base.toFixed(4)}（含共振 ${r.resonance.toFixed(4)}）</span>
                                 <span>+ P=${r.path.toFixed(4)}</span>
                                 <span>+ G=${r.graph.toFixed(4)}</span>
                                 <span>+ A=${r.anchor.toFixed(4)}</span>
                                 <span>− 截断=${r.clipping.toFixed(4)}</span>
-                                <span>P+G=${(r.path + r.graph).toFixed(4)} ≤ 0.08</span>
-                                <strong>S_V3 = ${r.score.toFixed(4)}</strong>
+                                <span>P+G=${(r.path + r.graph).toFixed(4)} ≤ ${isV4 ? 'C_T' : '0.08'}</span>
+                                <strong>${isV4 ? 'S = 排序分 = 展示分' : 'S_V3'} = ${r.score.toFixed(4)}</strong>
                             </div>
                         </div>
                     `;

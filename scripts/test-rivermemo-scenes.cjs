@@ -13,6 +13,7 @@ const gradient = { addColorStop: noop };
 const ctx = new Proxy({
     measureText: text => ({ width: text.length * 6 }),
     createRadialGradient: () => gradient,
+    createLinearGradient: () => gradient,
 }, { get: (object, key) => key in object ? object[key] : noop });
 
 function element(attrs = '') {
@@ -83,7 +84,7 @@ sandbox.window.RiverEngine.SceneRunner = class {
     stop() { this.running = false; }
     tick(dt) { this.time += dt; this.draw(ctx, 900, 340, this.time); }
 };
-for (const path of ['public/scenes.js', 'public/rivermemo-v2.js', 'public/memo-basin-projection.js', 'public/rivermemo-v3.js', 'public/rivermemo-wormhole-lab.js', 'public/main.js']) vm.runInContext(fs.readFileSync(path, 'utf8'), sandbox);
+for (const path of ['public/scenes.js', 'public/rivermemo-v2.js', 'public/memo-basin-projection.js', 'public/rivermemo-v3.js', 'public/rivermemo-wormhole-lab.js', 'public/rivermemo-v4.js', 'public/main.js']) vm.runInContext(fs.readFileSync(path, 'utf8'), sandbox);
 const observer = observers[0];
 assert.equal(observer.targets.length, 11);
 for (const target of observer.targets) observer.callback([{ target, isIntersecting: true, intersectionRatio: 0.001 }]);
@@ -298,6 +299,7 @@ assert.equal(fused.rows[0].baseRank, 12);
 assert(Math.abs(fused.rows[0].contribution - (.12 / .10 * .72) / 61) < 1e-12);
 const repeated = fuse(proofFixture.candidates, [...proofFixture.routes, ...proofFixture.routes], proofFixture.observation);
 assert.equal(JSON.stringify(repeated.rows), JSON.stringify(fused.rows), '重复路线不叠加');
+// V3 历史教学模型的函数级契约仍保留（页面第 9 章已由 V4 水闸接管）。
 for (const mode of ['proof', 'isolated', 'duplicate', 'weak', 'ungrounded', 'incomplete', 'w']) {
     const f = wormholeFixture(mode);
     const result = fuse(f.candidates, f.routes, f.observation);
@@ -308,19 +310,85 @@ for (const mode of ['proof', 'isolated', 'duplicate', 'weak', 'ungrounded', 'inc
             assert.equal(c.baseRank, i + 1);
         });
     }
-    queryAll('[data-ch9-tab]').find(b => b.dataset.ch9Tab === mode).click();
-    for (const width of [390, 650, 1200]) scoring.draw(ctx, width, 460, 5);
-    elements.get('wormStep').click();
-    elements.get('wormStep').click();
-    elements.get('wormStep').click();
-    scoring.tick(.1);
-    assert(elements.get('wormRankTable').innerHTML.includes('目标事件记录'));
 }
 assert.equal(gateWitness([...proofFixture.observation.files, ...Array(127).fill(proofFixture.observation.files[0])], 1, 2, [1, 4]), null);
-queryAll('[data-ch9-tab]').find(b => b.dataset.ch9Tab === 'proof').click();
+
+// ---------------- RiverMemo V4 ----------------
+const V4 = sandbox.window.RiverMemoV4;
+// 非负锥：第三条支流只能倒流 → 锁零；无约束解出现负系数。
+const k3 = V4.coneStep(3);
+assert(k3.cone.x.every(v => v >= 0));
+assert(k3.cone.x[2] < 1e-9, 'IPC 支流应被锁零');
+assert(k3.free.x[2] < 0, '无约束解应依赖倒流');
+assert(k3.free.residual < k3.cone.residual, '倒流相消会伪造更小残差');
+for (const key of ['dual', 'complementarity', 'energy']) assert(k3.cone.kkt[key] < 1e-9);
+for (let k = 1; k <= 3; k++) assert(V4.coneStep(k).cone.residual <= V4.coneStep(k - 1).cone.residual + 1e-12);
+assert(Math.abs(V4.coneStep(0).cone.residual - 1) < 1e-12, 'K=0 时整块目标都是残差');
+assert(Math.abs(V4.anchorGain(0) - .75) < 1e-12 && V4.anchorGain(10) === 2);
+// 互补：对称、单项为零保留另一项、有界。
+for (const [g, t] of [[0, .03], [.03, 0], [.05, .06], [.08, .08], [.2, .2]]) {
+    const m = V4.complement(g, t);
+    assert(Math.abs(m - V4.complement(t, g)) < 1e-15);
+    assert(m <= V4.C_T + 1e-15);
+    assert(m >= Math.min(V4.C_T, Math.max(g, t)) - 1e-15);
+}
+assert(Math.abs(V4.complement(0, .03) - .03) < 1e-15);
+assert.equal(V4.complement(.05, .05, 0), 0);
+// 统一泛函：Ω 同时门控路径与图，直接锚独立；账目闭合，排序分 = 展示分。
+const ev = { ...V4.sharedEvidence, transport: .2 };
+const hi = V4.scoreCandidate({ ...ev, omega: .8 }), lo = V4.scoreCandidate({ ...ev, omega: .1 });
+assert(lo.path < hi.path && lo.graph < hi.graph);
+assert.equal(lo.anchor, hi.anchor);
+for (let i = 0; i <= 50; i++) {
+    const r = V4.scoreCandidate({ ...ev, query: i / 50, omega: i / 50, transport: (i % 7) / 6 });
+    assert(r.path + r.graph <= V4.C_T + 1e-12);
+    assert(r.anchor <= .10 + 1e-12);
+    assert.equal(r.rankingScore, r.finalScore);
+    assert(Math.abs(r.base + r.path + r.graph + r.anchor - r.clipping - r.score) < 1e-12);
+}
+// 种差：无种差时恢复原查询分；混合上限 0.5。
+assert.equal(V4.calibrateQuery(.7, null, 1).value, .7);
+assert.equal(V4.calibrateQuery(.7, .1, 5).mix, .5);
+// 见证：孤立两端拒绝；单焦点需种差或特异性。
+const baseObs = V4.makeObservation();
+assert(V4.gateWitness(baseObs.files, 1, 2, [1, 4]));
+assert.equal(V4.gateWitness([{ id: 1, checksum: 'a', tags: [1, 6] }, { id: 2, checksum: 'b', tags: [2, 6] }], 1, 2, [1, 4]), null);
+assert.equal(V4.gateWitness([{ id: 1, checksum: 'a', tags: [1, 2, 6] }, { id: 2, checksum: 'a', tags: [1, 2, 6] }], 1, 2, [1, 4]), null);
+assert.equal(V4.gateWitness(baseObs.files, 1, 2, [1]), null);
+assert(V4.gateWitness(baseObs.files, 1, 2, [1], { specificity: .7 }).singleFocus);
+assert(V4.gateWitness(baseObs.files, 1, 2, [1], { differentia: .3 }));
+assert.equal(V4.transportEvidence(V4.makeObservation({ complete: false }), V4.focusCandidate).value, 0);
+// 场景预设：溢出、退潮、拦水与种差翻转都必须真实发生。
+const tab = key => V4.buildTab(key);
+assert(tab('transport').focus.result.overflow > 0, '跨文件见证页应演示满闸溢出');
+assert(tab('transport').evidence.xw > 0 && tab('reject').evidence.xw === 0);
+assert(tab('omega').focus.result.path < tab('ledger').focus.result.path);
+assert.equal(tab('differentia').rows[0].focus, true);
+assert(tab('differentia').rows.find(r => !r.focus && r.name.includes('综述')).result.queryHat
+    < tab('differentia').rows.find(r => !r.focus && r.name.includes('综述')).input.query);
+assert.equal(tab('anchor').rows.find(r => r.name.includes('隐式')).result.anchor, 0);
+for (const t of V4.tabs) tab(t).rows.forEach((r, i, a) => i && assert(a[i - 1].result.rankingScore >= r.result.rankingScore));
+// 页面交互：第 9 章按钮切换水闸场景，账页同源。
+for (const key of V4.tabs) {
+    const button = queryAll('[data-ch9-tab]').find(b => b.dataset.ch9Tab === key);
+    assert(button, `缺少第 9 章按钮 ${key}`);
+    button.click();
+    for (const width of [390, 650, 1200]) scoring.draw(ctx, width, 460, 5);
+    elements.get('wormStep').click();
+    scoring.tick(.1);
+    assert(elements.get('v4LedgerTable').innerHTML.includes('排序分 = 展示分'));
+    assert(elements.get('ch9Readout').textContent.includes('Ω^γ'));
+}
 elements.get('wormReplay').click();
 scoring.tick(.1);
-assert(elements.get('ch9Readout').textContent.includes('完整基线'));
+assert(elements.get('v4LedgerStory').textContent.includes('教学预设'));
+assert(elements.get('ch1Readout').textContent.includes('NNLS'));
+const ch1 = runners.find(r => r.canvas === elements.get('ch1Canvas'));
+for (const step of [0, 1, 2, 3]) {
+    queryAll('[data-ags-step]')[step].click();
+    for (const [w, h] of [[390, 340], [900, 340]]) ch1.draw(ctx, w, h, 3);
+}
+assert(!html.includes('1/(60+r₀(c))'), '首屏不得残留倒数名次公式');
 
 const times = [];
 let queued;
