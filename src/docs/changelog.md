@@ -1,7 +1,7 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-11-15 的真实演进记录，最新覆盖 RiverMemo V4 的全链路原 Tag 非负锥几何、Cone-AGS 与 FP64 QR 小核求解、动态残差虫洞、查询条件化种差校准，以及 Ω 统一门控与连续共享拓扑预算闭合，并记录真实用户数据库上的基准测试结果；同时保留 ChatKernelV2 统一队列契约、全异步流式暂挂队列与模型原生 VCP 协议支持等演进记录。
-updatedAt: 2026-11-14
+summary: 汇总 VCP 从 2023-12 到 2026-11-15 的真实演进记录，最新覆盖 UrlFetch 广告过滤、页面解析与高并发代理链接池增强，Gemini 4 全新流式协议与思维链沙箱适配，十一组 RiverMemo 算子优化，CDS 与手机聊天同步对齐新 Kernel 协议，以及 Nova 制作的 TAGMEMO-RIVERMEMO 一周年纪念视频；同时保留 RiverMemo V4、ChatKernelV2 与模型原生 VCP 协议支持等演进记录。
+updatedAt: 2026-11-15
 category: changelog
 ---
 
@@ -12,6 +12,35 @@ category: changelog
 ---
 
 ## 最新更新
+
+### 2026-11-15 · UrlFetch 高并发与解析增强、Gemini 4 流式适配及 TAGMEMO-RIVERMEMO 一周年纪念视频
+
+#### 后端更新
+
+1. **UrlFetch 广告过滤、页面解析与高并发增强**：
+   - 增强广告过滤、页面解析与智能识别算法。
+   - 新增高并发代理链接池，在内存预算内有效控制最大标签页展开数量与并发读取规模。
+
+2. **Gemini 4 全新流式协议适配**：
+   - 增强对 Gemini 4 系列模型全新流式协议的适配能力。
+
+3. **RiverMemo 算子优化**：
+   - 优化十一组 RiverMemo 算子，具体变更详见 Git 更新提交记录。
+
+#### 前端更新
+
+1. **思维链渲染与解析沙箱增强**：
+   - 增强思维链渲染和解析沙箱，适配 Gemini 4 模型边输出边思考的全新流式方式。
+
+2. **CDS 与手机聊天同步协议对齐**：
+   - 将 CDS 和手机聊天同步对齐到新的 Kernel 协议。
+
+#### 官网更新
+
+1. **TAGMEMO-RIVERMEMO 一周年纪念视频**：
+   - 新增 Nova 制作的 [TAGMEMO-RIVERMEMO 一周年纪念视频](https://www.bilibili.com/video/BV17Ps56PEu2)。
+
+---
 
 ### 2026-11-14 · 🚀 RiverMemo V4（Cone-AGS & Unified Omega）：全链路非负锥几何与连续拓扑泛函
 
