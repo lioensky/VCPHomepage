@@ -1,6 +1,6 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-11-15 的真实演进记录，最新覆盖 UrlFetch 广告过滤、页面解析与高并发代理链接池增强，Gemini 4 全新流式协议与思维链沙箱适配，十一组 RiverMemo 算子优化，CDS 与手机聊天同步对齐新 Kernel 协议，以及 Nova 制作的 TAGMEMO-RIVERMEMO 一周年纪念视频；同时保留 RiverMemo V4、ChatKernelV2 与模型原生 VCP 协议支持等演进记录。
+summary: 汇总 VCP 从 2023-12 到 2026-11-15 的真实演进记录，最新覆盖 V工程 V2 纯 Rust 一体化重构与即时文件读写可靠性验证增强，UrlFetch 广告过滤、页面解析与高并发代理链接池增强，Gemini 4 全新流式协议与思维链沙箱适配，十一组 RiverMemo 算子优化，CDS 与手机聊天同步对齐新 Kernel 协议，以及 Nova 制作的 TAGMEMO-RIVERMEMO 一周年纪念视频；同时保留 RiverMemo V4、ChatKernelV2 与模型原生 VCP 协议支持等演进记录。
 updatedAt: 2026-11-15
 category: changelog
 ---
@@ -13,7 +13,7 @@ category: changelog
 
 ## 最新更新
 
-### 2026-11-15 · UrlFetch 高并发与解析增强、Gemini 4 流式适配及 TAGMEMO-RIVERMEMO 一周年纪念视频
+### 2026-11-15 · V工程 V2 纯 Rust 一体化重构、UrlFetch 高并发与解析增强、Gemini 4 流式适配及 TAGMEMO-RIVERMEMO 一周年纪念视频
 
 #### 后端更新
 
@@ -29,10 +29,15 @@ category: changelog
 
 #### 前端更新
 
-1. **思维链渲染与解析沙箱增强**：
+1. **V工程升级至 V2：纯 Rust 一体化实现**：
+   - V工程正式迭代为 **V工程 V2**，核心能力采用纯 Rust 一体化实现，JavaScript 层收敛为遥控器与视图控制层。
+   - 大幅增强 **Fuzzy 模糊计算、函数语义检查、流式 MoonAST 读写解析与工作区追踪**等能力。
+   - 大幅增强即时文件读写的可靠性验证能力，进一步完善文件操作的验证边界。
+
+2. **思维链渲染与解析沙箱增强**：
    - 增强思维链渲染和解析沙箱，适配 Gemini 4 模型边输出边思考的全新流式方式。
 
-2. **CDS 与手机聊天同步协议对齐**：
+3. **CDS 与手机聊天同步协议对齐**：
    - 将 CDS 和手机聊天同步对齐到新的 Kernel 协议。
 
 #### 官网更新
