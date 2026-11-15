@@ -14,7 +14,13 @@ const TICK_MS = 40;
 const weatherCards = [
   {id: "sun", label: "晴空", value: "24.5°", detail: "日照充足 · 光芒缓缓转动", start: 3900},
   {id: "cloud", label: "云层", value: "32%", detail: "轻云掠过 · 云层独立漂移", start: 5100},
-  {id: "rain", label: "阵雨", value: "18%", detail: "午后概率 · 雨滴持续落下", start: 7600},
+  {id: "rain", label: "阵雨", value: "18%", detail: "午后概率 · 雨滴持续落下", start: 6200},
+];
+const ROW_DUR = 1100;
+const benchRows = [
+  {label: "MoonAST (VCP)", width: 18, value: "1.02s", color: "#76BFAE", start: 7400},
+  {label: "Tree-sitter 旧版", width: 76, value: "41.2s", color: "#F2A900", start: 8200},
+  {label: "传统全局 rg 盲搜", width: 96, value: "OOM/Timeout", color: "#B94832", start: 9000},
 ];
 
 const stickerUrl =
@@ -34,12 +40,12 @@ const islandSource = '<div class="vcp-island" data-scope="desktop-weather">';
 const islandTitle = "🌤️ 今日赛博桌面气象与心流状态";
 const islandDesc = "子块逐个就绪、逐个激活；已挂载的天气动画不随流式更新重建。";
 
-const outroText = "✓ 外层岛闭合，终稿提交。晴空、云层、雨滴继续运行：结构上屏与动画时钟各走各的轨道。";
+const outroText = "✓ 流式终稿提交：表情包、动态天气子块与表格均已渐进挂载；天气动画独立运行，无需随吐字重建。";
 
 const phases = [
   {step: 1, start: 0, label: "阶段 01 (0~3s)：增量正文 · 表情渐进上屏"},
   {step: 2, start: 3000, label: "阶段 02 (3~7s)：子块闭合即刷 · 天气开始动"},
-  {step: 3, start: 7000, label: "阶段 03 (7~12s)：雨滴接力 · 外层岛终稿提交"},
+  {step: 3, start: 7000, label: "阶段 03 (7~12s)：动态表格 · 天气动画持续运行"},
 ];
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
@@ -137,11 +143,11 @@ export function V4StreamTheater() {
   const islandSourceText = sliceChars(islandSource, progress(tt, 3000, 480));
   const islandTitleText = sliceChars(islandTitle, progress(tt, 3500, 400));
   const islandDescText = sliceChars(islandDesc, progress(tt, 3900, 1200));
-  const islandWidgetReady = tt >= 6500;
-  const islandClosed = tt >= 9700;
+  const islandWidgetReady = tt >= 6000;
+  const islandClosed = tt >= 6700;
   const islandCaretAt = !showIsland || islandClosed ? null : tt < 3500 ? "source" : tt < 3900 ? "title" : tt < 5100 ? "desc" : null;
   const readyCards = weatherCards.filter((card) => tt >= card.start).length;
-  const scriptPending = tt >= 5600 && tt < 6500;
+  const scriptPending = tt >= 5600 && tt < 6000;
   const animationRunning = playing && inView && pageVisible;
   const outroP = progress(tt, 10200, 1400);
   const outroTyping = tt >= 10200 && tt < 11600;
@@ -281,7 +287,7 @@ export function V4StreamTheater() {
                       return (
                         <div key={card.id} className={`v5-weather-slot ${ready ? "is-ready" : ""}`}>
                           {ready ? (
-                            <div className={`v5-weather-card v5-weather-${card.id} v4-stream-enter`}>
+                            <div className={`v5-weather-card v5-weather-kind-${card.id} v4-stream-enter`} title={card.detail}>
                               <div className="v5-weather-sky" aria-hidden="true">
                                 {card.id === "sun" ? (
                                   <div className="v5-weather-sun"><i /></div>
@@ -294,8 +300,7 @@ export function V4StreamTheater() {
                                 )}
                               </div>
                               <div className="v5-weather-reading"><span>{card.label}</span><strong>{card.value}</strong></div>
-                              <small>{card.detail}</small>
-                              <span className="v5-weather-ready">✓ 子块 0{index + 1} 已闭合 · 动画运行</span>
+                              <span className="v5-weather-ready">✓ 0{index + 1} 已上屏</span>
                             </div>
                           ) : (
                             <div className="v5-weather-pending">
@@ -308,12 +313,34 @@ export function V4StreamTheater() {
                     })}
                   </div>
                   <div className="v5-pipeline-status">
-                    <span>结构轨 / {islandClosed ? "终稿提交" : scriptPending ? "脚本中间态 · 静默等待闭合" : `${readyCards}/3 最小子块已提交`}</span>
+                    <span>结构 / {islandClosed ? "外层闭合 ✓" : scriptPending ? "脚本未闭合 · 静默" : `${readyCards}/3 子块就绪`}</span>
                     <span>动画轨 / {readyCards === 0 ? "等待首块" : animationRunning ? "独立运行 ↻" : "已暂停"}</span>
                   </div>
-                  <div className="v5-pipeline-note">
-                    {scriptPending ? "脚本尚未闭合，不执行中间态；已就绪的天气动画照常运行。" : !islandWidgetReady ? "完整子块先上屏；交互脚本闭合就绪后，再激活配色按钮。" : "交互脚本已就绪 · 可切换配色，先前子块无需重建。"}
+                </div>
+              )}
+
+              {/* 保留原第三幕：表格逐行流入，天气子块保持挂载。 */}
+              {tt >= 7000 && (
+                <div className="v4-bench-table v4-stream-enter">
+                  <div style={{display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: "0.35rem", fontSize: "0.66rem", fontFamily: "JetBrains Mono", color: "#76BFAE", marginBottom: "0.6rem"}}>
+                    <span>[7~12s · 流式动态表格与微组件同屏生长]</span>
+                    <span>预设数据演示</span>
                   </div>
+                  {benchRows.map((row) => {
+                    if (tt < row.start) return null;
+                    const p = progress(tt, row.start, ROW_DUR);
+                    return (
+                      <div key={row.label} className="v4-bench-row v4-stream-enter">
+                        <span>{row.label}</span>
+                        <div className="v4-bar-track">
+                          <div className="v4-bar-fill" style={{width: `${row.width * p}%`, background: row.color}} />
+                        </div>
+                        <strong style={{color: row.color, textAlign: "right"}}>
+                          {p >= 1 ? row.value : "…"}
+                        </strong>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
 
