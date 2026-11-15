@@ -488,7 +488,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
         <nav className="vcp2-nav-links" aria-label="七大概念剧场与文档导航">
           <a href="#theater-01"><span>01</span>奇点宣言</a>
           <a href="#theater-02"><span>02</span>VexusMemo</a>
-          <a href="#theater-03"><span>03</span>V4流式</a>
+          <a href="#theater-03"><span>03</span>V5流式</a>
           <a href="#theater-04"><span>04</span>共笔文坊</a>
           <a href="#theater-05"><span>05</span>VMusic视听</a>
           <a href="#theater-06"><span>06</span>ToolCall生态</a>
@@ -1014,29 +1014,29 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
         </section>
 
         {/* ====================================================================
-            THEATER 03: V4 STREAMING RENDERER MICRO-THEATER
+            THEATER 03: V5 STREAMING DIV PIPELINE MICRO-THEATER
             ==================================================================== */}
         <section id="theater-03" className="vcp2-section vcp2-section-dark">
           <div className="vcp2-container">
             <div className="vcp2-hud-bar">
-              <span className="vcp2-hud-cross">SEC-03 // VCP_MESSAGE_RENDERER_V4</span>
-              <span>FEATURE: SEMANTIC DIV-ISLAND + SCOPED CSS + TOMBSTONE FREEZE V2</span>
-              <span>STREAM_AST: ACTIVE</span>
+              <span className="vcp2-hud-cross">SEC-03 // VCHAT_STREAM_RENDERER_V5</span>
+              <span>INCREMENTAL LEXER × NESTED ISLAND × DUAL-TRACK SCHEDULING</span>
+              <span>2026.11.16 / PIPELINE DEMO</span>
             </div>
 
             <div className="vcp2-theater-header">
               <div>
-                <span className="vcp2-eyebrow">THEATER 03 · NATIVE DOM STREAMING MIRACLE</span>
+                <span className="vcp2-eyebrow">THEATER 03 · V5 STREAMING DIV PIPELINE</span>
                 <h2 className="vcp2-title">
-                  V4 流式渲染微剧场：<br />
-                  HTML 天然兜底的丝滑奇迹
+                  V5 流式渲染微剧场：<br />
+                  外层还在流，子块已经动起来
                 </h2>
               </div>
               <p className="vcp2-subtitle">
-                无需臃肿的外部渲染黑盒。VCPMessageRenderer V4 以{" "}
-                <strong>PreText 布局尺寸预锁死</strong>、<strong>语义级 Div 岛防火墙</strong> 与{" "}
-                <strong>涟漪渐进渲染队列</strong>，在高速流式吐字中同屏渐进渲染动态表情包、Scoped CSS 卡片与实时交互组件，全程{" "}
-                <code>CLS: 0.00</code> 零重排闪烁。
+                保留熟悉的表情与天气岛，换上 V5 的流式新管线。
+                <strong>单遍分域、增量推进</strong>，让嵌套岛中<strong>最小子块闭合即上屏</strong>：
+                晴空先转动，云层随后漂入，雨滴接力落下；后续结构继续生成，已就绪的动画无需重建。
+                <strong>结构提交与动画时钟双轨解耦</strong>，脚本闭合就绪后再激活交互。
               </p>
             </div>
 

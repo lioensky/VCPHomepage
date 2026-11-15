@@ -2,7 +2,7 @@ import {useEffect, useRef, useState, type ReactNode} from "react";
 import {Pause, Play, RotateCcw} from "lucide-react";
 
 /* ==========================================================================
-   THEATER 02 · V4 流式渲染微剧场（12 秒真实流式脚本）
+   THEATER 03 · V5 流式 Div 管线概念演示（12 秒预设脚本，非性能实测）
    - 自带独立时钟：状态隔离在本组件内，不会触发整页重渲染
    - 离开视口自动暂停（IntersectionObserver），回到视口继续
    - prefers-reduced-motion 下直接展示终稿
@@ -11,7 +11,11 @@ import {Pause, Play, RotateCcw} from "lucide-react";
 const SCRIPT_END = 12000;
 const LOOP_HOLD = 2800;
 const TICK_MS = 40;
-const ROW_DUR = 1100;
+const weatherCards = [
+  {id: "sun", label: "晴空", value: "24.5°", detail: "日照充足 · 光芒缓缓转动", start: 3900},
+  {id: "cloud", label: "云层", value: "32%", detail: "轻云掠过 · 云层独立漂移", start: 5100},
+  {id: "rain", label: "阵雨", value: "18%", detail: "午后概率 · 雨滴持续落下", start: 7600},
+];
 
 const stickerUrl =
   "https://raw.githubusercontent.com/lioensky/VCPToolBox/refs/heads/main/image/Nova%E8%A1%A8%E6%83%85%E5%8C%85/%E5%85%83%E6%B0%94%E6%BB%A1%E6%BB%A1.png";
@@ -19,29 +23,23 @@ const stickerUrl =
 type StreamPart = {text: string; bold?: boolean};
 
 const introParts: StreamPart[] = [
-  {text: "主人早安！今日工作区 "},
-  {text: "MoonAST 纯几何索引", bold: true},
-  {text: " 已在 0.228 秒内构建完毕，内存稳停在 48MB。"},
+  {text: "主人早安！正在为你生成 "},
+  {text: "今日动态天气卡片", bold: true},
+  {text: "。闭合一个子块，就先让它动起来，不必等待整座岛。"},
 ];
 const introLength = introParts.reduce((sum, part) => sum + Array.from(part.text).length, 0);
 const stickerToken = "[表情包:元气满满]";
 
 const islandSource = '<div class="vcp-island" data-scope="desktop-weather">';
 const islandTitle = "🌤️ 今日赛博桌面气象与心流状态";
-const islandDesc = "24.5°C 晴 · 心流锁 V2 专注中 · 离屏动画已由 Tombstone Freeze V2 墓碑冻结";
+const islandDesc = "子块逐个就绪、逐个激活；已挂载的天气动画不随流式更新重建。";
 
-const benchRows = [
-  {label: "MoonAST (VCP)", width: 18, value: "1.02s", color: "#76BFAE", start: 7400},
-  {label: "Tree-sitter 旧版", width: 76, value: "41.2s", color: "#F2A900", start: 8200},
-  {label: "传统全局 rg 盲搜", width: 96, value: "OOM/Timeout", color: "#B94832", start: 9000},
-];
-
-const outroText = "✓ 流式终稿提交：表情包、Div 岛与动态表格均已渐进挂载，历史消息几何尺寸全程锁死。";
+const outroText = "✓ 外层岛闭合，终稿提交。晴空、云层、雨滴继续运行：结构上屏与动画时钟各走各的轨道。";
 
 const phases = [
-  {step: 1, start: 0, label: "阶段 01 (0~3s)：Markdown 逐字吐出 + 表情包 PreText 零抖动"},
-  {step: 2, start: 3000, label: "阶段 02 (3~7s)：未闭合 <div class='vcp-island'> 样式防火墙"},
-  {step: 3, start: 7000, label: "阶段 03 (7~12s)：动态小表格 + 可点击微组件同屏生长"},
+  {step: 1, start: 0, label: "阶段 01 (0~3s)：增量正文 · 表情渐进上屏"},
+  {step: 2, start: 3000, label: "阶段 02 (3~7s)：子块闭合即刷 · 天气开始动"},
+  {step: 3, start: 7000, label: "阶段 03 (7~12s)：雨滴接力 · 外层岛终稿提交"},
 ];
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
@@ -96,9 +94,17 @@ export function V4StreamTheater() {
     return () => io.disconnect();
   }, []);
 
+  // 页面隐藏时暂停，与离屏暂停共同约束剧本及 CSS 动画。
+  const [pageVisible, setPageVisible] = useState(() => typeof document === "undefined" || !document.hidden);
+  useEffect(() => {
+    const onVisibility = () => setPageVisible(!document.hidden);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
+  }, []);
+
   // 独立剧本时钟
   useEffect(() => {
-    if (!playing || !inView) return;
+    if (!playing || !inView || !pageVisible) return;
     let last = performance.now();
     const id = window.setInterval(() => {
       const now = performance.now();
@@ -106,11 +112,11 @@ export function V4StreamTheater() {
       last = now;
       setT((prev) => {
         const next = prev + dt;
-        return next >= SCRIPT_END + LOOP_HOLD ? 0 : next;
+        return !loop ? Math.min(next, SCRIPT_END) : next >= SCRIPT_END + LOOP_HOLD ? 0 : next;
       });
     }, TICK_MS);
     return () => window.clearInterval(id);
-  }, [playing, inView]);
+  }, [playing, inView, pageVisible, loop]);
 
   // 非循环模式：播完停在终稿
   useEffect(() => {
@@ -129,24 +135,27 @@ export function V4StreamTheater() {
 
   const showIsland = tt >= 3000;
   const islandSourceText = sliceChars(islandSource, progress(tt, 3000, 480));
-  const islandTitleText = sliceChars(islandTitle, progress(tt, 3500, 850));
-  const islandDescText = sliceChars(islandDesc, progress(tt, 4400, 1700));
-  const islandWidgetReady = tt >= 4400;
-  const islandClosed = tt >= 6300;
-  const islandCaretAt = !showIsland || islandClosed ? null : tt < 3500 ? "source" : tt < 4400 ? "title" : "desc";
-
-  const showTable = tt >= 7000;
+  const islandTitleText = sliceChars(islandTitle, progress(tt, 3500, 400));
+  const islandDescText = sliceChars(islandDesc, progress(tt, 3900, 1200));
+  const islandWidgetReady = tt >= 6500;
+  const islandClosed = tt >= 9700;
+  const islandCaretAt = !showIsland || islandClosed ? null : tt < 3500 ? "source" : tt < 3900 ? "title" : tt < 5100 ? "desc" : null;
+  const readyCards = weatherCards.filter((card) => tt >= card.start).length;
+  const scriptPending = tt >= 5600 && tt < 6500;
+  const animationRunning = playing && inView && pageVisible;
   const outroP = progress(tt, 10200, 1400);
   const outroTyping = tt >= 10200 && tt < 11600;
 
   const jumpToPhase = (start: number) => {
     setLoop(false);
+    setIslandOverclock(false);
     setT(start);
     setPlaying(true);
   };
 
   const replay = () => {
     setLoop(true);
+    setIslandOverclock(false);
     setT(0);
     setPlaying(true);
   };
@@ -159,7 +168,7 @@ export function V4StreamTheater() {
   };
 
   return (
-    <div className="v4-stage-grid" ref={rootRef}>
+    <div className="v4-stage-grid v5-weather-theater" data-animation-running={animationRunning} ref={rootRef}>
       {/* Left Interactive Streaming Window */}
       <div className="v4-chat-window">
         <div className="v4-window-bar">
@@ -168,15 +177,15 @@ export function V4StreamTheater() {
             <i style={{background: "#F2A900"}} />
             <i style={{background: "#76BFAE"}} />
             <span style={{marginLeft: "0.5rem", fontFamily: "JetBrains Mono", fontSize: "0.7rem", color: "#F2F0E9"}}>
-              VChat 2.0 · Surface #01 (Nova)
+              VChat · V5 Stream Pipeline (Nova)
             </span>
           </div>
 
           <div className="v4-hud-meters">
             <span className={`v4-meter-pill ${streaming ? "is-live" : ""}`}>
-              {streaming ? (playing && inView ? "● STREAMING" : "❚❚ PAUSED") : "✓ COMMITTED"}
+              {streaming ? (animationRunning ? "● STREAMING" : "❚❚ PAUSED") : "✓ COMMITTED"}
             </span>
-            <span className="v4-meter-pill">CLS: 0.00</span>
+            <span className="v4-meter-pill">架构示意 · 非实测</span>
             <span className="v4-meter-pill amber">
               T+{(tt / 1000).toFixed(1)}s · STAGE 0{phase}/03
             </span>
@@ -189,7 +198,7 @@ export function V4StreamTheater() {
             <div className="v4-bubble">
               <div style={{display: "flex", justifyContent: "space-between", fontSize: "0.7rem", color: "#9FA6AA", marginBottom: "0.45rem", fontFamily: "JetBrains Mono"}}>
                 <span>Maid: Nova · RevToken #904</span>
-                <span>[{phase === 1 ? "0~3s · Markdown 流式吐字" : phase === 2 ? "3~7s · Div 岛流式隔离" : "7~12s · 微组件同屏生长"}]</span>
+                <span>[{phase === 1 ? "增量分域" : phase === 2 ? "子块闭合即刷" : "双轨独立运行"}]</span>
               </div>
 
               {/* Stage 1: Markdown streaming */}
@@ -240,19 +249,17 @@ export function V4StreamTheater() {
                       {islandCaretAt === "source" && <Caret />}
                     </span>
                     <span>
-                      {islandClosed ? "</div> 闭合代次校验 PASS · Scoped CSS 已隔离" : "标签未闭合 · Div 岛防火墙隔离中"}
+                      {islandClosed ? "外层 </div> 闭合 · 终稿已提交" : `外层岛未闭合 · ${readyCards}/3 子块已上屏`}
                     </span>
                   </div>
                   <div style={{display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "1rem"}}>
                     <div style={{minHeight: "2.6rem"}}>
                       <strong style={{fontSize: "1.05rem", display: "block"}}>
-                        {islandOverclock ? "⚡ V工程高负载算力倾斜模式已激活" : islandTitleText}
+                        {islandTitleText}
                         {islandCaretAt === "title" && <Caret />}
                       </strong>
                       <span style={{fontSize: "0.78rem", color: "#C4CACD"}}>
-                        {islandOverclock
-                          ? "已自动卸载局部 Frosted Glass 磨砂，100% GPU 算力让渡给 AST 增量高亮"
-                          : islandDescText}
+                        {islandOverclock ? "已切换夜间配色，天气子块保持挂载，动画继续。" : islandDescText}
                         {islandCaretAt === "desc" && <Caret />}
                       </span>
                     </div>
@@ -262,36 +269,51 @@ export function V4StreamTheater() {
                         onClick={() => setIslandOverclock((v) => !v)}
                         className="vcp2-btn-primary v4-stream-enter"
                         style={{padding: "0.5rem 0.9rem", fontSize: "0.75rem"}}
+                        aria-pressed={islandOverclock}
                       >
-                        {islandOverclock ? "恢复常规磨砂视图" : "点我测试流式岛内交互"}
+                        {islandOverclock ? "切回日间天气" : "切换夜间天气"}
                       </button>
                     )}
                   </div>
-                </div>
-              )}
-
-              {/* Stage 3: Dynamic Bar Chart Table */}
-              {showTable && (
-                <div className="v4-bench-table v4-stream-enter">
-                  <div style={{display: "flex", justifyContent: "space-between", fontSize: "0.66rem", fontFamily: "JetBrains Mono", color: "#76BFAE", marginBottom: "0.6rem"}}>
-                    <span>[7~12s · 流式动态表格与微组件同屏生长]</span>
-                    <span>UNIT: MS / MEMORY</span>
-                  </div>
-                  {benchRows.map((row) => {
-                    const p = progress(tt, row.start, ROW_DUR);
-                    if (tt < row.start) return null;
-                    return (
-                      <div key={row.label} className="v4-bench-row v4-stream-enter">
-                        <span>{row.label}</span>
-                        <div className="v4-bar-track">
-                          <div className="v4-bar-fill" style={{width: `${row.width * p}%`, background: row.color}} />
+                  <div className="v5-weather-grid">
+                    {weatherCards.map((card, index) => {
+                      const ready = tt >= card.start;
+                      return (
+                        <div key={card.id} className={`v5-weather-slot ${ready ? "is-ready" : ""}`}>
+                          {ready ? (
+                            <div className={`v5-weather-card v5-weather-${card.id} v4-stream-enter`}>
+                              <div className="v5-weather-sky" aria-hidden="true">
+                                {card.id === "sun" ? (
+                                  <div className="v5-weather-sun"><i /></div>
+                                ) : (
+                                  <>
+                                    <div className="v5-weather-cloud" />
+                                    {card.id === "cloud" && <div className="v5-weather-cloud is-distant" />}
+                                    {card.id === "rain" && <div className="v5-weather-rain"><i /><i /><i /><i /></div>}
+                                  </>
+                                )}
+                              </div>
+                              <div className="v5-weather-reading"><span>{card.label}</span><strong>{card.value}</strong></div>
+                              <small>{card.detail}</small>
+                              <span className="v5-weather-ready">✓ 子块 0{index + 1} 已闭合 · 动画运行</span>
+                            </div>
+                          ) : (
+                            <div className="v5-weather-pending">
+                              <span>0{index + 1} / {card.label}</span>
+                              <small>{index === readyCards ? "尾区接收中…" : "等待流入"}</small>
+                            </div>
+                          )}
                         </div>
-                        <strong style={{color: row.color, textAlign: "right"}}>
-                          {p >= 1 ? row.value : "…"}
-                        </strong>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
+                  <div className="v5-pipeline-status">
+                    <span>结构轨 / {islandClosed ? "终稿提交" : scriptPending ? "脚本中间态 · 静默等待闭合" : `${readyCards}/3 最小子块已提交`}</span>
+                    <span>动画轨 / {readyCards === 0 ? "等待首块" : animationRunning ? "独立运行 ↻" : "已暂停"}</span>
+                  </div>
+                  <div className="v5-pipeline-note">
+                    {scriptPending ? "脚本尚未闭合，不执行中间态；已就绪的天气动画照常运行。" : !islandWidgetReady ? "完整子块先上屏；交互脚本闭合就绪后，再激活配色按钮。" : "交互脚本已就绪 · 可切换配色，先前子块无需重建。"}
+                  </div>
                 </div>
               )}
 
@@ -326,6 +348,7 @@ export function V4StreamTheater() {
                 key={item.step}
                 type="button"
                 onClick={() => jumpToPhase(item.start)}
+                aria-pressed={phase === item.step}
                 className="vcp2-btn-secondary"
                 style={{
                   justifyContent: "flex-start",
@@ -352,12 +375,13 @@ export function V4StreamTheater() {
         <div className="vcp2-hero-telemetry" style={{borderTopColor: "#F2A900"}}>
           <div className="vcp2-telemetry-head">
             <span>WHY IT MATTERS // 架构护城河</span>
-            <span>V4 ENGINE</span>
+            <span>V5 ENGINE</span>
           </div>
           <ul style={{margin: 0, paddingLeft: "1.1rem", fontSize: "0.84rem", lineHeight: 1.75, color: "#C4CACD"}}>
-            <li><strong>语义级 Div 岛识别</strong>：即使 AI 在流式中途吐出未闭合的 <code>div/style</code>，也不会击穿外部聊天主界面。</li>
-            <li><strong>Tombstone Freeze V2</strong>：滑出视口的 WebGL / Pixi / CSS 动画出生即冻结，后台 GPU 开销归零。</li>
-            <li><strong>按需渐进加载</strong>：超长历史会话只挂载卡片骨架，桌面端冷启动稳定压制在 <strong>275MB</strong>。</li>
+            <li><strong>单遍分域 + 增量尾区</strong>：正文、代码、工具与交互岛分域处理，不再每帧重扫全文。</li>
+            <li><strong>最小子块闭合即刷</strong>：外层岛仍在接收，天气子块已各自运动；脚本中间态静默等待，长子块按 0.65 秒节流上屏。</li>
+            <li><strong>结构帧 ≠ 动画帧</strong>：降低重型结构上屏频率，不改变独立动画时钟；沙箱资源随消息生命周期统一回收。</li>
+            <li><strong>长历史与状态契约</strong>：Worker 预解析、模板缓存与等高离屏回收；持久化真源与 UI 投影分离，历史修改经事务提交。</li>
           </ul>
         </div>
       </div>

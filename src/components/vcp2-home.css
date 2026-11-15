@@ -1001,6 +1001,146 @@
   background: rgba(242, 240, 233, 0.35);
 }
 
+/* V5：稳定子块逐个挂载，天气动画由 CSS 独立驱动，不依赖剧本 tick。 */
+.v5-weather-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin-top: 1rem;
+}
+.v5-weather-slot {
+  min-width: 0;
+  min-height: 194px;
+  border: 1px dashed rgba(118, 191, 174, 0.24);
+  border-radius: 9px;
+  overflow: hidden;
+}
+.v5-weather-slot.is-ready { border-style: solid; }
+.v5-weather-card {
+  height: 100%;
+  padding: 0.7rem;
+  background: linear-gradient(155deg, rgba(118, 191, 174, 0.12), rgba(13, 23, 28, 0.8));
+  transition: background-color 0.3s ease;
+}
+.v5-weather-sun { color: #F2C665; }
+.v5-weather-sky {
+  position: relative;
+  height: 76px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: radial-gradient(ellipse at 50% 70%, rgba(118, 191, 174, 0.1), transparent 70%);
+}
+.v5-weather-sky .v5-weather-sun {
+  position: absolute;
+  left: calc(50% - 22px);
+  top: 15px;
+  width: 44px;
+  height: 44px;
+  animation: v5-sun-turn 18s linear infinite;
+}
+.v5-weather-sun::before,
+.v5-weather-sun::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 2px solid currentColor;
+  border-radius: 9px;
+  opacity: 0.55;
+}
+.v5-weather-sun::after { transform: rotate(45deg); }
+.v5-weather-sun i {
+  position: absolute;
+  inset: 7px;
+  border-radius: 50%;
+  background: #F2C665;
+  box-shadow: 0 0 20px rgba(242, 169, 0, 0.3);
+}
+.v5-weather-cloud {
+  position: absolute;
+  left: calc(50% - 29px);
+  top: 31px;
+  width: 58px;
+  height: 22px;
+  border-radius: 20px;
+  background: #B9D5D5;
+  animation: v5-cloud-drift 4.6s ease-in-out infinite alternate;
+}
+.v5-weather-cloud::before,
+.v5-weather-cloud::after {
+  content: "";
+  position: absolute;
+  bottom: 7px;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  background: inherit;
+}
+.v5-weather-cloud::before { left: 8px; }
+.v5-weather-cloud::after { right: 6px; width: 22px; height: 22px; }
+.v5-weather-cloud.is-distant {
+  top: 18px;
+  left: calc(50% - 15px);
+  opacity: 0.35;
+  scale: 0.7;
+  animation-duration: 6s;
+  animation-direction: alternate-reverse;
+}
+.v5-weather-rain { position: absolute; top: 51px; left: calc(50% - 22px); width: 44px; height: 24px; overflow: hidden; }
+.v5-weather-rain i {
+  position: absolute;
+  top: -9px;
+  left: 4px;
+  width: 2px;
+  height: 9px;
+  border-radius: 2px;
+  background: #76BFAE;
+  animation: v5-rain-fall 1s linear infinite;
+}
+.v5-weather-rain i:nth-child(2) { left: 15px; animation-delay: -0.5s; }
+.v5-weather-rain i:nth-child(3) { left: 26px; animation-delay: -0.25s; }
+.v5-weather-rain i:nth-child(4) { left: 37px; animation-delay: -0.75s; }
+.v5-weather-reading { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.25rem; margin: 0.35rem 0; font-size: 0.76rem; }
+.v5-weather-reading strong { font: 600 1.5rem "Space Grotesk", sans-serif; color: #F2F0E9; }
+.v5-weather-card > small { display: block; min-height: 2.8em; color: #B0BEC3; font-size: 0.64rem; line-height: 1.5; }
+.v5-weather-ready { display: block; margin-top: 0.5rem; color: #76BFAE; font-size: 0.59rem; line-height: 1.6; }
+.v5-weather-pending { min-height: 194px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.65rem; color: #9FA6AA; font: 0.68rem "JetBrains Mono", monospace; }
+.v5-weather-pending small { color: #76BFAE; font-size: 0.62rem; }
+.v5-pipeline-status { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; margin-top: 0.85rem; padding-top: 0.7rem; border-top: 1px solid rgba(118, 191, 174, 0.22); color: #76BFAE; font: 0.64rem/1.7 "JetBrains Mono", monospace; }
+.v5-pipeline-status span:last-child { color: #F2C665; }
+.v5-pipeline-note { min-height: 3.4em; margin-top: 0.4rem; color: #9FA6AA; font-size: 0.66rem; line-height: 1.7; }
+.v5-weather-theater .vcp-island-badge { display: flex; flex-wrap: wrap; overflow-wrap: anywhere; }
+.v5-weather-theater .vcp-island-badge > span { min-width: 0; }
+.v5-weather-theater .is-overclock .v5-weather-card { background-color: #15233D; }
+.v5-weather-theater .is-overclock .v5-weather-sun { color: #B9D8FF; }
+.v5-weather-theater .is-overclock .v5-weather-sun i { background: #B9D8FF; box-shadow: 0 0 20px rgba(185, 216, 255, 0.25); }
+.v5-weather-theater button:focus-visible { outline: 2px solid #F2C665; outline-offset: 3px; }
+.v5-weather-theater[data-animation-running="false"] *,
+.v5-weather-theater[data-animation-running="false"] *::before,
+.v5-weather-theater[data-animation-running="false"] *::after { animation-play-state: paused; }
+@keyframes v5-sun-turn { to { transform: rotate(360deg); } }
+@keyframes v5-cloud-drift { from { transform: translateX(-9px); } to { transform: translateX(9px); } }
+@keyframes v5-rain-fall { to { transform: translate(-5px, 35px); } }
+@media (max-width: 640px) {
+  .v5-weather-theater .v4-stream-body { padding: 0.85rem; }
+  .v5-weather-theater .v4-msg-row { grid-template-columns: minmax(0, 1fr); gap: 0.5rem; }
+  .v5-weather-theater .v4-avatar { width: 36px; height: 30px; font-size: 0.7rem; }
+  .v5-weather-theater .v4-bubble { padding: 0.75rem; }
+  .v5-weather-theater .vcp-island-card { padding: 0.75rem; }
+  .v5-weather-theater .v4-sticker-lock { width: 100%; padding: 0.5rem; overflow-wrap: anywhere; }
+  .v5-weather-grid { gap: 0.35rem; }
+  .v5-weather-card { padding: 0.4rem; }
+  .v5-weather-reading strong { font-size: 1.25rem; }
+}
+@media (max-width: 380px) {
+  .v5-weather-grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .v5-weather-theater *,
+  .v5-weather-theater *::before,
+  .v5-weather-theater *::after { animation: none !important; transition: none !important; }
+  .v5-weather-rain i { top: 4px; }
+}
+
 /* ==========================================================================
    5. THEATER 03: SCRIPTORIUM V3 3D CUBE PERSPECTIVE TYPING
    ========================================================================== */
