@@ -16,6 +16,7 @@
     // 每个 chapter 一个 entry: { id, canvasId, factory, instance: null, started: false }
     const chapters = [
         { id: 0, canvasId: 'heroCanvas', factory: Scenes.createScene_hero },
+        { id: 11, canvasId: 'ch11Canvas', factory: Scenes.createScene_ch11 },
         { id: 1, canvasId: 'ch1Canvas', factory: Scenes.createScene_ch1 },
         { id: 2, canvasId: 'ch2Canvas', factory: Scenes.createScene_ch2 },
         { id: 3, canvasId: 'ch3Canvas', factory: Scenes.createScene_ch3 },
@@ -207,6 +208,7 @@
         }
 
         const groups = [
+            [11, 'geometry-mode', 'geometryMode', 'setGeometryMode', String],
             [1, 'ags-step', 'agsStep', 'setStep', Number],
             [2, 'star-mode', 'starMode', 'setStarMode', String],
             [3, 'flow', 'flow', 'setMode', String],
@@ -245,6 +247,8 @@
         });
 
         [
+            [11, 'v5GeometryPlay', 'geometryToggle'],
+            [11, 'v5GeometryReplay', 'geometryReplay'],
             [1, 'ch1CycleBtn', 'toggleCycle'],
             [2, 'ch2SweepBtn', 'triggerSweep'],
             [5, 'ch5FireBtn', 'trigger'],

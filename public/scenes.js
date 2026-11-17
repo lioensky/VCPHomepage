@@ -35,7 +35,7 @@
     // =========================================================================
     function createGlobalRiver(canvas) {
         let stars = [];
-        const glyphs = ['Ω', 'AGS', 'V3', 'u_L', 'u_T', 'Γ_c', 'CSR', 'RUST', 'r_t', 'p_N'];
+        const glyphs = ['Ω', 'AGS', 'V5', 'u_L', 'u_T', 'Γ_c', 'CSR', 'RUST', 'R', 'H_AGS'];
 
         function build(w, h) {
             stars = Array.from({ length: 44 }, (_, i) => ({
@@ -1380,7 +1380,7 @@
             arch: {
                 omega: .82, regime: 'DENSE', mode: 'narrative · 预设结构证据',
                 items: [
-                    { title: 'RiverMemo Topology V3 与 AGS 双尺度几何事务闭合记录',
+                    { title: 'RiverMemo V5 双曲 Tag / Chunk 同代几何闭合记录',
                         role: '显式精确接触 · 闭合达标（预设）',
                         evidence: { query: .78, pathQuality: .7, anchorStrength: .18 } },
                     { title: 'Sense 有界脉冲扩散与 Resolvent 双尺度连续场推导',
@@ -1424,11 +1424,15 @@
         function renderScoreTable(sc) {
             const container = document.getElementById('finaleScoreTable');
             if (!container) return;
-            // V4 统一读出：路径同样受 Ω 门控；排序分与展示分同源。V4 未加载时回退 V3 教学模型。
-            const model = global.RiverMemoV4 || global.RiverMemoV3;
-            const isV4 = model === global.RiverMemoV4;
-            const ranked = sc.items.map(item => ({ ...item, result:
-                model.scoreCandidate({ ...common, omega: sc.omega, ...item.evidence }) }))
+            // V5 意图因子只调制标量支持；其余继承 V4 连续统一账目。
+            const model = global.RiverMemoV5 || global.RiverMemoV4 || global.RiverMemoV3;
+            const isV4 = model !== global.RiverMemoV3;
+            const seeds = [{ id: 1, energy: .8 }, { id: 2, energy: .2 }];
+            const ranked = sc.items.map((item, index) => ({ ...item, result:
+                model.scoreCandidate({ ...common, omega: sc.omega, ...item.evidence,
+                    intent: global.RiverMemoV5 ? global.RiverMemoV5.intentCoverage(seeds,
+                        index === 2 ? [{ seed: 2, tag: 2, similarity: 1, exact: true }]
+                            : [{ seed: 1, tag: 1, similarity: 1, exact: true }, { seed: 2, tag: 2, similarity: 1, exact: true }]) : 1 }) }))
                 .sort((a, b) => b.result.score - a.result.score);
             container.innerHTML = ranked
                 .map((item, index) => {
@@ -1447,6 +1451,7 @@
                             </div>
                             <div class="score-breakdown">
                                 <span>${isV4 ? 'B̂' : 'B'}=${r.base.toFixed(4)}（含共振 ${r.resonance.toFixed(4)}）</span>
+                                <span>I_c=${(r.intent ?? 1).toFixed(2)}（仅调制场支持）</span>
                                 <span>+ P=${r.path.toFixed(4)}</span>
                                 <span>+ G=${r.graph.toFixed(4)}</span>
                                 <span>+ A=${r.anchor.toFixed(4)}</span>
@@ -1460,7 +1465,8 @@
                 .join('');
         }
 
-        const stageLabels = ['AGS/CSR', '残差分层', '动态虫洞', '双场预算 K', '并集差集', '共享池读出', 'Softmax+Ω', 'Top-K'];
+        const stageLabels = ['AGS / 双曲场', 'Tag 双曲路由', 'Sense / 双场', 'Chunk 双曲召回', '同代汇合', '意图 / 场继承', '拓扑 + Ω', 'Top-K'];
+        const links = [[0, 1], [1, 2], [0, 3], [2, 4], [3, 4], [4, 5], [5, 6], [6, 7]];
 
         const runner = new SceneRunner(canvas, (ctx, w, h, t) => {
             drawIndustrialGrid(ctx, w, h, 44);
@@ -1470,32 +1476,19 @@
                 `教学预设 · ${sc.mode} · Ω = ${sc.omega.toFixed(2)} (${sc.regime}) · 非生产性能数据`
             );
 
-            const yMid = h * 0.52;
+            const positions = [[.09, .5], [.25, .25], [.42, .25], [.33, .77], [.56, .5], [.70, .5], [.83, .5], [.94, .5]];
             const pts = stageLabels.map((lb, i) => ({
-                x: lerp(w * 0.07, w * 0.93, i / (stageLabels.length - 1)),
-                y: yMid + Math.sin(i * 1.1) * 28,
-                label: lb,
+                x: w * positions[i][0], y: h * positions[i][1], label: lb,
                 color: i < 4 ? COLORS.patina : i < 7 ? COLORS.amber : COLORS.cinnabar,
             }));
-
-            for (let i = 0; i < pts.length - 1; i++) {
-                drawVectorArrow(ctx, pts[i], pts[i + 1], {
-                    color: pts[i].color,
-                    alpha: 0.78,
-                    width: 2.4,
-                });
-            }
-
-            // 沿 8 阶段管线奔涌的脉冲
-            const pulseStage = (t * 1.4) % (pts.length - 1);
-            const idx = Math.floor(pulseStage);
-            const frac = pulseStage - idx;
-            const px = lerp(pts[idx].x, pts[idx + 1].x, frac);
-            const py = lerp(pts[idx].y, pts[idx + 1].y, frac);
-            ctx.fillStyle = COLORS.amber;
-            ctx.beginPath();
-            ctx.arc(px, py, 5, 0, Math.PI * 2);
-            ctx.fill();
+            links.forEach(([a, b], i) => {
+                drawVectorArrow(ctx, pts[a], pts[b], { color: pts[a].color, alpha: .65, width: 2 });
+                const phase = (t * .45 + i * .13) % 1;
+                ctx.fillStyle = a === 3 || b === 3 ? COLORS.amber : COLORS.mint;
+                ctx.beginPath();
+                ctx.arc(lerp(pts[a].x, pts[b].x, phase), lerp(pts[a].y, pts[b].y, phase), 3.5, 0, Math.PI * 2);
+                ctx.fill();
+            });
 
             pts.forEach((p, i) => {
                 drawNodeBadge(ctx, p, {

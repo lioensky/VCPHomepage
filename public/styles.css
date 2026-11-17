@@ -1649,3 +1649,13 @@ body.rmv3-body {
     .worm-explanation .text-pane { grid-template-columns: 1fr; }
     .worm-proof-canvas { height: 400px; }
 }
+
+/* V5 在原技术页内升级：保留旧章节锚点与纸墨实验舱。 */
+.v5-canvas-scroll { width: 100%; overflow-x: auto; background: #101417; }
+.v5-geometry-canvas { min-width: 680px; height: 440px; flex: none; }
+.v5-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.5rem; }
+.v5-canvas-scroll:focus-visible { outline: 2px solid var(--nova-amber); outline-offset: -3px; }
+@media (max-width: 720px) {
+    .v5-facts { grid-template-columns: 1fr; }
+    .v5-geometry-canvas { height: 360px; }
+}

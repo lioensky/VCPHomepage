@@ -47,7 +47,7 @@ for (const match of html.matchAll(/<button\b([^>]*)>/g)) {
     buttons.push(button);
     if (button.attributes.id) elements.set(button.attributes.id, button);
 }
-for (let id = 0; id <= 10; id++) {
+for (let id = 0; id <= 11; id++) {
     const canvas = elements.get(id === 0 ? 'heroCanvas' : `ch${id}Canvas`);
     const section = element(`data-chapter="${id}"`);
     section.querySelector = () => canvas;
@@ -84,11 +84,11 @@ sandbox.window.RiverEngine.SceneRunner = class {
     stop() { this.running = false; }
     tick(dt) { this.time += dt; this.draw(ctx, 900, 340, this.time); }
 };
-for (const path of ['public/scenes.js', 'public/rivermemo-v2.js', 'public/memo-basin-projection.js', 'public/rivermemo-v3.js', 'public/rivermemo-wormhole-lab.js', 'public/rivermemo-v4.js', 'public/main.js']) vm.runInContext(fs.readFileSync(path, 'utf8'), sandbox);
+for (const path of ['public/scenes.js', 'public/rivermemo-v2.js', 'public/memo-basin-projection.js', 'public/rivermemo-v3.js', 'public/rivermemo-wormhole-lab.js', 'public/rivermemo-v4.js', 'public/rivermemo-v5.js', 'public/main.js']) vm.runInContext(fs.readFileSync(path, 'utf8'), sandbox);
 const observer = observers[0];
-assert.equal(observer.targets.length, 11);
+assert.equal(observer.targets.length, 12);
 for (const target of observer.targets) observer.callback([{ target, isIntersecting: true, intersectionRatio: 0.001 }]);
-assert.equal(runners.length, 12);
+assert.equal(runners.length, 13);
 for (const button of buttons) {
     button.click();
     for (const runner of runners) runner.tick(0.1);
@@ -390,6 +390,62 @@ for (const step of [0, 1, 2, 3]) {
 }
 assert(!html.includes('1/(60+r₀(c))'), '首屏不得残留倒数名次公式');
 
+const V5 = sandbox.window.RiverMemoV5;
+assert(V5);
+assert(Math.abs(V5.chunkRadius(0) - .65) < 1e-12);
+assert.equal(V5.chunkRadius(1), .35);
+assert.equal(V5.softInheritance(.82), 0);
+assert.equal(V5.softInheritance(.7), 0);
+assert.equal(V5.softInheritance(1), .75);
+for (let i = 0; i < 100; i++) {
+    assert(V5.chunkRadius(i / 100) >= V5.chunkRadius((i + 1) / 100));
+    assert(V5.routeRadius(.8, .2, .6, i / 100, 1)
+        >= V5.routeRadius(.8, .2, .6, (i + 1) / 100, 1));
+}
+for (const g of [0, .5, 1]) for (const rho of [0, .3, 1]) {
+    const r = V5.routeRadius(g, .25, .7, rho, 1);
+    assert(r >= .35 && r <= .65);
+}
+const seeds = [{ id: 1, energy: .8 }, { id: 2, energy: .2 }];
+const weakContacts = [{ seed: 2, tag: 8, similarity: 1, exact: true }];
+assert.equal(V5.intentCoverage(seeds, weakContacts), .5);
+assert.equal(V5.intentCoverage(seeds, [...weakContacts, ...weakContacts]), .5);
+assert.equal(V5.intentCoverage(seeds, []), .35);
+assert.equal(V5.intentCoverage([], []), 1);
+assert.equal(V5.intentCoverage(seeds, [{ seed: 1, tag: 1, similarity: .71 }]), .35);
+assert.equal(V5.intentCoverage(seeds, [{ seed: 1, tag: 1, similarity: .72 }]), 1);
+const oneTag = V5.intentCoverage(seeds, [
+    { seed: 2, tag: 7, similarity: 1, exact: true },
+    { seed: 1, tag: 7, similarity: .9 },
+]);
+assert.equal(oneTag, .5, '同一个候选标签不能认领两个意图');
+const fullIntent = V5.scoreCandidate({ ...ev, omega: .8, intent: 1 });
+const weakIntent = V5.scoreCandidate({ ...ev, omega: .8, intent: .5 });
+assert(weakIntent.resonance < fullIntent.resonance);
+assert.equal(weakIntent.path, fullIntent.path);
+assert.equal(weakIntent.anchor, fullIntent.anchor);
+assert.equal(weakIntent.rankingScore, weakIntent.finalScore);
+const geometry = runners.find(r => r.canvas === elements.get('ch11Canvas'));
+for (const button of queryAll('[data-geometry-mode]')) {
+    button.click();
+    for (const width of [390, 680, 1200]) geometry.draw(ctx, width, 440, 5);
+    assert(elements.get('v5GeometryStory').textContent.length > 30);
+}
+for (const button of queryAll('[data-epa-mode]')) {
+    button.click();
+    runners.find(r => r.canvas === elements.get('ch4Canvas')).tick(.1);
+    assert(elements.get('ch4Readout').textContent.includes('R=['));
+}
+const snapshot = elements.get('ch11Readout').textContent;
+elements.get('v5GeometryPlay').click();
+geometry.tick(3);
+assert(elements.get('ch11Readout').textContent.includes('暂停'));
+elements.get('v5GeometryReplay').click();
+geometry.tick(0);
+assert(elements.get('ch11Readout').textContent.includes('教学回放'));
+assert(html.includes('黎曼度规统一双曲'));
+assert(!html.includes('7 路候选超集'));
+assert(snapshot);
 const times = [];
 let queued;
 sandbox.requestAnimationFrame = callback => { queued = callback; return 1; };
@@ -407,4 +463,4 @@ sandbox.document.hidden = false;
 queued(20000);
 assert.equal(times.at(-1), 0.05);
 clock.stop();
-console.log(`PASS: ${buttons.length} buttons, 12 scenes, low-ratio visibility, mode readouts, pulse replay, finale table and pause/resume clock.`);
+console.log(`PASS: ${buttons.length} buttons, 13 scenes, V5 radial routing / intent / inheritance, mode readouts, finale table and pause/resume clock.`);

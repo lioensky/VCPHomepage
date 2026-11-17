@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VCP RiverMemo V4 · 非负锥几何与统一水闸实验室</title>
-    <meta name="description" content="RiverMemo V4 交互科普：支流只许顺流汇入的非负锥残差、揭开泛称描图纸的种差校准，以及路径、图与传输共享一座 Ω 水闸的连续统一读出。教学模拟，非原生引擎或性能基准。" />
-    <meta name="keywords" content="VCP,RiverMemo V4,Cone-AGS,非负锥残差,NNLS,种差校准,统一Ω门控,共享拓扑预算,有界互补,动态虫洞,Direct Anchor" />
+    <title>VCP RiverMemo V5 · 黎曼度规统一双曲</title>
+    <meta name="description" content="RiverMemo V5 交互演示：AGS 径向变曲率黎曼度规统一双曲 Tag 路由与 Chunk 召回，残差能量驱动外壳深潜，意图覆盖与拓扑河网统一读出。教学模拟，非原生引擎或性能基准。" />
+    <meta name="keywords" content="VCP,RiverMemo V5,黎曼度规,径向变曲率,双曲检索,AGS,NNLS,残差能量,意图覆盖,Topology V3,统一Ω" />
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
     <meta name="author" content="VCP Ecosystem" />
     <link rel="canonical" href="https://www.vcptoolbox.com/vcp-rivermemo-engine" />
     <link rel="icon" type="image/png" href="/assets/logo1.png" />
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content="VCP.OS" />
-    <meta property="og:title" content="RiverMemo V4 · 非负锥几何与统一水闸实验室" />
-    <meta property="og:description" content="支流只许顺流汇入的非负锥残差、揭开泛称描图纸的种差校准，以及路径、图与传输证据共用一座 Ω 水闸、排序分即展示分。教学模拟。" />
+    <meta property="og:title" content="RiverMemo V5 · 黎曼度规统一双曲" />
+    <meta property="og:description" content="双曲 Chunk 候选 × 双曲 Tag 观测：沿残差潜入特异外壳，以意图覆盖、双场与 Ω 拓扑读出记忆。原技术页升级，教学模拟。" />
     <meta property="og:url" content="https://www.vcptoolbox.com/vcp-rivermemo-engine" />
     <meta property="og:image" content="https://www.vcptoolbox.com/assets/logo1.png" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="RiverMemo V4 · 非负锥几何与统一水闸实验室" />
-    <meta name="twitter:description" content="Cone-AGS 非负锥残差 × 种差校准 × Ω 统一门控 × 共享预算有界互补；直接锚独立快线，ranking_score == final_score。" />
+    <meta name="twitter:title" content="RiverMemo V5 · 黎曼度规统一双曲" />
+    <meta name="twitter:description" content="径向变曲率黎曼度规 × 双曲 Tag/Chunk × 残差外壳深潜 × 多核意图覆盖；保留 Topology V3 连续统一读出。" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
@@ -26,8 +26,8 @@
       {
         "@context": "https://schema.org",
         "@type": "TechArticle",
-        "headline": "RiverMemo V4：非负锥几何、种差校准与统一 Ω 水闸交互科普",
-        "description": "按 2026-11-15 RiverMemo V4 文档演示 Cone-AGS 非负锥残差、种差校准与共享拓扑预算下的连续统一读出。数据为教学模拟，不连接生产原生引擎。",
+        "headline": "RiverMemo V5：黎曼度规统一双曲与拓扑河网读出",
+        "description": "依据 2026-11-17 技术文档，演示双曲 Chunk 召回、Tag 路由、残差能量半径与意图覆盖。数据为教学模拟，不连接生产原生引擎。",
         "url": "https://www.vcptoolbox.com/vcp-rivermemo-engine",
         "inLanguage": "zh-CN",
         "author": {
@@ -45,10 +45,10 @@
 </head>
 <body class="rmv3-body">
     <section class="seo-summary" aria-label="VCP RiverMemo Engine 算法摘要">
-        <h1>RiverMemo V4 · 非负锥几何、种差校准与统一 Ω 水闸</h1>
+        <h1>RiverMemo V5 · 黎曼度规统一双曲与 Topology V3 读出</h1>
         <p>
-            RiverMemo V4 将局部背景构建推进到原始生成列非负锥：AGS 从 96 个候选中提名至多 24 条原始 Tag 列，再以 FP64 QR 小核求非负最小二乘，回到原空间完成非负性、KKT 与能量闭合校验；
-            全局星团主题面仍为有符号子空间。局部残差、锚增益、全局主题面与 memo_local_cone_diagnostics 在同一 SQLite 写事务内原子发布。
+            RiverMemo V5 使用径向变曲率黎曼度规统一双曲导航内核：Tag 场按拓扑与局部锥残差定径，Chunk 场按均值轴对齐度分位映射定径。两场分别训练，原始 FP32 向量保存在 SQLite。
+            EPA 与残差能量决定查询路由半径，原 Tag NNLS、双场、强语义场继承和一对一意图覆盖共同服务原生拓扑读出。
         </p>
         <p>
             请求侧依次完成 EPA 背景校准、原 Tag 非负锥残差金字塔、有界 Sense 脉冲扩散与 Resolvent 局部/迁移双场求解，并对被主概念覆盖的泛化父词执行查询条件化种差校准。
@@ -75,15 +75,16 @@
                     </span>
                 </span>
             </a>
-            <span class="vcp2-release-badge" title="RiverMemo V4 · 教学模型，非原生加载诊断">
+            <span class="vcp2-release-badge" title="RiverMemo V5 · 教学模型，非原生加载诊断">
                 <i class="vcp2-release-dot"></i>
-                <span class="vcp2-text-full">RIVERMEMO V4 · 记忆河网实验室</span>
-                <span class="vcp2-text-short">RIVERMEMO V4</span>
+                <span class="vcp2-text-full">RIVERMEMO V5 · 双曲河网实验室</span>
+                <span class="vcp2-text-short">RIVERMEMO V5</span>
             </span>
         </div>
 
         <nav class="vcp2-nav-links" aria-label="算法剧场章节跳转">
             <a href="#chapter-hero"><span>00</span>总览</a>
+            <a href="#chapter-geometry"><span>V5</span>黎曼双曲</a>
             <a href="#chapter-birth"><span>01</span>非负锥</a>
             <a href="#chapter-confluence"><span>02</span>全局星团</a>
             <a href="#chapter-direction"><span>03</span>次随机核</a>
@@ -111,6 +112,7 @@
         <div class="progress-track"></div>
         <ul class="chapter-dots">
             <li data-chapter="0" class="dot active"><span>00 · 统一语义动力场</span></li>
+            <li data-chapter="11" class="dot"><span>V5 · 黎曼度规统一双曲</span></li>
             <li data-chapter="1" class="dot"><span>01 · Cone-AGS 非负锥残差</span></li>
             <li data-chapter="2" class="dot"><span>02 · 全局星团 AGS 主题面</span></li>
             <li data-chapter="3" class="dot"><span>03 · 共享次随机传输图</span></li>
@@ -133,8 +135,8 @@
 
             <div class="rmv3-container hero-shell">
                 <div class="vcp2-hud-bar">
-                    <span class="vcp2-hud-cross">SEC-00 // RIVERMEMO_V4_TEACHING_LAB</span>
-                    <span>GEOMETRY: LOCAL CONE-AGS (QR-NNLS) + GLOBAL STAR SPAN</span>
+                    <span class="vcp2-hud-cross">SEC-00 // RIVERMEMO_V5_TEACHING_LAB</span>
+                    <span>WARPED RIEMANNIAN METRIC × TAG / CHUNK × TOPOLOGY V3</span>
                     <span>SYS_CLOCK: <span id="hudClock">2026-10-28 // 00:00:00.000</span></span>
                 </div>
 
@@ -142,25 +144,25 @@
                     <div class="hero-main">
                         <div class="hero-kicker">
                             <span class="kicker-dot"></span>
-                            <span>RIVERMEMO V4 · 2026.11.15</span>
-                            <strong>支流只许顺流汇入 · 所有证据共用一座水闸</strong>
+                            <span>RIVERMEMO V5 · 2026.11.17</span>
+                            <strong>从候选召回到标签路由，重塑记忆的几何</strong>
                         </div>
 
                         <h1 class="hero-title">
-                            <span class="title-line">记忆的河流，</span>
-                            <span class="title-line">不再<em class="patina">倒流相消</em>，</span>
-                            <span class="title-line">只记<em class="amber">同一本账</em>。</span>
+                            <span class="title-line">黎曼度规，</span>
+                            <span class="title-line"><em class="patina">统一双曲</em>。</span>
+                            <span class="title-line">记忆，自有<em class="amber">深浅</em>。</span>
                         </h1>
 
                         <p class="hero-subtitle">
                             RiverMemo 是 VCP 长期记忆系统中的连续信息场检索引擎。
-                            <strong>RiverMemo V4</strong> 让每个 Tag 只能被邻居<strong>顺流汇入</strong>地解释（原始列非负锥），露出水面的部分才是真正独有的残差；
-                            查询前先揭开泛称父词的<strong>描图纸</strong>，再让路径、图证据与跨文件见证的传输证据<strong>共用一座 Ω 水闸</strong>，排序分与展示分出自同一本账。
+                            <strong>RiverMemo V5</strong> 将 AGS 背景接入<strong>径向变曲率黎曼度规</strong>：泛化干流靠近内壳，特异细节铺向外壳，残差能量引导查询逐层深潜。
+                            <strong>双曲 Chunk 召回 × 双曲 Tag 观测</strong>，再以多核意图覆盖、强语义场继承、双场与 Ω 河网结构统一读出。不是普通的常曲率庞加莱球，也不是只在末端换一个重排器。
                             下面的水流、分数与计数均为<strong>教学模拟，不连接生产 Rust 引擎，也不代表检索质量或实测延迟</strong>。
                         </p>
 
                         <!-- 总方程工业铭牌 -->
-                        <div class="equation-monolith" aria-label="RiverMemo V4 连续统一泛函">
+                        <div class="equation-monolith" aria-label="RiverMemo V5 沿用的连续统一泛函">
                             <div class="eq-monolith-head">
                                 <span>UNIFIED CONTINUOUS FUNCTIONAL · ranking_score == final_score</span>
                                 <span>RANGE: Π<sub>[0,1]</sub> · SHARED BUDGET C<sub>T</sub></span>
@@ -185,14 +187,14 @@
                                 <span class="eq-bracket">]</span>
                             </div>
                             <div class="formula-plate dark-plate">
-                                x* = argmin<sub>x ≥ 0</sub> ‖Qᵀt − Rx‖² · r<sub>t</sub> = ‖t − Ax*‖ （支流只许顺流汇入）<br/>
-                                q̂ = (1 − m)q + m · cos(q<sub>⊥</sub>, v<sub>c</sub>)，m ≤ 0.5 （揭开泛称描图纸）<br/>
-                                废除倒数名次覆盖 · 排序与展示同读一列 S · 融合分仍不是余弦或概率
+                                ds² = dR² + φ(R)² dΩ² · 非零喉部 + 三次曲率软化<br/>
+                                双曲 Tag / Chunk 共用导航内核，各自使用径向规则；NNLS 仍分解原始 Tag 列。<br/>
+                                V5 是生产检索链路，Topology V3 是评分架构；纯 ANN 的负距离不等于 V5 最终分。
                             </div>
                         </div>
 
                         <div class="hero-actions">
-                            <a href="#chapter-birth" class="vcp2-btn-primary">
+                            <a href="#chapter-geometry" class="vcp2-btn-primary">
                                 <span>进入交互式算法拆解</span>
                                 <span>↓</span>
                             </a>
@@ -215,16 +217,16 @@
                         <div class="layer-stack">
                             <div class="layer-card layer-shared">
                                 <div class="layer-tag">LAYER 01 · 共享背景资产 (重建发布)</div>
-                                <strong>局部 Cone-AGS + 全局 Span & CSR 有向传输图</strong>
+                                <strong>AGS / CSR + 双曲 Tag 场 + 全局 Chunk 场</strong>
                                 <p>局部 AGS 提名原 Tag 列后以 FP64 QR 小核求非负锥残差；全局星团主题面仍是有符号子空间。二者与 <code>memo_local_cone_diagnostics</code> 同事务原子发布；严格满足 <code>Σ<sub>j</sub> P<sub>ij</sub> < 1</code>。</p>
                             </div>
                             <div class="layer-card layer-request">
                                 <div class="layer-tag">LAYER 02 · 请求级观测 (每次查询生成)</div>
-                                <strong>EPA 校准 + 残差金字塔 + Sense 有向河网 R<sub>q</sub></strong>
+                                <strong>EPA 定径 + 双曲残差路由 + Sense 河网 R<sub>q</sub></strong>
                                 <p>只记录本次查询真实走过的节点势 <code>E<sub>i</sub></code> 与边流 <code>F<sub>ij</sub></code>，经 <code>observationHandle</code> 在同代内存零拷贝复用。</p>
                             </div>
                             <div class="layer-card layer-readout">
-                                <div class="layer-tag">LAYER 03 · 请求级双场与 V4 统一读出</div>
+                                <div class="layer-tag">LAYER 03 · V5 双场 / 意图覆盖 / Topology V3</div>
                                 <strong>Resolvent 双场 (u<sub>L</sub>, u<sub>T</sub>) × 形态 Softmax × Ω 水闸 × 锚</strong>
                                 <p>路径、图与传输证据都先过 Ω 闸，再在同一 C<sub>T</sub> 内有界互补；直接锚另走快线。排序分即展示分。</p>
                             </div>
@@ -245,6 +247,44 @@
                             </div>
                         </div>
                     </aside>
+                </div>
+            </div>
+        </section>
+
+        <section id="chapter-geometry" class="chapter vcp2-section-paper" data-chapter="11">
+            <div class="rmv3-container">
+                <div class="vcp2-hud-bar">
+                    <span class="vcp2-hud-cross">V5 // WARPED RIEMANNIAN GEOMETRY</span>
+                    <span>TAG / CHUNK · SHARED KERNEL, DISTINCT RADIAL RULES</span>
+                    <span>INTERACTIVE TEACHING PROJECTION</span>
+                </div>
+                <div class="chapter-header">
+                    <div>
+                        <div class="chapter-meta">V5 NEW · 黎曼度规统一双曲</div>
+                        <h2 class="chapter-title">不只换排序，<br/>让记忆空间本身拥有深浅。</h2>
+                    </div>
+                    <p class="chapter-intro">用非零喉部维持内壳角向张力，以三次软化项缓和外壳曲率。Tag 按入度分位与局部锥残差定径；Chunk 按均值轴对齐度的经验分位铺展。两者共用软化双曲导航内核，<strong>并非同一张图或同一个径向映射</strong>。</p>
+                </div>
+                <div class="canvas-pane">
+                    <div class="canvas-hud-top"><span>V5 / 内壳干流 → 外壳细节 → 联合读出</span><span id="ch11Readout">教学回放</span></div>
+                    <div class="canvas-controls">
+                        <div class="ctrl-group" role="group" aria-label="选择黎曼双曲实验">
+                            <button type="button" class="ctrl-btn active" data-geometry-mode="tag">双曲 Tag · 外壳深潜</button>
+                            <button type="button" class="ctrl-btn" data-geometry-mode="flat">平坦投影对照</button>
+                            <button type="button" class="ctrl-btn" data-geometry-mode="chunk">Chunk · 64 分位铺展</button>
+                            <button type="button" class="ctrl-btn" data-geometry-mode="intent">意图覆盖与同义继承</button>
+                        </div>
+                        <div class="ctrl-group">
+                            <button type="button" class="ctrl-btn-accent" id="v5GeometryPlay">Ⅱ 暂停</button>
+                            <button type="button" class="ctrl-btn-accent" id="v5GeometryReplay">↻ 重播深潜</button>
+                        </div>
+                    </div>
+                    <div class="v5-canvas-scroll" tabindex="0" aria-label="黎曼度规动画，窄屏可横向滚动"><canvas id="ch11Canvas" class="scene-canvas v5-geometry-canvas" role="img" aria-label="径向壳层教学投影，支持 Tag、平坦对照、Chunk 分位映射与意图覆盖四种视角"></canvas></div>
+                    <div id="v5GeometryStory" class="v2-lab-caption" aria-live="polite"></div>
+                </div>
+                <div class="v5-facts">
+                    <article class="spec-card"><div class="spec-card-head">统一度规，不混淆证据</div><p class="spec-note">构图、2-bit 热码导航与 SQL 原件精排使用一致的双曲几何；Tag 池之后仍在原向量空间求 NNLS。双曲距离负责选候选，V5 保留原查询余弦作为基础语义输入。</p></article>
+                    <article class="spec-card"><div class="spec-card-head">写入实时，几何按代复用</div><p class="spec-note">新建或修改向量在冻结均值轴与径向规则下评分，再与图候选合并。训练换代才重建几何；不是每写一篇日记就重训全图，也不是取消范围与权限过滤。</p></article>
                 </div>
             </div>
         </section>
@@ -483,10 +523,10 @@
                 <div class="chapter-header">
                     <div>
                         <div class="chapter-meta">CHAPTER 04 · CONTEXT OBSERVATION TO SOURCE SEEDS</div>
-                        <h2 class="chapter-title">从全上下文到种子源：EPA 背景相对校准 × 残差金字塔正交剥离</h2>
+                        <h2 class="chapter-title">残差越深，越向外壳：EPA 定径 × 双曲 Tag 池 × 原 Tag NNLS</h2>
                     </div>
                     <p class="chapter-intro">
-                        当整段对话上下文向量 <code>q ∈ ℝ<sup>3072</sup></code> 进入 [`run_pipeline()`](参考文档/memo_pipeline.rs:1518)，系统不再做慢速全库扫描，而是直接读取第二章发布的 <strong>AGS 全局星团主题面</strong> 进行瞬间投影校准，并配合请求侧 <strong>3 层 Residual Pyramid</strong> 剥离出多层次语义种子 <code>Z<sub>0</sub></code>。
+                        查询先读取同代 AGS 主题面计算 EPA。L0 由域内门控、谱熵与逻辑深度定径；L1 及后续层根据<strong>输入残差能量比</strong>向外壳推进，在双曲 Tag 场选池，再对<strong>原始 Tag 单位列做 NNLS</strong>。路由度规与分解空间各司其职。
                     </p>
                 </div>
 
@@ -511,7 +551,7 @@
                                 <strong>EPA 调制因子</strong>：只取语义前缀 <code>m = min(K<sub>sem</sub>, K<sub>eff</sub>)</code> 计算归一化熵 <code>H<sub>Q</sub></code>、逻辑深度与跨主题桥共振，尾轴仅用于诊断域外残差，绝不反向虚抬前缀解释率。
                             </li>
                             <li>
-                                <strong>3 层 Residual Pyramid</strong>：每层召回 Top-10 Tag 并在请求侧做 Gram-Schmidt 正交投影 <code>q<sub>res</sub> ← q<sub>res</sub> − Proj(q<sub>res</sub>)</code>，分析握手方向一致性（Handshake Coherence），继续向深层残差挖掘隐含意图。
+                                <strong>残差能量路由</strong>：ρ<sub>ℓ</sub> = ‖r<sub>ℓ</sub>‖² / ‖q‖²；p<sub>0</sub> = 0.55g(1−H)+0.30D，p<sub>ℓ</sub> = p<sub>0</sub>+0.75(1−p<sub>0</sub>)(1−ρ<sub>ℓ</sub><sup>0.35</sup>)，R = 0.35+0.30p。每层 Tag 精排上限 64，NNLS 保留非负原列解释。
                             </li>
                             <li>
                                 <strong>Tag 门控与 Ghost 隔离</strong>：综合层级衰减 <code>0.7<sup>L</sup></code>、Core 增益与跨语种惩罚生成 <code>Z<sub>0</sub></code>；朗飞结 Ghost Tag（<code>id < 0</code>）仅在传播后参与向量融合，绝不污染持久传输图。
@@ -524,7 +564,7 @@
                             <span>EPA CALIBRATION & 3-LEVEL PYRAMID // 切换查询上下文状态</span>
                             <span id="ch4Readout">In-Domain Gate g_Q = 0.88 · Logic Depth = 0.64 · 3 Pyramid Levels</span>
                         </div>
-                        <canvas id="ch4Canvas" class="scene-canvas"></canvas>
+                        <div class="v5-canvas-scroll" tabindex="0" aria-label="残差双曲路由动画，窄屏可横向滚动"><canvas id="ch4Canvas" class="scene-canvas v5-geometry-canvas" role="img" aria-label="三个残差层根据输入能量比向双曲外壳推进的教学投影"></canvas></div>
                         <div class="canvas-controls">
                             <div class="ctrl-group">
                                 <button type="button" class="ctrl-btn active" data-epa-mode="focused">深层技术上下文 (高 g_Q)</button>
@@ -970,17 +1010,17 @@
                 <div class="vcp2-hud-bar">
                     <span class="vcp2-hud-cross">SEC-10 // UNIFIED_RUST_NAPI_EXECUTION_CHAIN</span>
                     <span>HANDLE: memoq-{gen}-{seq}-{hash} · ZERO JS WORKER POOL</span>
-                    <span>SUPERSET: 7 RECALL CHANNELS → MAX 300 → TOP-K</span>
+                    <span>HYPERBOLIC CHUNK + TAG OBSERVATION → V5 → TOP-K</span>
                 </div>
 
                 <div class="chapter-header">
                     <div>
                         <div class="chapter-meta">CHAPTER 10 · END-TO-END PRODUCTION ARCHITECTURE</div>
-                        <h2 class="chapter-title">全链路原生闭合：从 SQLite 权威向量、observationHandle 到 7 路候选超集统一排序</h2>
+                        <h2 class="chapter-title">全链路原生闭合：双曲 Chunk 候选与 Tag 观测，在同代 RiverMemo V5 汇合</h2>
                     </div>
                     <p class="chapter-intro">
-                        生产环境已彻底淘汰旧版 Node <code>worker_threads</code> 池与跨 N-API JSON 往返传输。
-                        新观测通常先由原生观测任务生成同代请求句柄，再由联合检索任务完成 ANN、候选合并与拓扑读出。候选级数学通过 Rayon 并行；不意味着整条请求只有一次 N-API 调用，或多索引 ANN 无锁、全阶段并行。
+                        RAGDiary 与 LightMemo 普通检索默认 V5：全局 Chunk 双曲召回与双曲 Tag 观测汇合，原生侧读取 SQL 原件，以意图覆盖、场势与拓扑完成排序。
+                        观测初始化不可用时使用双曲 ANN，不回退旧 TDB/V4；存储错误、非法向量与损坏资产仍返回错误。旧轨仅在 LightMemo AB 按需加载，下一次普通查询释放旧候选载荷。
                     </p>
                 </div>
 
@@ -988,14 +1028,14 @@
                 <div class="finale-pipeline" aria-label="Topology V3 执行链教学示意">
                     <div class="pipe-step" data-pipe-idx="0">
                         <div class="pipe-num">STAGE 01</div>
-                        <div class="pipe-name">AGS 双尺度预计算</div>
-                        <div class="pipe-desc">局部残差/锚增益 + 全局星团主题面</div>
+                        <div class="pipe-name">训练代共享几何</div>
+                        <div class="pipe-desc">AGS → 传输资产 → Tag 场 → Chunk 场</div>
                     </div>
                     <div class="pipe-arrow">→</div>
                     <div class="pipe-step" data-pipe-idx="1">
                         <div class="pipe-num">STAGE 02</div>
-                        <div class="pipe-name">EPA × 残差金字塔</div>
-                        <div class="pipe-desc">背景相对校准 g_Q + 3层正交剥离</div>
+                        <div class="pipe-name">双曲 Tag 观测</div>
+                        <div class="pipe-desc">EPA / 残差能量定径 → 原 Tag NNLS</div>
                     </div>
                     <div class="pipe-arrow">→</div>
                     <div class="pipe-step" data-pipe-idx="2">
@@ -1012,14 +1052,14 @@
                     <div class="pipe-arrow">→</div>
                     <div class="pipe-step" data-pipe-idx="4">
                         <div class="pipe-num">STAGE 05</div>
-                        <div class="pipe-name">7 路候选超集</div>
-                        <div class="pipe-desc">Q/Denoised/L/T/BM25/Time/Anchor</div>
+                        <div class="pipe-name">双曲 Chunk 候选</div>
+                        <div class="pipe-desc">范围下推 / 实时成员 / SQL 原件精排</div>
                     </div>
                     <div class="pipe-arrow">→</div>
                     <div class="pipe-step" data-pipe-idx="5">
                         <div class="pipe-num">STAGE 06</div>
-                        <div class="pipe-name">曲线 × 相对拓扑</div>
-                        <div class="pipe-desc">共享请求向量池 + 同代校验 + 读出</div>
+                        <div class="pipe-name">覆盖 × 场势 × 拓扑</div>
+                        <div class="pipe-desc">一对一意图 / 强语义继承 / 正文闭合</div>
                     </div>
                     <div class="pipe-arrow">→</div>
                     <div class="pipe-step" data-pipe-idx="6">
@@ -1039,7 +1079,7 @@
                 <div class="finale-workbench">
                     <div class="finale-canvas-wrap">
                         <div class="canvas-hud-top">
-                            <span>V4 全链路教学模拟 / 预设证据计算，非原生遥测</span>
+                            <span>V5 全链路教学模拟 / 预设证据计算，非原生遥测</span>
                             <span id="ch10Readout">教学场景 · 非生产遥测</span>
                         </div>
                         <canvas id="ch10Canvas" class="scene-canvas finale-canvas"></canvas>
@@ -1060,7 +1100,8 @@
 
                 <div class="finale-quote">
                     <p>“支流只许顺流汇入，露出的礁石才算独有；揭开泛称的描图纸，才看清专名的纹理。传播产生河网，河网与同一传输算子产生连续场；路径、图与见证过的传输共用一座 Ω 水闸，直接锚走自己的快线——最后只剩一本账。”</p>
-                    <p class="quote-en">RiverMemo V4 · Non-negative Cone → Differentia → Unified Ω Sluice → One Ledger</p>
+                    <p class="quote-en">RiverMemo V5 · Warped Riemannian Metric → Hyperbolic Recall → Unified Readout</p>
+                    <p class="v2-boundary">日常写入同步成员，不重训全图。手动全训或既有 1% Tag 阈值依次重建 AGS、传输资产、Tag 与 Chunk 双曲场。RAGDiary 是声明与权限约束下的被动背景渠道，LightMemo 是主动回忆渠道；两者默认共用 V5。</p>
                     <p class="v2-boundary">这里的“统一”指 RiverMemo 内部读出泛函的账目闭合：所有证据进入同一个连续分数，不再存在第二套名次覆盖。它不是物理意义上的统一场理论，也不补回候选池外的记录或扩大候选权限。</p>
                     <p class="v2-boundary">请求向量池复用于金字塔、融合、动态共鸣、投影和候选读出；只向 SQL 补读差集，每批最多 128 个 ID。跨事务校验数据库代际，事实写入后拒绝过期观测。全部内部消费者完成后立即释放句柄，最后共享引用释放后回收载荷；常驻 CSR 不清除，TTL 仅兜底。动态计数是传播事件，不是准确率，也不保证目标下一跳发火。</p>
                 </div>
@@ -1085,7 +1126,7 @@
                         </span>
                     </span>
                 </a>
-                <p>VCP 2.0 · Nova 纸墨工业 · RiverMemo V4 教学实验室，非原生引擎或性能基准</p>
+                <p>VCP 2.0 · Nova 纸墨工业 · RiverMemo V5 黎曼双曲教学实验室，非原生引擎或性能基准</p>
             </div>
 
             <div class="vcp2-footer-links">
@@ -1107,6 +1148,7 @@
     <script src="rivermemo-v3.js"></script>
     <script src="rivermemo-wormhole-lab.js"></script>
     <script src="rivermemo-v4.js"></script>
+    <script src="rivermemo-v5.js"></script>
     <script src="main.js"></script>
 </body>
 </html>

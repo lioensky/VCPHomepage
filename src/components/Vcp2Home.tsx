@@ -217,7 +217,8 @@ const milestoneNodes = [
   {date: "2026.10.19", tag: "VEXUSMEMO", title: "原生一体化记忆数据库", desc: "SQLite 事实、TDB 2-bit 冲程与 AGS 几何统一进入 Rust 数据底座。"},
   {date: "2026.10.20", tag: "RIVERMEMO V2", title: "共享双场预算与动态语境虫洞", desc: "跨阶段复用原始向量，沿历史关系展开有界联想，双槽代际快照守护资产。"},
   {date: "2026.10.27", tag: "RIVERMEMO V3", title: "支流饱和、显式确权与尾残差路由", desc: "非负场共振保护原始语义，一对一接触限制标签堆砌；VTrade 模拟交易同步接入 VGame。"},
-  {date: "2026.11.15", tag: "RIVERMEMO V4", title: "非负锥几何与统一 Ω 水闸", desc: "Cone-AGS 非负锥残差、种差校准，路径/图/传输共享预算有界互补；废除 RRF，排序分即展示分。"},
+  {date: "2026.11.15", tag: "RIVERMEMO V4", title: "非负锥几何与统一 Ω 水闸", desc: "Cone-AGS 非负锥残差、种差校准，路径/图/传输共享预算有界互补；废除内部名次覆盖，排序分即展示分。"},
+  {date: "2026.11.17", tag: "RIVERMEMO V5", title: "黎曼度规统一双曲", desc: "双曲 Chunk 召回与 Tag 路由接管生产链路；残差能量驱动外壳深潜，意图覆盖与强语义场继承汇入拓扑读出。"},
 ];
 
 export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
@@ -557,7 +558,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                 <p className="vcp2-hero-lead">
                   VCP 是开源的全栈 AI Agent 运行时，集成长期记忆、工具调用、统一上下文与分布式协作，让 AI 从对话走向持续行动。
                   VCPToolBox 与 VCPChat 共同连接{" "}
-                  <strong>VexusMemo × RiverMemo V4 一体化记忆</strong>、
+                  <strong>VexusMemo × RiverMemo V5 双曲记忆</strong>、
                   <strong>MoonAST 代码检索</strong>与<strong>共笔文坊协同编辑</strong>，
                   构筑人类与 AI Agent 长期协作的工业级底座。
                 </p>
@@ -689,15 +690,15 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
           <div className="vcp2-container">
             <div className="vcp2-hud-bar">
               <span className="vcp2-hud-cross">SEC-02 // VEXUSMEMO_UNIFIED_NATIVE_MEMORY</span>
-              <span>RIVERMEMO V4 × TDB 2-BIT × SQLITE</span>
+              <span>RIVERMEMO V5 × HYPERBOLIC TAG / CHUNK × SQLITE</span>
               <span>ONE ENGINE / READ · WRITE · SEARCH</span>
             </div>
             <div className="vcp2-theater-header">
               <div>
                 <span className="vcp2-eyebrow">THEATER 02 · VEXUSMEMO / 一体化记忆范式</span>
-                <h2 className="vcp2-title">VexusMemo：<br />运行轻，数学不轻。</h2>
+                <h2 className="vcp2-title">RiverMemo V5：<br />黎曼度规，统一双曲。</h2>
               </div>
-              <p className="vcp2-subtitle">以 Lite 的运行成本，承载不 Lite 的数学与工程高度。<strong>RiverMemo V4 × TDB 2-bit 冲程 × 原生数据库</strong>，以非负锥残差让支流只许顺流汇入，以种差校准揭开泛称父词；路径、图与经见证的传输证据共用一座 Ω 水闸、在共享预算内有界互补，直接锚独立快线——排序与展示同读一本账。</p>
+              <p className="vcp2-subtitle">不只重排结果，更重塑记忆空间的几何。<strong>AGS 径向变曲率黎曼度规 × 双曲 Chunk 召回 × 双曲 Tag 路由</strong>，让泛化干流与特异细节拥有不同的径向层次，沿残差能量逐层潜入外壳。再以<strong>多核意图覆盖、强语义场继承与 Ω 拓扑河网</strong>联合读出；RAGDiary 被动背景与 LightMemo 主动回忆默认共用 V5，观测初始化不可用时使用双曲 ANN。</p>
             </div>
             <div className="diptych-grid">
               <VexusArchitecture onRead={() => jumpToDoc("rivermemo-topology-v3")} />
@@ -705,7 +706,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
               <article className="diptych-card">
                 <div>
                   <div style={{display: "flex", justifyContent: "space-between", fontFamily: "JetBrains Mono", fontSize: "0.68rem", color: "#21675C", marginBottom: "0.6rem"}}>
-                    <span>LEFT WING // RIVERMEMO V4 河网概念沙盘</span>
+                    <span>RIVERMEMO V5 // 拓扑读出概念沙盘</span>
                     <span>SCENARIO DEMO / 非实时测量</span>
                   </div>
                   <h3 style={{margin: "0 0 0.75rem", fontSize: "1.45rem"}}>
@@ -738,8 +739,8 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                       </button>
                     ))}
                     <a
-                      href="/vcp-rivermemo-engine"
-                      title="前往 RiverMemo 动画技术演示页"
+                      href="/vcp-rivermemo-engine#chapter-geometry"
+                      title="在原 RiverMemo 技术演示页体验 V5 黎曼双曲动画"
                       style={{
                         display: "inline-flex",
                         alignItems: "center",
@@ -755,7 +756,7 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                         transition: "all 0.2s ease",
                       }}
                     >
-                      RiverMemo技术演示
+                      V5 黎曼双曲交互演示
                       <ArrowUpRight size={14} aria-hidden="true" />
                     </a>
                   </div>
@@ -1825,7 +1826,7 @@ target_file:「始」src/db/indexRepository.js「末」
                 <h2 className="vcp2-title">VCP 全景技术白皮书与工程档案</h2>
               </div>
               <p className="vcp2-subtitle">
-                句句有出处，细节见真章。在这里直接在线阅览《VCP 全景技术白皮书》、《RiverMemo Topology V3 与 Ω 统一泛函白皮书》、新手入门指南与完整更新日志。
+                句句有出处，细节见真章。在这里直接在线阅览《VCP 全景技术白皮书》、《RiverMemo V5：双曲检索与统一拓扑读出》、新手入门指南与完整更新日志。
               </p>
             </div>
 

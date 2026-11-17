@@ -30,11 +30,11 @@ function useInstrumentClock(length: number) {
 }
 
 const layers = [
-  {name: "SQLite", sub: "事实事务", symbol: "WAL", title: "事实先提交，索引再跟随。", text: "正文、FP32 与有序 Tag 共享事实来源；写 Actor 与读快照协调读写。", metric: "A / B", note: "双槽代际恢复"},
-  {name: "TDB 2-bit", sub: "冲程筛选", symbol: "01", title: "用位码找路，用原始精度裁决。", text: "紧凑导航与有界候选池减少搬运；精排仍读取 SQL 原始 FP32。", metric: "1 / 16", note: "位码 / FP32 载荷"},
-  {name: "AGS", sub: "正交背景", symbol: "⊥", title: "把长期几何，留在预计算里。", text: "锚定正交化统一局部残差与全局主题面，不在每次查询重新训练。", metric: "SHARED", note: "同代背景资产"},
+  {name: "SQLite", sub: "事实事务", symbol: "WAL", title: "事实先提交，成员实时跟随。", text: "正文、FP32 与有序 Tag 共享事实来源；日常成员同步沿用训练代几何。", metric: "FP32", note: "SQL 权威原件"},
+  {name: "双曲场", sub: "Tag / Chunk", symbol: "ℋ", title: "黎曼度规统一双曲，径向规则各司其职。", text: "Tag 按拓扑与锥残差定径，Chunk 按对齐度分位铺展；2-bit 导航后读取 SQL 原件精排。", metric: "64", note: "Chunk 经验分位点"},
+  {name: "AGS", sub: "统一背景", symbol: "⊥", title: "把长期几何，留在预计算里。", text: "局部非负锥与全局 Span 提供背景；EPA 与残差能量引导双曲 Tag 选池，不在每次查询重训。", metric: "SHARED", note: "同代背景资产"},
   {name: "Spike", sub: "残差虫洞", symbol: "↗", title: "让语境打开已有的隐秘支流。", text: "深层残差为历史边争取动态席位，有界传播，不凭空创造关系。", metric: "BOUNDED", note: "请求级动态联想"},
-  {name: "RiverMemo V4", sub: "统一水闸", symbol: "Ω", title: "支流只许顺流汇入，所有证据只记一本账。", text: "非负锥残差确权，种差校准揭开泛称父词；路径、图与见证过的传输统一过 Ω 闸，在共享预算内有界互补，直接锚独立快线。", metric: "≤256", note: "默认双场选点并集"},
+  {name: "RiverMemo V5", sub: "联合读出", symbol: "Ω", title: "不只相似，更要覆盖完整意图。", text: "强语义标签折现继承标量场势，多核意图一对一认领；双场与 Topology V3 统一读出。观测初始化不可用时使用双曲 ANN。", metric: "≤256", note: "默认双场选点并集"},
 ];
 
 export function VexusArchitecture({onRead}: {onRead: () => void}) {
