@@ -1,6 +1,6 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-11-16 的真实演进记录，最新覆盖 VChat 流式渲染架构 V5 的单遍词法分域、流式增量引擎、模板化缓存、Worker 后台预解析、离屏 DOM 回收、历史真源与界面投影分离、全链路事务化及动态内容生命周期治理，并统一 V4、NextUI 与 ChatKernel 迭代间的契约实现；同时保留 V工程 V2、RiverMemo V4 与多端协议适配等演进记录。
+summary: 汇总 VCP 从 2023-12 到 2026-11-17 的真实演进记录，最新覆盖 V工程 V2 与 TopicSponsor 的 MCP 桥、VCPZedAgent 前端插件及跨 IDE / Harness 的工程协作，并新增基于 Jev2 的日记 Tag 写入量质检测试功能；同时保留元思考 V3 与 RiverMemo V5 两项试验前瞻，以及 VChat 流式渲染架构 V5、RiverMemo V4 与多端协议适配等演进记录。
 updatedAt: 2026-11-17
 category: changelog
 ---
@@ -13,7 +13,7 @@ category: changelog
 
 ## 最新更新
 
-### 2026-11-17 · VCP 生态互联与底层引擎前瞻
+### 2026-11-17 · MCP 生态互联、Zed Agent 协作、日记 Tag 质检测试与底层引擎前瞻
 
 #### 一、 生产环境更新（已合入主干）
 
@@ -21,12 +21,20 @@ category: changelog
 正式支持通过标准 MCP 协议暴露给外部 Agent 调用。单桥内原生封装 **`VCPCodeSearch`** 与 **`VCPProjectForge`** 两个 Rust 高性能插件，外部调用方只需挂载单一端点即可同时获得代码检索与工程重构能力。
 * **新增前端驱动插件 `VCPZedAgent`：**
 打通 Zed 编辑器原生控制链路，VCP Agent 现可直接调度、指挥 Zed 内的 `PanelAgent` 执行任务并实时追踪其运行进度与状态回执。
-* **跨 IDE / Harness 生态无缝协同：**
-基于上述 MCP 桥接与统一沙箱协议，任何外部 IDE 或 Harness 环境中的原生 Agent 均可直接接入 V工程，实时共享**工程脉络图谱、模块责任归属图**及**统一代码执行沙箱**，实现 `VChat-Kerr` 与外部开发环境的双向无损协作。
+* **TopicSponsor 新增 MCP 协议桥：**
+外部 Agent 现可通过 MCP 调用 TopicSponsor，向 **VChat Agent** 发送回复，打通外部开发环境与 VChat 内部 Agent 的消息回复链路。
+* **跨 IDE / Harness 生态协同：**
+通过 MCP 桥接，任何支持接入该桥的 IDE 或 Harness 环境中的原生 Agent 均可调用 V工程，共享**工程脉络图谱、模块责任归属图**及**V工程代码沙箱**，使 **VChat-Kerr** 能够与外部开发环境中的 Agent 围绕同一工程协作。结合 TopicSponsor 的 MCP 回复入口，外部 Agent 也可将协作消息回复给 VChat Agent。
+
+#### 二、 新增测试功能：基于 Jev2 的日记 Tag 写入量质检评估
+
+新增基于 **Jev2** 的日记 **Tag 写入量质检评估**，动态评估写入的日记 Tag 是否符合 **RiverMemo 流形**，为日记标签写入质量提供评估依据。
+
+> **测试功能说明：该能力仍处于测试阶段，评估结果用于辅助观察 Tag 与 RiverMemo 流形的适配情况，不代表对标签质量的绝对判定。**
 
 ---
 
-#### 二、 试验室前瞻（Experimental / 内部验证中）
+#### 三、 两项试验前瞻（Experimental / 内部验证中）
 
 > *注：以下内容为当前试验分支阶段的实测数据与架构预告，尚未全量合入默认发行版，相关基准数据均来自内部消融管线。*
 
