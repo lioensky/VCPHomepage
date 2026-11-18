@@ -1001,10 +1001,10 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
 
                 <div className="omega-formula-plate">
                   <div>
-                    <strong>S = Π<sub>[0,1]</sub> [ B̂ + P + G + A ] · P + G ≤ C<sub>T</sub> · A ≤ 0.10</strong>
+                    <strong>S = Π<sub>[0,1]</sub> [ B + P + G ] · P + G ≤ 0.08</strong>
                   </div>
                   <div style={{fontSize: "0.68rem", fontFamily: "JetBrains Mono", color: "#5A635F", marginTop: "0.25rem"}}>
-                    路径、图与传输证据统一受 Ω 门控并在 C<sub>T</sub> 内互补；直接锚不乘 Ω。ranking_score == final_score。节点、分数与 Ω 均为概念预设，不代表真实检索或动作执行。
+                    B 由属门校准的正文分与场共振组成。路径、图与传输通过 Ω 闸，共享 0.08 的预算；精确标签接触只解释身份，不另加分。节点、分数与 Ω 均为教学预设。
                   </div>
                 </div>
               </article>

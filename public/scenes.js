@@ -1212,7 +1212,7 @@
                 pA: 0.68,
                 pP: 0.21,
                 pN: 0.11,
-                omegaE: 0.58,
+                omegaE: 0.58, explained: .72,
                 omegaN: 0.46,
                 omegaF: 0.64,
                 obs: 1.0,
@@ -1222,7 +1222,7 @@
                 pA: 0.18,
                 pP: 0.58,
                 pN: 0.24,
-                omegaE: 0.82,
+                omegaE: 0.82, explained: .90,
                 omegaN: 0.74,
                 omegaF: 0.79,
                 obs: 1.0,
@@ -1232,7 +1232,7 @@
                 pA: 0.10,
                 pP: 0.22,
                 pN: 0.68,
-                omegaE: 0.86,
+                omegaE: 0.86, explained: .94,
                 omegaN: 0.88,
                 omegaF: 0.81,
                 obs: 1.0,
@@ -1242,7 +1242,7 @@
                 pA: 0.36,
                 pP: 0.33,
                 pN: 0.31,
-                omegaE: 0.14,
+                omegaE: 0.14, explained: .32,
                 omegaN: 0.04,
                 omegaF: 0.08,
                 obs: 1.0,
@@ -1254,12 +1254,12 @@
             drawIndustrialGrid(ctx, w, h, 44);
             const p = presets[presetKey] || presets.propositional;
             const omegaGeo = Math.cbrt(Math.max(0.02, p.omegaE) * Math.max(0.02, p.omegaN) * Math.max(0.02, p.omegaF));
-            const omega = clamp(omegaGeo * p.obs, 0, 1);
+            const omega = clamp(omegaGeo * p.obs * p.explained, 0, 1);
             const regime = omega < 0.12 ? 'COLLAPSED' : omega < 0.45 ? 'SPARSE' : 'DENSE';
 
             setReadout(
                 'ch8Readout',
-                `M(R_q)=(${p.pA.toFixed(2)}, ${p.pP.toFixed(2)}, ${p.pN.toFixed(2)}) · Ω = ${omega.toFixed(2)} (${regime})`
+                `河网 ${omegaGeo.toFixed(2)} × 观测完整度 ${p.obs.toFixed(2)} × 已解释能量 ${p.explained.toFixed(2)} → Ω = ${omega.toFixed(2)} (${regime})`
             );
 
             // 左半区：(p_A, p_P, p_N) 形态单纯形三角形
@@ -1325,7 +1325,7 @@
                 { name: 'Ω_E (边激活密度 M / κ_E N_s)', val: p.omegaE, color: COLORS.patina },
                 { name: 'Ω_N (涌现节点比 N_e / κ_N N_s)', val: p.omegaN, color: COLORS.mint },
                 { name: 'Ω_F (归一化边流 Shannon 熵)', val: p.omegaF, color: COLORS.amber },
-                { name: `Unified Ω = ∛(Ω_E·Ω_N·Ω_F) [${regime}]`, val: omega, color: omega < 0.12 ? COLORS.cinnabar : COLORS.amber },
+                { name: `Ω = 河网 × χ_obs × e_Q [${regime}]`, val: omega, color: omega < 0.12 ? COLORS.cinnabar : COLORS.amber },
             ];
 
             comps.forEach((c, idx) => {
@@ -1443,18 +1443,16 @@
                                 <span class="score-row-title">#0${index + 1} · ${item.title}</span>
                                 <span class="score-role-badge">${item.role}</span>
                             </div>
-                            <div class="score-bars" title="B̂ + P + G + A；超出 1 的部分另记截断扣分">
+                            <div class="score-bars" title="B + P + G；超出 1 的部分另记截断扣分">
                                 <div class="bar-s0" style="width:${r.base * 100}%"></div>
                                 <div class="bar-bg" style="width:${r.path * 100}%;background:#76BFAE"></div>
                                 <div class="bar-bg" style="width:${r.graph * 100}%"></div>
-                                <div class="bar-bh" style="width:${r.anchor * 100}%"></div>
                             </div>
                             <div class="score-breakdown">
                                 <span>${isV4 ? 'B̂' : 'B'}=${r.base.toFixed(4)}（含共振 ${r.resonance.toFixed(4)}）</span>
                                 <span>I_c=${(r.intent ?? 1).toFixed(2)}（仅调制场支持）</span>
                                 <span>+ P=${r.path.toFixed(4)}</span>
                                 <span>+ G=${r.graph.toFixed(4)}</span>
-                                <span>+ A=${r.anchor.toFixed(4)}</span>
                                 <span>− 截断=${r.clipping.toFixed(4)}</span>
                                 <span>P+G=${(r.path + r.graph).toFixed(4)} ≤ ${isV4 ? 'C_T' : '0.08'}</span>
                                 <strong>${isV4 ? 'S = 排序分 = 展示分' : 'S_V3'} = ${r.score.toFixed(4)}</strong>

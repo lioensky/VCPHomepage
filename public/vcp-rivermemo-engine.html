@@ -52,7 +52,7 @@
         </p>
         <p>
             请求侧依次完成 EPA 背景校准、原 Tag 非负锥残差金字塔、有界 Sense 脉冲扩散与 Resolvent 局部/迁移双场求解，并对被主概念覆盖的泛化父词执行查询条件化种差校准。
-            读出阶段，路径、候选自身图证据与经跨文件联合见证的传输证据统一受 Ω<sup>γ</sup> 门控，在共享拓扑预算 C<sub>T</sub> 内有界互补闭合；直接锚保持独立通道。V4 已移除倒数名次（RRF）覆盖通道，ranking_score == final_score。
+            读出先判断候选是否落在父概念范围内，再按当前正文的种差相似度校准基础分。路径、图与传输共享拓扑预算；锚接触用于解释身份，不另加分。
         </p>
     </section>
 
@@ -144,7 +144,7 @@
                     <div class="hero-main">
                         <div class="hero-kicker">
                             <span class="kicker-dot"></span>
-                            <span>RIVERMEMO V5 · 2026.11.17</span>
+                            <span>RIVERMEMO V5 · 2026.11.18</span>
                             <strong>从候选召回到标签路由，重塑记忆的几何</strong>
                         </div>
 
@@ -178,14 +178,11 @@
                                     <strong>G(c) = min(C<sub>T</sub>[1 − (1 − g/C<sub>T</sub>)(1 − t/C<sub>T</sub>)], [C<sub>T</sub> − P]<sub>+</sub>)</strong>
                                     <small>图证据 g 与传输证据 t 有界互补 · 满闸溢出不计</small>
                                 </span>
-                                <span class="eq-plus">+</span>
-                                <span class="eq-term eq-term-anchor" data-eq-focus="anchor">
-                                    <strong>A(c) = 0.10 · SmoothStep((H(c) − 0.05) / 0.15)</strong>
-                                    <small>直接锚快线 · 独立限额，不过 Ω 闸</small>
-                                </span>
                                 <span class="eq-bracket">]</span>
                             </div>
                             <div class="formula-plate dark-plate">
+                                B̂ = (1−m)q + m·g·d + R，其中 R 为场共振（最多 0.03）。<br/>
+                                属门 g：每条父轴取正文与文件标签中最强的证据，再取最弱父轴；亲和度从 0.50 到 0.72，门从关到全开。无有效种差或缺必要父向量时 m=0。<br/>
                                 ds² = dR² + φ(R)² dΩ² · 非零喉部 + 三次曲率软化<br/>
                                 双曲 Tag / Chunk 共用导航内核，各自使用径向规则；NNLS 仍分解原始 Tag 列。<br/>
                                 V5 是生产检索链路，Topology V3 是评分架构；纯 ANN 的负距离不等于 V5 最终分。
@@ -226,8 +223,8 @@
                             </div>
                             <div class="layer-card layer-readout">
                                 <div class="layer-tag">LAYER 03 · V5 双场 / 意图覆盖 / Topology V3</div>
-                                <strong>Resolvent 双场 (u<sub>L</sub>, u<sub>T</sub>) × 形态 Softmax × Ω 水闸 × 锚</strong>
-                                <p>路径、图与传输证据都先过 Ω 闸，再在同一 C<sub>T</sub> 内有界互补；直接锚另走快线。排序分即展示分。</p>
+                                <strong>属门校准正文种差，双场提供共振，Ω 门控拓扑奖励</strong>
+                                <p>路径优先占用预算，图与传输在剩余额度内互补。直接锚只解释身份，排序分即展示分。</p>
                             </div>
                         </div>
 
@@ -865,7 +862,7 @@
                             <div class="formula-plate dark-plate">
                                 p<sub>k</sub> = c<sub>M</sub> · Softmax(ℓ<sub>A</sub>, ℓ<sub>P</sub>, ℓ<sub>N</sub>)<sub>k</sub> + (1 − c<sub>M</sub>) · 1/3<br/>
                                 G<sub>i</sub> = p<sub>A</sub>(0.75G<sub>node</sub>+0.25G<sub>edge</sub>) + p<sub>P</sub>(0.25G<sub>node</sub>+0.75G<sub>edge</sub>) + p<sub>N</sub>(0.15G<sub>node</sub>+0.85G<sub>edge</sub>)<br/>
-                                Ω = clip<sub>[0,1]</sub>( ∛( max(Ω<sub>E</sub>,ε) · max(Ω<sub>N</sub>,ε) · max(Ω<sub>F</sub>,ε) ) · χ<sub>obs</sub> )
+                                Ω = clip<sub>[0,1]</sub>( ∛( max(Ω<sub>E</sub>,ε) · max(Ω<sub>N</sub>,ε) · max(Ω<sub>F</sub>,ε) ) · χ<sub>obs</sub> · e<sub>Q</sub> )，e<sub>Q</sub> 为金字塔已解释能量比例
                             </div>
                             <p class="spec-note">
                                 <strong>Ω 门控原理</strong>：<code>Ω<sub>E</sub></code> 测边激活密度、<code>Ω<sub>N</sub></code> 测非种子涌现节点比、<code>Ω<sub>F</sub></code> 测边流 Shannon 熵。三者取几何平均——任何一维坍缩都会压低 <code>Ω</code>，收回结构创新的排序提权。
@@ -876,7 +873,7 @@
                             <div class="regime-pill regime-collapsed">
                                 <span>Ω &lt; 0.12</span>
                                 <strong>COLLAPSED 坍缩态</strong>
-                                <small>路径、图与传输同被缩小 · 直接锚独立</small>
+                                <small>路径、图与传输同被缩小 · 基础分不乘 Ω</small>
                             </div>
                             <div class="regime-pill regime-sparse">
                                 <span>0.12 ≤ Ω &lt; 0.45</span>
@@ -918,17 +915,17 @@
                 <div class="vcp2-hud-bar">
                     <span class="vcp2-hud-cross">SEC-09 // UNIFIED_OMEGA_SHARED_BUDGET</span>
                     <span>RUST FN: assign_v3_scores() + apply_unified_bonus()</span>
-                    <span>ranking_score == final_score · P + G ≤ C_T · A ≤ 0.10</span>
+                    <span>ranking_score == final_score · P + G ≤ C_T = 0.08</span>
                 </div>
 
                 <div class="chapter-header">
                     <div>
-                        <div class="chapter-meta">CHAPTER 09 · UNIFIED READOUT (V4)</div>
-                        <h2 class="chapter-title">一座水闸，一本账：<br/>所有证据先过 Ω 潮汐闸，再共享同一个容量</h2>
+                        <div class="chapter-meta">CHAPTER 09 · UNIFIED READOUT (V5)</div>
+                        <h2 class="chapter-title">一座水闸，一本账：<br/>正文给出基础分，拓扑证据共享预算</h2>
                     </div>
                     <p class="chapter-intro">
                         V3 里，罕见的逻辑虫洞要另开一本“倒数名次账”去覆盖排序——好用，但两本账对不上。
-                        <strong>V4 把它们并成一条河</strong>：路径、候选自身的图证据、经跨文件联合见证的传输证据，三股来水都先穿过 Ω 潮汐闸——河网成形越好，闸门开得越大——再注入同一座容量为 <code>C<sub>T</sub></code> 的水闸。图与传输按互补律合流，满了就溢出；直接锚走独立快线。最后只剩一个连续分数，既用来排序，也用来展示。
+                        <strong>V5 只看一本账</strong>：属门校准种差，场共振计入基础分。路径、图与传输穿过 Ω 闸，再共用容量为 <code>C<sub>T</sub></code> 的水池。路径先入池，图与传输互补，溢出的部分不计分。锚接触可以解释结果，不能抬高名次。
                     </p>
                 </div>
 
@@ -955,7 +952,7 @@
                             </div>
                             <div class="formula-plate">
                                 G = min( C<sub>T</sub>[1 − (1 − g/C<sub>T</sub>)(1 − t/C<sub>T</sub>)], [C<sub>T</sub> − P]<sub>+</sub> )<br/>
-                                S = Π<sub>[0,1]</sub>[ B̂ + P + G + A ]， ranking_score = final_score
+                                S = Π<sub>[0,1]</sub>[ B̂ + P + G ]， ranking_score = final_score
                             </div>
                             <p class="spec-note">
                                 互补像两股水汇入同一池：单股为零时保留另一股，合流后不超过池容量，也不会因重复计算而越涨越高——每次都从原始证据重算。它不声称两股证据统计独立；溢出的水就是不入账。
@@ -981,11 +978,11 @@
                             <button type="button" class="ctrl-btn" data-ch9-tab="transport">跨文件见证 · 满闸溢出</button>
                             <button type="button" class="ctrl-btn" data-ch9-tab="reject">两端孤立 · 拦水</button>
                             <button type="button" class="ctrl-btn" data-ch9-tab="differentia">揭开描图纸 · 种差</button>
-                            <button type="button" class="ctrl-btn" data-ch9-tab="anchor">直接锚快线</button>
+                            <button type="button" class="ctrl-btn" data-ch9-tab="anchor">华为汽车 · 同标签，不同正文</button>
                         </div>
                     </div>
                     <div class="worm-canvas-scroll" tabindex="0" aria-label="水闸动画，窄屏可横向滚动">
-                        <canvas id="ch9Canvas" class="scene-canvas worm-proof-canvas" role="img" aria-label="路径、图与传输三股来水穿过 Ω 潮汐闸，注入共享预算水闸并溢出；直接锚走独立快线；账页盖章排序分等于展示分。数据为预设"></canvas>
+                        <canvas id="ch9Canvas" class="scene-canvas worm-proof-canvas" role="img" aria-label="属门调节正文种差分；路径与图共享拓扑预算。四段教学正文逐项分数见下表。"></canvas>
                     </div>
                     <div class="canvas-controls">
                         <div class="ctrl-group">
@@ -1098,7 +1095,7 @@
                 </div>
 
                 <div class="finale-quote">
-                    <p>“支流只许顺流汇入，露出的礁石才算独有；揭开泛称的描图纸，才看清专名的纹理。传播产生河网，河网与同一传输算子产生连续场；路径、图与见证过的传输共用一座 Ω 水闸，直接锚走自己的快线——最后只剩一本账。”</p>
+                    <p>“同一份试驾日记里，底盘实测和晚餐闲谈可以挂着同一个车型标签。标签告诉我们在谈谁，只有读到每段正文，才知道哪一段回答了问题。”</p>
                     <p class="quote-en">RiverMemo V5 · Warped Riemannian Metric → Hyperbolic Recall → Unified Readout</p>
                     <p class="v2-boundary">日常写入同步成员，不重训全图。手动全训或既有 1% Tag 阈值依次重建 AGS、传输资产、Tag 与 Chunk 双曲场。RAGDiary 是声明与权限约束下的被动背景渠道，LightMemo 是主动回忆渠道；两者默认共用 V5。</p>
                     <p class="v2-boundary">这里的“统一”指 RiverMemo 内部读出泛函的账目闭合：所有证据进入同一个连续分数，不再存在第二套名次覆盖。它不是物理意义上的统一场理论，也不补回候选池外的记录或扩大候选权限。</p>

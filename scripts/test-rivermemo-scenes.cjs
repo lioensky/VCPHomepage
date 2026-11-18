@@ -334,7 +334,7 @@ for (const [g, t] of [[0, .03], [.03, 0], [.05, .06], [.08, .08], [.2, .2]]) {
 }
 assert(Math.abs(V4.complement(0, .03) - .03) < 1e-15);
 assert.equal(V4.complement(.05, .05, 0), 0);
-// 统一泛函：Ω 同时门控路径与图，直接锚独立；账目闭合，排序分 = 展示分。
+// 统一泛函：Ω 同时门控路径与图；直接锚不参与排序。
 const ev = { ...V4.sharedEvidence, transport: .2 };
 const hi = V4.scoreCandidate({ ...ev, omega: .8 }), lo = V4.scoreCandidate({ ...ev, omega: .1 });
 assert(lo.path < hi.path && lo.graph < hi.graph);
@@ -342,13 +342,19 @@ assert.equal(lo.anchor, hi.anchor);
 for (let i = 0; i <= 50; i++) {
     const r = V4.scoreCandidate({ ...ev, query: i / 50, omega: i / 50, transport: (i % 7) / 6 });
     assert(r.path + r.graph <= V4.C_T + 1e-12);
-    assert(r.anchor <= .10 + 1e-12);
+    assert.equal(r.anchor, 0);
     assert.equal(r.rankingScore, r.finalScore);
-    assert(Math.abs(r.base + r.path + r.graph + r.anchor - r.clipping - r.score) < 1e-12);
+    assert(Math.abs(r.base + r.path + r.graph - r.clipping - r.score) < 1e-12);
 }
 // 种差：无种差时恢复原查询分；混合上限 0.5。
 assert.equal(V4.calibrateQuery(.7, null, 1).value, .7);
-assert.equal(V4.calibrateQuery(.7, .1, 5).mix, .5);
+assert.equal(V4.calibrateQuery(.7, .1, 5, [.72]).mix, .5);
+const calibrated = (parents, hit = false) => V4.calibrateQuery(.7, .9, 1, parents, hit);
+assert.equal(calibrated([.5]).value, .35);
+assert.equal(calibrated([.8, null], true).value, .7);
+assert(Math.abs(calibrated([.8, .61], true).genus - .5) < 1e-12);
+assert.equal(calibrated([.4], true).genus, 1);
+assert.equal(V4.scoreCandidate({ anchorStrength: 1 }).score, V4.scoreCandidate({}).score);
 // 见证：孤立两端拒绝；单焦点需种差或特异性。
 const baseObs = V4.makeObservation();
 assert(V4.gateWitness(baseObs.files, 1, 2, [1, 4]));
@@ -366,7 +372,10 @@ assert(tab('omega').focus.result.path < tab('ledger').focus.result.path);
 assert.equal(tab('differentia').rows[0].focus, true);
 assert(tab('differentia').rows.find(r => !r.focus && r.name.includes('综述')).result.queryHat
     < tab('differentia').rows.find(r => !r.focus && r.name.includes('综述')).input.query);
-assert.equal(tab('anchor').rows.find(r => r.name.includes('隐式')).result.anchor, 0);
+const genusRows = tab('anchor').rows;
+assert.equal(genusRows[0].focus, true);
+assert(genusRows[0].result.queryHat > genusRows.find(r => r.name.includes('餐叙')).result.queryHat);
+assert.equal(genusRows.find(r => r.name.includes('其他品牌')).result.genus, 0);
 for (const t of V4.tabs) tab(t).rows.forEach((r, i, a) => i && assert(a[i - 1].result.rankingScore >= r.result.rankingScore));
 // 页面交互：第 9 章按钮切换水闸场景，账页同源。
 for (const key of V4.tabs) {

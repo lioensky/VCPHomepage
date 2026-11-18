@@ -119,9 +119,13 @@
         return c * (1 - (1 - a) * (1 - b));
     }
 
-    function calibrateQuery(query, perp, confidence) {
-        const mix = perp === null || perp === undefined ? 0 : 0.5 * clip(confidence);
-        return { mix, value: (1 - mix) * clip(query) + mix * clip(perp ?? 0) };
+    // 每个值为一条父轴上正文与文件标签的最强亲和度；null 表示缺向量，不等于门关闭。
+    function calibrateQuery(query, perp, confidence, parents = [], qualifiedFocusHit = false) {
+        const valid = Number.isFinite(perp) && parents.length > 0 && parents.every(Number.isFinite);
+        const mix = valid ? 0.5 * clip(confidence) : 0;
+        const genus = !valid ? null : parents.length === 1 && qualifiedFocusHit && mix > 0 ? 1
+            : Math.min(...parents.map(a => clip((a - .50) / .22)));
+        return { mix, genus, value: (1 - mix) * clip(query) + mix * (genus ?? 0) * clip(perp ?? 0) };
     }
 
     function scoreCandidate(input = {}) {
@@ -132,9 +136,9 @@
             nodeCoverage = 0, edgeCoverage = 0, closure = 0, alignment = 0, direction = 0,
             hasEdges = true, atomic = false, precision = 1,
             omega = 0, gamma = 1, transport = 0, budget = C_T,
-            anchorStrength = 0, implicitOnly = false,
+            parents, qualifiedFocusHit,
         } = input;
-        const calibrated = calibrateQuery(query, perp, differentia);
+        const calibrated = calibrateQuery(query, perp, differentia, parents, qualifiedFocusHit);
         const qHat = calibrated.value;
         const resonance = Math.min(Math.min(0.03, clip(fieldWeight) * Math.max(0, field - qHat)) * clip(support), 1 - qHat);
         const base = qHat + resonance;
@@ -150,12 +154,11 @@
         const transportRequested = Math.min(budget, budget * clip(transport));
         const merged = complement(graphRequested, transportRequested, budget);
         const graph = Math.min(merged, Math.max(0, budget - path));
-        const strength = implicitOnly ? Math.min(0.035, anchorStrength) : anchorStrength;
-        const anchor = 0.10 * smooth((strength - 0.05) / 0.15);
-        const sum = base + path + graph + anchor;
+        const anchor = 0; // 保留旧教学接口字段，接触只解释身份。
+        const sum = base + path + graph;
         const score = clip(sum);
         return {
-            queryHat: qHat, mix: calibrated.mix, base, resonance, gate,
+            queryHat: qHat, mix: calibrated.mix, genus: calibrated.genus, base, resonance, gate,
             pathRaw, path, graphSelf, graphRequested, transportRequested, merged,
             overflow: Math.max(0, merged - graph), graph, anchor,
             score, rankingScore: score, finalScore: score, clipping: sum - score, branch, confidence,
@@ -263,13 +266,13 @@
 
     const TABS = {
         ledger: {
-            title: '完整账本', badge: '一张账页 · 四项同源',
+            title: '完整账本', badge: '基础 + 路径 + 图与传输',
             metaphor: '三股来水都先过 Ω 潮汐闸，再注入同一座容量为 C_T 的水闸：路径先落底，图与传输按互补律合流，满了就从闸顶溢出，溢出的水不入账。',
             obs: () => makeObservation(),
         },
         omega: {
             title: 'Ω 退潮', badge: '河网未成形 · 同步退潮',
-            metaphor: '河网观测稀疏时 Ω 像退潮：闸门只开一道缝，路径与图一起变浅（V3 中路径不受 Ω 影响，V4 已统一门控）；直接锚走独立快线，水位不变。',
+            metaphor: '保持候选正文不变，观察退潮前后的水位线：Ω 降低时，路径和图的水量一起减少，属门校准过的基础分不变。',
             obs: () => makeObservation({ omega: 0.15 }), ghostOmega: 0.78,
         },
         transport: {
@@ -291,8 +294,8 @@
             obs: () => makeObservation(),
         },
         anchor: {
-            title: '直接锚快线', badge: '独立通道 · 不过 Ω 闸',
-            metaphor: '直接锚像一条专用快线：只有真实的显式精确接触才能上车，限额 0.10，不受潮汐影响；只靠隐式相似的乘客最多拿到 0.035，到不了发车阈值。',
+            title: '同标签，不同正文', badge: '查询：华为汽车',
+            metaphor: '预设只有一个父轴，整句焦点实际激活普通一跳“尊界V800”。文件精确含车型 ID 可开属门，但同一文件里的底盘实测与餐叙记录仍按各自正文得分。共现不证明从属，锚接触也不是奖励。',
             obs: () => makeObservation({ omega: 0.22 }),
         },
     };
@@ -301,7 +304,7 @@
         const tab = TABS[key] || TABS.ledger;
         const obs = tab.obs();
         const evidence = transportEvidence(obs, focusCandidate);
-        const focusInput = { ...sharedEvidence, omega: obs.omega, transport: evidence.value };
+        const focusInput = { ...sharedEvidence, parents: [.76], omega: obs.omega, transport: evidence.value };
         let items;
         if (key === 'differentia') {
             items = [
@@ -311,11 +314,12 @@
                 { name: 'SQLite 事务说明', input: { ...focusInput, query: 0.63, perp: 0.30, differentia: 0.8, transport: 0, pathQuality: 0.1, anchorStrength: 0 } },
             ];
         } else if (key === 'anchor') {
+            const common = { ...focusInput, query: .70, differentia: .8, parents: [.48] };
             items = [
-                { name: '显式精确接触 · 配置常量记录', input: { ...focusInput, anchorStrength: 0.20 }, focus: true },
-                { name: '仅隐式相似 · 同主题笔记', input: { ...focusInput, query: 0.73, implicitOnly: true, anchorStrength: 0.20, transport: 0 } },
-                { name: '主题邻居', input: { ...focusInput, query: 0.70, anchorStrength: 0, transport: 0, pathQuality: 0.12 } },
-                { name: '背景记录', input: { ...focusInput, query: 0.66, anchorStrength: 0, transport: 0, pathQuality: 0.05 } },
+                { name: 'V800 · 底盘实测', input: { ...common, qualifiedFocusHit: true, perp: .90 }, focus: true },
+                { name: 'V800 · 试驾后餐叙', input: { ...common, qualifiedFocusHit: true, perp: .12 } },
+                { name: '其他品牌 · 底盘实测', input: { ...common, perp: .90 } },
+                { name: '行业综述 · 部分归属', input: { ...common, parents: [.61], perp: .60 } },
             ];
         } else {
             items = [
@@ -633,10 +637,10 @@
             setText('v4GateStatus', `Hop-1 代理 ${model.evidence.hop1.toFixed(3)} ｜XW 见证 ${trace ? (trace.witness ? '通过' : '拒绝') : '无路线'} ${model.evidence.xw.toFixed(3)} ｜传输请求 ${r.transportRequested.toFixed(4)} ｜互补合并 ${r.merged.toFixed(4)} ｜溢出 ${r.overflow.toFixed(4)}`);
             const table = document.getElementById('v4LedgerTable');
             if (table) {
-                table.innerHTML = '<table><caption>排序与展示读取同一列 S · 4 个教学候选</caption><thead><tr><th>名次 / 候选</th><th>B̂</th><th>P</th><th>G</th><th>A</th><th>S = 排序分 = 展示分</th></tr></thead><tbody>'
+                table.innerHTML = '<table><caption>排序与展示读取同一列 S · 4 个教学候选</caption><thead><tr><th>名次 / 候选</th><th>属门 g</th><th>B</th><th>P</th><th>G</th><th>S = 排序分 = 展示分</th></tr></thead><tbody>'
                     + model.rows.map((row, i) => {
                         const x = row.result;
-                        return `<tr${row.focus ? ' class="worm-target"' : ''}><td>#${i + 1} ${row.name}<small>${x.mix > 0 ? `种差混合 m = ${x.mix.toFixed(2)}` : '无种差校准'}</small></td><td>${x.base.toFixed(4)}</td><td>${x.path.toFixed(4)}</td><td>${x.graph.toFixed(4)}</td><td>${x.anchor.toFixed(4)}</td><td><strong>${x.rankingScore.toFixed(4)}</strong></td></tr>`;
+                        return `<tr${row.focus ? ' class="worm-target"' : ''}><td>#${i + 1} ${row.name}<small>${x.mix > 0 ? `种差混合 m = ${x.mix.toFixed(2)}` : '无种差校准'}</small></td><td>${x.genus?.toFixed(2) ?? '—'}</td><td>${x.base.toFixed(4)}</td><td>${x.path.toFixed(4)}</td><td>${x.graph.toFixed(4)}</td><td><strong>${x.rankingScore.toFixed(4)}</strong></td></tr>`;
                     }).join('') + '</tbody></table>';
             }
         }
@@ -741,6 +745,19 @@
 
             if (key === 'differentia') {
                 drawDifferentia(ctx, time);
+            } else if (key === 'anchor') {
+                label(ctx, 32, 80, '同一起点 q = 0.70，同一混合权重 m = 0.40', C.bone, 12, 'left');
+                model.rows.forEach(({ name, input, result }, i) => {
+                    const y = 120 + i * 60;
+                    label(ctx, 32, y, name, C.bone, 12, 'left');
+                    mono(ctx, 330, y, `g=${result.genus.toFixed(2)}  d=${input.perp.toFixed(2)}`, C.muted, 11, 'right');
+                    const baseline = (1 - result.mix) * input.query;
+                    ctx.fillStyle = C.muted;
+                    ctx.fillRect(32, y + 9, 290 * baseline, 9);
+                    ctx.fillStyle = C.amber;
+                    ctx.fillRect(32 + 290 * baseline, y + 9, 290 * (result.queryHat - baseline) * ease, 9);
+                });
+                label(ctx, 32, 362, '灰：(1−m)q     金：m × 属门 × 正文种差', C.amber, 12, 'left');
             } else {
                 // Ω 潮汐闸
                 const gateX = 250;
@@ -846,18 +863,7 @@
             }
             mono(ctx, tank.x, bottom + 18, '互补：C_T[1 − (1 − g/C_T)(1 − t/C_T)]', C.muted, 9);
 
-            // 直接锚快线
-            const cup = { x: 600, y: 250, w: 46, h: 110 };
-            glowLine(ctx, [{ x: 40, y: 410 }, { x: 560, y: 410 }, { x: cup.x + cup.w / 2, y: 410 }, { x: cup.x + cup.w / 2, y: cup.y + cup.h }], C.cinnabar, 1.6, 0.6, [6, 4]);
-            label(ctx, 40, 428, '直接锚快线 · 不经过 Ω 闸 · 独立限额 0.10', C.cinnabar, 10.5, 'left');
-            ctx.save();
-            ctx.strokeStyle = hexToRgba(C.bone, 0.5);
-            ctx.strokeRect(cup.x, cup.y, cup.w, cup.h);
-            const aH = r.anchor / 0.10 * cup.h * ease;
-            ctx.fillStyle = hexToRgba(C.cinnabar, 0.75);
-            ctx.fillRect(cup.x + 2, cup.y + cup.h - aH, cup.w - 4, aH);
-            ctx.restore();
-            label(ctx, cup.x + cup.w / 2, cup.y - 8, `A ${r.anchor.toFixed(3)}`, C.coral, 11);
+            label(ctx, 40, 428, '标签说明身份；正文提供内容证据。锚接触不进入右侧账本。', C.muted, 11, 'left');
 
             // 账页
             const L = { x: 680, y: 66, w: 200, h: 330 };
@@ -883,7 +889,6 @@
                 [r.mix > 0 ? 'B̂ 校准基础' : 'B 基础分', r.base, '#1B211F'],
                 ['+ P 路径', r.path, '#21675C'],
                 ['+ G 图∪传输', r.graph, '#21675C'],
-                ['+ A 直接锚', r.anchor, '#B94832'],
                 ['− 截断', r.clipping, '#5A635F'],
             ];
             ledger.forEach(([name, v, color], i) => {
