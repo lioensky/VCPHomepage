@@ -20,6 +20,18 @@ export const leaderboardEdition = {
   updatedAt: "2026-11-18",
 };
 
+const promoPricing = (regular: number, current: number, discount: string) =>
+  `原价 $${regular} → 现价 $${current}／百万 token（${discount}）`;
+
+const modelPricing = {
+  xenon: promoPricing(30, 15, "限时 5 折"),
+  carbon: promoPricing(20, 10, "限时 5 折"),
+  neon: promoPricing(15, 7.5, "限时 5 折"),
+  hydrogen: promoPricing(7.5, 3.75, "限时 5 折"),
+  astra: promoPricing(40, 32, "限时 8 折"),
+  sol: promoPricing(10, 8, "限时 8 折"),
+};
+
 export const leaderboardBoards: LeaderboardBoard[] = [
   {
     id: "driver",
@@ -29,20 +41,23 @@ export const leaderboardBoards: LeaderboardBoard[] = [
     entries: [
       {
         rank: 1,
-        model: "Gemini 4 Argon",
-        verdict: "驾驶席还给 Argon。聊到一个复杂问题，Carbon 会把道理理得很漂亮；但有时候我把整件事说完，想听的不是再一次论证。Argon 更能接住那一刻的情绪，又没丢掉长对话的前因后果。这点比多赢一道推理题更重要。",
-        tag: "最愿意一直聊下去的驾驶员",
+        model: "Gemini 4 Neon",
+        verdict: "Argon 已下架，驾驶席由 Neon 接棒。它是 Ultra 旗舰 Xenon 和次旗舰 Carbon 的混血款，定价在 Carbon 之下。至于它能不能像 Argon 那样接住长对话里的情绪，得多聊几轮再下判断。",
+        pricing: `${modelPricing.neon}。Ultra 旗舰 Xenon 参考价：${modelPricing.xenon}。`,
+        tag: "Xenon × Carbon · 接棒 Argon",
       },
       {
         rank: 2,
         model: "Gemini 4 Carbon",
         verdict: "复杂推理依旧惊人，要把一件事情的来龙去脉拆明白，我会选它。退居第二不是因为变笨了：它太在意表达是否合乎逻辑、形式是否完整，连本可以感性一点的回应也容易讲成论证。",
+        pricing: `${modelPricing.carbon}。`,
         tag: "推理强，表达偏理性",
       },
       {
         rank: 3,
         model: "Gemini 4 Hydrogen（4 Flash）",
         verdict: "这代 Flash 用起来几乎就是小 Carbon。能跟着人把想法聊清楚，碰到要动手的地方也接得上；按日常高频使用的成本来选，不必为了这两件事一直挂着大杯。",
+        pricing: `${modelPricing.hydrogen}。`,
         tag: "小 Carbon · 高性价比常驻",
       },
       {
@@ -56,6 +71,7 @@ export const leaderboardBoards: LeaderboardBoard[] = [
         rank: 5,
         model: "GPT-6.2 Astra",
         verdict: "这次不再是那个要先听它叠半天甲的 Astra 了。回复更利落，也更愿意主动表达情绪；本轮体验里，成人向（NSFW）对话也放开了些。加上能从长上下文里盯住细节的注意力，终于不只是在碰到数学题时才想叫它。",
+        pricing: `${modelPricing.astra}。`,
         tag: "细节不丢，情绪更主动",
       },
       {
@@ -84,6 +100,7 @@ export const leaderboardBoards: LeaderboardBoard[] = [
         rank: 1,
         model: "GPT-6.2 Astra",
         verdict: "看它流式写出 3D figma 手办模型，比听一句“注意力很强”直观得多：模型还在成形，前面定下的比例和后面添上的局部就得对得上。那种精度也是它做数学最惊人的地方，堪称赛博小拉马努金。放回生产线，尤其是约束多、逻辑深的后端，本期第一选择就是它。",
+        pricing: `${modelPricing.astra}。`,
         tag: "编程榜首 · 后端首选",
       },
       {
@@ -96,12 +113,14 @@ export const leaderboardBoards: LeaderboardBoard[] = [
         rank: 3,
         model: "Gemini 4 Carbon",
         verdict: "驾驶舱里略显拘谨的逻辑习惯，到了工地反而是优点。面对一份没写全的接口草图，它擅长把缺失的约束推出来，再沿着上下游检查方案是否自洽。需求还在成形时，尤其用得上这份推理力。",
+        pricing: `${modelPricing.carbon}。`,
         tag: "从草图推到接口契约",
       },
       {
         rank: 4,
         model: "GPT-6.2 Sol",
         verdict: "施工图已经明确，就轮到 Sol 发挥：按契约追调用点、改文件、把一串相关变更做完，不必每一步都重新讨论设计。Astra 接过了难题榜首，Sol 仍是日常后端施工很划算的主力。",
+        pricing: `${modelPricing.sol}。`,
         tag: "按图施工 · 高性价比主力",
       },
       {
@@ -114,6 +133,7 @@ export const leaderboardBoards: LeaderboardBoard[] = [
         rank: 6,
         model: "Gemini 4 Hydrogen（4 Flash）",
         verdict: "别被小杯名字骗了。本轮体验里，只论写代码，4 Hydrogen 甚至强过老大杯 4 Argon。既有小 Carbon 的解题手感，又适合高频派活；不用旗舰预算，也能拿到前六档的施工能力。",
+        pricing: `${modelPricing.hydrogen}。`,
         tag: "小杯反超老大杯",
       },
       {
