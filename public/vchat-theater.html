@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171A1D">
+  <title>一封消息的现场 · VChat 架构剧场</title>
+  <meta name="description" content="追踪一封天气简报的六幕交互实验：并发路由、暂挂合流、增量分域、双轨时钟、离屏迁移与输入隔离。">
+  <link rel="canonical" href="https://www.vcptoolbox.com/vchat-theater">
+  <link rel="stylesheet" href="./vchat-theater.css">
+  <script type="module" src="./vchat-theater.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell site-nav">
+      <a class="brand" href="/" aria-label="VCP.OS 官网"><span class="brand-mark" aria-hidden="true">V</span> VCP<span>.OS</span></a>
+      <span class="edition">FIELD THEATER / 03</span>
+      <a class="return" href="/#theater-03">官网微剧场 ↗</a>
+    </div>
+  </header>
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="shell">
+        <div class="ruler"><span>＋ VCHAT / ARCHITECTURE LAB</span><span>CHAT KERNEL V2 × RENDERER V5.2</span></div>
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <p class="kicker"><span aria-hidden="true"></span> 交互实验档案 / TRACE M09</p>
+            <h1 id="hero-title">一封消息的<em>现场</em>。</h1>
+            <p>从「武汉天气如何」到可点击的天气岛。切走话题、在模型等待时插话，再把同一张天气卡移出屏幕，看看哪些状态变了，哪些没有。</p>
+            <div class="hero-actions">
+              <a class="button primary" href="#theater">进入实验台 ↓</a>
+              <a class="button outline" href="/?page=docs&doc=vchat-renderer">阅读架构文档 ↗</a>
+            </div>
+          </div>
+          <div class="hero-figure" aria-hidden="true">
+            <div class="figure-label"><span>FIG. 01 / SIGNAL REGISTER</span><span>M09</span></div>
+            <svg viewBox="0 0 450 196">
+              <defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#F2F0E9" stroke-opacity=".08"/></pattern></defs>
+              <rect width="450" height="196" fill="url(#grid)"/>
+              <path class="hero-branch" d="M20 46H102Q122 46 138 66L163 98H292L322 46H429 M20 150H102Q122 150 138 130L163 98H292L322 150H429"/>
+              <path class="hero-wire" d="M20 98H429"/>
+              <path class="hero-pulse" d="M20 98H429"/>
+              <circle cx="227" cy="98" r="49" class="hero-orbit"/>
+              <circle cx="227" cy="98" r="33" class="hero-core"/>
+              <text x="227" y="104" text-anchor="middle">M09</text>
+              <g class="hero-pins"><circle cx="20" cy="46" r="4"/><circle cx="20" cy="98" r="4"/><circle cx="20" cy="150" r="4"/><circle cx="429" cy="46" r="4"/><circle cx="429" cy="98" r="4"/><circle cx="429" cy="150" r="4"/></g>
+            </svg>
+            <div class="figure-label"><span>地址不随视口变化</span><span>01 — 06</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="theater" class="shell lab" aria-labelledby="lab-title">
+      <div class="section-head"><div><p class="eyebrow">01—06 / INTERACTIVE SEQUENCE</p><h2 id="lab-title">消息追踪实验台</h2></div><p>选一幕自动走带，或暂停后亲手操作。<br>每幕可以独立重演。</p></div>
+      <nav id="chapters" class="chapters" aria-label="六幕章节"></nav>
+      <div id="deck" class="deck" data-running="false">
+        <div class="deck-bar"><span id="slate">01 / ADDRESS</span><span id="transport-status">待机</span></div>
+        <div class="deck-grid">
+          <section class="show" aria-labelledby="scene-title">
+            <div class="scene-head">
+              <p id="scene-domain" class="eyebrow">KERNEL / 路由</p>
+              <h3 id="scene-title">切走的是视口，不是会话</h3>
+              <p id="scene-cue">切换前台话题，看三条流继续推进。</p>
+            </div>
+            <div id="visual" class="visual"></div>
+            <div id="actions" class="actions" aria-label="本幕实验操作"></div>
+          </section>
+          <aside class="inspector" aria-labelledby="inspector-title">
+            <p class="eyebrow">TRACE / M09</p>
+            <h3 id="inspector-title">事件检视器</h3>
+            <dl id="metrics" class="metrics"></dl>
+            <h4>本幕回执 <span>最新在前</span></h4>
+            <p id="receipt" class="receipt"></p>
+            <ol id="history" class="history" aria-label="往期回执"></ol>
+          </aside>
+        </div>
+        <div class="director">
+          <div class="timeline-head"><span id="timeline-label">TIMELINE / 本幕时间线</span><span id="beat-index">00 / 00</span></div>
+          <progress id="progress" aria-labelledby="timeline-label" max="1" value="0"></progress>
+          <div id="ticks" class="ticks" aria-hidden="true"></div>
+          <div class="transport" aria-label="导演台">
+            <button type="button" class="button primary" id="play">暂停走带</button>
+            <button type="button" class="button outline" id="step">逐拍推进</button>
+            <button type="button" class="button outline" id="reset">本幕重演</button>
+            <button type="button" class="button outline" id="next">下一幕 →</button>
+          </div>
+        </div>
+      </div>
+      <div class="notes">
+        <section><p class="eyebrow">FIELD NOTE / 观察要点</p><p id="note"></p></section>
+        <section><p class="eyebrow">SCOPE / 演示边界</p><p>浏览器内的预设教学模型。事件、计数和波形用于说明状态变化，不是生产追踪、性能基准或安全证明。</p></section>
+      </div>
+      <p class="sr-only" id="announcement" role="status"></p>
+      <noscript><p>请启用 JavaScript 操作六幕实验台，或<a href="/?page=docs&doc=vchat-renderer">阅读架构文档</a>。</p></noscript>
+    </section>
+  </main>
+  <footer class="shell footer"><span>VCP 2.0 / NOVA PAPER & INK INDUSTRIAL</span><a href="/?page=docs&doc=vchat-renderer">ChatKernel V2 × Renderer V5.2 ↗</a></footer>
+</body>
+</html>

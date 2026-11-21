@@ -1034,10 +1034,10 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                 </h2>
               </div>
               <p className="vcp2-subtitle">
-                保留熟悉的表情与天气岛，换上 V5 的流式新管线。
-                <strong>单遍分域、增量推进</strong>，让嵌套岛中<strong>最小子块闭合即上屏</strong>：
-                晴空先转动，云层随后漂入，雨滴接力落下；后续结构继续生成，已就绪的动画无需重建。
-                <strong>结构提交与动画时钟双轨解耦</strong>，脚本闭合就绪后再激活交互。
+                                天气卡已经能点，后面的文字还在生成。此时切去另一个话题，谁替它接住剩下的消息？
+                                跟着一封天气简报，看 <strong>ChatKernel V2</strong> 按身份收件，再看 <strong>Renderer V5.2</strong> 按结构上屏。
+                                <br />
+                                <a href="/vchat-theater.html" style={{display:"inline-block", marginTop:"0.8rem", padding:"0.45rem 0.9rem", border:"1px solid currentColor", borderRadius:"4px", fontWeight:700}}>进入 Chat × Renderer 架构剧场 →</a>
               </p>
             </div>
 

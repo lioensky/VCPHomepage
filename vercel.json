@@ -55,6 +55,8 @@
       "source": "/nova.html",
       "destination": "/nova.html"
     },
+    {"source": "/vchat-theater", "destination": "/vchat-theater.html"},
+    {"source": "/vchat-theater.html", "destination": "/vchat-theater.html"},
     {
       "source": "/vcp-rivermemo-engine",
       "destination": "/vcp-rivermemo-engine.html"
