@@ -3,98 +3,269 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#171A1D">
-  <title>一封消息的现场 · VChat 架构剧场</title>
-  <meta name="description" content="追踪一封天气简报的六幕交互实验：并发路由、暂挂合流、增量分域、双轨时钟、离屏迁移与输入隔离。">
+  <meta name="theme-color" content="#0D1014">
+  <title>VChat 单窗口异步作战沙盒 · ChatKernel V2 × Renderer V5.2</title>
+  <meta name="description" content="全屏交互式 VChat 单窗口沙盒：体验 4 路 Agent 并发话题心流、Pending 暂挂原子合流、O(n) 单遍词法增量扫描、60fps 双轨 Canvas 交互岛、有状态离屏墓碑迁移与 0-IPC 零信任隔离。">
   <link rel="canonical" href="https://www.vcptoolbox.com/vchat-theater">
+  <link rel="icon" type="image/png" href="/assets/logo1.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="VCP.OS">
+  <meta property="og:title" content="VChat 单窗口异步作战沙盒 · ChatKernel V2 × Renderer V5.2">
+  <meta property="og:description" content="单窗口内的终极解耦：多 Agent 并发心流锁、Pending 暂挂合流、双轨 60fps 动画岛与有状态原生节点迁移。">
+  <meta property="og:url" content="https://www.vcptoolbox.com/vchat-theater">
+  <meta property="og:image" content="https://www.vcptoolbox.com/assets/logo1.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./vchat-theater.css">
   <script type="module" src="./vchat-theater.js"></script>
 </head>
 <body>
-  <header class="topbar">
-    <div class="shell site-nav">
-      <a class="brand" href="/" aria-label="VCP.OS 官网"><span class="brand-mark" aria-hidden="true">V</span> VCP<span>.OS</span></a>
-      <span class="edition">FIELD THEATER / 03</span>
-      <a class="return" href="/#theater-03">官网微剧场 ↗</a>
-    </div>
-  </header>
-  <main>
-    <section class="hero" aria-labelledby="hero-title">
-      <div class="shell">
-        <div class="ruler"><span>＋ VCHAT / ARCHITECTURE LAB</span><span>CHAT KERNEL V2 × RENDERER V5.2</span></div>
-        <div class="hero-grid">
-          <div class="hero-copy">
-            <p class="kicker"><span aria-hidden="true"></span> 交互实验档案 / TRACE M09</p>
-            <h1 id="hero-title">一封消息的<em>现场</em>。</h1>
-            <p>从「武汉天气如何」到可点击的天气岛。切走话题、在模型等待时插话，再把同一张天气卡移出屏幕，看看哪些状态变了，哪些没有。</p>
-            <div class="hero-actions">
-              <a class="button primary" href="#theater">进入实验台 ↓</a>
-              <a class="button outline" href="/?page=docs&doc=vchat-renderer">阅读架构文档 ↗</a>
-            </div>
-          </div>
-          <div class="hero-figure" aria-hidden="true">
-            <div class="figure-label"><span>FIG. 01 / SIGNAL REGISTER</span><span>M09</span></div>
-            <svg viewBox="0 0 450 196">
-              <defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#F2F0E9" stroke-opacity=".08"/></pattern></defs>
-              <rect width="450" height="196" fill="url(#grid)"/>
-              <path class="hero-branch" d="M20 46H102Q122 46 138 66L163 98H292L322 46H429 M20 150H102Q122 150 138 130L163 98H292L322 150H429"/>
-              <path class="hero-wire" d="M20 98H429"/>
-              <path class="hero-pulse" d="M20 98H429"/>
-              <circle cx="227" cy="98" r="49" class="hero-orbit"/>
-              <circle cx="227" cy="98" r="33" class="hero-core"/>
-              <text x="227" y="104" text-anchor="middle">M09</text>
-              <g class="hero-pins"><circle cx="20" cy="46" r="4"/><circle cx="20" cy="98" r="4"/><circle cx="20" cy="150" r="4"/><circle cx="429" cy="46" r="4"/><circle cx="429" cy="98" r="4"/><circle cx="429" cy="150" r="4"/></g>
-            </svg>
-            <div class="figure-label"><span>地址不随视口变化</span><span>01 — 06</span></div>
-          </div>
+  <!-- 兼容外部锚点跳转定位 -->
+  <div id="theater" class="hash-anchor" aria-hidden="true"></div>
+  <div id="address" class="hash-anchor" aria-hidden="true"></div>
+  <div id="mailbox" class="hash-anchor" aria-hidden="true"></div>
+  <div id="cursor" class="hash-anchor" aria-hidden="true"></div>
+  <div id="clocks" class="hash-anchor" aria-hidden="true"></div>
+  <div id="viewport" class="hash-anchor" aria-hidden="true"></div>
+  <div id="boundary" class="hash-anchor" aria-hidden="true"></div>
+
+  <!-- 全局环境微光流粒子层 -->
+  <canvas id="ambient-canvas" class="ambient-canvas" aria-hidden="true"></canvas>
+
+  <div class="workbench-app" id="app-root" data-act="address" data-running="true">
+    <!-- ==================== 1. 顶部全局指挥栏 ==================== -->
+    <header class="wb-topbar">
+      <div class="wb-brand-cluster">
+        <a href="/" class="wb-brand" aria-label="返回 VCP.OS 官网">
+          <svg class="wb-logo-svg" viewBox="0 0 48 48" aria-hidden="true">
+            <path class="logo-frame" d="M7 4h29l5 5v30l-5 5H7l-4-4V8z" />
+            <path class="logo-fold" d="M31 4v9h10" />
+            <path class="logo-glyph" d="M12 15l9 21h6l9-21h-7l-5 13-5-13z" />
+          </svg>
+          <span class="wb-brand-text">VCP<span>.OS</span></span>
+        </a>
+        <div class="wb-badge">
+          <i class="live-dot"></i>
+          <span>SINGLE-WINDOW SANDBOX // KERNEL V2 × RENDERER V5.2</span>
         </div>
       </div>
+
+      <!-- 六幕剧本模式切换器 -->
+      <nav id="act-tabs" class="act-tabs" aria-label="六幕架构剧本模式"></nav>
+
+      <div class="wb-top-controls">
+        <div class="wb-transport" role="group" aria-label="沙盒时钟控制">
+          <button type="button" id="btn-play" class="ctrl-pill primary" title="暂停或恢复实时多流推进">⏸ 运行中</button>
+          <button type="button" id="btn-speed" class="ctrl-pill" title="切换流式倍速">1.0×</button>
+          <button type="button" id="btn-reset" class="ctrl-pill" title="重置全部话题与计数器">↺ 重置沙盒</button>
+        </div>
+        <div class="wb-nav-links">
+          <a href="/?page=docs&doc=vchat-renderer" class="nav-pill">架构白皮书 ↗</a>
+          <a href="/#theater-03" class="nav-pill ghost">← 官网</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- ==================== 2. 当前剧本任务引导横幅 ==================== -->
+    <section class="mission-ribbon" aria-live="polite">
+      <div class="mission-main">
+        <span id="mission-tag" class="mission-tag">ACT 01 // TRIPLE-ID ROUTING</span>
+        <strong id="mission-title" class="mission-title">并发路由：切走的是视口，不是会话</strong>
+        <span id="mission-desc" class="mission-desc">4 个房间正在单窗口内同时异步吐字。任意切换左侧房间或发射旧代次脏包，观察后台计数持续推进且绝不串流。</span>
+      </div>
+      <div id="mission-actions" class="mission-actions" role="group" aria-label="当前剧本快捷实验操作"></div>
     </section>
 
-    <section id="theater" class="shell lab" aria-labelledby="lab-title">
-      <div class="section-head"><div><p class="eyebrow">01—06 / INTERACTIVE SEQUENCE</p><h2 id="lab-title">消息追踪实验台</h2></div><p>选一幕自动走带，或暂停后亲手操作。<br>每幕可以独立重演。</p></div>
-      <nav id="chapters" class="chapters" aria-label="六幕章节"></nav>
-      <div id="deck" class="deck" data-running="false">
-        <div class="deck-bar"><span id="slate">01 / ADDRESS</span><span id="transport-status">待机</span></div>
-        <div class="deck-grid">
-          <section class="show" aria-labelledby="scene-title">
-            <div class="scene-head">
-              <p id="scene-domain" class="eyebrow">KERNEL / 路由</p>
-              <h3 id="scene-title">切走的是视口，不是会话</h3>
-              <p id="scene-cue">切换前台话题，看三条流继续推进。</p>
-            </div>
-            <div id="visual" class="visual"></div>
-            <div id="actions" class="actions" aria-label="本幕实验操作"></div>
-          </section>
-          <aside class="inspector" aria-labelledby="inspector-title">
-            <p class="eyebrow">TRACE / M09</p>
-            <h3 id="inspector-title">事件检视器</h3>
-            <dl id="metrics" class="metrics"></dl>
-            <h4>本幕回执 <span>最新在前</span></h4>
-            <p id="receipt" class="receipt"></p>
-            <ol id="history" class="history" aria-label="往期回执"></ol>
-          </aside>
+    <!-- ==================== 3. 三栏主工作台 ==================== -->
+    <main class="wb-grid">
+      <!-- 左栏：多话题并发会话矩阵 & 协同拓扑雷达 -->
+      <aside class="wb-sidebar" aria-label="并发话题与心流锁矩阵">
+        <div class="panel-head">
+          <div>
+            <span class="eyebrow">CONCURRENT TOPICS (4 ACTIVE)</span>
+            <h2>单窗口多流会话矩阵</h2>
+          </div>
+          <span id="total-chunks-badge" class="mono-tag">0 CHUNKS</span>
         </div>
-        <div class="director">
-          <div class="timeline-head"><span id="timeline-label">TIMELINE / 本幕时间线</span><span id="beat-index">00 / 00</span></div>
-          <progress id="progress" aria-labelledby="timeline-label" max="1" value="0"></progress>
-          <div id="ticks" class="ticks" aria-hidden="true"></div>
-          <div class="transport" aria-label="导演台">
-            <button type="button" class="button primary" id="play">暂停走带</button>
-            <button type="button" class="button outline" id="step">逐拍推进</button>
-            <button type="button" class="button outline" id="reset">本幕重演</button>
-            <button type="button" class="button outline" id="next">下一幕 →</button>
+
+        <div id="topic-list" class="topic-list" role="tablist" aria-label="选择前台投影话题"></div>
+
+        <!-- 多 Agent 协同路由实时雷达 Canvas -->
+        <div class="swarm-radar-card">
+          <div class="card-bar">
+            <span>V-COMM × ONERING BUS</span>
+            <span id="bus-hash" class="patina-text">HASH #9F2A·OK</span>
+          </div>
+          <canvas id="swarm-canvas" class="swarm-canvas" width="320" height="148" aria-label="多 Agent 跨话题通讯与分片路由实时拓扑图"></canvas>
+          <div class="radar-legend">
+            <span><i class="dot patina"></i>合法 Chunk 投递</span>
+            <span><i class="dot amber"></i>V通讯 / 暂挂信件</span>
+            <span><i class="dot cinnabar"></i>旧代次拦截</span>
           </div>
         </div>
-      </div>
-      <div class="notes">
-        <section><p class="eyebrow">FIELD NOTE / 观察要点</p><p id="note"></p></section>
-        <section><p class="eyebrow">SCOPE / 演示边界</p><p>浏览器内的预设教学模型。事件、计数和波形用于说明状态变化，不是生产追踪、性能基准或安全证明。</p></section>
-      </div>
-      <p class="sr-only" id="announcement" role="status"></p>
-      <noscript><p>请启用 JavaScript 操作六幕实验台，或<a href="/?page=docs&doc=vchat-renderer">阅读架构文档</a>。</p></noscript>
-    </section>
-  </main>
-  <footer class="shell footer"><span>VCP 2.0 / NOVA PAPER & INK INDUSTRIAL</span><a href="/?page=docs&doc=vchat-renderer">ChatKernel V2 × Renderer V5.2 ↗</a></footer>
+
+        <!-- 快捷跨话题实验触发器 -->
+        <div class="sidebar-quick-lab">
+          <div class="card-bar">
+            <span>CHAOS &amp; CONCURRENCY INJECTOR</span>
+            <span>LIVE TEST</span>
+          </div>
+          <div class="quick-btn-grid">
+            <button type="button" id="btn-stale-packet" class="lab-btn warn">⚡ 注入 rev-1 旧代次脏包</button>
+            <button type="button" id="btn-cross-agent" class="lab-btn amber">📨 跨房派发 Agent 协作信</button>
+            <button type="button" id="btn-burst-stream" class="lab-btn patina">🚀 全房间 4 路并发洪峰</button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- 中栏：VChat 实时流式投影视口 (Pure State Projection) -->
+      <section class="wb-stage" aria-label="VChat 前台流式渲染视口">
+        <!-- 房间顶部状态栏 -->
+        <div class="stage-header">
+          <div class="stage-room-info">
+            <span id="stage-room-badge" class="room-mode-pill">GROUP ENGINE 2.0</span>
+            <h1 id="stage-room-title">主作战会议室 · 架构拍板</h1>
+            <span id="stage-triple-id" class="triple-id-pill">(T_COUNCIL · A_NANA · M_101 · rev 2)</span>
+          </div>
+          <div class="stage-room-controls">
+            <button type="button" id="btn-scroll-away" class="stage-tool-btn" title="模拟滚离视口 3200px，触发离屏 DOM 卸载与墓碑冻结">👁️ 滚离视口 (测墓碑)</button>
+            <button type="button" id="btn-clone-ref" class="stage-tool-btn" title="在第一引用位与第二引用位之间无损迁移同一个有状态原生节点">🔀 迁移原生岛节点</button>
+          </div>
+        </div>
+
+        <!-- 视口离屏状态浮层提示 -->
+        <div id="offscreen-banner" class="offscreen-banner" hidden>
+          <div>
+            <strong>TOMBSTONE V2 ACTIVE · 消息已滚离视口 (+3,200px)</strong>
+            <p>重型 DOM 子树已卸载并替换为精确高度锁死占位（<code>CLS 0.00</code>）；60fps Canvas 时钟与着色器已冻结，零后台空转。有状态原生节点驻留内存指纹缓存中。</p>
+          </div>
+          <button type="button" id="btn-scroll-return" class="ctrl-pill primary">↓ 滑回视口 (毫秒级原节点复原)</button>
+        </div>
+
+        <!-- 消息流滚动容器 -->
+        <div id="chat-scroller" class="chat-scroller">
+          <div id="chat-stream" class="chat-stream"></div>
+        </div>
+
+        <!-- 流式消息暂挂区 (Pending Buffer) 可视化托盘 -->
+        <div id="pending-tray" class="pending-tray" data-has-items="false">
+          <div class="pending-head">
+            <span class="pending-title">
+              <i class="amber-pulse"></i>
+              MESSAGE PENDING BUFFER (流式暂挂队列)
+            </span>
+            <span id="pending-status" class="pending-meta">0 项暂挂 · 零打断当前流式，将于 ToolLoop 安全点原子合流</span>
+          </div>
+          <div id="pending-chips" class="pending-chips"></div>
+        </div>
+
+        <!-- 底部全功能交互输入舱（支持流式期间随时打字插话 + 零信任载荷粘贴） -->
+        <form id="composer-form" class="wb-composer" autocomplete="off">
+          <div class="composer-presets">
+            <span class="preset-label">快捷注入：</span>
+            <button type="button" class="preset-chip" data-preset="human">💬 人类纠偏插话 (入暂挂区)</button>
+            <button type="button" class="preset-chip" data-preset="xss">🛡️ 粘贴恶意 XSS 载荷 (测零信任)</button>
+            <button type="button" class="preset-chip" data-preset="poison-tool">🧪 投递带脚本工具回执 (测双指纹)</button>
+            <button type="button" id="btn-force-tool-return" class="preset-chip highlight">✅ 立即送达工具回执 (触发原子合流)</button>
+          </div>
+          <div class="composer-row">
+            <input
+              id="composer-input"
+              type="text"
+              placeholder="在模型高速吐字或等待工具时直接输入插话（例如：把采样率改成 120Hz，或粘贴 <div><script>alert(1)</script>）…"
+              aria-label="向当前房间发送消息或测试载荷"
+            >
+            <button type="submit" class="send-btn">发送 / 暂挂 ↵</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- 右栏：内核与渲染器硬核遥测检视器 -->
+      <aside class="wb-telemetry" aria-label="内核与渲染器实时遥测面板">
+        <div class="panel-head">
+          <div>
+            <span class="eyebrow">LIVE TELEMETRY // 0-IPC PROJECTION</span>
+            <h2>内核 × 渲染器示波台</h2>
+          </div>
+          <span id="engine-state-pill" class="state-pill live">DECODER LIVE</span>
+        </div>
+
+        <!-- 双轨时钟示波器 Canvas: 60fps Animation vs Throttled DOM Commit -->
+        <div class="tele-card">
+          <div class="card-bar">
+            <span>DUAL-TRACK OSCILLOSCOPE</span>
+            <span id="fps-readout" class="patina-text">60 FPS ≠ DOM COMMIT</span>
+          </div>
+          <canvas id="scope-canvas" class="scope-canvas" width="320" height="106" aria-label="60fps 动画帧与节流 DOM 上屏脉冲对比示波器"></canvas>
+          <div class="scope-legend">
+            <span><i class="line patina"></i>60fps 动画岛独立时钟</span>
+            <span><i class="line amber"></i>闭合子块 / 0.65s 节流上屏脉冲</span>
+          </div>
+        </div>
+
+        <!-- O(n) 单遍词法分域扫描带 -->
+        <div class="tele-card">
+          <div class="card-bar">
+            <span>SINGLE-PASS LEXER · O(n) CURSOR</span>
+            <span id="lexer-domain-badge" class="amber-text">DOMAIN: MARKDOWN</span>
+          </div>
+          <div class="lexer-meter">
+            <div class="lexer-bar">
+              <div id="lexer-stable-fill" class="lexer-stable" style="width: 0%"></div>
+              <div id="lexer-tail-fill" class="lexer-tail" style="width: 0%"></div>
+            </div>
+            <div class="lexer-stats">
+              <span>已锁死稳定块: <strong id="stat-stable-blocks">0</strong></span>
+              <span>稳定区回扫次数: <strong class="patina-text">0 (O(n))</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6 宫格核心物理计数器 -->
+        <dl class="metrics-matrix" aria-label="架构核心指标">
+          <div>
+            <dt>Authority 真源版本</dt>
+            <dd id="m-authority">rev #204</dd>
+          </div>
+          <div>
+            <dt>拒收旧代次/越界包</dt>
+            <dd id="m-rejected" class="cinnabar-text">0</dd>
+          </div>
+          <div>
+            <dt>Pending 原子合并</dt>
+            <dd id="m-merged" class="amber-text">0 批</dd>
+          </div>
+          <div>
+            <dt>原生岛实例 / 挂载</dt>
+            <dd id="m-island-mounts">#09 × 1 (1次)</dd>
+          </div>
+          <div>
+            <dt>宿主 IPC 暴露句柄</dt>
+            <dd class="patina-text">0 (VOID)</dd>
+          </div>
+          <div>
+            <dt>设计基准指标</dt>
+            <dd>CLS 0.00 / INP 0ms</dd>
+          </div>
+        </dl>
+
+        <!-- 实时事务与安全审计流 -->
+        <div class="audit-card">
+          <div class="card-bar">
+            <span>KERNEL &amp; SANDBOX AUDIT LOG</span>
+            <button type="button" id="btn-clear-log" class="mini-link">清空</button>
+          </div>
+          <ol id="audit-log" class="audit-log" aria-live="off"></ol>
+        </div>
+
+        <p class="sandbox-disclaimer">
+          SCOPE：浏览器内高保真架构沙盒。实时演示多流路由、暂挂合流、增量分域、原生 DOM 迁移与文本化边界，不连接外部大模型或执行不可信载荷。
+        </p>
+      </aside>
+    </main>
+
+    <p id="sr-status" class="sr-only" role="status" aria-live="polite"></p>
+  </div>
 </body>
 </html>

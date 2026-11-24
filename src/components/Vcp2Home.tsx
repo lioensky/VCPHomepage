@@ -1034,10 +1034,10 @@ export function Vcp2Home({brand, nova, onAskNova, documents}: Vcp2HomeProps) {
                 </h2>
               </div>
               <p className="vcp2-subtitle">
-                                天气卡已经能点，后面的文字还在生成。此时切去另一个话题，谁替它接住剩下的消息？
-                                跟着一封天气简报，看 <strong>ChatKernel V2</strong> 按身份收件，再看 <strong>Renderer V5.2</strong> 按结构上屏。
+                                4 位 Agent 在不同心流房间并发吐字、写代码、跑 60fps 交互岛，流式途中随时插话还不打断上下文？
+                                进入全屏交互终端，亲手把玩 <strong>ChatKernel V2</strong> 多流路由合流与 <strong>Renderer V5.2</strong> 双轨墓碑管线。
                                 <br />
-                                <a href="/vchat-theater.html" style={{display:"inline-block", marginTop:"0.8rem", padding:"0.45rem 0.9rem", border:"1px solid currentColor", borderRadius:"4px", fontWeight:700}}>进入 Chat × Renderer 架构剧场 →</a>
+                                <a href="/vchat-theater.html" style={{display:"inline-block", marginTop:"0.8rem", padding:"0.45rem 0.9rem", border:"1px solid currentColor", borderRadius:"4px", fontWeight:700}}>进入 VChat 全屏多 Agent 作战沙盒 →</a>
               </p>
             </div>
 
