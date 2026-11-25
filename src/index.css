@@ -1469,7 +1469,6 @@ body {
 
 .mermaid-diagram svg {
   display: block;
-  width: max-content;
   max-width: none;
   height: auto;
 }

@@ -71,7 +71,18 @@ export function useMermaidDiagram(chart: string) {
   // Keep the previous SVG in place during a redraw; never clear then refill it.
   useEffect(() => {
     if (result?.chart === chart && result.svg !== undefined && canvasRef.current) {
-      canvasRef.current.innerHTML = result.svg;
+      const canvas = canvasRef.current;
+      const template = document.createElement('template');
+      template.innerHTML = result.svg;
+      const svg = template.content.firstElementChild;
+      if (svg instanceof SVGSVGElement) {
+        const {width, height} = svg.viewBox.baseVal;
+        if (width > 0 && height > 0) {
+          svg.setAttribute('width', String(width));
+          svg.setAttribute('height', String(height));
+        }
+      }
+      canvas.replaceChildren(template.content);
     }
   }, [chart, result]);
 
