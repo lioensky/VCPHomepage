@@ -338,21 +338,6 @@ function MermaidBlock({chart}: MermaidBlockProps) {
   );
 }
 
-function extractCode(children: React.ReactNode): string {
-  if (typeof children === "string") {
-    return children;
-  }
-
-  if (Array.isArray(children)) {
-    return children.map(extractCode).join("");
-  }
-
-  if (children && typeof children === "object" && "props" in children) {
-    return extractCode((children as {props?: {children?: React.ReactNode}}).props?.children ?? "");
-  }
-
-  return "";
-}
 
 type NovaStickerPart =
   | {
