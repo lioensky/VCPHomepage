@@ -1,12 +1,12 @@
-import {useEffect, useMemo, useRef} from 'react';
-import ReactMarkdown from 'react-markdown';
-import mermaid from 'mermaid';
+import {isValidElement, memo, type ReactNode} from 'react';
+import ReactMarkdown, {type Components} from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import rehypeRaw from 'rehype-raw';
 import rehypeSlug from 'rehype-slug';
 import {normalizeMarkdownMath} from '../markdownMath';
+import {useMermaidDiagram} from './useMermaidDiagram';
 
 export type DocItem = {
   slug: string;
@@ -24,65 +24,52 @@ type DocsViewerProps = {
   onSelect: (slug: string) => void;
 };
 
-type MermaidBlockProps = {
-  chart: string;
+function MermaidBlock({chart}: {chart: string}) {
+  const {canvasRef, error} = useMermaidDiagram(chart);
+
+  return (
+    <div className="mermaid-diagram">
+      <div ref={canvasRef} hidden={error !== undefined} />
+      {error !== undefined && (
+        <div className="mermaid-error" role="status">
+          图表暂无法显示
+          <details><summary>查看图表源码</summary><pre>{chart}</pre></details>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const docMarkdownComponents: Components = {
+  pre({node, children, ...props}) {
+    if (isValidElement<{className?: string; children?: ReactNode}>(children) &&
+        children.props.className?.split(/\s+/).includes('language-mermaid') &&
+        typeof children.props.children === 'string') {
+      return <MermaidBlock chart={children.props.children.trim()} />;
+    }
+    return <pre {...props}>{children}</pre>;
+  },
+  code({node, className, children, ...props}) {
+    const isInline = !className && !String(children).includes('\n') &&
+      node?.position?.start.line === node?.position?.end.line;
+    return <code className={isInline ? 'inline-code' : className} {...props}>{children}</code>;
+  },
+  a({node, href, children, ...props}) {
+    return <a href={href} target="_blank" rel="noreferrer" {...props}>{children}</a>;
+  },
 };
 
-function MermaidBlock({chart}: MermaidBlockProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const renderId = useMemo(() => `mermaid-${Math.random().toString(36).slice(2)}`, []);
-
-  useEffect(() => {
-    let disposed = false;
-
-    mermaid.initialize({
-      startOnLoad: false,
-      theme: 'dark',
-      securityLevel: 'loose',
-    });
-
-    async function renderChart() {
-      if (!containerRef.current) {
-        return;
-      }
-
-      try {
-        const {svg} = await mermaid.render(renderId, chart);
-        if (!disposed && containerRef.current) {
-          containerRef.current.innerHTML = svg;
-        }
-      } catch (error) {
-        if (!disposed && containerRef.current) {
-          containerRef.current.innerHTML = `<pre class="mermaid-error">${String(error)}</pre>`;
-        }
-      }
-    }
-
-    renderChart();
-
-    return () => {
-      disposed = true;
-    };
-  }, [chart, renderId]);
-
-  return <div ref={containerRef} className="mermaid-diagram" />;
-}
-
-function extractCode(children: React.ReactNode): string {
-  if (typeof children === 'string') {
-    return children;
-  }
-
-  if (Array.isArray(children)) {
-    return children.map(extractCode).join('');
-  }
-
-  if (children && typeof children === 'object' && 'props' in children) {
-    return extractCode((children as {props?: {children?: React.ReactNode}}).props?.children ?? '');
-  }
-
-  return '';
-}
+const DocMarkdown = memo(function DocMarkdown({content}: {content: string}) {
+  return (
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm, remarkMath]}
+      rehypePlugins={[rehypeRaw, rehypeKatex, rehypeSlug]}
+      components={docMarkdownComponents}
+    >
+      {normalizeMarkdownMath(content)}
+    </ReactMarkdown>
+  );
+});
 
 export function DocsViewer({documents, activeSlug, onSelect}: DocsViewerProps) {
   const activeDoc = documents.find((doc) => doc.slug === activeSlug) ?? documents[0];
@@ -158,45 +145,7 @@ export function DocsViewer({documents, activeSlug, onSelect}: DocsViewerProps) {
           </div>
         </header>
 
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm, remarkMath]}
-          rehypePlugins={[rehypeRaw, rehypeKatex, rehypeSlug]}
-          components={{
-            code({className, children, ...props}) {
-              const match = /language-(\w+)/.exec(className || '');
-              const language = match?.[1];
-              const content = extractCode(children).trim();
-
-              if (language === 'mermaid') {
-                return <MermaidBlock chart={content} />;
-              }
-
-              const isInline = !className && !String(children).includes('\n') && props.node?.position?.start.line === props.node?.position?.end.line;
-              if (isInline) {
-                return (
-                  <code className="inline-code" {...props}>
-                    {children}
-                  </code>
-                );
-              }
-
-              return (
-                <code className={className} {...props}>
-                  {children}
-                </code>
-              );
-            },
-            a({href, children, ...props}) {
-              return (
-                <a href={href} target="_blank" rel="noreferrer" {...props}>
-                  {children}
-                </a>
-              );
-            },
-          }}
-        >
-          {normalizeMarkdownMath(activeDoc.content)}
-        </ReactMarkdown>
+        <DocMarkdown key={activeDoc.slug} content={activeDoc.content} />
       </article>
     </div>
   );

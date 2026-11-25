@@ -37,8 +37,8 @@ import {
   BadgeDollarSign,
   Gauge,
 } from "lucide-react";
-import {useEffect, useMemo, useRef, useState} from "react";
-import mermaid from "mermaid";
+import {isValidElement, useEffect, useMemo, useRef, useState, type ReactNode} from "react";
+import {useMermaidDiagram} from "./components/useMermaidDiagram";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
@@ -303,66 +303,8 @@ type MermaidBlockProps = {
 };
 
 function MermaidBlock({chart}: MermaidBlockProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const renderId = useMemo(() => `mermaid-${Math.random().toString(36).slice(2)}`, []);
+  const {canvasRef, error} = useMermaidDiagram(chart);
   const [scale, setScale] = useState(1);
-
-  useEffect(() => {
-    let disposed = false;
-
-    mermaid.initialize({
-      startOnLoad: false,
-      theme: "base",
-      securityLevel: "loose",
-      themeVariables: {
-        background: "transparent",
-        mainBkg: "#f8fbff",
-        secondBkg: "#eef4ff",
-        tertiaryColor: "#f6f0ff",
-        primaryColor: "#f8fbff",
-        primaryTextColor: "#07111f",
-        primaryBorderColor: "#43cfe8",
-        secondaryColor: "#eef4ff",
-        secondaryTextColor: "#07111f",
-        secondaryBorderColor: "#9f7bff",
-        tertiaryTextColor: "#07111f",
-        lineColor: "#23647a",
-        textColor: "#07111f",
-        nodeTextColor: "#07111f",
-        edgeLabelBackground: "#ffffff",
-        clusterBkg: "#f2f7ff",
-        clusterBorder: "#43cfe8",
-        titleColor: "#07111f",
-        fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
-      },
-    });
-
-    async function renderChart() {
-      if (!containerRef.current) {
-        return;
-      }
-
-      containerRef.current.classList.remove("mermaid-error");
-
-      try {
-        const {svg} = await mermaid.render(renderId, chart);
-        if (!disposed && containerRef.current) {
-          containerRef.current.innerHTML = svg;
-        }
-      } catch (error) {
-        if (!disposed && containerRef.current) {
-          containerRef.current.textContent = String(error);
-          containerRef.current.classList.add("mermaid-error");
-        }
-      }
-    }
-
-    renderChart();
-
-    return () => {
-      disposed = true;
-    };
-  }, [chart, renderId]);
 
   const zoomOut = () => setScale((current) => Math.max(0.5, Number((current - 0.1).toFixed(2))));
   const zoomIn = () => setScale((current) => Math.min(2.4, Number((current + 0.1).toFixed(2))));
@@ -385,10 +327,12 @@ function MermaidBlock({chart}: MermaidBlockProps) {
       </div>
       <div className="mermaid-diagram">
         <div
-          ref={containerRef}
+          ref={canvasRef}
+          hidden={error !== undefined}
           className="mermaid-diagram-canvas"
           style={{"--mermaid-scale": scale} as React.CSSProperties}
         />
+        {error !== undefined && <div className="mermaid-error" role="status">图表暂无法显示：{error}</div>}
       </div>
     </div>
   );
@@ -663,16 +607,16 @@ function splitWhitepaperIntoSections(markdown: string): WhitepaperSection[] {
 }
 
 const whitepaperMarkdownComponents = {
-  code({className, children, ...props}: any) {
-    const match = /language-(\w+)/.exec(className || "");
-    const language = match?.[1];
-    const content = extractCode(children).trim();
-
-    if (language === "mermaid") {
-      return <MermaidBlock chart={content} />;
+  pre({node, children, ...props}: any) {
+    if (isValidElement<{className?: string; children?: ReactNode}>(children) &&
+        children.props.className?.split(/\s+/).includes('language-mermaid') &&
+        typeof children.props.children === 'string') {
+      return <MermaidBlock chart={children.props.children.trim()} />;
     }
-
-    const isInline = !className && !String(children).includes('\n') && props.node?.position?.start.line === props.node?.position?.end.line;
+    return <pre {...props}>{children}</pre>;
+  },
+  code({node, className, children, ...props}: any) {
+    const isInline = !className && !String(children).includes('\n') && node?.position?.start.line === node?.position?.end.line;
     if (isInline) {
       return (
         <code className="inline-code" {...props}>

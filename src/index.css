@@ -1474,42 +1474,6 @@ body {
   height: auto;
 }
 
-.mermaid-diagram svg,
-.mermaid-diagram svg *,
-.mermaid-diagram .label,
-.mermaid-diagram .label *,
-.mermaid-diagram .nodeLabel,
-.mermaid-diagram .edgeLabel,
-.mermaid-diagram .cluster-label,
-.mermaid-diagram .actor,
-.mermaid-diagram .messageText {
-  color: #07111f !important;
-  fill: #07111f !important;
-}
-
-.mermaid-diagram .node rect,
-.mermaid-diagram .node polygon,
-.mermaid-diagram .node circle,
-.mermaid-diagram .node ellipse,
-.mermaid-diagram .cluster rect,
-.mermaid-diagram rect.actor {
-  fill: #f8fbff !important;
-  stroke: #43cfe8 !important;
-}
-
-.mermaid-diagram .edgePath path,
-.mermaid-diagram .flowchart-link,
-.mermaid-diagram .messageLine0,
-.mermaid-diagram .messageLine1 {
-  stroke: #23647a !important;
-}
-
-.mermaid-diagram .edgeLabel,
-.mermaid-diagram .edgeLabel p {
-  background-color: #ffffff !important;
-  color: #07111f !important;
-}
-
 .mermaid-error {
   color: #b42318 !important;
   fill: #b42318 !important;
