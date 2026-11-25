@@ -84,7 +84,9 @@ sandbox.window.RiverEngine.SceneRunner = class {
     stop() { this.running = false; }
     tick(dt) { this.time += dt; this.draw(ctx, 900, 340, this.time); }
 };
-for (const path of ['public/scenes.js', 'public/rivermemo-v2.js', 'public/memo-basin-projection.js', 'public/rivermemo-v3.js', 'public/rivermemo-wormhole-lab.js', 'public/rivermemo-v4.js', 'public/rivermemo-v5.js', 'public/main.js']) vm.runInContext(fs.readFileSync(path, 'utf8'), sandbox);
+for (const [, path] of html.matchAll(/<script src="([^"]+)"><\/script>/g)) {
+    if (path !== 'river-engine.js') vm.runInContext(fs.readFileSync(`public/${path}`, 'utf8'), sandbox);
+}
 const observer = observers[0];
 assert.equal(observer.targets.length, 12);
 for (const target of observer.targets) observer.callback([{ target, isIntersecting: true, intersectionRatio: 0.001 }]);
@@ -290,28 +292,13 @@ const before = JSON.stringify(scoreCandidate(evidence));
 assert.equal(JSON.stringify(scoreCandidate(evidence)), before);
 assert(elements.get('finaleScoreTable').innerHTML.includes('P+G='));
 const scoring = runners.find(r => r.canvas === elements.get('ch9Canvas'));
-const { fuse, wormholeFixture, gateWitness } = sandbox.window.RiverMemoV3;
-const proofFixture = wormholeFixture();
-const fused = fuse(proofFixture.candidates, proofFixture.routes, proofFixture.observation);
-assert(fused.enabled);
-assert.equal(fused.rows[0].id, 12);
-assert.equal(fused.rows[0].baseRank, 12);
-assert(Math.abs(fused.rows[0].contribution - (.12 / .10 * .72) / 61) < 1e-12);
-const repeated = fuse(proofFixture.candidates, [...proofFixture.routes, ...proofFixture.routes], proofFixture.observation);
-assert.equal(JSON.stringify(repeated.rows), JSON.stringify(fused.rows), '重复路线不叠加');
-// V3 历史教学模型的函数级契约仍保留（页面第 9 章已由 V4 水闸接管）。
-for (const mode of ['proof', 'isolated', 'duplicate', 'weak', 'ungrounded', 'incomplete', 'w']) {
-    const f = wormholeFixture(mode);
-    const result = fuse(f.candidates, f.routes, f.observation);
-    assert.equal(result.enabled, mode === 'proof');
-    if (!result.enabled) {
-        result.rows.forEach((c, i) => {
-            assert.equal(c.final, c.baseline);
-            assert.equal(c.baseRank, i + 1);
-        });
-    }
-}
-assert.equal(gateWitness([...proofFixture.observation.files, ...Array(127).fill(proofFixture.observation.files[0])], 1, 2, [1, 4]), null);
+const { evaluate, rotate, query } = sandbox.window.RiverQueryTransport;
+assert.equal(evaluate([0, 0]).angle, 0);
+const directedRoute = evaluate([.12, .04]);
+assert(Math.abs(directedRoute.omega - .45 / (.45 + .35 * .15) * (.8 - .1) / (.8 + .1) * .75) < 1e-12);
+const rotated = rotate(query, directedRoute.angle);
+assert.equal(query[2], rotated[2]);
+assert(Math.abs(Math.hypot(...query) - Math.hypot(...rotated)) < 1e-12);
 
 // ---------------- RiverMemo V4 ----------------
 const V4 = sandbox.window.RiverMemoV4;
@@ -355,19 +342,19 @@ assert.equal(calibrated([.8, null], true).value, .7);
 assert(Math.abs(calibrated([.8, .61], true).genus - .5) < 1e-12);
 assert.equal(calibrated([.4], true).genus, 1);
 assert.equal(V4.scoreCandidate({ anchorStrength: 1 }).score, V4.scoreCandidate({}).score);
-// 见证：孤立两端拒绝；单焦点需种差或特异性。
-const baseObs = V4.makeObservation();
-assert(V4.gateWitness(baseObs.files, 1, 2, [1, 4]));
-assert.equal(V4.gateWitness([{ id: 1, checksum: 'a', tags: [1, 6] }, { id: 2, checksum: 'b', tags: [2, 6] }], 1, 2, [1, 4]), null);
-assert.equal(V4.gateWitness([{ id: 1, checksum: 'a', tags: [1, 2, 6] }, { id: 2, checksum: 'a', tags: [1, 2, 6] }], 1, 2, [1, 4]), null);
-assert.equal(V4.gateWitness(baseObs.files, 1, 2, [1]), null);
-assert(V4.gateWitness(baseObs.files, 1, 2, [1], { specificity: .7 }).singleFocus);
-assert(V4.gateWitness(baseObs.files, 1, 2, [1], { differentia: .3 }));
-assert.equal(V4.transportEvidence(V4.makeObservation({ complete: false }), V4.focusCandidate).value, 0);
-// 场景预设：溢出、退潮、拦水与种差翻转都必须真实发生。
+assert.equal(V4.hop1Evidence(V4.makeObservation({ complete: false }), V4.focusCandidate), 0);
 const tab = key => V4.buildTab(key);
-assert(tab('transport').focus.result.overflow > 0, '跨文件见证页应演示满闸溢出');
-assert(tab('transport').evidence.xw > 0 && tab('reject').evidence.xw === 0);
+const moved = tab('transport'), still = tab('reject');
+assert.equal(still.route.angle, 0);
+for (const row of moved.rows) {
+    const original = still.rows.find(r => r.name === row.name);
+    assert.equal(original.input.query, original.input.transportedQuery);
+    assert.equal(row.result.path, original.result.path);
+    assert.equal(row.result.graph, original.result.graph);
+    assert.equal(row.result.rankingScore, row.result.finalScore);
+}
+assert(moved.rows.some(r => r.input.transportedQuery > r.input.query));
+assert(moved.rows.some(r => r.input.transportedQuery < r.input.query));
 assert(tab('omega').focus.result.path < tab('ledger').focus.result.path);
 assert.equal(tab('differentia').rows[0].focus, true);
 assert(tab('differentia').rows.find(r => !r.focus && r.name.includes('综述')).result.queryHat

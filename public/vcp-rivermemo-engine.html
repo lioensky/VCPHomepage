@@ -279,7 +279,7 @@
                     <div id="v5GeometryStory" class="v2-lab-caption" aria-live="polite"></div>
                 </div>
                 <div class="v5-facts">
-                    <article class="spec-card"><div class="spec-card-head">统一度规，不混淆证据</div><p class="spec-note">构图、2-bit 热码导航与 SQL 原件精排使用一致的双曲几何；Tag 池之后仍在原向量空间求 NNLS。双曲距离负责选候选，V5 保留原查询余弦作为基础语义输入。</p></article>
+                    <article class="spec-card"><div class="spec-card-head">统一度规，不混淆证据</div><p class="spec-note">构图、2-bit 热码导航与 SQL 原件精排使用一致的双曲几何；Tag 池之后仍在原向量空间求 NNLS。双曲距离负责选候选，第九章的查询运输只改变候选收缩后的基础余弦测量方向。</p></article>
                     <article class="spec-card"><div class="spec-card-head">写入实时，几何按代复用</div><p class="spec-note">新建或修改向量在冻结均值轴与径向规则下评分，再与图候选合并。训练换代才重建几何；不是每写一篇日记就重训全图，也不是取消范围与权限过滤。</p></article>
                 </div>
             </div>
@@ -924,8 +924,7 @@
                         <h2 class="chapter-title">一座水闸，一本账：<br/>正文给出基础分，拓扑证据共享预算</h2>
                     </div>
                     <p class="chapter-intro">
-                        V3 里，罕见的逻辑虫洞要另开一本“倒数名次账”去覆盖排序——好用，但两本账对不上。
-                        <strong>V5 只看一本账</strong>：属门校准种差，场共振计入基础分。路径、图与传输穿过 Ω 闸，再共用容量为 <code>C<sub>T</sub></code> 的水池。路径先入池，图与传输互补，溢出的部分不计分。锚接触可以解释结果，不能抬高名次。
+                        <strong>跨簇捷径改变查询的方向，不给候选加分。</strong>对比下方“捷径有流”和“捷径无流”：图和四段正文都不变，只有本次首跳流不同。观察同一把语义尺转动后，哪些正文更贴近查询，哪些反而更远。
                     </p>
                 </div>
 
@@ -938,10 +937,10 @@
                             </div>
                             <div class="formula-plate">
                                 P = P<sub>raw</sub> · Ω<sup>γ</sup>， g = G<sub>self</sub> · Ω<sup>γ</sup><br/>
-                                t = max( e<sub>Hop1</sub>, e<sub>XW</sub> )，两者内部均已含 Ω<sup>γ</sup>
+                                t = C<sub>T</sub> · e<sub>Hop1</sub>（普通一跳代理已含 Ω<sup>γ</sup>）
                             </div>
                             <p class="spec-note">
-                                V3 中路径不受 Ω 影响；V4 让路径也随河网可观测性退潮。普通 Hop-1 代理只看真实一跳导电率与正文正相关，不需要虫洞见证；跨文件虫洞（XW）则必须通过下方的联合见证与候选落地。
+                                全网 Ω 门控路径和子图预算；普通 Hop-1 证据仍与图证据互补。路线态 Ωₑ 不进入这个水池，只决定查询要转多少度。
                             </p>
                         </div>
 
@@ -961,9 +960,9 @@
                     </div>
 
                     <aside class="spec-card">
-                        <div class="spec-card-head"><span>见证清单 / 两位互不抄袭的证人</span></div>
-                        <p class="spec-note">跨文件虫洞要求两份内容不同的文件同时写到路线两端，并共享排除两端与显式焦点的第三标签；多焦点时还需另一显式焦点出场。只有一个显式焦点时，查询须有正种差置信度，或来源特异性 ≥ 0.65 才可准入。每路线文件与每文件标签上限均为 128，超限不放行。</p>
-                        <p class="spec-note">不同校验和不证明来源独立，高 Ω 不证明主题正确或因果成立。画面中的水量、证人与分数均为教学预设。</p>
+                        <div class="spec-card-head"><span>Query Transport / 一次请求，一次转向</span></div>
+                        <p class="spec-note">从已发布的 CSR 比较直达电导与普通两跳绕行量，得到不可替代度 J；再比较两端外邻域的有向支撑与背景对照，得到 K。两者乘以该边占源首跳正流的份额，即路线态 Ωₑ。计算不看候选，也不再跨文件查 SQL 做见证。</p>
+                        <p class="spec-note">选 Ωₑ 最大的可运输路线，在其余显式焦点的正交补内转过 Ωₑ × 源目标夹角。没有合格路线则沿用原查询。候选池、场和路径可靠性不变；更新原生模块即可复用 AGS、Tag/Chunk 快照和 SQLite 表，无需重训。</p>
                     </aside>
                 </div>
                 <div class="canvas-pane worm-workbench">
@@ -975,8 +974,8 @@
                         <div class="ctrl-group" role="group" aria-label="统一水闸实验">
                             <button type="button" class="ctrl-btn active" data-ch9-tab="ledger">完整账本</button>
                             <button type="button" class="ctrl-btn" data-ch9-tab="omega">Ω 退潮</button>
-                            <button type="button" class="ctrl-btn" data-ch9-tab="transport">跨文件见证 · 满闸溢出</button>
-                            <button type="button" class="ctrl-btn" data-ch9-tab="reject">两端孤立 · 拦水</button>
+                            <button type="button" class="ctrl-btn" data-ch9-tab="transport">捷径有流 · 查询转向</button>
+                            <button type="button" class="ctrl-btn" data-ch9-tab="reject">捷径无流 · 原方向对照</button>
                             <button type="button" class="ctrl-btn" data-ch9-tab="differentia">揭开描图纸 · 种差</button>
                             <button type="button" class="ctrl-btn" data-ch9-tab="anchor">华为汽车 · 同标签，不同正文</button>
                         </div>
@@ -1142,7 +1141,7 @@
     <script src="rivermemo-v2.js"></script>
     <script src="memo-basin-projection.js"></script>
     <script src="rivermemo-v3.js"></script>
-    <script src="rivermemo-wormhole-lab.js"></script>
+    <script src="rivermemo-query-transport.js"></script>
     <script src="rivermemo-v4.js"></script>
     <script src="rivermemo-v5.js"></script>
     <script src="main.js"></script>

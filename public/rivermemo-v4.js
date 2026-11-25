@@ -138,7 +138,7 @@
             omega = 0, gamma = 1, transport = 0, budget = C_T,
             parents, qualifiedFocusHit,
         } = input;
-        const calibrated = calibrateQuery(query, perp, differentia, parents, qualifiedFocusHit);
+        const calibrated = calibrateQuery(input.transportedQuery ?? query, perp, differentia, parents, qualifiedFocusHit);
         const qHat = calibrated.value;
         const resonance = Math.min(Math.min(0.03, clip(fieldWeight) * Math.max(0, field - qHat)) * clip(support), 1 - qHat);
         const base = qHat + resonance;
@@ -171,33 +171,8 @@
     }
 
     // ---------------------------------------------------------------------
-    // 3. 传输证据：普通 Hop-1 代理与跨文件联合见证虫洞（XW）
+    // 3. 普通 Hop-1 代理仍属于图预算；跨簇路线只作用于基础测量方向。
     // ---------------------------------------------------------------------
-    function specificity(obs, source) {
-        const inbound = obs.inbound?.[source];
-        if (!Number.isFinite(inbound) || !(obs.maxInbound > 0)) return null;
-        return 1 - Math.sqrt(clip(inbound / obs.maxInbound));
-    }
-
-    function gateWitness(files, source, target, focuses, options = {}) {
-        if (files.length > 128 || files.some(f => f.tags.length > 128)) return null;
-        const joint = files.filter(f => f.tags.includes(source) && f.tags.includes(target))
-            .sort((a, b) => a.id - b.id);
-        const others = focuses.filter(t => t !== source && t !== target);
-        const single = focuses.length === 1 && focuses[0] === source
-            && (options.differentia > 0 || (options.specificity ?? -1) >= 0.65);
-        for (let i = 0; i < joint.length; i++) for (let j = i + 1; j < joint.length; j++) {
-            const a = joint[i], b = joint[j];
-            if (!a.checksum || !b.checksum || a.checksum === b.checksum) continue;
-            const third = a.tags.filter(t => b.tags.includes(t) && t !== source && t !== target && !focuses.includes(t))
-                .sort((x, y) => x - y)[0];
-            const focus = others.filter(t => a.tags.includes(t) || b.tags.includes(t)).sort((x, y) => x - y)[0];
-            if (third !== undefined && (focus !== undefined || single)) {
-                return { files: [a.id, b.id], third, focus: focus ?? null, singleFocus: focus === undefined };
-            }
-        }
-        return null;
-    }
 
     function hop1Evidence(obs, candidate) {
         if (!obs.complete) return 0;
@@ -213,44 +188,11 @@
         return best;
     }
 
-    function xwEvidence(obs, candidate) {
-        const traces = [];
-        if (!obs.complete || !(obs.omega > 0)) return { value: 0, traces };
-        const gate = Math.pow(clip(obs.omega), obs.gamma ?? 1);
-        let best = 0;
-        for (const r of obs.routes || []) {
-            const real = r.flow > 0 && r.source !== r.target && !r.returning && r.csr;
-            const rho = obs.maxFlow > 0 ? r.flow / obs.maxFlow : 0;
-            const witness = real ? gateWitness(obs.files, r.source, r.target, obs.focuses, {
-                differentia: obs.differentiaConfidence, specificity: specificity(obs, r.source),
-            }) : null;
-            const strong = Boolean(real && witness && obs.focuses.includes(r.source) && rho >= 0.5);
-            const tagSim = candidate.tags.includes(r.target) ? 1 : (candidate.tagSim?.[r.target] ?? 0);
-            const grounded = strong && (candidate.cos?.[r.target] ?? 0) > 0 && tagSim > 0.48 && candidate.bodyPositive;
-            const value = grounded ? rho * clip(candidate.cos[r.target]) * gate : 0;
-            best = Math.max(best, value);
-            traces.push({ real, rho, witness, strong, grounded, value });
-        }
-        return { value: best, traces };
-    }
-
-    function transportEvidence(obs, candidate) {
-        const hop1 = hop1Evidence(obs, candidate);
-        const xw = xwEvidence(obs, candidate);
-        return { hop1, xw: xw.value, traces: xw.traces, value: Math.max(hop1, xw.value) };
-    }
-
     function makeObservation(overrides = {}) {
         return {
             complete: true, omega: 0.78, gamma: 1, focuses: [1, 4],
             hop: { 1: 0, 3: 1, 2: 2 }, maxFlow: 0.14,
             edges: [{ source: 1, target: 3, P: 0.32, rowSum: 0.80, rowMax: 0.40, flow: 0.11 }],
-            routes: [],
-            files: [
-                { id: 1, checksum: 'a1', tags: [1, 2, 6, 4] },
-                { id: 2, checksum: 'b2', tags: [1, 2, 6, 5] },
-            ],
-            inbound: { 1: 3 }, maxInbound: 40, differentiaConfidence: 0,
             ...overrides,
         };
     }
@@ -262,7 +204,7 @@
         nodeCoverage: 0.35, edgeCoverage: 0.20, closure: 0.90, alignment: 0.90, direction: 0.90,
         anchorStrength: 0.16,
     };
-    const route = { source: 1, target: 2, flow: 0.12, csr: true, returning: false };
+    const transportLab = global.RiverQueryTransport;
 
     const TABS = {
         ledger: {
@@ -276,17 +218,14 @@
             obs: () => makeObservation({ omega: 0.15 }), ghostOmega: 0.78,
         },
         transport: {
-            title: '跨文件见证', badge: 'X 型交叉见证 · 准入',
-            metaphor: '两份内容不同的日记同时写到路线两端，还共享第三个标签——像两位互不抄袭的证人指认同一座桥。见证通过后，传输证据才作为第三股水并入同一水闸，而不是另开一本倒数名次账。',
-            obs: () => makeObservation({ routes: [route] }),
+            title: '查询转向', badge: '捷径有流 · 共用方向',
+            metaphor: '首跳有流，且普通两跳难以替代这条边。金色指针向目标转动，靠近目标的正文可能升分，靠近原方向的正文可能降分。平面外的显式焦点分量不动。',
+            obs: () => makeObservation({ firstHop: [.12, .04] }),
         },
         reject: {
-            title: '见证失败', badge: '两端孤立 · 拒绝',
-            metaphor: '两端各自出现过，却没有任何一份日记把它们写在一起：这是“幻觉桥”。虫洞来水被闸门拦下，普通 Hop-1 代理仍按自己的条件进入，排序不会被孤立证据改写。',
-            obs: () => makeObservation({
-                routes: [route],
-                files: [{ id: 1, checksum: 'a1', tags: [1, 6, 4] }, { id: 2, checksum: 'b2', tags: [2, 6, 5] }],
-            }),
+            title: '原方向对照', badge: '捷径无流 · 转角为零',
+            metaphor: '保持同一张图、同一候选池和同一全网 Ω，只让捷径上的首跳流归零。静态边仍在，但查询不转向，所有正文都按原方向测量。',
+            obs: () => makeObservation({ firstHop: [0, .04] }),
         },
         differentia: {
             title: '种差校准', badge: '揭开泛称描图纸',
@@ -303,8 +242,9 @@
     function buildTab(key) {
         const tab = TABS[key] || TABS.ledger;
         const obs = tab.obs();
-        const evidence = transportEvidence(obs, focusCandidate);
-        const focusInput = { ...sharedEvidence, parents: [.76], omega: obs.omega, transport: evidence.value };
+        const hop1 = hop1Evidence(obs, focusCandidate);
+        const route = obs.firstHop ? transportLab.evaluate(obs.firstHop) : null;
+        const focusInput = { ...sharedEvidence, parents: [.76], omega: obs.omega, transport: hop1 };
         let items;
         if (key === 'differentia') {
             items = [
@@ -329,19 +269,27 @@
                 { name: '同主题背景 B', input: { ...focusInput, query: 0.70, transport: 0, pathQuality: 0.3, anchorStrength: 0 } },
             ];
         }
+        if (route) {
+            const q = transportLab.query, rotated = transportLab.rotate(q, route.angle);
+            const bodies = [[.5, .85, .15], [.98, -.1, .15], [.6, .4, .7], [.65, -.3, .7]].map(unit);
+            items.forEach(({ input }, i) => {
+                input.query = dot(q, bodies[i]);
+                input.transportedQuery = dot(rotated, bodies[i]);
+            });
+        }
         const rows = rank(items);
         const focus = rows.find(r => r.focus) || rows[0];
         const ghost = tab.ghostOmega
             ? scoreCandidate({ ...focus.input, omega: tab.ghostOmega,
-                transport: transportEvidence(makeObservation({ omega: tab.ghostOmega }), focusCandidate).value })
+                transport: hop1Evidence(makeObservation({ omega: tab.ghostOmega }), focusCandidate) })
             : null;
-        return { key, tab, obs, evidence, rows, focus, ghost };
+        return { key, tab, obs, hop1, route, rows, focus, ghost };
     }
 
     global.RiverMemoV4 = {
         C_T, nnls, unconstrained, anchorGain, coneColumns, coneTarget, coneStep,
         complement, calibrateQuery, scoreCandidate, rank, branchCoverage,
-        gateWitness, hop1Evidence, xwEvidence, transportEvidence, makeObservation,
+        hop1Evidence, makeObservation,
         focusCandidate, sharedEvidence, buildTab, tabs: Object.keys(TABS),
     };
 
@@ -633,14 +581,18 @@
             const r = model.focus.result;
             setText('ch9Readout', `${model.tab.title} · Ω^γ = ${r.gate.toFixed(2)} · P + G = ${(r.path + r.graph).toFixed(4)} ≤ C_T · S = ${r.score.toFixed(4)}`);
             setText('v4LedgerStory', `${model.tab.metaphor} 画面与数字均为教学预设，非生产遥测。`);
-            const trace = model.evidence.traces[0];
-            setText('v4GateStatus', `Hop-1 代理 ${model.evidence.hop1.toFixed(3)} ｜XW 见证 ${trace ? (trace.witness ? '通过' : '拒绝') : '无路线'} ${model.evidence.xw.toFixed(3)} ｜传输请求 ${r.transportRequested.toFixed(4)} ｜互补合并 ${r.merged.toFixed(4)} ｜溢出 ${r.overflow.toFixed(4)}`);
+            const route = model.route;
+            setText('v4GateStatus', route
+                ? `不可替代度 J=${route.shortcut.toFixed(3)} ｜外邻域支撑 K=${route.contrast.toFixed(3)} ｜源流份额 ${route.share.toFixed(2)} ｜路线态 Ωₑ=${route.omega.toFixed(3)}`
+                : `普通 Hop-1 代理 ${model.hop1.toFixed(3)} ｜图与一跳互补 ${r.merged.toFixed(4)} ｜溢出 ${r.overflow.toFixed(4)}`);
             const table = document.getElementById('v4LedgerTable');
             if (table) {
                 table.innerHTML = '<table><caption>排序与展示读取同一列 S · 4 个教学候选</caption><thead><tr><th>名次 / 候选</th><th>属门 g</th><th>B</th><th>P</th><th>G</th><th>S = 排序分 = 展示分</th></tr></thead><tbody>'
                     + model.rows.map((row, i) => {
                         const x = row.result;
-                        return `<tr${row.focus ? ' class="worm-target"' : ''}><td>#${i + 1} ${row.name}<small>${x.mix > 0 ? `种差混合 m = ${x.mix.toFixed(2)}` : '无种差校准'}</small></td><td>${x.genus?.toFixed(2) ?? '—'}</td><td>${x.base.toFixed(4)}</td><td>${x.path.toFixed(4)}</td><td>${x.graph.toFixed(4)}</td><td><strong>${x.rankingScore.toFixed(4)}</strong></td></tr>`;
+                        const detail = route ? `正文余弦 ${row.input.query.toFixed(3)} → ${row.input.transportedQuery.toFixed(3)}`
+                            : x.mix > 0 ? `种差混合 m = ${x.mix.toFixed(2)}` : '无种差校准';
+                        return `<tr${row.focus ? ' class="worm-target"' : ''}><td>#${i + 1} ${row.name}<small>${detail}</small></td><td>${x.genus?.toFixed(2) ?? '—'}</td><td>${x.base.toFixed(4)}</td><td>${x.path.toFixed(4)}</td><td>${x.graph.toFixed(4)}</td><td><strong>${x.rankingScore.toFixed(4)}</strong></td></tr>`;
                     }).join('') + '</tbody></table>';
             }
         }
@@ -745,6 +697,19 @@
 
             if (key === 'differentia') {
                 drawDifferentia(ctx, time);
+            } else if (model.route) {
+                const o = { x: 85, y: 290 }, radius = 155;
+                const theta = model.route.angle * ease;
+                const tip = { x: o.x + radius * Math.cos(theta), y: o.y - radius * Math.sin(theta) };
+                for (const [x, y, name] of [[o.x + radius, o.y, '源方向'], [o.x, o.y - radius, '目标方向']]) {
+                    glowLine(ctx, [o, { x, y }], C.muted, 1, .8, [4, 4]);
+                    label(ctx, x + 10, y + 18, name, C.muted);
+                }
+                glowLine(ctx, [o, tip], C.amber, 3);
+                arrowHead(ctx, o, tip, C.amber);
+                label(ctx, 32, 80, `查询在源—目标平面转过 ${(theta * 180 / Math.PI).toFixed(1)}°`, C.amber, 14, 'left');
+                label(ctx, 32, 352, '平面外焦点投影：0.20 → 0.20', C.mint, 12, 'left');
+                label(ctx, 32, 378, '原查询 → 运输后查询：正文余弦见下表', C.muted, 12, 'left');
             } else if (key === 'anchor') {
                 label(ctx, 32, 80, '同一起点 q = 0.70，同一混合权重 m = 0.40', C.bone, 12, 'left');
                 model.rows.forEach(({ name, input, result }, i) => {
@@ -777,11 +742,10 @@
 
                 const gate = r.gate || 1e-9;
                 const transportRaw = r.gate > 0 ? Math.min(C_T, r.transportRequested / gate) : 0;
-                const xwTrace = model.evidence.traces[0];
                 const sources = [
                     { name: '路径 P', raw: r.pathRaw, gated: r.path, color: C.patina, y: 120 },
                     { name: '图 g', raw: r.graphSelf, gated: r.graphRequested, color: C.mint, y: 205 },
-                    { name: key === 'transport' ? '传输 t · XW 见证' : '传输 t · Hop-1', raw: transportRaw, gated: r.transportRequested, color: C.coral, y: 290 },
+                    { name: '普通 Hop-1', raw: transportRaw, gated: r.transportRequested, color: C.coral, y: 290 },
                 ];
                 sources.forEach((s, i) => {
                     const wRaw = 1.5 + s.raw / C_T * 18, wGate = 1.5 + s.gated / C_T * 18 * ease;
@@ -790,10 +754,6 @@
                     label(ctx, 40, s.y - 14 - wRaw / 2, s.name, s.color, 11, 'left');
                     mono(ctx, 40, s.y + 18 + wRaw / 2, `原始 ${s.raw.toFixed(4)} → 过闸 ${s.gated.toFixed(4)}`, C.muted, 9);
                 });
-                if ((key === 'reject' || key === 'transport') && xwTrace) {
-                    const ok = Boolean(xwTrace.witness);
-                    drawPillTag(ctx, 150, 336, ok ? '✓ 两份不同日记交叉见证' : '✗ 两端孤立 · 虫洞来水被拦', ok ? C.patina : C.coral, 'center');
-                }
             }
 
             // 水闸本体
