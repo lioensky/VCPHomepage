@@ -1,7 +1,7 @@
 ---
 title: 更新日志总览
-summary: 汇总 VCP 从 2023-12 到 2026-11-26 的更新记录。最新更新：外部前端通过原生 Function Calling 调用 VCP 工具，RiverMemo V5 开放记忆读写与查询 API，VChat 新增原生异步流式通讯网关。
-updatedAt: 2026-11-26
+summary: 汇总 VCP 从 2023-12 到 2026-11-27 的更新记录。最新更新：第三方 Harness 可接入语义引力场与自动记忆联想，无需 MCP 或 Skill 即可调用已授权的 VCP 插件；FileUrl 统一分布式文件追踪与鉴权，记忆管理核心能力开放标准 API。
+updatedAt: 2026-11-27
 category: changelog
 ---
 
@@ -12,6 +12,17 @@ category: changelog
 ---
 
 ## 最新更新
+
+### 2026-11-27 · 生态迭代：第三方 Harness 直连 VCP 记忆与插件，统一文件链路
+
+继前一天开放原生 Function Calling 接入和 RiverMemo 记忆读写 API 后，第三方 Harness 现在也能在自己的运行环境中接入自动记忆联想、直接调用 VCP 插件，并按需复用记忆管理模块。
+
+1. **语义引力场 Hooker 接入第三方 Harness。** 第三方 Harness 可将 RiverMemoHooker-js 脚本作为插件接入，也可按宿主提供的其他方式集成。接入后，可在宿主的上下文处理流程中使用语义引力场提供的「上下文直觉」，根据当前语境全自动联想相关记忆，无需手动发起检索。
+2. **统一 `/v1/human/tool` 鉴权，支持多种调用格式。** 接口在接收标准 VCPToolCall 的基础上，新增对多种 JSON-RPC 调用形式的支持。第三方 Harness 无需接入 MCP 或安装 Skill，即可通过这一入口调用当前部署中已启用且对调用方授权的 VCP 插件。
+3. **标准化 FileUrl 行为。** 统一分布式文件链路的追踪规则，以及文件跨节点、跨系统访问时的鉴权方式。
+4. **记忆管理核心能力模块化，并开放标准 API。** VCP 记忆管理将增强版自研 BM25 检索、上下文净化器等核心能力作为独立模块开放，第三方 Harness 可按需通过 API 直接调用，无需接入整条记忆管线。
+
+---
 
 ### 2026-11-26 · 大生态：原生 Function Calling 接入 VCP，RiverMemo V5 开放记忆 API
 
